@@ -1,5 +1,5 @@
 # Aetherius
-Version 0.2 of the Aetherius Personal Assistant by LibraryofCelsus.com
+Version 0.21 of the Aetherius Personal Assistant by LibraryofCelsus.com
 https://github.com/libraryofcelsus
 
 Inspired by https://github.com/daveshap/

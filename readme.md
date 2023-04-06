@@ -10,7 +10,7 @@ Inspired by https://github.com/daveshap/
 
 2. Install Python 3.10.6, Make sure you add it to PATH: **https://www.python.org/downloads/release/python-3106/**
 
-3. Run git clone: **git clone https://github.com/libraryofcelsus/Aetherius-Personal-Assistant.git**
+3. Run git clone: **git clone https://github.com/libraryofcelsus/Aetherius_AI_Assistant.git**
 
 4. Navigate to Project folder: **cd PATH**
 

@@ -4,6 +4,15 @@ https://github.com/libraryofcelsus
 
 Inspired by https://github.com/daveshap/
 
+# Current Version Information
+Welcome to the pre-pre-alpha release of Aetherius, a highly customizable AI assistant designed to adapt to your specific needs. This early version is primarily intended for sharing with friends for testing, and the code is currently encrypted to maintain a level of privacy.
+
+I am actively working on refining the codebase and implementing a better menu system. Once these improvements are in place, I will release an unencrypted version for public use.
+
+Aetherius aims to provide a modular, personalized AI assistant experience by enabling the addition of task-specific Modules and Sub-Modules. If all goes as planned, Aetherius will support integration with other open-source projects.
+
+Upon the first official release, Aetherius will feature a core long-term memory chatbot alongside a prototype world information generator. The current version of the generator can create small-scale enviornments such as towns, but my ultimate vision is to develop a comprehensive system that allows users to create entire worlds and explore them in a text-RPG format. If successful, Aetherius will also generate real-time storyboards, offering users a seamless platform for creative writing and idea generation.
+
 ## Windows Installation
 
 1. Install Git: **https://git-scm.com/**

@@ -35,12 +35,16 @@ In future releases, Aetherius will feature a core long-term memory chatbot along
 
 11. Copy Api key for that Index and paste it in key_pinecone.txt
 
-12. Edit the prompt_.txt files to customize the bot.
+12. Edit the .txt files in the "config" folder to customize the bot.
 
-13. Run db_upload_personality.py and upload a personality for the bot. An example of how to do this can be found in "personality_db_inputs.txt", located in the scripts folder.
+13. Run main.py to start Aetherius, Select DB Management.
 
-14. Run chat_training.py with Python 3.10.6 (Using the Auto Memory Version at the beginning can lead to an undesired personality.)
+14. Select DB Upload Heuristics to upload secondary Heuristics for the bot, this DB can also function as a more advanced Personality DB. An example of how to do this can be found in "personality_db_input_examples.txt" in the config folder.
 
-15. Run chat_auto.py when the Chatbot's memories have been established.  This script has the bot decide for itself whether it should upload to the DB.
+14. Type "Exit" twice to return to the main menu. Now select "Main Bot"
+
+15. Select one of the "Manual" chatbot modes, this will enable you to choose what gets uploaded to the chatbots memories.  It also enables a summary of Aetherius's inner loop, avoid uploading irrelivant information to the inner loop DB as they tend to take priority over other memories.  Using the Auto mode can cause an undesired personality to emerge from the bot if it doesn't have established memories.
+
+15. Once the chatbots memories have been established, type "Exit" and then select one of the Auto chatbots, this mode will have the bot decide for itself if it should upload to its memory DB.
 
 16. Using the GPT 3.5 scripts causes a significant decrease in intelligence, and as such generally shouldn't be used for training. Auto-Memory may also lead to some issues, chat - manual is recommended if only using GPT 3.5.

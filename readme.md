@@ -46,3 +46,6 @@ Aetherius aims to provide a modular, personalized AI assistant experience by ena
 15. Once the chatbots memories have been established, type "Exit" and then select one of the Auto chatbots, this mode will have the bot decide for itself if it should upload to its memory DB.
 
 16. Using the GPT 3.5 scripts causes a significant decrease in intelligence, and as such generally shouldn't be used for training. Auto-Memory may also lead to some issues, chat - manual is recommended if only using GPT 3.5.
+
+# Contact
+email@libraryofcelsus.com

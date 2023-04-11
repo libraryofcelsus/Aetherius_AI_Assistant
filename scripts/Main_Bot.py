@@ -17,7 +17,7 @@ def Main_Bot():
     print("*Welcome to the Aetherius Chatbot!*")
     print("***********************************")
     print("*Type [Exit] after making a choice*")
-    print("*    to return to this screen!    *")
+    print("*    to return to this screen!     *")
     print("***********************************")
     script_dir = './scripts/Main_Bot'
     py_files = [f for f in os.listdir(script_dir) if f.endswith('.py')]

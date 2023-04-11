@@ -1,5 +1,7 @@
 import sys
 sys.path.insert(0, './scripts')
+sys.path.insert(0, './config')
+sys.path.insert(0, './config/Chatbot_Prompts')
 import os
 import openai
 import json
@@ -221,11 +223,11 @@ def GPT_4_Chat_Manual():
     summary = list()
     auto = list()
     counter = 0
-    bot_name = open_file('prompt_bot_name.txt')
-    username = open_file('prompt_username.txt')
-    main_prompt = open_file('prompt_main.txt').replace('<<NAME>>', bot_name)
-    second_prompt = open_file('prompt_secondary.txt')
-    greeting_msg = open_file('prompt_greeting.txt').replace('<<NAME>>', bot_name)
+    bot_name = open_file('./config/prompt_bot_name.txt')
+    username = open_file('./config/prompt_username.txt')
+    main_prompt = open_file('./config/Chatbot_Prompts/prompt_main.txt').replace('<<NAME>>', bot_name)
+    second_prompt = open_file('./config/Chatbot_Prompts/prompt_secondary.txt')
+    greeting_msg = open_file('./config/Chatbot_Prompts/prompt_greeting.txt').replace('<<NAME>>', bot_name)
     while True:
         # # Get Timestamp
         timestamp = time()
@@ -245,6 +247,8 @@ def GPT_4_Chat_Manual():
         a = input(f'\n\nUSER: ')
         # # Check for "Exit"
         if a == 'Exit':
+            return
+        if a == 'Save and Exit':
             conversation2.append({'role': 'user', 'content': "Read the previous conversation and extract the salient points in bullet point format to serve as %s's memories. Each memory should cointain full context.  Exclude irrelevant information." % bot_name})
             conv_summary = chatgptsummary_completion(conversation2)
             print(conv_summary)
@@ -324,7 +328,7 @@ def GPT_4_Chat_Manual():
         inner_loop_db = inner_loop_response
         vector = gpt3_embedding(inner_loop_db)
         print('\n\n<Inner Loop Summary>\n%s' % inner_loop_db)
-        print('\n\nSYSTEM: Upload to Memories? \n        Press Y for yes or N for no.')
+        print('\n\nSYSTEM: Upload to Subconsious? This DB takes priority over normal memories, only upload general goals.\n        Press Y for yes or N for no.')
         while True:
             user_input = input("'Y' or 'N': ")
             if user_input == 'y':

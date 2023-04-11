@@ -10,7 +10,7 @@ sys.path.insert(0, './scripts/World_Creator')
 def World_Creator():
     print("***********************************")
     print("*    Welcome to  the Aetherius    *")
-    print("*       World Info Generator      *")
+    print("*          World Generator        *")
     print("***********************************")
     print("*Type [Exit] after making a choice*")
     print("*    to return to this screen!    *")

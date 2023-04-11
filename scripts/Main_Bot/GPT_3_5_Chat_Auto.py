@@ -169,7 +169,7 @@ def load_conversation_inner_loop(results):
     
     
 # if __name__ == '__main__':
-def GPT_4_Chat_Manual():
+def GPT_3_5_Chat_Auto():
     vdb = pinecone.Index("aetherius")
     index_info = vdb.describe_index_stats()
     # # Number of Messages before conversation is summarized, higher number, higher api cost. Change to 3 to use GPT 3.5

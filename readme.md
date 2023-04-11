@@ -4,6 +4,8 @@ https://github.com/libraryofcelsus
 
 Inspired by https://github.com/daveshap/
 
+![](http://www.libraryofcelsus.com/wp-content/uploads/2023/04/Aetherius-Menu-Gif.gif)
+
 # Current Version Information
 Welcome to the first pre-alpha release of Aetherius, a highly customizable AI assistant designed to adapt to your specific needs. 
 

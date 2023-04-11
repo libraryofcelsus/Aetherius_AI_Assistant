@@ -142,7 +142,7 @@ def chatgptsummary_completion(messages, model="gpt-3.5-turbo", temp=0.0):
     retry = 0
     while True:
         try:
-            response = openai.ChatCompletion.create(model=model, messages=messages, max_tokens=250)
+            response = openai.ChatCompletion.create(model=model, messages=messages, max_tokens=400)
             text = response['choices'][0]['message']['content']
             temperature = temp
             return text
@@ -150,7 +150,7 @@ def chatgptsummary_completion(messages, model="gpt-3.5-turbo", temp=0.0):
             print('Message too long, using GPT-4 as backup.')
             while True:
                 try:
-                    response = openai.ChatCompletion.create(model=model, messages=messages, max_tokens=250)
+                    response = openai.ChatCompletion.create(model=model, messages=messages, max_tokens=400)
                     text = response['choices'][0]['message']['content']
                     temperature = temp
                     return text

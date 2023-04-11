@@ -142,7 +142,7 @@ def chatgptsummary_completion(messages, model="gpt-3.5-turbo", temp=0.0):
     retry = 0
     while True:
         try:
-            response = openai.ChatCompletion.create(model=model, messages=messages, max_tokens=250)
+            response = openai.ChatCompletion.create(model=model, messages=messages, max_tokens=400)
             text = response['choices'][0]['message']['content']
             temperature = temp
             return text
@@ -150,7 +150,7 @@ def chatgptsummary_completion(messages, model="gpt-3.5-turbo", temp=0.0):
             print('Message too long, using GPT-4 as backup.')
             while True:
                 try:
-                    response = openai.ChatCompletion.create(model=model, messages=messages, max_tokens=250)
+                    response = openai.ChatCompletion.create(model=model, messages=messages, max_tokens=400)
                     text = response['choices'][0]['message']['content']
                     temperature = temp
                     return text
@@ -212,7 +212,7 @@ def load_conversation_inner_loop(results):
     
     
 # if __name__ == '__main__':
-def GPT_4_Chat_Auto():
+def GPT_4_Chat_Manual():
     vdb = pinecone.Index("aetherius")
     index_info = vdb.describe_index_stats()
     # # Number of Messages before conversation is summarized, higher number, higher api cost. Change to 3 to use GPT 3.5
@@ -379,10 +379,10 @@ def GPT_4_Chat_Auto():
             conversation2.clear()
             conversation2.append({'role': 'system', 'content': '%s' % main_prompt})
             conversation2.append({'role': 'assistant', 'content': '%s.' % conv_summary})
-        # # Option to upload summary to Inner Loop DB. Heavily increases token usage, not recommended.
+        # # Option to upload summary to Memory DB.
         if counter % conv_length == 0:
             while True:
-                print('\n\nSYSTEM: Upload to long term memory?  Heavily increases token usage, not recommended.\n        Press Y for yes or N for no.')
+                print('\n\nSYSTEM: Upload to long term memory?\n        Press Y for yes or N for no.')
                 user_input = input("'Y' or 'N': ")
                 if user_input == 'y':
                     lines = conv_summary.splitlines()

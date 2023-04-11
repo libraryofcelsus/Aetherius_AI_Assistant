@@ -12,12 +12,12 @@ def open_file(filepath):
 
 
 def main_menu():
-    print("***********************************")
+    print("************************************")
     print("*Welcome to the Aetherius Main Menu*")
-    print("***********************************")
-    print("*Type [Exit] after making a choice*")
-    print("*    to return to this screen!    *")
-    print("***********************************")
+    print("************************************")
+    print("*Type [Exit]  after making a choice*")
+    print("*    to return to  this screen!    *")
+    print("************************************")
     # Get a list of all the files in the folder
     files = os.listdir('scripts')
     # Filter out only the .py files 

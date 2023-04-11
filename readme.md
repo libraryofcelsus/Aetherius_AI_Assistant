@@ -9,8 +9,6 @@ Welcome to the first pre-alpha release of Aetherius, a highly customizable AI as
 
 Aetherius aims to provide a modular, personalized AI assistant experience by enabling the addition of task-specific Modules and Sub-Modules. If all goes as planned, Aetherius will support integration with other open-source projects.
 
-In future releases, Aetherius will feature a core long-term memory chatbot alongside a prototype world information generator. The current version of the generator can create small-scale enviornments such as towns, but my ultimate vision is to develop a comprehensive system that allows users to create entire worlds and explore them in a text-RPG format. If successful, Aetherius will also generate real-time storyboards, offering users a seamless platform for creative writing and idea generation.
-
 ## Windows Installation
 
 1. Install Git: **https://git-scm.com/**

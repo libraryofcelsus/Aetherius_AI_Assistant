@@ -25,7 +25,10 @@ def DB_Management():
         script_name = script[:-3].replace('_', ' ')
         print(f"{i+1}. {script_name}")
     # Get the user's choice
-    choice = int(input("Enter your choice: "))
+    a = input("Enter your choice: ")
+    if a == 'Exit':
+        return
+    choice = int(a)
     # Make sure the choice is valid
     if 1 <= choice <= len(scripts):
         # Get the chosen script

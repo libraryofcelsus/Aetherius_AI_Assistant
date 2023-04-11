@@ -25,7 +25,19 @@ def World_Creator():
         script_name = script[:-3].replace('_', ' ')
         print(f"{i+1}. {script_name}")
     # Get the user's choice
-    choice = int(input("Enter your choice: "))
+    a = input("Enter your choice: ")
+    if a == 'Exit':
+        print('\n\nSYSTEM: Are you sure you want to exit?')
+        while True:
+            print('        Press Y for yes, N for no.')
+            user_input = input("'Y' or 'N': ")
+            if user_input == 'y':
+                return
+            elif user_input == 'n':
+                pass
+            else:
+                pass
+    choice = int(a)
     # Make sure the choice is valid
     if 1 <= choice <= len(scripts):
         # Get the chosen script

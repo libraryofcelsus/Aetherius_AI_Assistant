@@ -172,7 +172,7 @@ def GPT_4_Chat_Manual():
     vdb = pinecone.Index("aetherius")
     index_info = vdb.describe_index_stats()
     # # Number of Messages before conversation is summarized, higher number, higher api cost. Change to 3 to use GPT 3.5
-    conv_length = 3
+    conv_length = 4
     payload = list()
     conversation = list()
     conversation2 = list()
@@ -206,7 +206,7 @@ def GPT_4_Chat_Manual():
             return
         if a == 'Save and Exit':
             conversation2.append({'role': 'user', 'content': "Read the previous conversation and extract the salient points in bullet point format to serve as %s's memories. Each memory should cointain full context.  Exclude irrelevant information." % bot_name})
-            conv_summary = chatgpt250_completion(conversation2)
+            conv_summary = chatgptsummary_completion(conversation2)
             print(conv_summary)
             while True:
                 print('\n\nSYSTEM: Upload to long term memory?  Heavily increases token usage, not recommended.\n        Press Y for yes or N for no.')

@@ -433,10 +433,10 @@ def GPT_4_Chat_Manual():
             conversation2.clear()
             conversation2.append({'role': 'system', 'content': '%s' % main_prompt})
             conversation2.append({'role': 'assistant', 'content': '%s.' % conv_summary})
-        # # Option to upload summary to Inner Loop DB. Heavily increases token usage, not recommended.
+        # # Option to upload summary to Memory DB.
         if counter % conv_length == 0:
             while True:
-                print('\n\nSYSTEM: Upload to long term memory?  Heavily increases token usage, not recommended.\n        Press Y for yes or N for no.')
+                print('\n\nSYSTEM: Upload to long term memory?\n        Press Y for yes or N for no.')
                 user_input = input("'Y' or 'N': ")
                 if user_input == 'y':
                     lines = conv_summary.splitlines()

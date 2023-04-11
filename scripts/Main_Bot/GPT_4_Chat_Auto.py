@@ -356,15 +356,17 @@ def GPT_4_Chat_Auto():
         auto.append({'role': 'assistant', 'content': "Read both the user message and your response. Reflect on if your response is relevant to the inquiry.\nIf you would then like to upload it to your memories, respond: 'YES' If no, print: 'NO': "})
         automemory = chatgptyesno_completion(auto)
         if automemory == "YES":
-            vector = gpt3_embedding(db_upsert)
-            unique_id = str(uuid4())
-            metadata = {'speaker': bot_name, 'time': timestamp, 'message': db_upsert,
-                        'timestring': timestring, 'uuid': unique_id}
-            save_json('nexus/memory_nexus/%s.json' % unique_id, metadata)
-            payload.append((unique_id, vector))
-            vdb.upsert(payload)
+            lines = db_upsert.splitlines()
+            for line in lines:
+               vector = gpt3_embedding(db_upsert)
+               unique_id = str(uuid4())
+               metadata = {'speaker': bot_name, 'time': timestamp, 'message': db_upsert,
+                           'timestring': timestring, 'uuid': unique_id}
+               save_json('nexus/memory_nexus/%s.json' % unique_id, metadata)
+               payload.append((unique_id, vector))
+               vdb.upsert(payload)
+               payload.clear()
             print('\n\nSYSTEM: Auto-memory upload Successful!')
-            payload.clear()
         else:
             print("Response not worthy of uploading to memory.")
         # # Clear Logs for Summary

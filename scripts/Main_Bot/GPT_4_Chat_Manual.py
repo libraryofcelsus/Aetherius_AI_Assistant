@@ -446,7 +446,7 @@ def GPT_4_Chat_Manual():
         # # Upload to speech style DB
         vector = gpt3_embedding(response_two)
         unique_id = str(uuid4())
-        metadata = {'speaker': 'PARVATI', 'time': timestamp, 'message': message, 'timestring': timestring, 'uuid': unique_id}
+        metadata = {'speaker': bot_name, 'time': timestamp, 'message': message, 'timestring': timestring, 'uuid': unique_id}
         save_json('nexus/speech_style_nexus/%s.json' % unique_id, metadata)
         payload.append((unique_id, vector))
         vdb.upsert(payload)

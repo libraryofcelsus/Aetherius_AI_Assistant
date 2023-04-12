@@ -136,49 +136,6 @@ def chatgptyesno_completion(messages, model="gpt-3.5-turbo", temp=0.0):
             print(f'Error communicating with OpenAI: "{oops}" - Retrying in {2 ** (retry - 1) * 5} seconds...')
             sleep(2 ** (retry - 1) * 5)
 
-            
-def chatgptsummary_completion(messages, model="gpt-3.5-turbo", temp=0.0):
-    max_retry = 5
-    retry = 0
-    while True:
-        try:
-            response = openai.ChatCompletion.create(model=model, messages=messages, max_tokens=400)
-            text = response['choices'][0]['message']['content']
-            temperature = temp
-            return text
-        except Exception as oops:
-            print('Message too long, using GPT-4 as backup.')
-            while True:
-                try:
-                    response = openai.ChatCompletion.create(model=model, messages=messages, max_tokens=400)
-                    text = response['choices'][0]['message']['content']
-                    temperature = temp
-                    return text
-                except Exception as oops:
-                    retry += 1
-                    if retry >= max_retry:
-                        print(f"Exiting due to an error in ChatGPT: {oops}")
-                        exit(1)
-                    print(f'Error communicating with OpenAI: "{oops}" - Retrying in {2 ** (retry - 1) * 5} seconds...')
-                    sleep(2 ** (retry - 1) * 5)
-
-
-def chatgpt4_completion(messages, model="gpt-4", temp=0.0):
-    max_retry = 7
-    retry = 0
-    while  True:
-        try:
-            response = openai.ChatCompletion.create(model=model, messages=messages, max_tokens=500)
-            text = response['choices'][0]['message']['content']
-            temperature = temp
-            return text
-        except Exception as oops:
-            retry += 1
-            if retry >= max_retry:
-                print(f"Exiting due to an error in ChatGPT: {oops}")
-                exit(1)
-            print(f'Error communicating with OpenAI: "{oops}" - Retrying in {2 ** (retry - 1) * 5} seconds...')
-            sleep(2 ** (retry - 1) * 5)
 
 
 def load_conversation_memory(results):
@@ -205,6 +162,16 @@ def load_conversation_inner_loop(results):
     result = list()
     for m in results['matches']:
         info = load_json('nexus/inner_loop_nexus/%s.json' % m['id'])
+        result.append(info)
+    ordered = sorted(result, key=lambda d: d['time'], reverse=False)  # sort them all chronologically
+    messages = [i['message'] for i in ordered]
+    return '\n'.join(messages).strip()  
+    
+    
+def load_conversation_speech_style(results):
+    result = list()
+    for m in results['matches']:
+        info = load_json('nexus/speech_style_nexus/%s.json' % m['id'])
         result.append(info)
     ordered = sorted(result, key=lambda d: d['time'], reverse=False)  # sort them all chronologically
     messages = [i['message'] for i in ordered]
@@ -250,7 +217,7 @@ def GPT_4_Chat_Auto():
             return
         if a == 'Save and Exit':
             conversation2.append({'role': 'user', 'content': "Read the previous conversation and extract the salient points in bullet point format to serve as %s's memories. Each memory should cointain full context.  Exclude irrelevant information." % bot_name})
-            conv_summary = chatgptsummary_completion(conversation2)
+            conv_summary = chatgpt500_completion(conversation2)
             print(conv_summary)
             while True:
                 print('\n\nSYSTEM: Upload to long term memory?  Heavily increases token usage, not recommended.\n        Press Y for yes or N for no.')
@@ -323,6 +290,10 @@ def GPT_4_Chat_Auto():
             conversation2.append({'role': 'assistant', 'content': "%s" % response_two})
         else:
             conversation2.append({'role': 'system', 'content': '%s' % main_prompt})
+            results5 = vdb.query(vector=vector, top_k=1, namespace='speech_style')
+            dialogue_5 = load_conversation_speech_style(results5)
+            conversation2.append({'role': 'assistant', 'content': "%s'S_CADENCE: %s" % (bot_name, dialogue_5)})
+            conversation2.append({'role': 'assistant', 'content': '%s' % greeting_msg})
         conversation2.append({'role': 'user', 'content': a})
         # # Search Inner_Loop/Memory DB
         while True:
@@ -333,7 +304,7 @@ def GPT_4_Chat_Auto():
             break
         # # Generate Aetherius's Response
         conversation2.append({'role': 'assistant', 'content': "SUBCONSIOUS: %s;\n\nMEMORIES: %s;\n\nINNER THOUGHTS: %s;\n%s\nI am in the middle of a conversation with my user, %s. USER MESSAGE: %s; I will do my best to speak naturally and show emotional intelligence. I will intuit their needs: %s;\nMy current message window is limited to 2300 characters.\nI will now give a response with the diction of a real person: " % (dialogue_3, dialogue_4, output, second_prompt, username, a, output_two)})
-        response_two = chatgpt4_completion(conversation2)
+        response_two = chatgpt500_completion(conversation2)
         print('\n\n%s: %s' % (bot_name, response_two))
         # # Save Chat Logs
         complete_message = f'\nUSER: {a} \n\n INNER_MONOLOGUE: {output} \n\n INTUITION: {output_two} \n\n {bot_name}: {response_two}'
@@ -349,11 +320,17 @@ def GPT_4_Chat_Auto():
         db_upsert = db_upload
         # # Auto Upload to Memory DB
         auto.clear()
-        auto.append({'role': 'system',
-                              'content': '%s' % greeting_msg})
-        auto.append({'role': 'user', 'content': a})
+        auto.append({'role': 'system', 'content': '%s' % main_prompt})
+        if 'response_two' in locals():
+            auto.append({'role': 'assistant', 'content': "%s" % greeting_msg})
+            auto.append({'role': 'user', 'content': a})
+            auto.append({'role': 'assistant', 'content': "%s" % response_two})
+            pass
+        else:
+            auto.append({'role': 'assistant', 'content': "%s" % greeting_msg})
+            auto.append({'role': 'user', 'content': a})
         auto.append({'role': 'assistant', 'content': db_upsert})
-        auto.append({'role': 'assistant', 'content': "Read both the user message and your response. Reflect on if your response is relevant to the inquiry.\nIf you would then like to upload it to your memories, respond: 'YES' If no, print: 'NO': "})
+        auto.append({'role': 'assistant', 'content': "Please review the user's message and your reply. Consider whether your response is pertinent to the question. Focus on retaining essential details only. To save this information to your memory, reply with 'YES'. If not, respond with 'NO': "})
         automemory = chatgptyesno_completion(auto)
         if automemory == "YES":
             lines = db_upsert.splitlines()
@@ -369,6 +346,14 @@ def GPT_4_Chat_Auto():
             print('\n\nSYSTEM: Auto-memory upload Successful!')
         else:
             print("Response not worthy of uploading to memory.")
+        # # Upload to speech style DB
+        vector = gpt3_embedding(response_two)
+        unique_id = str(uuid4())
+        metadata = {'speaker': bot_name, 'time': timestamp, 'message': message, 'timestring': timestring, 'uuid': unique_id}
+        save_json('nexus/speech_style_nexus/%s.json' % unique_id, metadata)
+        payload.append((unique_id, vector))
+        vdb.upsert(payload)
+        payload.clear()
         # # Clear Logs for Summary
         conversation.clear()
         summary.clear()
@@ -376,7 +361,7 @@ def GPT_4_Chat_Auto():
         # # Summary loop to avoid Max Token Limit.
         if counter % conv_length == 0:
             conversation2.append({'role': 'user', 'content': "Read the previous conversation and extract the salient points in bullet point format to serve as %s's memories. Each memory should cointain full context." % bot_name})
-            conv_summary = chatgptsummary_completion(conversation2)
+            conv_summary = chatgpt500_completion(conversation2)
             print(conv_summary)
             conversation2.clear()
             conversation2.append({'role': 'system', 'content': '%s' % main_prompt})

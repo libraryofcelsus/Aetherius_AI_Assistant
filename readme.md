@@ -13,6 +13,17 @@ Welcome to the first pre-alpha release of Aetherius, a highly customizable AI as
 
 Aetherius aims to provide a modular, personalized AI assistant experience by enabling the addition of task-specific Modules and Sub-Modules. If all goes as planned, Aetherius will support integration with other open-source projects.
 
+## Future Plans
+-Give Aetherius tools like web-search
+-Improve Aetherius's self reflection
+-Provide more personality examples
+-Detailed guide on how to initially "train" Aetherius to get a desired personality
+-NPC submodule for World Creator
+-Text-Rpg submodule for World Creator
+-Generative Q/A Module from own Dataset
+
+# Installation Guide
+
 ## Windows Installation
 
 1. Install Git: **https://git-scm.com/**

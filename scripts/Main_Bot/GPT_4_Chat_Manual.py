@@ -300,7 +300,7 @@ def GPT_4_Chat_Manual():
         dialogue_2= load_conversation_heuristics(results2)
     #    print(dialogue_2)
         # # Inner Monologue Generation
-        conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;  HEURISTICS: %s;  USER MESSAGE: %s;  Based on %s's memories and the user, %s's message, compose a concise silent soliloquy that reflects on %s's deepest contemplations and emotions in relation to the user's message." % (dialogue, dialogue_2, a, bot_name, username, bot_name)})
+        conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;  HEURISTICS: %s;  USER MESSAGE: %s;  Based on %s's memories and the user, %s's message, compose a brief silent soliloquy that reflects on %s's deepest contemplations and emotions in relation to the user's message." % (dialogue, dialogue_2, a, bot_name, username, bot_name)})
         output = chatgpt200_completion(conversation)
         message = output
         print('\n\nINNER_MONOLOGUE: %s' % output)
@@ -364,10 +364,10 @@ def GPT_4_Chat_Manual():
             conversation2.append({'role': 'assistant', 'content': "%s" % response_two})
         else:
             conversation2.append({'role': 'system', 'content': '%s' % main_prompt})
-            results5 = vdb.query(vector=vector, top_k=1, namespace='speech_style')
-            dialogue_5 = load_conversation_speech_style(results5)
-            conversation2.append({'role': 'assistant', 'content': "%s'S_CADENCE: %s" % (bot_name, dialogue_5)})
             conversation2.append({'role': 'assistant', 'content': '%s' % greeting_msg})
+            results5 = vdb.query(vector=vector, top_k=2, namespace='speech_style')
+            dialogue_5 = load_conversation_speech_style(results5)
+            conversation2.append({'role': 'assistant', 'content': "I will extract the cadence from the following messages and mimic it to the best of my ability: %s" % dialogue_5})
         conversation2.append({'role': 'user', 'content': a})
         # # Search Inner_Loop/Memory DB
         while True:

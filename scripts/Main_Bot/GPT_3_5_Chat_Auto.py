@@ -97,6 +97,24 @@ def chatgpt250_completion(messages, model="gpt-3.5-turbo", temp=0.0):
             sleep(2 ** (retry - 1) * 5)
             
             
+def chatgpt400_completion(messages, model="gpt-3.5-turbo", temp=0.0):
+    max_retry = 7
+    retry = 0
+    while True:
+        try:
+            response = openai.ChatCompletion.create(model=model, messages=messages, max_tokens=400)
+            text = response['choices'][0]['message']['content']
+            temperature = temp
+            return text
+        except Exception as oops:
+            retry += 1
+            if retry >= max_retry:
+                print(f"Exiting due to an error in ChatGPT: {oops}")
+                exit(1)
+            print(f'Error communicating with OpenAI: "{oops}" - Retrying in {2 ** (retry - 1) * 5} seconds...')
+            sleep(2 ** (retry - 1) * 5)
+            
+            
 def chatgpt500_completion(messages, model="gpt-3.5-turbo", temp=0.0):
     max_retry = 7
     retry = 0
@@ -216,7 +234,7 @@ def GPT_3_5_Chat_Auto():
             return
         if a == 'Save and Exit':
             conversation2.append({'role': 'user', 'content': "Read the previous conversation and extract the salient points in bullet point format to serve as %s's memories. Each memory should cointain full context.  Exclude irrelevant information." % bot_name})
-            conv_summary = chatgpt500_completion(conversation2)
+            conv_summary = chatgpt400_completion(conversation2)
             print(conv_summary)
             while True:
                 print('\n\nSYSTEM: Upload to long term memory?  Heavily increases token usage, not recommended.\n        Press Y for yes or N for no.')
@@ -256,7 +274,7 @@ def GPT_3_5_Chat_Auto():
         dialogue_2= load_conversation_heuristics(results2)
     #    print(dialogue_2)
         # # Inner Monologue Generation
-        conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;  HEURISTICS: %s;  USER MESSAGE: %s;  Based on %s's memories and the user, %s's message, compose a concise silent soliloquy that reflects on %s's deepest contemplations and emotions in relation to the user's message." % (dialogue, dialogue_2, a, bot_name, username, bot_name)})
+        conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;  HEURISTICS: %s;  USER MESSAGE: %s;  Based on %s's memories and the user, %s's message, compose a brief silent soliloquy that reflects on %s's deepest contemplations and emotions in relation to the user's message." % (dialogue, dialogue_2, a, bot_name, username, bot_name)})
         output = chatgpt200_completion(conversation)
         message = output
         print('\n\nINNER_MONOLOGUE: %s' % output)
@@ -289,10 +307,10 @@ def GPT_3_5_Chat_Auto():
             conversation2.append({'role': 'assistant', 'content': "%s" % response_two})
         else:
             conversation2.append({'role': 'system', 'content': '%s' % main_prompt})
-            results5 = vdb.query(vector=vector, top_k=1, namespace='speech_style')
-            dialogue_5 = load_conversation_speech_style(results5)
-            conversation2.append({'role': 'assistant', 'content': "%s'S_CADENCE: %s" % (bot_name, dialogue_5)})
             conversation2.append({'role': 'assistant', 'content': '%s' % greeting_msg})
+            results5 = vdb.query(vector=vector, top_k=2, namespace='speech_style')
+            dialogue_5 = load_conversation_speech_style(results5)
+            conversation2.append({'role': 'assistant', 'content': "I will extract the cadence from the following messages and mimic it to the best of my ability: %s" % dialogue_5})
         conversation2.append({'role': 'user', 'content': a})
         # # Search Inner_Loop/Memory DB
         while True:
@@ -360,7 +378,7 @@ def GPT_3_5_Chat_Auto():
         # # Summary loop to avoid Max Token Limit.
         if counter % conv_length == 0:
             conversation2.append({'role': 'user', 'content': "Read the previous conversation and extract the salient points in bullet point format to serve as %s's memories. Each memory should cointain full context." % bot_name})
-            conv_summary = chatgpt500_completion(conversation2)
+            conv_summary = chatgpt400_completion(conversation2)
             print(conv_summary)
             conversation2.clear()
             conversation2.append({'role': 'system', 'content': '%s' % main_prompt})

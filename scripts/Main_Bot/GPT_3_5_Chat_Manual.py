@@ -137,7 +137,6 @@ def chatgptyesno_completion(messages, model="gpt-3.5-turbo", temp=0.0):
             sleep(2 ** (retry - 1) * 5)
 
 
-
 def load_conversation_memory(results):
     result = list()
     for m in results['matches']:
@@ -162,6 +161,16 @@ def load_conversation_inner_loop(results):
     result = list()
     for m in results['matches']:
         info = load_json('nexus/inner_loop_nexus/%s.json' % m['id'])
+        result.append(info)
+    ordered = sorted(result, key=lambda d: d['time'], reverse=False)  # sort them all chronologically
+    messages = [i['message'] for i in ordered]
+    return '\n'.join(messages).strip()  
+    
+    
+def load_conversation_speech_style(results):
+    result = list()
+    for m in results['matches']:
+        info = load_json('nexus/speech_style_nexus/%s.json' % m['id'])
         result.append(info)
     ordered = sorted(result, key=lambda d: d['time'], reverse=False)  # sort them all chronologically
     messages = [i['message'] for i in ordered]
@@ -311,6 +320,10 @@ def GPT_3_5_Chat_Manual():
             conversation2.append({'role': 'assistant', 'content': "%s" % response_two})
         else:
             conversation2.append({'role': 'system', 'content': '%s' % main_prompt})
+            results5 = vdb.query(vector=vector, top_k=1, namespace='speech_style')
+            dialogue_5 = load_conversation_speech_style(results5)
+            conversation2.append({'role': 'assistant', 'content': "%s'S_CADENCE: %s" % (bot_name, dialogue_5)})
+            conversation2.append({'role': 'assistant', 'content': '%s' % greeting_msg})
         conversation2.append({'role': 'user', 'content': a})
         # # Search Inner_Loop/Memory DB
         while True:
@@ -360,24 +373,40 @@ def GPT_3_5_Chat_Manual():
                 print('Invalid Input')
         # # Auto Upload to Memory DB
     #    auto.clear()
-    #    auto.append({'role': 'system',
-    #                          'content': '%s' % greeting_msg})
-    #    auto.append({'role': 'user', 'content': a})
+    #    auto.append({'role': 'system', 'content': '%s' % main_prompt})
+    #    if 'response_two' in locals():
+    #        auto.append({'role': 'assistant', 'content': "%s" % greeting_msg})
+    #        auto.append({'role': 'user', 'content': a})
+    #        auto.append({'role': 'assistant', 'content': "%s" % response_two})
+    #        pass
+    #    else:
+    #        auto.append({'role': 'assistant', 'content': "%s" % greeting_msg})
+    #        auto.append({'role': 'user', 'content': a})
     #    auto.append({'role': 'assistant', 'content': db_upsert})
-    #    auto.append({'role': 'assistant', 'content': "Read both the user message and your response. Reflect on if your response is relevant to the inquiry.\nIf you would then like to upload it to your memories, respond: 'YES' If no, print: 'NO': "})
+    #    auto.append({'role': 'assistant', 'content': "Please review the user's message and your reply. Consider whether your response is pertinent to the question. Focus on retaining essential details only. To save this information to your memory, reply with 'YES'. If not, respond with 'NO': "})
     #    automemory = chatgptyesno_completion(auto)
     #    if automemory == "YES":
-    #        vector = gpt3_embedding(db_upsert)
-    #        unique_id = str(uuid4())
-    #        metadata = {'speaker': bot_name, 'time': timestamp, 'message': db_upsert,
-    #                    'timestring': timestring, 'uuid': unique_id}
-    #        save_json('nexus/memory_nexus/%s.json' % unique_id, metadata)
-    #        payload.append((unique_id, vector))
-    #        vdb.upsert(payload)
+    #        lines = db_upsert.splitlines()
+    #        for line in lines:
+    #           vector = gpt3_embedding(db_upsert)
+    #           unique_id = str(uuid4())
+    #           metadata = {'speaker': bot_name, 'time': timestamp, 'message': db_upsert,
+    #                       'timestring': timestring, 'uuid': unique_id}
+    #           save_json('nexus/memory_nexus/%s.json' % unique_id, metadata)
+    #           payload.append((unique_id, vector))
+    #           vdb.upsert(payload)
+    #           payload.clear()
     #        print('\n\nSYSTEM: Auto-memory upload Successful!')
-    #        payload.clear()
     #    else:
     #        print("Response not worthy of uploading to memory.")
+        # # Upload to speech style DB
+        vector = gpt3_embedding(response_two)
+        unique_id = str(uuid4())
+        metadata = {'speaker': bot_name, 'time': timestamp, 'message': message, 'timestring': timestring, 'uuid': unique_id}
+        save_json('nexus/speech_style_nexus/%s.json' % unique_id, metadata)
+        payload.append((unique_id, vector))
+        vdb.upsert(payload)
+        payload.clear()
         # # Clear Logs for Summary
         conversation.clear()
         summary.clear()

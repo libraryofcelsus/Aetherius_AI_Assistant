@@ -136,6 +136,49 @@ def chatgptyesno_completion(messages, model="gpt-3.5-turbo", temp=0.0):
             print(f'Error communicating with OpenAI: "{oops}" - Retrying in {2 ** (retry - 1) * 5} seconds...')
             sleep(2 ** (retry - 1) * 5)
 
+            
+def chatgptsummary_completion(messages, model="gpt-3.5-turbo", temp=0.0):
+    max_retry = 5
+    retry = 0
+    while True:
+        try:
+            response = openai.ChatCompletion.create(model=model, messages=messages, max_tokens=400)
+            text = response['choices'][0]['message']['content']
+            temperature = temp
+            return text
+        except Exception as oops:
+            print('Message too long, using GPT-4 as backup.')
+            while True:
+                try:
+                    response = openai.ChatCompletion.create(model=model, messages=messages, max_tokens=400)
+                    text = response['choices'][0]['message']['content']
+                    temperature = temp
+                    return text
+                except Exception as oops:
+                    retry += 1
+                    if retry >= max_retry:
+                        print(f"Exiting due to an error in ChatGPT: {oops}")
+                        exit(1)
+                    print(f'Error communicating with OpenAI: "{oops}" - Retrying in {2 ** (retry - 1) * 5} seconds...')
+                    sleep(2 ** (retry - 1) * 5)
+
+
+def chatgpt4_completion(messages, model="gpt-4", temp=0.0):
+    max_retry = 7
+    retry = 0
+    while  True:
+        try:
+            response = openai.ChatCompletion.create(model=model, messages=messages, max_tokens=500)
+            text = response['choices'][0]['message']['content']
+            temperature = temp
+            return text
+        except Exception as oops:
+            retry += 1
+            if retry >= max_retry:
+                print(f"Exiting due to an error in ChatGPT: {oops}")
+                exit(1)
+            print(f'Error communicating with OpenAI: "{oops}" - Retrying in {2 ** (retry - 1) * 5} seconds...')
+            sleep(2 ** (retry - 1) * 5)
 
 
 def load_conversation_memory(results):
@@ -179,7 +222,7 @@ def load_conversation_speech_style(results):
     
     
 # if __name__ == '__main__':
-def GPT_4_Chat_Auto():
+def GPT_4_Chat_Manual():
     vdb = pinecone.Index("aetherius")
     index_info = vdb.describe_index_stats()
     # # Number of Messages before conversation is summarized, higher number, higher api cost. Change to 3 to use GPT 3.5
@@ -217,7 +260,7 @@ def GPT_4_Chat_Auto():
             return
         if a == 'Save and Exit':
             conversation2.append({'role': 'user', 'content': "Read the previous conversation and extract the salient points in bullet point format to serve as %s's memories. Each memory should cointain full context.  Exclude irrelevant information." % bot_name})
-            conv_summary = chatgpt500_completion(conversation2)
+            conv_summary = chatgptsummary_completion(conversation2)
             print(conv_summary)
             while True:
                 print('\n\nSYSTEM: Upload to long term memory?  Heavily increases token usage, not recommended.\n        Press Y for yes or N for no.')
@@ -304,7 +347,7 @@ def GPT_4_Chat_Auto():
             break
         # # Generate Aetherius's Response
         conversation2.append({'role': 'assistant', 'content': "SUBCONSIOUS: %s;\n\nMEMORIES: %s;\n\nINNER THOUGHTS: %s;\n%s\nI am in the middle of a conversation with my user, %s. USER MESSAGE: %s; I will do my best to speak naturally and show emotional intelligence. I will intuit their needs: %s;\nMy current message window is limited to 2300 characters.\nI will now give a response with the diction of a real person: " % (dialogue_3, dialogue_4, output, second_prompt, username, a, output_two)})
-        response_two = chatgpt500_completion(conversation2)
+        response_two = chatgpt4_completion(conversation2)
         print('\n\n%s: %s' % (bot_name, response_two))
         # # Save Chat Logs
         complete_message = f'\nUSER: {a} \n\n INNER_MONOLOGUE: {output} \n\n INTUITION: {output_two} \n\n {bot_name}: {response_two}'
@@ -361,7 +404,7 @@ def GPT_4_Chat_Auto():
         # # Summary loop to avoid Max Token Limit.
         if counter % conv_length == 0:
             conversation2.append({'role': 'user', 'content': "Read the previous conversation and extract the salient points in bullet point format to serve as %s's memories. Each memory should cointain full context." % bot_name})
-            conv_summary = chatgpt500_completion(conversation2)
+            conv_summary = chatgptsummary_completion(conversation2)
             print(conv_summary)
             conversation2.clear()
             conversation2.append({'role': 'system', 'content': '%s' % main_prompt})

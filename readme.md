@@ -15,6 +15,7 @@ Aetherius aims to provide a modular, personalized AI assistant experience by ena
 
 ## Changelog:
 -Implemented Cadence DB (More of a test, may be removed due to token useage.)
+
 -Various Bug Fixes
 
 ## Future Plans

@@ -11,18 +11,37 @@ def open_file(filepath):
         return infile.read()
 
 
+def main_menu_old():
+    print("***********************************")
+    print("*Welcome to the Aetherius Chatbot!*")
+    print("***********************************")
+    print("*Type [Exit] after making a choice*")
+    print("*    to return to this screen!    *")
+    print("***********************************")
+    script_dir = 'Scripts'
+    py_files = [f for f in os.listdir(script_dir) if f.endswith('.py')]
+    for i, py_file in enumerate(py_files):
+        filename = os.path.splitext(py_file)[0].replace('_', ' ')
+        print(f"{i+1}. {filename}")
+    choice = input("Please enter a number: ")
+    if choice.isdigit() and int(choice) in range(1, len(py_files)+1):
+        module_name = os.path.splitext(py_files[int(choice)-1])[0]
+        module = importlib.import_module(module_name)
+        functions = [func for func in dir(module) if callable(getattr(module, func))]
+        for function_name in functions:
+            getattr(module, function_name)()
+    else:
+        print("Invalid choice. Please try again.")
+        main_menu()
+
+
 def main_menu():
-    print("*************************************")
-    print("*Welcome to the  Aetherius Main Menu*")
-    print("*************************************")
-    print("*Please give a star on github if you*")
-    print("* wish to see continued development!*")
-    print("*      Feedback and Suggestions     *")
-    print("*         are also needed!          *")
-    print("*************************************")
-    print("* Type [Exit] after making a choice *")
-    print("*     to return to this screen!     *")
-    print("*************************************")
+    print("***********************************")
+    print("*Welcome to the Aetherius Main Menu*")
+    print("***********************************")
+    print("*Type [Exit] after making a choice*")
+    print("*    to return to this screen!    *")
+    print("***********************************")
     # Get a list of all the files in the folder
     files = os.listdir('scripts')
     # Filter out only the .py files 
@@ -60,6 +79,8 @@ if __name__ == '__main__':
         os.makedirs('nexus/inner_loop_nexus')
     if not os.path.exists('nexus/memory_nexus'):
         os.makedirs('nexus/memory_nexus')
+    if not os.path.exists('nexus/speech_style_nexus'):
+        os.makedirs('nexus/speech_style_nexus')
     if not os.path.exists('nexus/heuristics_nexus'):
         os.makedirs('nexus/heuristics_nexus')
     if not os.path.exists('logs/complete_chat_logs'):

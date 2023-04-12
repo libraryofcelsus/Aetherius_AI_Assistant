@@ -227,7 +227,7 @@ def GPT_3_5_Chat_Auto():
                         payload.clear()
                     return
                 elif user_input == 'n':
-                    print('\n\nSYSTEM: Memories have been Deleted')
+                    print('\n\nSYSTEM: Memories have been Deleted.')
                     return
                 elif user_input == 'c':
                     print('\n\nSYSTEM: Exit Cancelled')

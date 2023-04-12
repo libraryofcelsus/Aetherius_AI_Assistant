@@ -15,11 +15,17 @@ Aetherius aims to provide a modular, personalized AI assistant experience by ena
 
 ## Future Plans
 -Give Aetherius tools like web-search
+
 -Improve Aetherius's self reflection
+
 -Provide more personality examples
+
 -Detailed guide on how to initially "train" Aetherius to get a desired personality
+
 -NPC submodule for World Creator
+
 -Text-Rpg submodule for World Creator
+
 -Generative Q/A Module from own Dataset
 
 # Installation Guide

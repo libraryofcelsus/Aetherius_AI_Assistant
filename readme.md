@@ -13,6 +13,10 @@ Welcome to the first pre-alpha release of Aetherius, a highly customizable AI as
 
 Aetherius aims to provide a modular, personalized AI assistant experience by enabling the addition of task-specific Modules and Sub-Modules. If all goes as planned, Aetherius will support integration with other open-source projects.
 
+## Changelog:
+-Implemented Cadence DB (More of a test, may be removed due to token useage.)
+-Various Bug Fixes
+
 ## Future Plans
 -Give Aetherius tools like web-search
 

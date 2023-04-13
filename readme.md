@@ -47,7 +47,7 @@ Aetherius aims to provide a modular, personalized AI assistant experience by ena
 
 5. Open CMD as Admin
 
-6. Create a virtual environment: **python3 -m venv venv**
+6. Create a virtual environment: **python -m venv venv**
 
 7. Activate the environment: **.\venv\Scripts\activate**
 

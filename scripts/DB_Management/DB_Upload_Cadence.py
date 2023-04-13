@@ -46,8 +46,8 @@ def DB_Upload_Cadence():
     index_info = vdb.describe_index_stats()
     print('Pinecone DB Info')
     print(index_info)
-    if not os.path.exists('nexus/speech_style_nexus'):
-        os.makedirs('nexus/speech_style_nexus')
+    if not os.path.exists('nexus/cadence_nexus'):
+        os.makedirs('nexus/cadence_nexus')
     while True:
         payload = list()
         a = input(f'\n\nUSER: ')
@@ -72,7 +72,7 @@ def DB_Upload_Cadence():
         unique_id = str(uuid4())
         metadata = {'speaker': 'AETHERIUS', 'time': timestamp, 'message': a, 'timestring': timestring,
                     'uuid': unique_id}
-        save_json('nexus/speech_style_nexus/%s.json' % unique_id, metadata)
+        save_json('nexus/cadence_nexus/%s.json' % unique_id, metadata)
         payload.append((unique_id, vector))
-        vdb.upsert(payload, namespace='speech_style')
+        vdb.upsert(payload, namespace='cadence')
         print('\n\nSYSTEM: Upload Successful!')

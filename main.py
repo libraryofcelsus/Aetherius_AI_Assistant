@@ -62,8 +62,8 @@ if __name__ == '__main__':
         os.makedirs('nexus/memory_nexus')
     if not os.path.exists('nexus/heuristics_nexus'):
         os.makedirs('nexus/heuristics_nexus')
-    if not os.path.exists('nexus/speech_style_nexus'):
-        os.makedirs('nexus/speech_style_nexus')
+    if not os.path.exists('nexus/cadence_nexus'):
+        os.makedirs('nexus/cadence_nexus')
     if not os.path.exists('logs/complete_chat_logs'):
         os.makedirs('logs/complete_chat_logs')
     if not os.path.exists('logs/final_response_logs'):

@@ -43,24 +43,6 @@ def gpt3_embedding(content, engine='text-embedding-ada-002'):
     return vector
     
 
-def chatgpt150_completion(messages, model="gpt-3.5-turbo", temp=0.0):
-    max_retry = 7
-    retry = 0
-    while True:
-        try:
-            response = openai.ChatCompletion.create(model=model, messages=messages, max_tokens=150)
-            text = response['choices'][0]['message']['content']
-            temperature = temp
-            return text
-        except Exception as oops:
-            retry += 1
-            if retry >= max_retry:
-                print(f"Exiting due to an error in ChatGPT: {oops}")
-                exit(1)
-            print(f'Error communicating with OpenAI: "{oops}" - Retrying in {2 ** (retry - 1) * 5} seconds...')
-            sleep(2 ** (retry - 1) * 5)
-            
-            
 def chatgpt200_completion(messages, model="gpt-3.5-turbo", temp=0.0):
     max_retry = 7
     retry = 0
@@ -135,9 +117,27 @@ def chatgptyesno_completion(messages, model="gpt-3.5-turbo", temp=0.0):
                 exit(1)
             print(f'Error communicating with OpenAI: "{oops}" - Retrying in {2 ** (retry - 1) * 5} seconds...')
             sleep(2 ** (retry - 1) * 5)
-
             
-def chatgptsummary_completion(messages, model="gpt-3.5-turbo", temp=0.0):
+            
+def chatgpt35summary_completion(messages, model="gpt-3.5-turbo", temp=0.0):
+    max_retry = 7
+    retry = 0
+    while True:
+        try:
+            response = openai.ChatCompletion.create(model=model, messages=messages, max_tokens=400)
+            text = response['choices'][0]['message']['content']
+            temperature = temp
+            return text
+        except Exception as oops:
+            retry += 1
+            if retry >= max_retry:
+                print(f"Exiting due to an error in ChatGPT: {oops}")
+                exit(1)
+            print(f'Error communicating with OpenAI: "{oops}" - Retrying in {2 ** (retry - 1) * 5} seconds...')
+            sleep(2 ** (retry - 1) * 5)
+            
+            
+def chatgpt4summary_completion(messages, model="gpt-3.5-turbo", temp=0.0):
     max_retry = 5
     retry = 0
     while True:
@@ -161,8 +161,8 @@ def chatgptsummary_completion(messages, model="gpt-3.5-turbo", temp=0.0):
                         exit(1)
                     print(f'Error communicating with OpenAI: "{oops}" - Retrying in {2 ** (retry - 1) * 5} seconds...')
                     sleep(2 ** (retry - 1) * 5)
-
-
+                    
+                    
 def chatgpt4_completion(messages, model="gpt-4", temp=0.0):
     max_retry = 7
     retry = 0
@@ -211,10 +211,10 @@ def load_conversation_inner_loop(results):
     return '\n'.join(messages).strip()  
     
     
-def load_conversation_speech_style(results):
+def load_conversation_cadence(results):
     result = list()
     for m in results['matches']:
-        info = load_json('nexus/speech_style_nexus/%s.json' % m['id'])
+        info = load_json('nexus/cadence_nexus/%s.json' % m['id'])
         result.append(info)
     ordered = sorted(result, key=lambda d: d['time'], reverse=False)  # sort them all chronologically
     messages = [i['message'] for i in ordered]
@@ -260,7 +260,7 @@ def GPT_4_Chat_Manual():
             return
         if a == 'Save and Exit':
             conversation2.append({'role': 'user', 'content': "Read the previous conversation and extract the salient points in bullet point format to serve as %s's memories. Each memory should cointain full context.  Exclude irrelevant information." % bot_name})
-            conv_summary = chatgptsummary_completion(conversation2)
+            conv_summary = chatgpt4summary_completion(conversation2)
             print(conv_summary)
             while True:
                 print('\n\nSYSTEM: Upload to long term memory?  Heavily increases token usage, not recommended.\n        Press Y for yes or N for no.')
@@ -290,17 +290,17 @@ def GPT_4_Chat_Manual():
                 pass
         conversation.append({'role': 'user', 'content': a})
         message_input = a
-        vector = gpt3_embedding(message_input)
+        vector_input = gpt3_embedding(message_input)
         # # Search Memory DB
-        results = vdb.query(vector=vector, top_k=15, namespace='memories')
-        dialogue = load_conversation_memory(results)
-    #    print(dialogue)
+        results = vdb.query(vector=vector_input, top_k=15, namespace='memories')
+        db_search = load_conversation_memory(results)
+        print(db_search)
         # # Search Heuristics DB
-        results2 = vdb.query(vector=vector, top_k=10, namespace='heuristics')
-        dialogue_2= load_conversation_heuristics(results2)
-    #    print(dialogue_2)
+        results = vdb.query(vector=vector_input, top_k=10, namespace='heuristics')
+        db_search_2= load_conversation_heuristics(results)
+        print(db_search_2)
         # # Inner Monologue Generation
-        conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;  HEURISTICS: %s;  USER MESSAGE: %s;  Based on %s's memories and the user, %s's message, compose a brief silent soliloquy that reflects on %s's deepest contemplations and emotions in relation to the user's message." % (dialogue, dialogue_2, a, bot_name, username, bot_name)})
+        conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;  HEURISTICS: %s;  USER MESSAGE: %s;  Based on %s's memories and the user, %s's message, compose a brief silent soliloquy that reflects on %s's deepest contemplations and emotions in relation to the user's message." % (db_search, db_search_2, a, bot_name, username, bot_name)})
         output = chatgpt200_completion(conversation)
         message = output
         print('\n\nINNER_MONOLOGUE: %s' % output)
@@ -318,10 +318,11 @@ def GPT_4_Chat_Manual():
             conversation.append({'role': 'assistant', 'content': "%s" % greeting_msg})
             conversation.append({'role': 'user', 'content': a})
         # # Memory DB Search
-        results = vdb.query(vector=vector, top_k=25, namespace='memories')
-        dialogue_3 = load_conversation_memory(results)
+        results = vdb.query(vector=vector_input, top_k=25, namespace='memories')
+        db_search_3 = load_conversation_memory(results)
+        print(db_search_3)
         # # Intuition Generation
-        conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;  %s'S INNER THOUGHTS: %s;  USER MESSAGE: %s;  In a single paragraph, interpret the user, %s's message as %s in third person by proactively discerning their intent, even if they are uncertain about their own needs.; INTUITION: " % (dialogue_3, bot_name, output, a, username, bot_name)})
+        conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;  %s'S INNER THOUGHTS: %s;  USER MESSAGE: %s;  In a single paragraph, interpret the user, %s's message as %s in third person by proactively discerning their intent, even if they are uncertain about their own needs.; INTUITION: " % (db_search_3, bot_name, output, a, username, bot_name)})
         output_two = chatgpt200_completion(conversation)
         message_two = output_two
     #    print('\n\nINTUITION: %s' % output_two)
@@ -365,19 +366,24 @@ def GPT_4_Chat_Manual():
         else:
             conversation2.append({'role': 'system', 'content': '%s' % main_prompt})
             conversation2.append({'role': 'assistant', 'content': '%s' % greeting_msg})
-            results5 = vdb.query(vector=vector, top_k=2, namespace='speech_style')
-            dialogue_5 = load_conversation_speech_style(results5)
+            # # Generate Cadence
+            results = vdb.query(vector=vector_input, top_k=2, namespace='cadence')
+            dialogue_5 = load_conversation_cadence(results)
+            print(dialogue_5)
+            print('test')
             conversation2.append({'role': 'assistant', 'content': "I will extract the cadence from the following messages and mimic it to the best of my ability: %s" % dialogue_5})
         conversation2.append({'role': 'user', 'content': a})
         # # Search Inner_Loop/Memory DB
         while True:
-            results3 = vdb.query(vector=vector, top_k=2, namespace='inner_loop')
-            dialogue_3 = load_conversation_inner_loop(results3)
-            results4 = vdb.query(vector=vector, top_k=3, namespace='memories')
-            dialogue_4 = load_conversation_memory(results4)
+            results = vdb.query(vector=vector, top_k=2, namespace='inner_loop')
+            db_search_4 = load_conversation_inner_loop(results)
+            print(db_search_4)
+            results = vdb.query(vector=vector, top_k=3, namespace='memories')
+            db_search_5 = load_conversation_memory(results)
+            print(db_search_5)
             break
         # # Generate Aetherius's Response
-        conversation2.append({'role': 'assistant', 'content': "SUBCONSIOUS: %s;\n\nMEMORIES: %s;\n\nINNER THOUGHTS: %s;\n%s\nI am in the middle of a conversation with my user, %s. USER MESSAGE: %s; I will do my best to speak naturally and show emotional intelligence. I will intuit their needs: %s;\nMy current message window is limited to 2300 characters.\nI will now give a response with the diction of a real person: " % (dialogue_3, dialogue_4, output, second_prompt, username, a, output_two)})
+        conversation2.append({'role': 'assistant', 'content': "SUBCONSIOUS: %s;\n\nMEMORIES: %s;\n\nINNER THOUGHTS: %s;\n%s\nI am in the middle of a conversation with my user, %s. USER MESSAGE: %s; I will do my best to speak naturally and show emotional intelligence. I will intuit their needs: %s;\nMy current message window is limited to 2300 characters.\nI will now give a response with the diction of a real person: " % (db_search_4, db_search_5, output, second_prompt, username, a, output_two)})
         response_two = chatgpt4_completion(conversation2)
         print('\n\n%s: %s' % (bot_name, response_two))
         # # Save Chat Logs
@@ -443,14 +449,6 @@ def GPT_4_Chat_Manual():
     #        print('\n\nSYSTEM: Auto-memory upload Successful!')
     #    else:
     #        print("Response not worthy of uploading to memory.")
-        # # Upload to speech style DB
-        vector = gpt3_embedding(response_two)
-        unique_id = str(uuid4())
-        metadata = {'speaker': bot_name, 'time': timestamp, 'message': message, 'timestring': timestring, 'uuid': unique_id}
-        save_json('nexus/speech_style_nexus/%s.json' % unique_id, metadata)
-        payload.append((unique_id, vector))
-        vdb.upsert(payload)
-        payload.clear()
         # # Clear Logs for Summary
         conversation.clear()
         summary.clear()
@@ -458,7 +456,7 @@ def GPT_4_Chat_Manual():
         # # Summary loop to avoid Max Token Limit.
         if counter % conv_length == 0:
             conversation2.append({'role': 'user', 'content': "Read the previous conversation and extract the salient points in bullet point format to serve as %s's memories. Each memory should cointain full context." % bot_name})
-            conv_summary = chatgptsummary_completion(conversation2)
+            conv_summary = chatgpt4summary_completion(conversation2)
             print(conv_summary)
             conversation2.clear()
             conversation2.append({'role': 'system', 'content': '%s' % main_prompt})

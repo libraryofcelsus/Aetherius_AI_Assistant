@@ -55,7 +55,7 @@ Aetherius aims to provide a modular, personalized AI assistant experience by ena
 
 6. Create a virtual environment: **python -m venv venv**
 
-7. Activate the environment: **.\venv\Scripts\activate**
+7. Activate the environment: **.\venv\scripts\activate**
 
 8. Install the required packages: **pip install -r requirements.txt**
 

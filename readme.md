@@ -67,7 +67,7 @@ Aetherius aims to provide a modular, personalized AI assistant experience by ena
 
 12. Edit the .txt files in the "config" folder to customize the bot.
 
-13. Run main.py to start Aetherius, Select DB Management.
+13. Run main.py with **python main.py** to start Aetherius, Select DB Management.
 
 14. Select DB Upload Heuristics to upload secondary Heuristics for the bot, this DB can also function as a Personality DB. An example of how to do this can be found in "personality_db_input_examples.txt" in the config folder.
 

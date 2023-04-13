@@ -1,5 +1,5 @@
 # Aetherius
-Version 0.027 of the Aetherius Personal Assistant by LibraryofCelsus.com
+Version 0.028 of the Aetherius Personal Assistant by LibraryofCelsus.com
 https://github.com/libraryofcelsus
 
 Inspired by https://github.com/daveshap/
@@ -14,6 +14,10 @@ Welcome to the first pre-alpha release of Aetherius, a highly customizable AI as
 Aetherius aims to provide a modular, personalized AI assistant experience by enabling the addition of task-specific Modules and Sub-Modules. If all goes as planned, Aetherius will support integration with other open-source projects.
 
 ## Changelog:
+0.028
+-Cadence DB Rework, upload cadence from DB management
+
+0.027
 -Implemented Cadence DB (More of a test, may be removed due to token useage.)
 
 -Various Bug Fixes

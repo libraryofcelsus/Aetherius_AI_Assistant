@@ -15,9 +15,11 @@ Aetherius aims to provide a modular, personalized AI assistant experience by ena
 
 ## Changelog:
 0.028
+
 -Cadence DB Rework, upload cadence from DB management
 
 0.027
+
 -Implemented Cadence DB (More of a test, may be removed due to token useage.)
 
 -Various Bug Fixes
@@ -47,9 +49,9 @@ Aetherius aims to provide a modular, personalized AI assistant experience by ena
 
 3. Run git clone: **git clone https://github.com/libraryofcelsus/Aetherius_AI_Assistant.git**
 
-4. Navigate to Project folder: **cd PATH**
+4. Open CMD as Admin
 
-5. Open CMD as Admin
+5. Navigate to Project folder: **cd PATH**
 
 6. Create a virtual environment: **python -m venv venv**
 

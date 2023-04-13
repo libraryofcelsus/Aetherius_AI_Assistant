@@ -294,11 +294,11 @@ def GPT_4_Chat_Auto():
         # # Search Memory DB
         results = vdb.query(vector=vector_input, top_k=15, namespace='memories')
         db_search = load_conversation_memory(results)
-        print(db_search)
+    #    print(db_search)
         # # Search Heuristics DB
         results = vdb.query(vector=vector_input, top_k=10, namespace='heuristics')
         db_search_2= load_conversation_heuristics(results)
-        print(db_search_2)
+    #    print(db_search_2)
         # # Inner Monologue Generation
         conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;  HEURISTICS: %s;  USER MESSAGE: %s;  Based on %s's memories and the user, %s's message, compose a brief silent soliloquy that reflects on %s's deepest contemplations and emotions in relation to the user's message." % (db_search, db_search_2, a, bot_name, username, bot_name)})
         output = chatgpt200_completion(conversation)
@@ -320,7 +320,7 @@ def GPT_4_Chat_Auto():
         # # Memory DB Search
         results = vdb.query(vector=vector_input, top_k=25, namespace='memories')
         db_search_3 = load_conversation_memory(results)
-        print(db_search_3)
+    #    print(db_search_3)
         # # Intuition Generation
         conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;  %s'S INNER THOUGHTS: %s;  USER MESSAGE: %s;  In a single paragraph, interpret the user, %s's message as %s in third person by proactively discerning their intent, even if they are uncertain about their own needs.; INTUITION: " % (db_search_3, bot_name, output, a, username, bot_name)})
         output_two = chatgpt200_completion(conversation)
@@ -346,10 +346,10 @@ def GPT_4_Chat_Auto():
         while True:
             results = vdb.query(vector=vector, top_k=2, namespace='inner_loop')
             db_search_4 = load_conversation_inner_loop(results)
-            print(db_search_4)
+        #    print(db_search_4)
             results = vdb.query(vector=vector, top_k=3, namespace='memories')
             db_search_5 = load_conversation_memory(results)
-            print(db_search_5)
+        #    print(db_search_5)
             break
         # # Generate Aetherius's Response
         conversation2.append({'role': 'assistant', 'content': "SUBCONSIOUS: %s;\n\nMEMORIES: %s;\n\nINNER THOUGHTS: %s;\n%s\nI am in the middle of a conversation with my user, %s. USER MESSAGE: %s; I will do my best to speak naturally and show emotional intelligence. I will intuit their needs: %s;\nMy current message window is limited to 2300 characters.\nI will now give a response with the diction of a real person: " % (db_search_4, db_search_5, output, second_prompt, username, a, output_two)})

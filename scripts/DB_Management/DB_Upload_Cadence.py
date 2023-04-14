@@ -46,11 +46,26 @@ def DB_Upload_Cadence():
     index_info = vdb.describe_index_stats()
     print('Pinecone DB Info')
     print(index_info)
+    print("Type [Delete All Data] to delete saved Cadence.")
     if not os.path.exists('nexus/cadence_nexus'):
         os.makedirs('nexus/cadence_nexus')
     while True:
         payload = list()
         a = input(f'\n\nUSER: ')
+        if a == 'Delete All Data':
+            while True:
+                print('\n\nSYSTEM: Are you sure you would like to delete the saved Cadence?\n        Press Y for yes or N for no.')
+                user_input = input("'Y' or 'N': ")
+                if user_input == 'y':
+                    vdb.delete(delete_all=True, namespace="cadence")
+                    while True:
+                        print('All saved cadence has been Deleted')
+                        return
+                elif user_input == 'n':
+                    print('\n\nSYSTEM: Cadence delete cancelled.')
+                    return
+            else:
+                pass
         if a == 'Exit':
             print('\n\nSYSTEM: Are you sure you want to exit?')
             while True:

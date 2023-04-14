@@ -4,8 +4,6 @@ https://github.com/libraryofcelsus
 
 Inspired by https://github.com/daveshap/
 
-![](http://www.libraryofcelsus.com/wp-content/uploads/2023/04/Aetherius-Menu-Gif.gif)
-
 ![](http://www.libraryofcelsus.com/wp-content/uploads/2023/04/Aetherius-Example-gif.gif)
 
 # Current Version Information

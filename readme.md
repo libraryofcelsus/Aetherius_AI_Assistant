@@ -71,13 +71,15 @@ Aetherius aims to provide a modular, personalized AI assistant experience by ena
 
 14. Select DB Upload Heuristics to upload secondary Heuristics for the bot, this DB can also function as a Personality DB. An example of how to do this can be found in "personality_db_input_examples.txt" in the config folder.
 
-14. Type "Exit" twice to return to the main menu. Now select "Main Bot"
+15. Upload your desired Cadence to "DB Upload Cadence" in DB Management. This should be a direct example of the speech style, not a description. I suggest asking Aetherius to use the diction of a "____" to generate an example, then copy paste the response to the Cadence Upload.
 
-15. Select one of the "Manual" chatbot modes, this will enable you to choose what gets uploaded to the chatbots memories.  It also enables a summary of Aetherius's inner loop, avoid uploading irrelivant information to the inner loop DB as they tend to take priority over other memories.  Using the Auto mode can cause an undesired personality to emerge from the bot if it doesn't have established memories.
+16. Type "Exit" twice to return to the main menu. Now select "Main Bot"
 
-15. Once the chatbots memories have been established, type "Exit" and then select one of the Auto chatbots, this mode will have the bot decide for itself if it should upload to its memory DB.
+17. Select one of the "Manual" chatbot modes, this will enable you to choose what gets uploaded to the chatbots memories.  It also enables a summary of Aetherius's inner loop, avoid uploading irrelivant information to the inner loop DB as they tend to take priority over other memories.  Using the Auto mode can cause an undesired personality to emerge from the bot if it doesn't have established memories.
 
-16. Using the GPT 3.5 scripts causes a significant decrease in intelligence, and as such generally shouldn't be used for training. Auto-Memory may also lead to some issues, chat - manual is recommended if only using GPT 3.5.
+18. Once the chatbots memories have been established, type "Exit" and then select one of the Auto chatbots, this mode will have the bot decide for itself if it should upload to its memory DB.
+
+19. Using the GPT 3.5 scripts causes a significant decrease in intelligence, and as such generally shouldn't be used for training. Auto-Memory may also lead to some issues, chat - manual is recommended if only using GPT 3.5.
 
 # Contact
 email@libraryofcelsus.com

@@ -237,6 +237,8 @@ def GPT_4_Chat_Manual():
     index_info = vdb.describe_index_stats()
     # # Number of Messages before conversation is summarized, higher number, higher api cost. Change to 3 to use GPT 3.5
     conv_length = 4
+    print("Type [Save and Exit] to summarize the conversation and exit.")
+    print("Type [Exit] to exit without saving.")
     payload = list()
     conversation = list()
     conversation2 = list()

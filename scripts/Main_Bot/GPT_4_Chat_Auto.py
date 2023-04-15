@@ -237,6 +237,8 @@ def GPT_4_Chat_Auto():
     index_info = vdb.describe_index_stats()
     # # Number of Messages before conversation is summarized, higher number, higher api cost. Change to 3 to use GPT 3.5
     conv_length = 4
+    print("Type [Save and Exit] to summarize the conversation and exit.")
+    print("Type [Exit] to exit without saving.")
     payload = list()
     conversation = list()
     conversation2 = list()
@@ -302,15 +304,17 @@ def GPT_4_Chat_Auto():
         message_input = a
         vector_input = gpt3_embedding(message_input)
         # # Search Memory DB
-        results = vdb.query(vector=vector_input, top_k=15, namespace='memories')
+        results = vdb.query(vector=vector_input, top_k=12, namespace='memories')
         db_search = load_conversation_memory(results)
+        results = vdb.query(vector=vector_input, top_k=3, namespace='episodic_memories')
+        db_search_7 = load_conversation_episodic_memory(results)
     #    print(db_search)
         # # Search Heuristics DB
         results = vdb.query(vector=vector_input, top_k=10, namespace='heuristics')
         db_search_2= load_conversation_heuristics(results)
     #    print(db_search_2)
         # # Inner Monologue Generation
-        conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;\nHEURISTICS: %s;\nUSER MESSAGE: %s;\nBased on %s's memories and the user, %s's message, compose a brief silent soliloquy that reflects on %s's deepest contemplations and emotions in relation to the user's message." % (db_search, db_search_2, a, bot_name, username, bot_name)})
+        conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;\n%s;\nHEURISTICS: %s;\nUSER MESSAGE: %s;\nBased on %s's memories and the user, %s's message, compose a brief silent soliloquy that reflects on %s's deepest contemplations and emotions in relation to the user's message." % (db_search, db_search_7, db_search_2, a, bot_name, username, bot_name)})
         output = chatgpt200_completion(conversation)
         message = output
         print('\n\nINNER_MONOLOGUE: %s' % output)

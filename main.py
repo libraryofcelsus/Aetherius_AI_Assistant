@@ -60,6 +60,8 @@ if __name__ == '__main__':
         os.makedirs('nexus/inner_loop_nexus')
     if not os.path.exists('nexus/memory_nexus'):
         os.makedirs('nexus/memory_nexus')
+    if not os.path.exists('nexus/episodic_memory_nexus'):
+        os.makedirs('nexus/episodic_memory_nexus')
     if not os.path.exists('nexus/heuristics_nexus'):
         os.makedirs('nexus/heuristics_nexus')
     if not os.path.exists('nexus/cadence_nexus'):

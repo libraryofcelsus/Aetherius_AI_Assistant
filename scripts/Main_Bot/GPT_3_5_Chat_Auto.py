@@ -147,6 +147,16 @@ def load_conversation_memory(results):
     return '\n'.join(messages).strip()
     
     
+def load_conversation_episodic_memory(results):
+    result = list()
+    for m in results['matches']:
+        info = load_json('nexus/episodic_memory_nexus/%s.json' % m['id'])
+        result.append(info)
+    ordered = sorted(result, key=lambda d: d['time'], reverse=False)  # sort them all chronologically
+    messages = [i['message'] for i in ordered]
+    return '\n'.join(messages).strip()  
+    
+    
 def load_conversation_heuristics(results):
     result = list()
     for m in results['matches']:
@@ -215,7 +225,7 @@ def GPT_3_5_Chat_Auto():
         if a == 'Exit':
             return
         if a == 'Save and Exit':
-            conversation2.append({'role': 'user', 'content': "Read the previous conversation and extract the salient points in bullet point format to serve as %s's memories. Each memory should cointain full context.  Exclude irrelevant information." % bot_name})
+            conversation2.append({'role': 'user', 'content': "CURRENT TIME: %s;\nRead the previous messages and extract the salient points in single bullet point format to serve as %s's memories. Each bullet point should contain the given date, given time, and the memory in full context." % (timestring, bot_name)})
             conv_summary = chatgpt35summary_completion(conversation2)
             print(conv_summary)
             while True:
@@ -229,9 +239,9 @@ def GPT_3_5_Chat_Auto():
                         unique_id = str(uuid4())
                         metadata = {'speaker': bot_name, 'time': timestamp, 'message': line,
                                     'timestring': timestring, 'uuid': unique_id}
-                        save_json('nexus/memories_nexus/%s.json' % unique_id, metadata)
+                        save_json('nexus/episodic_memories_nexus/%s.json' % unique_id, metadata)
                         payload.append((unique_id, vector))
-                        vdb.upsert(payload, namespace='memories')
+                        vdb.upsert(payload, namespace='episodic_memories')
                         print('\n\nSYSTEM: Upload Successful!')
                         payload.clear()
                     return
@@ -256,7 +266,7 @@ def GPT_3_5_Chat_Auto():
         db_search_2= load_conversation_heuristics(results)
     #    print(db_search_2)
         # # Inner Monologue Generation
-        conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;  HEURISTICS: %s;  USER MESSAGE: %s;  Based on %s's memories and the user, %s's message, compose a brief silent soliloquy that reflects on %s's deepest contemplations and emotions in relation to the user's message." % (db_search, db_search_2, a, bot_name, username, bot_name)})
+        conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;\nHEURISTICS: %s;\nUSER MESSAGE: %s;\nBased on %s's memories and the user, %s's message, compose a brief silent soliloquy that reflects on %s's deepest contemplations and emotions in relation to the user's message." % (db_search, db_search_2, a, bot_name, username, bot_name)})
         output = chatgpt200_completion(conversation)
         message = output
         print('\n\nINNER_MONOLOGUE: %s' % output)
@@ -274,11 +284,13 @@ def GPT_3_5_Chat_Auto():
             conversation.append({'role': 'assistant', 'content': "%s" % greeting_msg})
             conversation.append({'role': 'user', 'content': a})
         # # Memory DB Search
-        results = vdb.query(vector=vector_input, top_k=25, namespace='memories')
+        results = vdb.query(vector=vector_input, top_k=20, namespace='memories')
         db_search_3 = load_conversation_memory(results)
+        results = vdb.query(vector=vector_input, top_k=5, namespace='episodic_memories')
+        db_search_6 = load_conversation_episodic_memory(results)
     #    print(db_search_3)
         # # Intuition Generation
-        conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;  %s'S INNER THOUGHTS: %s;  USER MESSAGE: %s;  In a single paragraph, interpret the user, %s's message as %s in third person by proactively discerning their intent, even if they are uncertain about their own needs.; INTUITION: " % (db_search_3, bot_name, output, a, username, bot_name)})
+        conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;\n%s;\n\n%s'S INNER THOUGHTS: %s;\nUSER MESSAGE: %s;\nIn a single paragraph, interpret the user, %s's message as %s in third person by proactively discerning their intent, even if they are uncertain about their own needs.;\nINTUITION: " % (db_search_3, db_search_6, bot_name, output, a, username, bot_name)})
         output_two = chatgpt200_completion(conversation)
         message_two = output_two
     #    print('\n\nINTUITION: %s' % output_two)
@@ -294,22 +306,21 @@ def GPT_3_5_Chat_Auto():
             # # Generate Cadence
             results = vdb.query(vector=vector_input, top_k=2, namespace='cadence')
             dialogue_5 = load_conversation_cadence(results)
-            print(dialogue_5)
-            print('test')
+    #        print(dialogue_5)
             conversation2.append({'role': 'assistant', 'content': "I will extract the cadence from the following messages and mimic it to the best of my ability: %s" % dialogue_5})
         conversation2.append({'role': 'user', 'content': a})
         # # Search Inner_Loop/Memory DB
         while True:
             results = vdb.query(vector=vector, top_k=2, namespace='inner_loop')
             db_search_4 = load_conversation_inner_loop(results)
-        #    print(db_search_4)
+    #        print(db_search_4)
             results = vdb.query(vector=vector, top_k=3, namespace='memories')
             db_search_5 = load_conversation_memory(results)
-        #    print(db_search_5)
+     #       print(db_search_5)
             break
         # # Generate Aetherius's Response
         conversation2.append({'role': 'assistant', 'content': "SUBCONSIOUS: %s;\n\nMEMORIES: %s;\n\nINNER THOUGHTS: %s;\n%s\nI am in the middle of a conversation with my user, %s. USER MESSAGE: %s; I will do my best to speak naturally and show emotional intelligence. I will intuit their needs: %s;\nMy current message window is limited to 2300 characters.\nI will now give a response with the diction of a real person: " % (db_search_4, db_search_5, output, second_prompt, username, a, output_two)})
-        response_two = chatgpt500_completion(conversation2)
+        response_two = chatgpt35_completion(conversation2)
         print('\n\n%s: %s' % (bot_name, response_two))
         # # Save Chat Logs
         complete_message = f'\nUSER: {a} \n\n INNER_MONOLOGUE: {output} \n\n INTUITION: {output_two} \n\n {bot_name}: {response_two}'
@@ -320,7 +331,7 @@ def GPT_3_5_Chat_Auto():
         save_file('logs/final_response_logs/%s' % filename, final_message)
         # # Generate Summary for Memory DB
         db_msg = f'\nUSER: {a} \n\n INNER_MONOLOGUE: {output} \n\n {bot_name}: {response_two}'
-        summary.append({'role': 'user', 'content': "LOG: %s;\n\nRead the LOG and create short executive summaries in single bullet point format to serve as %s's memories. Each memory should cointain full context.  Exclude irrelevant information." % (db_msg, bot_name)})
+        summary.append({'role': 'user', 'content': "LOG: %s;\n\nRead the previous messages and extract the salient points in single bullet point format to serve as %s's memories. Each bullet point should contain the memory in full context.  Exclude irrelevant information." % (db_msg, bot_name)})
         db_upload = chatgpt250_completion(summary)
         db_upsert = db_upload
         # # Auto Upload to Memory DB
@@ -357,7 +368,7 @@ def GPT_3_5_Chat_Auto():
         counter += 1
         # # Summary loop to avoid Max Token Limit.
         if counter % conv_length == 0:
-            conversation2.append({'role': 'user', 'content': "Read the previous conversation and extract the salient points in bullet point format to serve as %s's memories. Each memory should cointain full context." % bot_name})
+            conversation2.append({'role': 'user', 'content': "CURRENT TIME: %s;\nRead the previous messages and extract the salient points in single bullet point format to serve as %s's memories. Each bullet point should contain the given date, given time, and the memory in full context." % (timestring, bot_name)})
             conv_summary = chatgpt35summary_completion(conversation2)
             print(conv_summary)
             conversation2.clear()
@@ -375,9 +386,9 @@ def GPT_3_5_Chat_Auto():
                         unique_id = str(uuid4())
                         metadata = {'speaker': bot_name, 'time': timestamp, 'message': line,
                                     'timestring': timestring, 'uuid': unique_id}
-                        save_json('nexus/memories_nexus/%s.json' % unique_id, metadata)
+                        save_json('nexus/episodic_memories_nexus/%s.json' % unique_id, metadata)
                         payload.append((unique_id, vector))
-                        vdb.upsert(payload, namespace='memories')
+                        vdb.upsert(payload, namespace='episodic_memories')
                         payload.clear()
                     print('\n\nSYSTEM: Upload Successful!')
                     break

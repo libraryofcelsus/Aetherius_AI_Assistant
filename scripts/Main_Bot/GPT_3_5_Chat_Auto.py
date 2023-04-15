@@ -324,7 +324,7 @@ def GPT_3_5_Chat_Auto():
             break
         # # Generate Aetherius's Response
         conversation2.append({'role': 'assistant', 'content': "SUBCONSIOUS: %s;\n\nMEMORIES: %s;\n\nINNER THOUGHTS: %s;\n%s\nI am in the middle of a conversation with my user, %s. USER MESSAGE: %s; I will do my best to speak naturally and show emotional intelligence. I will intuit their needs: %s;\nMy current message window is limited to 2300 characters.\nI will now give a response with the diction of a real person: " % (db_search_4, db_search_5, output, second_prompt, username, a, output_two)})
-        response_two = chatgpt35_completion(conversation2)
+        response_two = chatgpt500_completion(conversation2)
         print('\n\n%s: %s' % (bot_name, response_two))
         # # Save Chat Logs
         complete_message = f'\nUSER: {a} \n\n INNER_MONOLOGUE: {output} \n\n INTUITION: {output_two} \n\n {bot_name}: {response_two}'

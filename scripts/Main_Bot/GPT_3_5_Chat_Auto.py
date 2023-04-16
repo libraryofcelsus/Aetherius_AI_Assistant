@@ -273,6 +273,7 @@ def GPT_3_5_Chat_Auto():
         conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;\n%s;\nHEURISTICS: %s;\nUSER MESSAGE: %s;\nBased on %s's memories and the user, %s's message, compose a brief silent soliloquy that reflects on %s's deepest contemplations and emotions in relation to the user's message.\n\nINNER_MONOLOGUE: " % (db_search, db_search_7, db_search_2, a, bot_name, username, bot_name)})
         output = chatgpt250_completion(conversation)
         message = output
+        vector_monologue = gpt3_embedding(message)
         print('\n\nINNER_MONOLOGUE: %s' % output)
         output_log = f'\nUSER: {a} \n\n {bot_name}: {output}'
         filename = '%s_inner_monologue.txt' % time()
@@ -288,13 +289,15 @@ def GPT_3_5_Chat_Auto():
             conversation.append({'role': 'assistant', 'content': "%s" % greeting_msg})
             conversation.append({'role': 'user', 'content': a})
         # # Memory DB Search
-        results = vdb.query(vector=vector_input, top_k=20, namespace='memories')
+        results = vdb.query(vector=vector_input, top_k=18, namespace='memories')
         db_search_3 = load_conversation_memory(results)
-        results = vdb.query(vector=vector_input, top_k=5, namespace='episodic_memories')
+        results = vdb.query(vector=vector_monologue, top_k=4, namespace='episodic_memories')
         db_search_6 = load_conversation_episodic_memory(results)
+        results = vdb.query(vector=vector_input, top_k=3, namespace='episodic_memories')
+        db_search_7 = load_conversation_episodic_memory(results)
     #    print(db_search_3)
         # # Intuition Generation
-        conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;\n%s;\n\n%s'S INNER THOUGHTS: %s;\nUSER MESSAGE: %s;\nIn a single paragraph, interpret the user, %s's message as %s in third person by proactively discerning their intent, even if they are uncertain about their own needs.;\nINTUITION: " % (db_search_3, db_search_6, bot_name, output, a, username, bot_name)})
+        conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;\n%s;\n%s\n\n%s'S INNER THOUGHTS: %s;\nUSER MESSAGE: %s;\nIn a single paragraph, interpret the user, %s's message as %s in third person by proactively discerning their intent, even if they are uncertain about their own needs.;\nINTUITION: " % (db_search_3, db_search_6, db_search_7, bot_name, output, a, username, bot_name)})
         output_two = chatgpt200_completion(conversation)
         message_two = output_two
     #    print('\n\nINTUITION: %s' % output_two)

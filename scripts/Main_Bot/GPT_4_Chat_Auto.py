@@ -271,7 +271,7 @@ def GPT_4_Chat_Auto():
         if a == 'Exit':
             return
         if a == 'Save and Exit':
-            conversation2.append({'role': 'user', 'content': "CURRENT TIME: %s;\nRead the previous messages and extract the salient points in single bullet point format to serve as %s's memories. Each bullet point should contain the given date, given time, and the memory in full context." % (timestring, bot_name)})
+            conversation2.append({'role': 'user', 'content': "Read the previous messages and extract the salient points in single bullet point format to serve as %s's memories. Every bullet point should contain the given timestat, [%s], and the memory in full context.\nSummary:" % (bot_name, timestring)})
             conv_summary = chatgpt4summary_completion(conversation2)
             print(conv_summary)
             while True:
@@ -314,8 +314,8 @@ def GPT_4_Chat_Auto():
         db_search_2= load_conversation_heuristics(results)
     #    print(db_search_2)
         # # Inner Monologue Generation
-        conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;\n%s;\nHEURISTICS: %s;\nUSER MESSAGE: %s;\nBased on %s's memories and the user, %s's message, compose a brief silent soliloquy that reflects on %s's deepest contemplations and emotions in relation to the user's message." % (db_search, db_search_7, db_search_2, a, bot_name, username, bot_name)})
-        output = chatgpt200_completion(conversation)
+        conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;\n%s;\nHEURISTICS: %s;\nUSER MESSAGE: %s;\nBased on %s's memories and the user, %s's message, compose a brief silent soliloquy that reflects on %s's deepest contemplations and emotions in relation to the user's message.\n\nINNER_MONOLOGUE: " % (db_search, db_search_7, db_search_2, a, bot_name, username, bot_name)})
+        output = chatgpt250_completion(conversation)
         message = output
         print('\n\nINNER_MONOLOGUE: %s' % output)
         output_log = f'\nUSER: {a} \n\n {bot_name}: {output}'
@@ -379,7 +379,7 @@ def GPT_4_Chat_Auto():
         save_file('logs/final_response_logs/%s' % filename, final_message)
         # # Generate Summary for Memory DB
         db_msg = f'\nUSER: {a} \n\n INNER_MONOLOGUE: {output} \n\n {bot_name}: {response_two}'
-        summary.append({'role': 'user', 'content': "LOG: %s;\n\nRead the previous messages and extract the salient points in single bullet point format to serve as %s's memories. Each bullet point should contain the memory in full context.  Exclude irrelevant information." % (db_msg, bot_name)})
+        summary.append({'role': 'user', 'content': "LOG: %s;\n\nRead the previous messages and extract the salient points in single bullet point format to serve as %s's memories. Each bullet point should contain the memory in full context.  Exclude irrelevant information.\nSummary:\n" % (db_msg, bot_name)})
         db_upload = chatgpt250_completion(summary)
         db_upsert = db_upload
         # # Auto Upload to Memory DB
@@ -416,7 +416,7 @@ def GPT_4_Chat_Auto():
         counter += 1
         # # Summary loop to avoid Max Token Limit.
         if counter % conv_length == 0:
-            conversation2.append({'role': 'user', 'content': "CURRENT TIME: %s;\nRead the previous messages and extract the salient points in single bullet point format to serve as %s's memories. Each bullet point should contain the given date, given time, and the memory in full context." % (timestring, bot_name)})
+            conversation2.append({'role': 'user', 'content': "Read the previous messages and extract the salient points in single bullet point format to serve as %s's memories. Every bullet point should contain the given timestat, [%s], and the memory in full context.\nSummary:" % (bot_name, timestring)})
             conv_summary = chatgpt4summary_completion(conversation2)
             print(conv_summary)
             conversation2.clear()

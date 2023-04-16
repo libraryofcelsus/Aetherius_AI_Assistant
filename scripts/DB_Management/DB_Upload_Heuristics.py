@@ -46,24 +46,29 @@ def DB_Upload_Heuristics():
     index_info = vdb.describe_index_stats()
     print('Pinecone DB Info')
     print(index_info)
+    print("Type [Delete All Data] to delete saved Heuristics.")
     if not os.path.exists('nexus/heuristics_nexus'):
         os.makedirs('nexus/heuristics_nexus')
     while True:
         payload = list()
         a = input(f'\n\nUSER: ')
-        if a == 'Exit':
-            print('\n\nSYSTEM: Are you sure you want to exit?')
+        if a == 'Delete All Data':
             while True:
-                print('        Press Y for yes, N for no, or C to cancel.')
+                print('\n\nSYSTEM: Are you sure you would like to delete the saved Heuristics?\n        Press Y for yes or N for no.')
                 user_input = input("'Y' or 'N': ")
                 if user_input == 'y':
-                    return
+                    vdb.delete(delete_all=True, namespace="heuristics")
+                    while True:
+                        print('All heuristics have been Deleted')
+                        return
                 elif user_input == 'n':
+                    print('\n\nSYSTEM: Heuristics delete cancelled.')
                     return
-                elif user_input == 'c':
-                    print('\n\nSYSTEM: Exit Cancelled')
-                    a = input(f'\n\nUSER: ')
-                    break
+            else:
+                pass
+        if a == 'Exit':
+            while True:
+                return
             else:
                 pass
         vector = gpt3_embedding(a)

@@ -67,18 +67,8 @@ def DB_Upload_Cadence():
             else:
                 pass
         if a == 'Exit':
-            print('\n\nSYSTEM: Are you sure you want to exit?')
             while True:
-                print('        Press Y for yes, N for no, or C to cancel.')
-                user_input = input("'Y' or 'N': ")
-                if user_input == 'y':
-                    return
-                elif user_input == 'n':
-                    return
-                elif user_input == 'c':
-                    print('\n\nSYSTEM: Exit Cancelled')
-                    a = input(f'\n\nUSER: ')
-                    break
+                return
             else:
                 pass
         vector = gpt3_embedding(a)

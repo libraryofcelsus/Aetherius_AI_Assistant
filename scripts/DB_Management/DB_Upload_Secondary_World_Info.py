@@ -45,25 +45,30 @@ def DB_Upload_Secondary_World_Info():
     index_info = vdb.describe_index_stats()
     print('Pinecone DB Info')
     print(index_info)
+    print("Type [Delete All Data] to delete saved World Info.")
     bot_name = open_file('prompt_bot_name.txt')
     if not os.path.exists('nexus/world_info_nexus'):
         os.makedirs('nexus/wi_nexus')
     while True:
         payload = list()
         a = input(f'\n\nUSER: ')
-        if a == 'Exit':
-            print('\n\nSYSTEM: Are you sure you want to exit?')
+        if a == 'Delete All Data':
             while True:
-                print('        Press Y for yes, N for no, or C to cancel.')
+                print('\n\nSYSTEM: Are you sure you would like to delete the saved World Information?\n        Press Y for yes or N for no.')
                 user_input = input("'Y' or 'N': ")
                 if user_input == 'y':
-                    return
+                    vdb.delete(delete_all=True, namespace="world_info")
+                    while True:
+                        print('All saved World Information has been Deleted')
+                        return
                 elif user_input == 'n':
+                    print('\n\nSYSTEM: World Info delete cancelled.')
                     return
-                elif user_input == 'c':
-                    print('\n\nSYSTEM: Exit Cancelled')
-                    a = input(f'\n\nUSER: ')
-                    break
+            else:
+                pass
+        if a == 'Exit':
+            while True:
+                return
             else:
                 pass
         vector = gpt3_embedding(a)

@@ -197,9 +197,11 @@ def GPT_3_5_Chat_Manual():
     print("Type [Exit] to exit without saving.")
     payload = list()
     conversation = list()
+    int_conversation = list()
     conversation2 = list()
     summary = list()
     auto = list()
+    tasklist = list()
     counter = 0
     bot_name = open_file('./config/prompt_bot_name.txt')
     username = open_file('./config/prompt_username.txt')
@@ -221,8 +223,17 @@ def GPT_3_5_Chat_Manual():
         else:
             conversation.append({'role': 'assistant', 'content': "%s" % greeting_msg})
             print("\n%s" % greeting_msg)
+        int_conversation.append({'role': 'system', 'content': '%s' % main_prompt})
         # # User Input
         a = input(f'\n\nUSER: ')
+        if 'response_two' in locals():
+            int_conversation.append({'role': 'user', 'content': a})
+            int_conversation.append({'role': 'assistant', 'content': "%s" % response_two})
+            pass
+        else:
+            int_conversation.append({'role': 'assistant', 'content': "%s" % greeting_msg})
+            int_conversation.append({'role': 'user', 'content': a})
+
         # # Check for "Exit"
         if a == 'Exit':
             return
@@ -259,9 +270,27 @@ def GPT_3_5_Chat_Manual():
         conversation.append({'role': 'user', 'content': a})
         message_input = a
         vector_input = gpt3_embedding(message_input)
+        # # Generate Semantic Search Terms
+        tasklist.append({'role': 'system', 'content': "You are a task coordinator. Your job is to take user input and create a list of 2-5 inquiries to be used for a semantic database search of a chatbot's memories. Use the format [- 'INQUIRY']."})
+        tasklist.append({'role': 'user', 'content': "USER INQUIRY: %s" % a})
+        tasklist.append({'role': 'assistant', 'content': "List of Semantic Search Terms: "})
+        tasklist_output = chatgpt200_completion(tasklist)
+        db_term = {}
+        db_term_result = {}
+        tasklist_counter = 0
+        lines = tasklist_output.splitlines()
+        for line in lines:
+        #    print(line)
+            tasklist_vector = gpt3_embedding(line)
+            tasklist_counter += 1
+            db_term[tasklist_counter] = tasklist_vector
+            results = vdb.query(vector=db_term[tasklist_counter], top_k=3, namespace='memories')
+            db_term_result[tasklist_counter] = load_conversation_memory(results)
+            conversation.append({'role': 'assistant', 'content': "MEMORIES: %s" % db_term_result[tasklist_counter]})
+            int_conversation.append({'role': 'assistant', 'content': "MEMORIES: %s" % db_term_result[tasklist_counter]})
+        #    print(db_term_result[tasklist_counter])
+        tasklist.clear()
         # # Search Memory DB
-        results = vdb.query(vector=vector_input, top_k=13, namespace='memories')
-        db_search = load_conversation_memory(results)
         results = vdb.query(vector=vector_input, top_k=5, namespace='episodic_memories')
         db_search_7 = load_conversation_episodic_memory(results)
     #    print(db_search)
@@ -270,7 +299,7 @@ def GPT_3_5_Chat_Manual():
         db_search_2= load_conversation_heuristics(results)
     #    print(db_search_2)
         # # Inner Monologue Generation
-        conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;\n%s;\nHEURISTICS: %s;\nUSER MESSAGE: %s;\nBased on %s's memories and the user, %s's message, compose a brief silent soliloquy as %s's inner monologue that reflects on %s's deepest contemplations and emotions in relation to the user's message.\n\nINNER_MONOLOGUE: " % (db_search, db_search_7, db_search_2, a, bot_name, username, bot_name, bot_name)})
+        conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;\nHEURISTICS: %s;\nUSER MESSAGE: %s;\nBased on %s's memories and the user, %s's message, compose a brief silent soliloquy as %s's inner monologue that reflects on %s's deepest contemplations and emotions in relation to the user's message.\n\nINNER_MONOLOGUE: " % (db_search_7, db_search_2, a, bot_name, username, bot_name, bot_name)})
         output = chatgpt250_completion(conversation)
         message = output
         vector_monologue = gpt3_embedding(message)
@@ -280,26 +309,15 @@ def GPT_3_5_Chat_Manual():
         save_file('logs/inner_monologue_logs/%s' % filename, output_log)
         # # Clear Conversation List for Intuition Generation
         conversation.clear()
-        conversation.append({'role': 'system', 'content': '%s' % main_prompt})
-        # # Give Greeting if first Message 
-        if 'response_two' in locals():
-            conversation.append({'role': 'user', 'content': a})
-            conversation.append({'role': 'assistant', 'content': "%s" % response_two})
-            pass
-        else:
-            conversation.append({'role': 'assistant', 'content': "%s" % greeting_msg})
-            conversation.append({'role': 'user', 'content': a})
         # # Memory DB Search
-        results = vdb.query(vector=vector_input, top_k=18, namespace='memories')
-        db_search_3 = load_conversation_memory(results)
         results = vdb.query(vector=vector_monologue, top_k=4, namespace='episodic_memories')
         db_search_6 = load_conversation_episodic_memory(results)
-        results = vdb.query(vector=vector_input, top_k=3, namespace='episodic_memories')
+        results = vdb.query(vector=vector_input, top_k=4, namespace='episodic_memories')
         db_search_7 = load_conversation_episodic_memory(results)
     #    print(db_search_3)
         # # Intuition Generation
-        conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;\n%s;\n%s\n\n%s'S INNER THOUGHTS: %s;\nUSER MESSAGE: %s;\nIn a single paragraph, interpret the user, %s's message as %s in third person by proactively discerning their intent, even if they are uncertain about their own needs.;\nINTUITION: " % (db_search_3, db_search_6, db_search_7, bot_name, output, a, username, bot_name)})
-        output_two = chatgpt200_completion(conversation)
+        int_conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;\n%s\n\n%s'S INNER THOUGHTS: %s;\nUSER MESSAGE: %s;\nIn a single paragraph, interpret the user, %s's message as %s in third person by proactively discerning their intent, even if they are uncertain about their own needs.;\nINTUITION: " % (db_search_6, db_search_7, bot_name, output, a, username, bot_name)})
+        output_two = chatgpt200_completion(int_conversation)
         message_two = output_two
     #    print('\n\nINTUITION: %s' % output_two)
         output_two_log = f'\nUSER: {a} \n\n {bot_name}: {output_two}'

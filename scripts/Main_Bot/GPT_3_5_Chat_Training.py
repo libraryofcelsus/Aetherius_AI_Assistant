@@ -328,7 +328,7 @@ def GPT_3_5_Chat_Training():
         conversation.append({'role': 'system', 'content': '%s' % main_prompt})
         conversation.append({'role': 'user', 'content': a})
         inner_loop = f'\nUSER: {a} \n\n INNER_MONOLOGUE: {output} \n\n INTUITION: {output_two}'
-        conversation.append({'role': 'assistant', 'content': "LOG:\n%s\n\Read the log and extract the salient points in single bullet point format to serve as %s's memories. Include the full context for each bullet point. Start from the end and work towards the beginning. Exclude the starting prompt.\nMemories: " % (inner_loop, bot_name)})
+        conversation.append({'role': 'assistant', 'content': "LOG:\n%s\n\Read the log and extract the salient points in single bullet point format to serve as %s's memories. Include the full context for each bullet point. Start from the end and work towards the beginning. Ignore the starting prompt.\nMemories: " % (inner_loop, bot_name)})
         inner_loop_response = chatgpt200_completion(conversation)
         inner_loop_db = inner_loop_response
         vector = gpt3_embedding(inner_loop_db)

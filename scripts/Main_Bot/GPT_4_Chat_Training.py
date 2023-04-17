@@ -150,7 +150,7 @@ def chatgpt4summary_completion(messages, model="gpt-3.5-turbo", temp=0.0):
             print('Message too long, using GPT-4 as backup.')
             while True:
                 try:
-                    response = openai.ChatCompletion.create(model=model, messages=messages, max_tokens=400)
+                    response = openai.ChatCompletion.create(model="gpt-4", messages=messages, max_tokens=400)
                     text = response['choices'][0]['message']['content']
                     temperature = temp
                     return text
@@ -372,7 +372,7 @@ def GPT_4_Chat_Training():
         conversation.append({'role': 'system', 'content': '%s' % main_prompt})
         conversation.append({'role': 'user', 'content': a})
         inner_loop = f'\nUSER: {a} \n\n INNER_MONOLOGUE: {output} \n\n INTUITION: {output_two}'
-        conversation.append({'role': 'assistant', 'content': "LOG:\n%s\n\Read the log and extract the salient points in single bullet point format to serve as %s's memories. Include the full context for each bullet point. Start from the end and work towards the beginning. Exclude the starting prompt.\nMemories: " % (inner_loop, bot_name)})
+        conversation.append({'role': 'assistant', 'content': "LOG:\n%s\n\Read the log and extract the salient points in single bullet point format to serve as %s's memories. Include the full context for each bullet point. Start from the end and work towards the beginning. Ignore the starting prompt.\nMemories: " % (inner_loop, bot_name)})
         inner_loop_response = chatgpt200_completion(conversation)
         inner_loop_db = inner_loop_response
         vector = gpt3_embedding(inner_loop_db)

@@ -150,7 +150,7 @@ def chatgpt4summary_completion(messages, model="gpt-3.5-turbo", temp=0.0):
             print('Message too long, using GPT-4 as backup.')
             while True:
                 try:
-                    response = openai.ChatCompletion.create(model=model, messages=messages, max_tokens=400)
+                    response = openai.ChatCompletion.create(model="gpt-4", messages=messages, max_tokens=400)
                     text = response['choices'][0]['message']['content']
                     temperature = temp
                     return text
@@ -232,7 +232,7 @@ def load_conversation_cadence(results):
     
     
 # if __name__ == '__main__':
-def GPT_4_Chat_Manual():
+def GPT_4_Chat_Auto():
     vdb = pinecone.Index("aetherius")
     index_info = vdb.describe_index_stats()
     # # Number of Messages before conversation is summarized, higher number, higher api cost. Change to 3 when using GPT 3.5

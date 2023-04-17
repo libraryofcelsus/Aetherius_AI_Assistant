@@ -63,11 +63,11 @@ Aetherius aims to provide a modular, personalized AI assistant experience by ena
 
 **Guide with Photos can be found at [https://www.libraryofcelsus.com/aetherius-setup-guide/]**
 
-1. Install Git: **https://git-scm.com/**
+1. Install Git: **https://git-scm.com/** (Git can be skipped by downloading the repo as a zip file under the green code button)
 
 2. Install Python 3.10.6, Make sure you add it to PATH: **https://www.python.org/downloads/release/python-3106/**
 
-3. Open the program "Git Bash".
+3. Open the program "Git Bash". 
 
 4. Run git clone: **git clone https://github.com/libraryofcelsus/Aetherius_AI_Assistant.git**
 

@@ -1,5 +1,5 @@
 # Aetherius
-Version 0.03 of the Aetherius Personal Assistant by LibraryofCelsus.com
+Version 0.031 of the Aetherius Personal Assistant by LibraryofCelsus.com
 
 https://github.com/libraryofcelsus
 
@@ -13,6 +13,12 @@ Welcome to the first pre-alpha release of Aetherius, a highly customizable AI as
 Aetherius aims to provide a modular, personalized AI assistant experience by enabling the addition of task-specific Modules and Sub-Modules. If all goes as planned, Aetherius will support integration with other open-source projects.
 
 ## Changelog:
+0.031
+
+-Reworked some internal prompts, internal monologue consistancy issue should be fixed.
+
+-Various Bug Fixes
+
 0.03
 
 -Improved Episodic Memory Implementation
@@ -93,11 +99,17 @@ Aetherius aims to provide a modular, personalized AI assistant experience by ena
 
 18. Type "Exit" twice to return to the main menu. Now select "Main Bot"
 
-19. Select one of the "Manual" chatbot modes, this will enable you to choose what gets uploaded to the chatbots memories.  It also enables a summary of Aetherius's inner loop, avoid uploading irrelivant information to the inner loop DB as they tend to take priority over other memories.  Using the Auto mode can cause an undesired personality to emerge from the bot if it doesn't have established memories.
+19. Select one of the "Training" chatbot modes, this will enable you to choose what gets uploaded to the chatbots memories.  It also enables a summary of Aetherius's inner loop, avoid uploading irrelivant information to the inner loop DB as they tend to take priority over other memories. 
 
-20. Once the chatbots memories have been established, type "Exit" and then select one of the Auto chatbots, this mode will have the bot decide for itself if it should upload to its memory DB.
+20. Once the chatbots memories have been established, type "Exit" and then select one of the "Manual" chatbots, this mode is similar to the training mode, but disables the inner-loop summary and upload sequence.
 
-21. Using the GPT 3.5 scripts causes a significant decrease in intelligence, and as such generally shouldn't be used for training. Auto-Memory may also lead to some issues, chat - manual is recommended if only using GPT 3.5.
+21. Once the chatbot has adopted a desired personality, I recommend creating a backup of the "nexus" folder and then create a collection from the "aetherius" index on pinecone.io.  This will let you revert back to a base state if issues arise later.
+
+22. Once you have made a backup, you can start using the "Auto mode, this mode has Aetherius decide for itself whether or not it should upload to its memories.
+
+23. Using the GPT 3.5 scripts causes a significant decrease in intelligence, and as such generally shouldn't be used for training. Auto-Memory may also lead to some issues, chat - manual is recommended if only using GPT 3.5.
 
 # Contact
-email@libraryofcelsus.com
+Discord: Kutkh#7805
+
+Email: email@libraryofcelsus.com

@@ -135,50 +135,6 @@ def chatgpt35summary_completion(messages, model="gpt-3.5-turbo", temp=0.0):
                 exit(1)
             print(f'Error communicating with OpenAI: "{oops}" - Retrying in {2 ** (retry - 1) * 5} seconds...')
             sleep(2 ** (retry - 1) * 5)
-            
-            
-def chatgpt4summary_completion(messages, model="gpt-3.5-turbo", temp=0.0):
-    max_retry = 5
-    retry = 0
-    while True:
-        try:
-            response = openai.ChatCompletion.create(model=model, messages=messages, max_tokens=400)
-            text = response['choices'][0]['message']['content']
-            temperature = temp
-            return text
-        except Exception as oops:
-            print('Message too long, using GPT-4 as backup.')
-            while True:
-                try:
-                    response = openai.ChatCompletion.create(model=model, messages=messages, max_tokens=400)
-                    text = response['choices'][0]['message']['content']
-                    temperature = temp
-                    return text
-                except Exception as oops:
-                    retry += 1
-                    if retry >= max_retry:
-                        print(f"Exiting due to an error in ChatGPT: {oops}")
-                        exit(1)
-                    print(f'Error communicating with OpenAI: "{oops}" - Retrying in {2 ** (retry - 1) * 5} seconds...')
-                    sleep(2 ** (retry - 1) * 5)
-                    
-                    
-def chatgpt4_completion(messages, model="gpt-4", temp=0.0):
-    max_retry = 7
-    retry = 0
-    while  True:
-        try:
-            response = openai.ChatCompletion.create(model=model, messages=messages, max_tokens=500)
-            text = response['choices'][0]['message']['content']
-            temperature = temp
-            return text
-        except Exception as oops:
-            retry += 1
-            if retry >= max_retry:
-                print(f"Exiting due to an error in ChatGPT: {oops}")
-                exit(1)
-            print(f'Error communicating with OpenAI: "{oops}" - Retrying in {2 ** (retry - 1) * 5} seconds...')
-            sleep(2 ** (retry - 1) * 5)
 
 
 def load_conversation_memory(results):
@@ -232,11 +188,11 @@ def load_conversation_cadence(results):
     
     
 # if __name__ == '__main__':
-def GPT_4_Chat_Manual():
+def GPT_3_5_Chat_Training():
     vdb = pinecone.Index("aetherius")
     index_info = vdb.describe_index_stats()
     # # Number of Messages before conversation is summarized, higher number, higher api cost. Change to 3 when using GPT 3.5
-    conv_length = 4
+    conv_length = 3
     print("Type [Save and Exit] to summarize the conversation and exit.")
     print("Type [Exit] to exit without saving.")
     payload = list()
@@ -272,7 +228,7 @@ def GPT_4_Chat_Manual():
             return
         if a == 'Save and Exit':
             conversation2.append({'role': 'user', 'content': "Review the previous messages and summarize the key points of the conversation in a single bullet point format to serve as %s's memories. Include the full context for each bullet point. Start from the end and work towards the beginning.\nMemories:" % bot_name})
-            conv_summary = chatgpt4summary_completion(conversation2)
+            conv_summary = chatgpt35summary_completion(conversation2)
             print(conv_summary)
             while True:
                 print('\n\nSYSTEM: Upload to long term memory?\n        Press Y for yes or N for no.')
@@ -349,6 +305,37 @@ def GPT_4_Chat_Manual():
         output_two_log = f'\nUSER: {a} \n\n {bot_name}: {output_two}'
         filename = '%s_intuition.txt' % time()
         save_file('logs/intuition_logs/%s' % filename, output_two_log)
+        # # Inner Loop Summary
+        conversation.clear()
+        conversation.append({'role': 'system', 'content': '%s' % main_prompt})
+        conversation.append({'role': 'user', 'content': a})
+        inner_loop = f'\nUSER: {a} \n\n INNER_MONOLOGUE: {output} \n\n INTUITION: {output_two}'
+        conversation.append({'role': 'assistant', 'content': "LOG:\n%s\n\Read the log and extract the salient points in single bullet point format to serve as %s's memories. Include the full context for each bullet point. Start from the end and work towards the beginning. Exclude the starting prompt.\nMemories: " % (inner_loop, bot_name)})
+        inner_loop_response = chatgpt200_completion(conversation)
+        inner_loop_db = inner_loop_response
+        vector = gpt3_embedding(inner_loop_db)
+        print('\n\n<Inner Loop Summary>\n%s' % inner_loop_db)
+        print('\n\nSYSTEM: Upload to Subconsious? This DB takes priority over normal memories, only upload general goals.\n        Press Y for yes or N for no.')
+        while True:
+            user_input = input("'Y' or 'N': ")
+            if user_input == 'y':
+                lines = inner_loop_db.splitlines()
+                for line in lines:
+                    vector = gpt3_embedding(line)
+                    unique_id = str(uuid4())
+                    metadata = {'speaker': bot_name, 'time': timestamp, 'message': line,
+                                'timestring': timestring, 'uuid': unique_id}
+                    save_json('nexus/inner_loop_nexus/%s.json' % unique_id, metadata)
+                    payload.append((unique_id, vector))
+                    vdb.upsert(payload, namespace='inner_loop')
+                    payload.clear()
+                print('\n\nSYSTEM: Upload Successful!')
+                break
+            elif user_input == 'n':
+                print('\n\nSYSTEM: Memories have been Deleted')
+                break
+            else:
+                print('Invalid Input')
         # # Update Second Conversation List for Response
         if 'response_two' in locals():
             conversation2.append({'role': 'assistant', 'content': "%s" % response_two})
@@ -374,7 +361,7 @@ def GPT_4_Chat_Manual():
             break
         # # Generate Aetherius's Response
         conversation2.append({'role': 'assistant', 'content': "SUBCONSIOUS: %s;\n\nMEMORIES: %s\n%s\n\nINNER THOUGHTS: %s;\n%s\nI am in the middle of a conversation with my user, %s. USER MESSAGE: %s; I will do my best to speak naturally and show emotional intelligence. I will intuit their needs: %s;\nMy current message window is limited to 2300 characters.\nI will now give a response with the diction of a real person: " % (db_search_4, db_search_5, db_search_8, output, second_prompt, username, a, output_two)})
-        response_two = chatgpt4_completion(conversation2)
+        response_two = chatgpt500_completion(conversation2)
         print('\n\n%s: %s' % (bot_name, response_two))
         # # Save Chat Logs
         complete_message = f'\nUSER: {a} \n\n INNER_MONOLOGUE: {output} \n\n INTUITION: {output_two} \n\n {bot_name}: {response_two}'
@@ -446,7 +433,7 @@ def GPT_4_Chat_Manual():
         # # Summary loop to avoid Max Token Limit.
         if counter % conv_length == 0:
             conversation2.append({'role': 'user', 'content': "Review the previous messages and summarize the key points of the conversation in a single bullet point format to serve as %s's memories. Include the full context for each bullet point. Start from the end and work towards the beginning.\nMemories:" % bot_name})
-            conv_summary = chatgpt4summary_completion(conversation2)
+            conv_summary = chatgpt35summary_completion(conversation2)
             print(conv_summary)
             conversation2.clear()
             conversation2.append({'role': 'system', 'content': '%s' % main_prompt})

@@ -1,5 +1,5 @@
 # Aetherius
-Version 0.032 of the Aetherius Personal Assistant by LibraryofCelsus.com
+Version 0.033 of the Aetherius Personal Assistant by LibraryofCelsus.com
 
 https://github.com/libraryofcelsus
 
@@ -13,6 +13,12 @@ Welcome to the first pre-alpha release of Aetherius, a highly customizable AI as
 Aetherius aims to provide a modular, personalized AI assistant experience by enabling the addition of task-specific Modules and Sub-Modules. If all goes as planned, Aetherius will support integration with other open-source projects.
 
 ## Changelog:
+0.033
+
+-Improved Auto Memory Upload
+
+-Various Bug Fixes
+
 0.032
 
 -Implemented new system for memory recall
@@ -36,11 +42,6 @@ Aetherius aims to provide a modular, personalized AI assistant experience by ena
 -Started working on implementing Episodic Memory
 
 -Various Bug Fixes
-
-
-0.028
-
--Cadence DB Rework, upload cadence from DB management
 
 ## Future Plans
 -Give Aetherius tools like web-search

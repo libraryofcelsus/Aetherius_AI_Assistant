@@ -419,31 +419,32 @@ def GPT_3_5_Chat_Training():
         # # Auto Upload to Memory DB
     #    auto.clear()
     #    auto.append({'role': 'system', 'content': '%s' % main_prompt})
-    #    if 'response_two' in locals():
-    #        auto.append({'role': 'assistant', 'content': "%s" % greeting_msg})
-    #        auto.append({'role': 'user', 'content': a})
-    #        auto.append({'role': 'assistant', 'content': "%s" % response_two})
-    #        pass
-    #    else:
-    #        auto.append({'role': 'assistant', 'content': "%s" % greeting_msg})
-    #        auto.append({'role': 'user', 'content': a})
-    #    auto.append({'role': 'assistant', 'content': db_upsert})
-    #    auto.append({'role': 'assistant', 'content': "Please review the user's message and your reply. Consider whether your response is pertinent to the question. Focus on retaining essential details only. To save this information to your memory, reply with 'YES'. If not, respond with 'NO': "})
+    #    auto.append({'role': 'assistant', 'content': "%s" % greeting_msg})
+    #    auto.append({'role': 'user', 'content': a})
+    #    auto.append({'role': 'assistant', 'content': "%s" % response_two})
+    #    auto.append({'role': 'assistant', 'content': "Please review the user's message and your reply. Rate whether your response is pertinent to the question with an integer on a scale of 1-10."})
+    #    auto.append({'role': 'user', 'content': 'Please give me your answer in a single integer.'})
     #    automemory = chatgptyesno_completion(auto)
-    #    if automemory == "YES":
-    #        lines = db_upsert.splitlines()
-    #        for line in lines:
-    #           vector = gpt3_embedding(db_upsert)
-    #           unique_id = str(uuid4())
-    #           metadata = {'speaker': bot_name, 'time': timestamp, 'message': db_upsert,
-    #                       'timestring': timestring, 'uuid': unique_id}
-    #           save_json('nexus/memory_nexus/%s.json' % unique_id, metadata)
-    #           payload.append((unique_id, vector))
-    #           vdb.upsert(payload)
-    #           payload.clear()
-    #        print('\n\nSYSTEM: Auto-memory upload Successful!')
-    #    else:
-    #        print("Response not worthy of uploading to memory.")
+    #    print(automemory)
+    #    auto_int = int(automemory)
+    #    while True:
+    #       if auto_int > 6:
+    #           lines = db_upsert.splitlines()
+    #           for line in lines:
+    #              vector = gpt3_embedding(db_upsert)
+    #              unique_id = str(uuid4())
+    #              metadata = {'speaker': bot_name, 'time': timestamp, 'message': db_upsert,
+    #                          'timestring': timestring, 'uuid': unique_id}
+    #              save_json('nexus/memory_nexus/%s.json' % unique_id, metadata)
+    #              payload.append((unique_id, vector))
+    #              vdb.upsert(payload)
+    #              payload.clear()
+    #           print('\n\nSYSTEM: Auto-memory upload Successful!')
+    #       else:
+    #           print("Response not worthy of uploading to memory.")
+    #    else
+    #    print('Error with internal prompt, please report on github')
+    #    pass
         # # Clear Logs for Summary
         conversation.clear()
         summary.clear()

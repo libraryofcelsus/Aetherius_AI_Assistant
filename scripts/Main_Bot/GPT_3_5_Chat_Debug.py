@@ -192,7 +192,7 @@ def GPT_3_5_Chat_Debug():
     vdb = pinecone.Index("aetherius")
     index_info = vdb.describe_index_stats()
     # # Number of Messages before conversation is summarized, higher number, higher api cost. Change to 3 when using GPT 3.5
-    conv_length = 3
+    conv_length = 4
     print("Type [Save and Exit] to summarize the conversation and exit.")
     print("Type [Exit] to exit without saving.")
     payload = list()
@@ -313,11 +313,11 @@ def GPT_3_5_Chat_Debug():
         results = vdb.query(vector=vector_monologue, top_k=4, namespace='episodic_memories')
         db_search_6 = load_conversation_episodic_memory(results)
         results = vdb.query(vector=vector_input, top_k=4, namespace='episodic_memories')
-        db_search_7 = load_conversation_episodic_memory(results)
+        db_search_9 = load_conversation_episodic_memory(results)
         print(db_search_6)
-        print(db_search_7)
+        print(db_search_9)
         # # Intuition Generation
-        int_conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;\n%s\n\n%s'S INNER THOUGHTS: %s;\nUSER MESSAGE: %s;\nIn a single paragraph, interpret the user, %s's message as %s in third person by proactively discerning their intent, even if they are uncertain about their own needs.;\nINTUITION: " % (db_search_6, db_search_7, bot_name, output, a, username, bot_name)})
+        int_conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;\n%s\n\n%s'S INNER THOUGHTS: %s;\nUSER MESSAGE: %s;\nIn a single paragraph, interpret the user, %s's message as %s in third person by proactively discerning their intent, even if they are uncertain about their own needs.;\nINTUITION: " % (db_search_6, db_search_9, bot_name, output, a, username, bot_name)})
         output_two = chatgpt200_completion(int_conversation)
         message_two = output_two
         print('\n\nINTUITION: %s' % output_two)
@@ -420,31 +420,32 @@ def GPT_3_5_Chat_Debug():
         # # Auto Upload to Memory DB
     #    auto.clear()
     #    auto.append({'role': 'system', 'content': '%s' % main_prompt})
-    #    if 'response_two' in locals():
-    #        auto.append({'role': 'assistant', 'content': "%s" % greeting_msg})
-    #        auto.append({'role': 'user', 'content': a})
-    #        auto.append({'role': 'assistant', 'content': "%s" % response_two})
-    #        pass
-    #    else:
-    #        auto.append({'role': 'assistant', 'content': "%s" % greeting_msg})
-    #        auto.append({'role': 'user', 'content': a})
-    #    auto.append({'role': 'assistant', 'content': db_upsert})
-    #    auto.append({'role': 'assistant', 'content': "Please review the user's message and your reply. Consider whether your response is pertinent to the question. Focus on retaining essential details only. To save this information to your memory, reply with 'YES'. If not, respond with 'NO': "})
+    #    auto.append({'role': 'assistant', 'content': "%s" % greeting_msg})
+    #    auto.append({'role': 'user', 'content': a})
+    #    auto.append({'role': 'assistant', 'content': "%s" % response_two})
+    #    auto.append({'role': 'assistant', 'content': "Please review the user's message and your reply. Rate whether your response is pertinent to the question with an integer on a scale of 1-10."})
+    #    auto.append({'role': 'user', 'content': 'Please give me your answer in a single integer.'})
     #    automemory = chatgptyesno_completion(auto)
-    #    if automemory == "YES":
-    #        lines = db_upsert.splitlines()
-    #        for line in lines:
-    #           vector = gpt3_embedding(db_upsert)
-    #           unique_id = str(uuid4())
-    #           metadata = {'speaker': bot_name, 'time': timestamp, 'message': db_upsert,
-    #                       'timestring': timestring, 'uuid': unique_id}
-    #           save_json('nexus/memory_nexus/%s.json' % unique_id, metadata)
-    #           payload.append((unique_id, vector))
-    #           vdb.upsert(payload)
-    #           payload.clear()
-    #        print('\n\nSYSTEM: Auto-memory upload Successful!')
-    #    else:
-    #        print("Response not worthy of uploading to memory.")
+    #    print(automemory)
+    #    auto_int = int(automemory)
+    #    while True:
+    #       if auto_int > 6:
+    #           lines = db_upsert.splitlines()
+    #           for line in lines:
+    #              vector = gpt3_embedding(db_upsert)
+    #              unique_id = str(uuid4())
+    #              metadata = {'speaker': bot_name, 'time': timestamp, 'message': db_upsert,
+    #                          'timestring': timestring, 'uuid': unique_id}
+    #              save_json('nexus/memory_nexus/%s.json' % unique_id, metadata)
+    #              payload.append((unique_id, vector))
+    #              vdb.upsert(payload)
+    #              payload.clear()
+    #           print('\n\nSYSTEM: Auto-memory upload Successful!')
+    #       else:
+    #           print("Response not worthy of uploading to memory.")
+    #    else
+    #       print('Error with internal prompt, please report on github')
+    #       pass
         # # Clear Logs for Summary
         conversation.clear()
         summary.clear()

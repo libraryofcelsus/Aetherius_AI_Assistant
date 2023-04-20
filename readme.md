@@ -15,6 +15,8 @@ Aetherius aims to provide a modular, personalized AI assistant experience by ena
 ## Changelog:
 0.034
 
+-Added Voice Assistant Script, only on keypress for now. Always listening will come later.
+
 -Auto Memory Upload bug fix
 
 0.033

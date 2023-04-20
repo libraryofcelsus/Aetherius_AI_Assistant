@@ -232,7 +232,7 @@ def load_conversation_cadence(results):
     
     
 # if __name__ == '__main__':
-def GPT_4_Chat_Training():
+def Debug_GPT_4():
     vdb = pinecone.Index("aetherius")
     index_info = vdb.describe_index_stats()
     # # Number of Messages before conversation is summarized, higher number, higher api cost. Change to 3 when using GPT 3.5
@@ -291,7 +291,7 @@ def GPT_4_Chat_Training():
                 if user_input == 'y':
                     lines = conv_summary.splitlines()
                     for line in lines:
-                    #    print(timestring + line)
+                        print(timestring + line)
                         vector = gpt3_embedding(timestring + line)
                         unique_id = str(uuid4())
                         metadata = {'speaker': bot_name, 'time': timestamp, 'message': (timestring + line),
@@ -324,7 +324,7 @@ def GPT_4_Chat_Training():
         tasklist_counter = 0
         lines = tasklist_output.splitlines()
         for line in lines:
-        #    print(line)
+            print(line)
             tasklist_vector = gpt3_embedding(line)
             tasklist_counter += 1
             db_term[tasklist_counter] = tasklist_vector
@@ -332,16 +332,16 @@ def GPT_4_Chat_Training():
             db_term_result[tasklist_counter] = load_conversation_memory(results)
             conversation.append({'role': 'assistant', 'content': "MEMORIES: %s" % db_term_result[tasklist_counter]})
             int_conversation.append({'role': 'assistant', 'content': "MEMORIES: %s" % db_term_result[tasklist_counter]})
-        #    print(db_term_result[tasklist_counter])
+            print(db_term_result[tasklist_counter])
         tasklist.clear()
         # # Search Memory DB
         results = vdb.query(vector=vector_input, top_k=5, namespace='episodic_memories')
         db_search_7 = load_conversation_episodic_memory(results)
-    #    print(db_search)
+        print(db_search_7)
         # # Search Heuristics DB
         results = vdb.query(vector=vector_input, top_k=7, namespace='heuristics')
         db_search_2= load_conversation_heuristics(results)
-    #    print(db_search_2)
+        print(db_search_2)
         # # Inner Monologue Generation
         conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;\nHEURISTICS: %s;\nUSER MESSAGE: %s;\nBased on %s's memories and the user, %s's message, compose a brief silent soliloquy as %s's inner monologue that reflects on %s's deepest contemplations and emotions in relation to the user's message.\n\nINNER_MONOLOGUE: " % (db_search_7, db_search_2, a, bot_name, username, bot_name, bot_name)})
         output = chatgpt250_completion(conversation)
@@ -358,12 +358,13 @@ def GPT_4_Chat_Training():
         db_search_6 = load_conversation_episodic_memory(results)
         results = vdb.query(vector=vector_input, top_k=4, namespace='episodic_memories')
         db_search_7 = load_conversation_episodic_memory(results)
-    #    print(db_search_3)
+        print(db_search_6)
+        print(db_search_7)
         # # Intuition Generation
         int_conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;\n%s\n\n%s'S INNER THOUGHTS: %s;\nUSER MESSAGE: %s;\nIn a single paragraph, interpret the user, %s's message as %s in third person by proactively discerning their intent, even if they are uncertain about their own needs.;\nINTUITION: " % (db_search_6, db_search_7, bot_name, output, a, username, bot_name)})
         output_two = chatgpt200_completion(int_conversation)
         message_two = output_two
-    #    print('\n\nINTUITION: %s' % output_two)
+        print('\n\nINTUITION: %s' % output_two)
         output_two_log = f'\nUSER: {a} \n\n {bot_name}: {output_two}'
         filename = '%s_intuition.txt' % time()
         save_file('logs/intuition_logs/%s' % filename, output_two_log)
@@ -407,17 +408,17 @@ def GPT_4_Chat_Training():
             # # Generate Cadence
             results = vdb.query(vector=vector_input, top_k=2, namespace='cadence')
             dialogue_5 = load_conversation_cadence(results)
-    #        print(dialogue_5)
+            print(dialogue_5)
             conversation2.append({'role': 'assistant', 'content': "I will extract the cadence from the following messages and mimic it to the best of my ability: %s" % dialogue_5})
         conversation2.append({'role': 'user', 'content': a})
         # # Search Inner_Loop/Memory DB
         while True:
             results = vdb.query(vector=vector_input, top_k=4, namespace='inner_loop')
             db_search_4 = load_conversation_inner_loop(results)
-    #        print(db_search_4)
+            print(db_search_4)
             results = vdb.query(vector=vector_input, top_k=4, namespace='memories')
             db_search_5 = load_conversation_memory(results)
-     #       print(db_search_5)
+            print(db_search_5)
             results = vdb.query(vector=vector_monologue, top_k=3, namespace='episodic_memories')
             db_search_8 = load_conversation_episodic_memory(results)
             break

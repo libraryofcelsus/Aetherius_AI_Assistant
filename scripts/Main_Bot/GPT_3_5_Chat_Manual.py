@@ -79,7 +79,7 @@ def chatgpt250_completion(messages, model="gpt-3.5-turbo", temp=0.0):
             sleep(2 ** (retry - 1) * 5)
             
             
-def chatgpt500_completion(messages, model="gpt-3.5-turbo", temp=0.0):
+def chatgpt500_completion(messages, model="gpt-3.5-turbo", temp=0.4):
     max_retry = 7
     retry = 0
     while True:
@@ -284,7 +284,7 @@ def GPT_3_5_Chat_Manual():
             tasklist_vector = gpt3_embedding(line)
             tasklist_counter += 1
             db_term[tasklist_counter] = tasklist_vector
-            results = vdb.query(vector=db_term[tasklist_counter], top_k=3, namespace='memories')
+            results = vdb.query(vector=db_term[tasklist_counter], top_k=4, namespace='memories')
             db_term_result[tasklist_counter] = load_conversation_memory(results)
             conversation.append({'role': 'assistant', 'content': "MEMORIES: %s" % db_term_result[tasklist_counter]})
             int_conversation.append({'role': 'assistant', 'content': "MEMORIES: %s" % db_term_result[tasklist_counter]})
@@ -391,8 +391,7 @@ def GPT_3_5_Chat_Manual():
     #    auto.append({'role': 'assistant', 'content': "%s" % greeting_msg})
     #    auto.append({'role': 'user', 'content': a})
     #    auto.append({'role': 'assistant', 'content': "%s" % response_two})
-    #    auto.append({'role': 'assistant', 'content': "Please review the user's message and your reply. Rate whether your response is pertinent to the question with an integer on a scale of 1-10."})
-    #    auto.append({'role': 'user', 'content': 'Please give me your answer in a single integer.'})
+    #    auto.append({'role': 'assistant', 'content': "I will now review the user's message and my reply, rating whether my response is both pertinent to the user's inquiry and my growth with an integer on a scale of 1-10. I will now give my answer in digit form. RESPONSE: "})
     #    automemory = chatgptyesno_completion(auto)
     #    print(automemory)
     #    auto_int = int(automemory)
@@ -409,11 +408,12 @@ def GPT_3_5_Chat_Manual():
     #              vdb.upsert(payload)
     #              payload.clear()
     #           print('\n\nSYSTEM: Auto-memory upload Successful!')
+    #           break
     #       else:
     #           print("Response not worthy of uploading to memory.")
-    #    else
-    #    print('Error with internal prompt, please report on github')
-    #    pass
+    #    else:
+    #       print('Error with internal prompt, please report on github')
+    #       pass
         # # Clear Logs for Summary
         conversation.clear()
         summary.clear()

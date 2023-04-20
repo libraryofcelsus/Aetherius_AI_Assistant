@@ -1,5 +1,5 @@
 # Aetherius
-Version 0.033 of the Aetherius Personal Assistant by LibraryofCelsus.com
+Version 0.034 of the Aetherius Personal Assistant by LibraryofCelsus.com
 
 https://github.com/libraryofcelsus
 
@@ -13,6 +13,10 @@ Welcome to the first pre-alpha release of Aetherius, a highly customizable AI as
 Aetherius aims to provide a modular, personalized AI assistant experience by enabling the addition of task-specific Modules and Sub-Modules. If all goes as planned, Aetherius will support integration with other open-source projects.
 
 ## Changelog:
+0.034
+
+-Auto Memory Upload bug fix
+
 0.033
 
 -Improved Auto Memory Upload

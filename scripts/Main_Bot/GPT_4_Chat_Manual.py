@@ -10,6 +10,13 @@ from time import time, sleep
 import datetime
 from uuid import uuid4
 import pinecone
+# import speech_recognition as sr
+# from gtts import gTTS
+# from playsound import playsound
+# import pyttsx3
+# from pydub import AudioSegment
+# from pydub.playback import play
+# from pydub import effects
 
 
 def open_file(filepath):
@@ -61,7 +68,7 @@ def chatgpt200_completion(messages, model="gpt-3.5-turbo", temp=0.0):
             sleep(2 ** (retry - 1) * 5)
 
             
-def chatgpt250_completion(messages, model="gpt-3.5-turbo", temp=0.0):
+def chatgpt250_completion(messages, model="gpt-3.5-turbo", temp=0.4):
     max_retry = 7
     retry = 0
     while True:
@@ -252,6 +259,7 @@ def GPT_4_Chat_Manual():
     main_prompt = open_file('./config/Chatbot_Prompts/prompt_main.txt').replace('<<NAME>>', bot_name)
     second_prompt = open_file('./config/Chatbot_Prompts/prompt_secondary.txt')
     greeting_msg = open_file('./config/Chatbot_Prompts/prompt_greeting.txt').replace('<<NAME>>', bot_name)
+ #   r = sr.Recognizer()
     while True:
         # # Get Timestamp
         timestamp = time()
@@ -268,7 +276,26 @@ def GPT_4_Chat_Manual():
             conversation.append({'role': 'assistant', 'content': "%s" % greeting_msg})
             print("\n%s" % greeting_msg)
         int_conversation.append({'role': 'system', 'content': '%s' % main_prompt})
-        # # User Input
+        # # User Input Voice
+    #    yn_voice = input(f'\n\nPress Enter to Speak')
+    #    if yn_voice == "":
+    #        with sr.Microphone() as source:
+    #            print("\nSpeak now")
+    #            audio = r.listen(source)
+    #            try:
+    #                text = r.recognize_google(audio)
+    #                print("\nUSER: " + text)
+    #            except sr.UnknownValueError:
+    #                print("Google Speech Recognition could not understand audio")
+    #                print("\nSYSTEM: Press Left Alt to Speak to Aetherius")
+    #                break
+    #            except sr.RequestError as e:
+    #                print("Could not request results from Google Speech Recognition service; {0}".format(e))
+    #                break
+    #    else:
+    #        print('Leave Field Empty')
+    #    a = (f'\n\nUSER: {text}')
+        # # User Input Text
         a = input(f'\n\nUSER: ')
         if 'response_two' in locals():
             int_conversation.append({'role': 'user', 'content': a})
@@ -277,12 +304,11 @@ def GPT_4_Chat_Manual():
         else:
             int_conversation.append({'role': 'assistant', 'content': "%s" % greeting_msg})
             int_conversation.append({'role': 'user', 'content': a})
-
         # # Check for "Exit"
         if a == 'Exit':
             return
         if a == 'Save and Exit':
-            conversation2.append({'role': 'user', 'content': "Review the previous messages and summarize the key points of the conversation in a single bullet point format to serve as %s's memories. Include the full context for each bullet point. Start from the end and work towards the beginning.\nMemories:" % bot_name})
+            conversation2.append({'role': 'user', 'content': "Review the previous messages and summarize the key points of the conversation in a single bullet point format to serve as %s's episodic memories. Each bullet point should be considered a separate memory and contain its entire context. Start from the end and work towards the beginning. Exclude the system prompt and cadence.\nMemories:\n" % bot_name})
             conv_summary = chatgpt4summary_completion(conversation2)
             print(conv_summary)
             while True:
@@ -328,7 +354,7 @@ def GPT_4_Chat_Manual():
             tasklist_vector = gpt3_embedding(line)
             tasklist_counter += 1
             db_term[tasklist_counter] = tasklist_vector
-            results = vdb.query(vector=db_term[tasklist_counter], top_k=4, namespace='memories')
+            results = vdb.query(vector=db_term[tasklist_counter], top_k=5, namespace='memories')
             db_term_result[tasklist_counter] = load_conversation_memory(results)
             conversation.append({'role': 'assistant', 'content': "MEMORIES: %s" % db_term_result[tasklist_counter]})
             int_conversation.append({'role': 'assistant', 'content': "MEMORIES: %s" % db_term_result[tasklist_counter]})
@@ -346,7 +372,7 @@ def GPT_4_Chat_Manual():
         conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;\nHEURISTICS: %s;\nUSER MESSAGE: %s;\nBased on %s's memories and the user, %s's message, compose a brief silent soliloquy as %s's inner monologue that reflects on %s's deepest contemplations and emotions in relation to the user's message.\n\nINNER_MONOLOGUE: " % (db_search_7, db_search_2, a, bot_name, username, bot_name, bot_name)})
         output = chatgpt250_completion(conversation)
         message = output
-        vector_monologue = gpt3_embedding(message)
+        vector_monologue = gpt3_embedding('Inner Monologue: ' + message)
         print('\n\nINNER_MONOLOGUE: %s' % output)
         output_log = f'\nUSER: {a} \n\n {bot_name}: {output}'
         filename = '%s_inner_monologue.txt' % time()
@@ -381,13 +407,13 @@ def GPT_4_Chat_Manual():
         conversation2.append({'role': 'user', 'content': a})
         # # Search Inner_Loop/Memory DB
         while True:
-            results = vdb.query(vector=vector_input, top_k=4, namespace='inner_loop')
+            results = vdb.query(vector=vector_input, top_k=7, namespace='inner_loop')
             db_search_4 = load_conversation_inner_loop(results)
     #        print(db_search_4)
             results = vdb.query(vector=vector_input, top_k=4, namespace='memories')
             db_search_5 = load_conversation_memory(results)
      #       print(db_search_5)
-            results = vdb.query(vector=vector_monologue, top_k=3, namespace='episodic_memories')
+            results = vdb.query(vector=vector_monologue, top_k=4, namespace='episodic_memories')
             db_search_8 = load_conversation_episodic_memory(results)
             break
         # # Generate Aetherius's Response
@@ -401,10 +427,24 @@ def GPT_4_Chat_Manual():
         final_message = f'\nUSER: {a} \n\n {bot_name}: {response_two}'
         text_two = final_message
         save_file('logs/final_response_logs/%s' % filename, final_message)
+        # # TTS 
+    #    tts = gTTS(response_two)
+        # TTS save to file in .mp3 format
+    #    counter2 += 1
+    #    filename = f"{counter2}.{extension}"
+    #    tts.save(filename)
+            # TTS repeats chatGPT response  
+    #    sound = AudioSegment.from_file(filename, format="mp3")
+    #    octaves = 0.20
+    #    new_sample_rate = int(sound.frame_rate * (1.7 ** octaves))
+    #    mod_sound = sound._spawn(sound.raw_data, overrides={'frame_rate': new_sample_rate})
+    #    mod_sound = mod_sound.set_frame_rate(44100)
+    #    play(mod_sound)
+    #    os.remove(filename)
         # # Generate Summary for Memory DB
         db_msg = f'\nUSER: {a} \n\n INNER_MONOLOGUE: {output} \n\n {bot_name}: {response_two}'
-        summary.append({'role': 'user', 'content': "LOG:\n%s\n\Read the log and extract the salient points in single bullet point format to serve as %s's memories. Include the full context for each bullet point. Start from the end and work towards the beginning. Exclude the starting prompt and cadence.\nMemories: " % (db_msg, bot_name)})
-        db_upload = chatgpt250_completion(summary)
+        summary.append({'role': 'user', 'content': "LOG:\n%s\n\Read the log and create short executive summaries in bullet point format to serve as %s's semantic memories. Each bullet point should be considered a separate memory and contain all context. Start from the end and work towards the beginning, combining assosiated topics.\nMemories:\n" % (db_msg, bot_name)})
+        db_upload = chatgpt35summary_completion(summary)
         db_upsert = db_upload
         # # Manual DB Upload Confirmation
         print('\n\n<DATABASE INFO>\n%s' % db_upsert)
@@ -464,7 +504,7 @@ def GPT_4_Chat_Manual():
         counter += 1
         # # Summary loop to avoid Max Token Limit.
         if counter % conv_length == 0:
-            conversation2.append({'role': 'user', 'content': "Review the previous messages and summarize the key points of the conversation in a single bullet point format to serve as %s's memories. Include the full context for each bullet point. Start from the end and work towards the beginning.\nMemories:" % bot_name})
+            conversation2.append({'role': 'user', 'content': "Review the previous messages and summarize the key points of the conversation in a single bullet point format to serve as %s's episodic memories. Each bullet point should be considered a separate memory and contain its entire context. Start from the end and work towards the beginning. Exclude the system prompt and cadence.\nMemories:\n" % bot_name})
             conv_summary = chatgpt4summary_completion(conversation2)
             print(conv_summary)
             conversation2.clear()

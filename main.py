@@ -5,6 +5,12 @@ import time
 import sys
 import importlib.util
 sys.path.insert(0, './scripts')
+from gtts import gTTS
+import speech_recognition as sr
+from playsound import playsound
+from pydub import AudioSegment
+from pydub.playback import play
+from pydub import effects
 
 def open_file(filepath):
     with open(filepath, 'r', encoding='utf-8') as infile:
@@ -58,8 +64,10 @@ if __name__ == '__main__':
     pinecone.init(api_key=open_file('api_keys/key_pinecone.txt'), environment=open_file('api_keys/key_pinecone_env.txt'))
     if not os.path.exists('nexus/inner_loop_nexus'):
         os.makedirs('nexus/inner_loop_nexus')
-    if not os.path.exists('nexus/memory_nexus'):
-        os.makedirs('nexus/memory_nexus')
+    if not os.path.exists('nexus/short_term_memory_nexus'):
+        os.makedirs('nexus/short_term_memory_nexus')
+    if not os.path.exists('nexus/long_term_memory_nexus'):
+        os.makedirs('nexus/long_term_memory_nexus')
     if not os.path.exists('nexus/episodic_memory_nexus'):
         os.makedirs('nexus/episodic_memory_nexus')
     if not os.path.exists('nexus/heuristics_nexus'):

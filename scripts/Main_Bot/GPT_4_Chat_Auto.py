@@ -188,10 +188,20 @@ def chatgpt4_completion(messages, model="gpt-4", temp=0.4):
             sleep(2 ** (retry - 1) * 5)
 
 
-def load_conversation_memory(results):
+def load_conversation_short_term_memory(results):
     result = list()
     for m in results['matches']:
-        info = load_json('nexus/memory_nexus/%s.json' % m['id'])
+        info = load_json('nexus/short_term_memory_nexus/%s.json' % m['id'])
+        result.append(info)
+    ordered = sorted(result, key=lambda d: d['time'], reverse=False)  # sort them all chronologically
+    messages = [i['message'] for i in ordered]
+    return '\n'.join(messages).strip()
+    
+    
+def load_conversation_long_term_memory(results):
+    result = list()
+    for m in results['matches']:
+        info = load_json('nexus/long_term_memory_nexus/%s.json' % m['id'])
         result.append(info)
     ordered = sorted(result, key=lambda d: d['time'], reverse=False)  # sort them all chronologically
     messages = [i['message'] for i in ordered]
@@ -241,7 +251,6 @@ def load_conversation_cadence(results):
 # if __name__ == '__main__':
 def GPT_4_Chat_Auto():
     vdb = pinecone.Index("aetherius")
-    index_info = vdb.describe_index_stats()
     # # Number of Messages before conversation is summarized, higher number, higher api cost. Change to 3 when using GPT 3.5
     conv_length = 4
     print("Type [Save and Exit] to summarize the conversation and exit.")
@@ -253,6 +262,7 @@ def GPT_4_Chat_Auto():
     summary = list()
     auto = list()
     tasklist = list()
+    consolidation  = list()
     counter = 0
     bot_name = open_file('./config/prompt_bot_name.txt')
     username = open_file('./config/prompt_username.txt')
@@ -297,6 +307,9 @@ def GPT_4_Chat_Auto():
     #    a = (f'\n\nUSER: {text}')
         # # User Input Text
         a = input(f'\n\nUSER: ')
+        message_input = a
+        vector_input = gpt3_embedding(message_input)
+        # # Check for Response 2
         if 'response_two' in locals():
             int_conversation.append({'role': 'user', 'content': a})
             int_conversation.append({'role': 'assistant', 'content': "%s" % response_two})
@@ -338,8 +351,6 @@ def GPT_4_Chat_Auto():
             else:
                 pass
         conversation.append({'role': 'user', 'content': a})
-        message_input = a
-        vector_input = gpt3_embedding(message_input)
         # # Generate Semantic Search Terms
         tasklist.append({'role': 'system', 'content': "You are a task coordinator. Your job is to take user input and create a list of 2-5 inquiries to be used for a semantic database search of a chatbot's memories. Use the format [- 'INQUIRY']."})
         tasklist.append({'role': 'user', 'content': "USER INQUIRY: %s" % a})
@@ -354,8 +365,8 @@ def GPT_4_Chat_Auto():
             tasklist_vector = gpt3_embedding(line)
             tasklist_counter += 1
             db_term[tasklist_counter] = tasklist_vector
-            results = vdb.query(vector=db_term[tasklist_counter], top_k=5, namespace='memories')
-            db_term_result[tasklist_counter] = load_conversation_memory(results)
+            results = vdb.query(vector=db_term[tasklist_counter], top_k=4, namespace='long_term_memory')
+            db_term_result[tasklist_counter] = load_conversation_long_term_memory(results)
             conversation.append({'role': 'assistant', 'content': "MEMORIES: %s" % db_term_result[tasklist_counter]})
             int_conversation.append({'role': 'assistant', 'content': "MEMORIES: %s" % db_term_result[tasklist_counter]})
         #    print(db_term_result[tasklist_counter])
@@ -363,6 +374,8 @@ def GPT_4_Chat_Auto():
         # # Search Memory DB
         results = vdb.query(vector=vector_input, top_k=5, namespace='episodic_memories')
         db_search_7 = load_conversation_episodic_memory(results)
+        results = vdb.query(vector=vector_input, top_k=20, namespace='short_term_memory')
+        db_search_9 = load_conversation_short_term_memory(results)
     #    print(db_search)
         # # Search Heuristics DB
         results = vdb.query(vector=vector_input, top_k=7, namespace='heuristics')
@@ -382,8 +395,8 @@ def GPT_4_Chat_Auto():
         # # Memory DB Search
         results = vdb.query(vector=vector_monologue, top_k=4, namespace='episodic_memories')
         db_search_6 = load_conversation_episodic_memory(results)
-        results = vdb.query(vector=vector_input, top_k=4, namespace='episodic_memories')
-        db_search_7 = load_conversation_episodic_memory(results)
+        results = vdb.query(vector=vector_monologue, top_k=4, namespace='long_term_memory')
+        db_search_7 = load_conversation_long_term_memory(results)
     #    print(db_search_3)
         # # Intuition Generation
         int_conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;\n%s\n\n%s'S INNER THOUGHTS: %s;\nUSER MESSAGE: %s;\nIn a single paragraph, interpret the user, %s's message as %s in third person by proactively discerning their intent, even if they are uncertain about their own needs.;\nINTUITION: " % (db_search_6, db_search_7, bot_name, output, a, username, bot_name)})
@@ -407,11 +420,11 @@ def GPT_4_Chat_Auto():
         conversation2.append({'role': 'user', 'content': a})
         # # Search Inner_Loop/Memory DB
         while True:
-            results = vdb.query(vector=vector_input, top_k=7, namespace='inner_loop')
+            results = vdb.query(vector=vector_monologue, top_k=7, namespace='inner_loop')
             db_search_4 = load_conversation_inner_loop(results)
     #        print(db_search_4)
-            results = vdb.query(vector=vector_input, top_k=4, namespace='memories')
-            db_search_5 = load_conversation_memory(results)
+            results = vdb.query(vector=vector_input, top_k=4, namespace='long_term_memory')
+            db_search_5 = load_conversation_long_term_memory(results)
      #       print(db_search_5)
             results = vdb.query(vector=vector_monologue, top_k=4, namespace='episodic_memories')
             db_search_8 = load_conversation_episodic_memory(results)
@@ -466,7 +479,7 @@ def GPT_4_Chat_Auto():
                               'timestring': timestring, 'uuid': unique_id}
                   save_json('nexus/memory_nexus/%s.json' % unique_id, metadata)
                   payload.append((unique_id, vector))
-                  vdb.upsert(payload)
+                  vdb.upsert(payload, namespace='short_term_memory')
                   payload.clear()
                print('\n\nSYSTEM: Auto-memory upload Successful!')
                break
@@ -479,6 +492,34 @@ def GPT_4_Chat_Auto():
         conversation.clear()
         summary.clear()
         counter += 1
+        # # Short Term Memory Consolidation
+        index_info = vdb.describe_index_stats()
+        namespace_stats = index_info['namespaces']
+        namespace_name = 'short_term_memory'
+        if namespace_name in namespace_stats and namespace_stats[namespace_name]['vector_count'] > 14:
+            print(f"{namespace_name} has 15 or more entries, starting memory consolidation.")
+            results = vdb.query(vector=vector_input, top_k=50, namespace='short_term_memory')
+            memory_consol_db = load_conversation_short_term_memory(results)
+            consolidation.append({'role': 'system', 'content': "%s" % main_prompt})
+            consolidation.append({'role': 'assistant', 'content': "LOG:\n%s\n\nRead the Log and consolidate the different topics into executive summaries. Each summary should contain the entire context of the memory. Follow the format [- Executive Summary]." % memory_consol_db})
+            memory_consol = chatgpt4summary_completion(consolidation)
+            lines = memory_consol.splitlines()
+            for line in lines:
+            #    print(timestring + line)
+                vector = gpt3_embedding(line)
+                print(line)
+                unique_id = str(uuid4())
+                metadata = {'speaker': bot_name, 'time': timestamp, 'message': (line),
+                            'timestring': timestring, 'uuid': unique_id}
+                save_json('nexus/long_term_memory_nexus/%s.json' % unique_id, metadata)
+                payload.append((unique_id, vector))
+                vdb.upsert(payload, namespace='long_term_memory')
+                payload.clear()
+            vdb.delete(delete_all=True, namespace='short_term_memory')
+            print('Memory Consolidation Successful')
+            consolidation.clear()
+        else:
+            pass
         # # Summary loop to avoid Max Token Limit.
         if counter % conv_length == 0:
             conversation2.append({'role': 'user', 'content': "Review the previous messages and summarize the key points of the conversation in a single bullet point format to serve as %s's episodic memories. Each bullet point should be considered a separate memory and contain its entire context. Start from the end and work towards the beginning. Exclude the system prompt and cadence.\nMemories:\n" % bot_name})

@@ -126,3 +126,4 @@ Aetherius aims to provide a modular, personalized AI assistant experience by ena
 Discord: Kutkh#7805
 
 Email: email@libraryofcelsus.com
+

@@ -1,5 +1,7 @@
 # Aetherius
-Version 0.035 of the Aetherius Personal Assistant by LibraryofCelsus.com
+Version 0.036 of the Aetherius Personal Assistant by LibraryofCelsus.com
+
+**This Version Requires a DB reset**
 
 https://github.com/libraryofcelsus
 
@@ -13,6 +15,10 @@ Welcome to the pre-alpha release of Aetherius, a highly customizable AI assistan
 Aetherius aims to provide a modular, personalized AI assistant experience by enabling the addition of task-specific Modules and Sub-Modules. If all goes as planned, Aetherius will support integration with other open-source projects and models.
 
 ## Changelog:
+0.036
+
+-Implemented Memory Consolidation
+
 0.035
 
 -Separated General Memory DB into Implicit and Explicit Memories.

@@ -500,7 +500,7 @@ def GPT_4_Chat_Manual():
     #              unique_id = str(uuid4())
     #              metadata = {'speaker': bot_name, 'time': timestamp, 'message': db_upsert,
     #                          'timestring': timestring, 'uuid': unique_id}
-    #              save_json('nexus/memory_nexus/%s.json' % unique_id, metadata)
+    #              save_json('nexus/short_term_memory_nexus/%s.json' % unique_id, metadata)
     #              payload.append((unique_id, vector))
     #              vdb.upsert(payload, namespace='short_term_memory')
     #              payload.clear()

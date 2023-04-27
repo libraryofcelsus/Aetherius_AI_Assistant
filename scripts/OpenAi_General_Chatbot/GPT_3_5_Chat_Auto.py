@@ -41,6 +41,14 @@ def save_json(filepath, payload):
 
 def timestamp_to_datetime(unix_time):
     return datetime.datetime.fromtimestamp(unix_time).strftime("%A, %B %d, %Y at %I:%M%p %Z")
+    
+    
+def is_integer(value):
+    try:
+        int(value)
+        return True
+    except ValueError:
+        return False
 
 
 def gpt3_embedding(content, engine='text-embedding-ada-002'):
@@ -344,8 +352,6 @@ def GPT_3_5_Chat_Auto():
         vector_monologue = gpt3_embedding('Inner Monologue: ' + message)
         print('\n\nINNER_MONOLOGUE: %s' % output)
         output_log = f'\nUSER: {a}\n\n{bot_name}: {output}'
-        filename = '%s_inner_monologue.txt' % time()
-        save_file('logs/inner_monologue_logs/%s' % filename, output_log)
         # # Clear Conversation List for Intuition Generation
         conversation.clear()
         # # Memory DB Search
@@ -359,9 +365,7 @@ def GPT_3_5_Chat_Auto():
         output_two = chatgpt200_completion(int_conversation)
         message_two = output_two
     #    print('\n\nINTUITION: %s' % output_two)
-        output_two_log = f'\nUSER: {a} \n\n {bot_name}: {output_two}'
-        filename = '%s_intuition.txt' % time()
-        save_file('logs/intuition_logs/%s' % filename, output_two_log)
+        output_two_log = f'\nUSER: {a}\n\n{bot_name}: {output_two}'
         # # Update Second Conversation List for Response
         if 'response_two' in locals():
             conversation2.append({'role': 'assistant', 'content': "%s" % response_two})
@@ -389,13 +393,8 @@ def GPT_3_5_Chat_Auto():
         conversation2.append({'role': 'assistant', 'content': "SUBCONSIOUS: %s;\n\nMEMORIES: %s\n%s\n\nINNER THOUGHTS: %s;\n%s\nI am in the middle of a conversation with my user, %s. USER MESSAGE: %s; I will do my best to speak naturally and show emotional intelligence. I will intuit their needs: %s;\nMy current message window is limited to 2300 characters.\nI will now give a response with the diction of a real person: " % (db_search_4, db_search_5, db_search_8, output, second_prompt, username, a, output_two)})
         response_two = chatgpt500_completion(conversation2)
         print('\n\n%s: %s' % (bot_name, response_two))
-        # # Save Chat Logs
-        complete_message = f'\nUSER: {a} \n\n INNER_MONOLOGUE: {output} \n\n INTUITION: {output_two} \n\n {bot_name}: {response_two}'
-        filename = '%s_chat.txt' % time()
-        save_file('logs/complete_chat_logs/%s' % filename, complete_message)
-        final_message = f'\nUSER: {a} \n\n {bot_name}: {response_two}'
-        text_two = final_message
-        save_file('logs/final_response_logs/%s' % filename, final_message)
+        complete_message = f'\nUSER: {a}\n\nINNER_MONOLOGUE: {output}\n\nINTUITION: {output_two}\n\n{bot_name}: {response_two}'
+        final_message = f'\nUSER: {a}\n\n{bot_name}: {response_two}'
         # # TTS 
     #    tts = gTTS(response_two)
         # TTS save to file in .mp3 format
@@ -415,15 +414,28 @@ def GPT_3_5_Chat_Auto():
         summary.append({'role': 'user', 'content': "LOG:\n%s\n\Read the log and create short executive summaries in bullet point format to serve as %s's semantic memories. Each bullet point should be considered a separate memory and contain all context. Start from the end and work towards the beginning, combining assosiated topics.\nMemories:\n" % (db_msg, bot_name)})
         db_upload = chatgpt35summary_completion(summary)
         db_upsert = db_upload
+        # # Save Chat Logs
+        filename = '%s_inner_monologue.txt' % timestamp
+        save_file('logs/inner_monologue_logs/%s' % filename, output_log)
+        filename = '%s_intuition.txt' % timestamp
+        save_file('logs/intuition_logs/%s' % filename, output_two_log)
+        filename = '%s_response.txt' % timestamp
+        save_file('logs/final_response_logs/%s' % filename, final_message)
+        filename = '%s_chat.txt' % timestamp
+        save_file('logs/complete_chat_logs/%s' % filename, complete_message)
         # # Auto Upload to Memory DB
         auto.clear()
         auto.append({'role': 'system', 'content': "You are a sub-module designed to rate responses. You are only able to respond with integers on a scale of 1-10. You are incapable of printing letters."})
         auto.append({'role': 'user', 'content': a})
         auto.append({'role': 'assistant', 'content': "%s" % response_two})
         auto.append({'role': 'assistant', 'content': "I will now review the user's message and my reply, rating whether my response is both pertinent to the user's inquiry and my growth with a number on a scale of 1-10. I will now give my response for a python int input: "})
-        automemory = chatgptyesno_completion(auto)
-        print(automemory)
-        auto_int = int(automemory)
+        auto_int = None
+        while auto_int is None:
+            automemory = chatgptyesno_completion(auto)
+            if is_integer(automemory):
+                auto_int = int(automemory)
+            else:
+                print("automemory failed to produce an integer. Retrying...")
         while True:
             if auto_int > 6:
                 lines = db_upsert.splitlines()
@@ -452,7 +464,7 @@ def GPT_3_5_Chat_Auto():
         index_info = vdb.describe_index_stats()
         namespace_stats = index_info['namespaces']
         namespace_name = 'short_term_memory'
-        if namespace_name in namespace_stats and namespace_stats[namespace_name]['vector_count'] > 14:
+        if namespace_name in namespace_stats and namespace_stats[namespace_name]['vector_count'] > 13:
             print(f"{namespace_name} has 15 or more entries, starting memory consolidation.")
             results = vdb.query(vector=vector_input, top_k=50, namespace='short_term_memory')
             memory_consol_db = load_conversation_short_term_memory(results)

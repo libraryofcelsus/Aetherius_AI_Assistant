@@ -3,8 +3,6 @@ Version 0.036a of the Aetherius Personal Assistant by LibraryofCelsus.com
 
 Discord: https://discord.gg/pb5zcNa7zE
 
-![](http://www.libraryofcelsus.com/wp-content/uploads/2023/04/Aetherius-Example-gif.gif)
-
 **This Version Requires a DB reset**
 
 https://github.com/libraryofcelsus

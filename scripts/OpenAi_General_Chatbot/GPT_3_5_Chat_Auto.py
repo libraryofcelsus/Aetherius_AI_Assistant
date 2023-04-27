@@ -272,15 +272,8 @@ def GPT_3_5_Chat_Auto():
         a = input(f'\n\nUSER: ')
         message_input = a
         vector_input = gpt3_embedding(message_input)
-        # # Check for Response Two for Intuition
+        # # Update Intuition List
         int_conversation.append({'role': 'system', 'content': '%s' % main_prompt})
-        if 'response_two' in locals():
-            int_conversation.append({'role': 'user', 'content': a})
-            int_conversation.append({'role': 'assistant', 'content': "%s" % response_two})
-            pass
-        else:
-            int_conversation.append({'role': 'assistant', 'content': "%s" % greeting_msg})
-            int_conversation.append({'role': 'user', 'content': a})
         # # Check for "Exit"
         if a == 'Exit':
             return
@@ -289,7 +282,7 @@ def GPT_3_5_Chat_Auto():
             conv_summary = chatgpt35summary_completion(conversation2)
             print(conv_summary)
             while True:
-                print('\n\nSYSTEM: Upload to long term memory?\n        Press Y for yes or N for no.')
+                print('\n\nSYSTEM: Upload to episodic memory?\n        Press Y for yes or N for no.')
                 user_input = input("'Y' or 'N': ")
                 if user_input == 'y':
                     lines = conv_summary.splitlines()
@@ -357,10 +350,12 @@ def GPT_3_5_Chat_Auto():
         # # Memory DB Search
         results = vdb.query(vector=vector_monologue, top_k=4, namespace='episodic_memories')
         db_search_6 = load_conversation_episodic_memory(results)
-        results = vdb.query(vector=vector_monologue, top_k=4, namespace='long_term_memory')
-        db_search_10 = load_conversation_long_term_memory(results)
+        results = vdb.query(vector=vector_input, top_k=20, namespace='short_term_memory')
+        db_search_10 = load_conversation_short_term_memory(results)
     #    print(db_search_3)
         # # Intuition Generation
+        int_conversation.append({'role': 'assistant', 'content': "%s" % greeting_msg})
+        int_conversation.append({'role': 'user', 'content': a})
         int_conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;\n%s\n\n%s'S INNER THOUGHTS: %s;\nUSER MESSAGE: %s;\nIn a single paragraph, interpret the user, %s's message as %s in third person by proactively discerning their intent, even if they are uncertain about their own needs.;\nINTUITION: " % (db_search_6, db_search_10, bot_name, output, a, username, bot_name)})
         output_two = chatgpt200_completion(int_conversation)
         message_two = output_two

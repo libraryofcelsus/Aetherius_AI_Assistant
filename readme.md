@@ -1,5 +1,5 @@
 # Aetherius
-Version 0.036 of the Aetherius Personal Assistant by LibraryofCelsus.com
+Version 0.036a of the Aetherius Personal Assistant by LibraryofCelsus.com
 
 **This Version Requires a DB reset**
 
@@ -12,9 +12,15 @@ Inspired by https://github.com/daveshap/
 # Current Version Information
 Welcome to the pre-alpha release of Aetherius, a highly customizable AI assistant designed to adapt to your specific needs.  I prefer a more "anthropomorphized" personal Ai as talking to something like base GPT feels off-putting.  The end goal of Aetherius is to both provide a realistic Ai companion and a cognitive framework that can be added on top of other Ai tools.
 
+Currently working on a version of Aetherius that uses GPT4ALL, however this may be delayed until its capabilites improve.
+
 Aetherius aims to provide a modular, personalized AI assistant experience by enabling the addition of task-specific Modules and Sub-Modules. If all goes as planned, Aetherius will support integration with other open-source projects and models.
 
 ## Changelog:
+0.036a
+
+-Various Bug Fixes
+
 0.036
 
 -Implemented Memory Consolidation
@@ -48,12 +54,6 @@ Aetherius aims to provide a modular, personalized AI assistant experience by ena
 -Reworked some internal prompts, internal monologue consistancy issue should be fixed.
 
 -Various Bug Fixes
-
-0.03
-
--Improved Episodic Memory Implementation
-
--Summary length bug fixed
 
 ## Future Plans
 -Give Aetherius tools like web-search

@@ -325,13 +325,14 @@ def GPT_3_5_Chat_Auto():
             results = vdb.query(vector=db_term[tasklist_counter], top_k=4, namespace='long_term_memory')
             db_term_result[tasklist_counter] = load_conversation_long_term_memory(results)
             conversation.append({'role': 'assistant', 'content': "MEMORIES: %s" % db_term_result[tasklist_counter]})
-            int_conversation.append({'role': 'assistant', 'content': "MEMORIES: %s" % db_term_result[tasklist_counter]})
+            if tasklist_counter < 4:
+                int_conversation.append({'role': 'assistant', 'content': "MEMORIES: %s" % db_term_result[tasklist_counter]})
         #    print(db_term_result[tasklist_counter])
         tasklist.clear()
         # # Search Memory DB
         results = vdb.query(vector=vector_input, top_k=5, namespace='episodic_memories')
         db_search_7 = load_conversation_episodic_memory(results)
-        results = vdb.query(vector=vector_input, top_k=20, namespace='short_term_memory')
+        results = vdb.query(vector=vector_input, top_k=10, namespace='short_term_memory')
         db_search_9 = load_conversation_short_term_memory(results)
     #    print(db_search)
         # # Search Heuristics DB
@@ -350,7 +351,7 @@ def GPT_3_5_Chat_Auto():
         # # Memory DB Search
         results = vdb.query(vector=vector_monologue, top_k=4, namespace='episodic_memories')
         db_search_6 = load_conversation_episodic_memory(results)
-        results = vdb.query(vector=vector_input, top_k=20, namespace='short_term_memory')
+        results = vdb.query(vector=vector_input, top_k=10, namespace='short_term_memory')
         db_search_10 = load_conversation_short_term_memory(results)
     #    print(db_search_3)
         # # Intuition Generation
@@ -362,13 +363,14 @@ def GPT_3_5_Chat_Auto():
     #    print('\n\nINTUITION: %s' % output_two)
         output_two_log = f'\nUSER: {a}\n\n{bot_name}: {output_two}'
         # # Update Second Conversation List for Response
+        print('\n%s is thinking...\n' % bot_name)
         if 'response_two' in locals():
             conversation2.append({'role': 'assistant', 'content': "%s" % response_two})
         else:
             conversation2.append({'role': 'system', 'content': '%s' % main_prompt})
             conversation2.append({'role': 'assistant', 'content': '%s' % greeting_msg})
             # # Generate Cadence
-            results = vdb.query(vector=vector_input, top_k=2, namespace='cadence')
+            results = vdb.query(vector=vector_input, top_k=1, namespace='cadence')
             dialogue_5 = load_conversation_cadence(results)
     #        print(dialogue_5)
             conversation2.append({'role': 'assistant', 'content': "I will extract the cadence from the following messages and mimic it to the best of my ability: %s" % dialogue_5})
@@ -423,7 +425,7 @@ def GPT_3_5_Chat_Auto():
         auto.append({'role': 'system', 'content': "You are a sub-module designed to rate responses. You are only able to respond with integers on a scale of 1-10. You are incapable of printing letters."})
         auto.append({'role': 'user', 'content': a})
         auto.append({'role': 'assistant', 'content': "%s" % response_two})
-        auto.append({'role': 'assistant', 'content': "I will now review the user's message and my reply, rating whether my response is both pertinent to the user's inquiry and my growth with a number on a scale of 1-10. I will now give my response for a python int input: "})
+        auto.append({'role': 'assistant', 'content': "I will now review the user's message and my reply, rating whether my response is both pertinent to the user's inquiry and my growth with a number on a scale of 1-10. I will now give my response in digit form for a python int input: "})
         auto_int = None
         while auto_int is None:
             automemory = chatgptyesno_completion(auto)
@@ -453,6 +455,7 @@ def GPT_3_5_Chat_Auto():
             pass
         # # Clear Logs for Summary
         conversation.clear()
+        int_conversation.clear()
         summary.clear()
         counter += 1
         # # Short Term Memory Consolidation
@@ -494,16 +497,24 @@ def GPT_3_5_Chat_Auto():
         # # Option to upload summary to Memory DB.
         if counter % conv_length == 0:
             while True:
-                lines = conv_summary.splitlines()
-                for line in lines:
-                    vector = gpt3_embedding(timestring + line)
-                    unique_id = str(uuid4())
-                    metadata = {'speaker': bot_name, 'time': timestamp, 'message': (timestring + line),
-                                'timestring': timestring, 'uuid': unique_id}
-                    save_json('nexus/episodic_memory_nexus/%s.json' % unique_id, metadata)
-                    payload.append((unique_id, vector))
-                    vdb.upsert(payload, namespace='episodic_memories')
-                    payload.clear()
-                print('\n\nSYSTEM: Upload Successful!')
-                break
+                print('\n\nSYSTEM: Upload to episodic memory?\n        Press Y for yes or N for no.')
+                user_input = input("'Y' or 'N': ")
+                if user_input == 'y':
+                    lines = conv_summary.splitlines()
+                    for line in lines:
+                        vector = gpt3_embedding(timestring + line)
+                        unique_id = str(uuid4())
+                        metadata = {'speaker': bot_name, 'time': timestamp, 'message': (timestring + line),
+                                    'timestring': timestring, 'uuid': unique_id}
+                        save_json('nexus/episodic_memory_nexus/%s.json' % unique_id, metadata)
+                        payload.append((unique_id, vector))
+                        vdb.upsert(payload, namespace='episodic_memories')
+                        payload.clear()
+                    print('\n\nSYSTEM: Upload Successful!')
+                    break
+                elif user_input == 'n':
+                    print('\n\nSYSTEM: Memories have been Deleted')
+                    break
+                else:
+                    print('Invalid Input')
         continue

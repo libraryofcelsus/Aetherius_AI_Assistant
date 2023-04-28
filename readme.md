@@ -1,5 +1,5 @@
 # Aetherius
-Version 0.036c of the Aetherius Personal Assistant by LibraryofCelsus.com
+Version 0.036d of the Aetherius Personal Assistant by LibraryofCelsus.com
 
 More output examples can be found at https://github.com/libraryofcelsus/Aetherius_Ai_Assistant_Outputs
 
@@ -21,9 +21,9 @@ Currently working on a version of Aetherius that uses GPT4ALL, however this may 
 Aetherius aims to provide a modular, personalized AI assistant experience by enabling the addition of task-specific Modules and Sub-Modules. If all goes as planned, Aetherius will support integration with other open-source projects and models.
 
 ## Changelog:
-0.036c
+0.036d
 
--Fixed Intuition Loop context length bug
+-Actually fixed Intuition Loop context length bug...probably
 
 -Added Retry loop for Auto Memory
 

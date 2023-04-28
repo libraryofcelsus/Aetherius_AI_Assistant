@@ -5,7 +5,7 @@ More output examples can be found at https://github.com/libraryofcelsus/Aetheriu
 
 Discord: https://discord.gg/pb5zcNa7zE
 
-**This Version Requires a DB reset**
+**Version 0.036 requires a DB reset**
 
 Made by: https://github.com/libraryofcelsus
 

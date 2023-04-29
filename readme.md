@@ -7,8 +7,6 @@ Discord Server: https://discord.gg/pb5zcNa7zE
 
 Join the Discord for help or to get more in-depth information!
 
-**Version 0.036 requires a DB reset**
-
 Made by: https://github.com/libraryofcelsus
 
 Inspired by https://github.com/daveshap/

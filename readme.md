@@ -5,7 +5,7 @@ More output examples can be found at https://github.com/libraryofcelsus/Aetheriu
 
 Discord Server: https://discord.gg/pb5zcNa7zE
 
-Join the Discord for more in-depth information!
+Join the Discord for help or to get more in-depth information!
 
 **Version 0.036 requires a DB reset**
 
@@ -74,6 +74,8 @@ Aetherius aims to provide a modular, personalized AI assistant experience by ena
 
 -Detailed guide on how to initially "train" Aetherius to get a desired personality
 
+-Recreate World Creator with new architecture
+
 -NPC submodule for World Creator
 
 -Text-Rpg submodule for World Creator
@@ -130,7 +132,11 @@ Aetherius aims to provide a modular, personalized AI assistant experience by ena
 
 22. Once you have made a backup, you can start using the "Auto" mode, this mode has Aetherius decide for itself whether or not it should upload to its memories.
 
-23. Using the GPT 3.5 scripts causes a significant decrease in intelligence, and as such generally shouldn't be used for training. Auto-Memory may also lead to some issues, chat-manual is recommended if only using GPT 3.5.
+23. Type "Clear Memories" to clear short term memory. Type "Exit" to exit without saving the current conversation to episodic memory. Type "Save and Exit" to summarize the current conversation and upload it to episodic memories.
+
+24. To reset Aetherius completely, enter DB Management and select "Reset Pinecone Index". Type "Delete All Data" to delete and remake the index.
+
+25. Using the GPT 3.5 scripts causes a significant decrease in intelligence, and as such generally shouldn't be used for training. Auto-Memory may also lead to some issues, chat-manual is recommended if only using GPT 3.5.
 
 # Contact
 Discord: Kutkh#7805

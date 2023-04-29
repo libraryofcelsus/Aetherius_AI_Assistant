@@ -100,7 +100,7 @@ Aetherius aims to provide a modular, personalized AI assistant experience by ena
 
 7. Create a virtual environment: **python -m venv venv**
 
-8. Activate the environment: **.\venv\scripts\activate**
+8. Activate the environment: **.\venv\scripts\activate**   (This must be done before running Aetherius each time, using an IDE like PyCharm can let you skip this.)
 
 9. Install the required packages: **pip install -r requirements.txt**
 
@@ -120,17 +120,17 @@ Aetherius aims to provide a modular, personalized AI assistant experience by ena
 
 17. Upload your desired Cadence to "DB Upload Cadence" in DB Management. This should be a direct example of the speech style, not a description. I suggest asking Aetherius to use the diction of a "____" to generate an example, then copy paste the response to the Cadence Upload.
 
-18. Type "Exit" twice to return to the main menu. Now select "Main Bot"
+18. Type "Exit" to return to the main menu. Now select "OpenAi_General_Chatbot"
 
-19. Select one of the "Training" chatbot modes, this will enable you to choose what gets uploaded to the chatbots memories.  It also enables a summary of Aetherius's inner loop, avoid uploading irrelivant information to the inner loop DB as they tend to take priority over other memories. 
+19. Select one of the "Training" chatbot modes, this will enable you to choose what gets uploaded to the chatbots memories.  It also enables a summary of Aetherius's inner loop.  Avoid uploading irrelivant information to the inner loop DB as they tend to take priority over other memories. 
 
 20. Once the chatbots memories have been established, type "Exit" and then select one of the "Manual" chatbots, this mode is similar to the training mode, but disables the inner-loop summary and upload sequence.
 
-21. Once the chatbot has adopted a desired personality, I recommend creating a backup of the "nexus" folder and then create a collection from the "aetherius" index on pinecone.io.  This will let you revert back to a base state if issues arise later.
+21. Once the chatbot has adopted a desired personality, I recommend creating a backup of the "nexus" folder and then create a collection of the "aetherius" index on pinecone.io.  This will let you revert back to a base state if issues arise later.
 
-22. Once you have made a backup, you can start using the "Auto mode, this mode has Aetherius decide for itself whether or not it should upload to its memories.
+22. Once you have made a backup, you can start using the "Auto" mode, this mode has Aetherius decide for itself whether or not it should upload to its memories.
 
-23. Using the GPT 3.5 scripts causes a significant decrease in intelligence, and as such generally shouldn't be used for training. Auto-Memory may also lead to some issues, chat - manual is recommended if only using GPT 3.5.
+23. Using the GPT 3.5 scripts causes a significant decrease in intelligence, and as such generally shouldn't be used for training. Auto-Memory may also lead to some issues, chat-manual is recommended if only using GPT 3.5.
 
 # Contact
 Discord: Kutkh#7805

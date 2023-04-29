@@ -3,7 +3,9 @@ Version 0.036d of the Aetherius Personal Assistant by LibraryofCelsus.com
 
 More output examples can be found at https://github.com/libraryofcelsus/Aetherius_Ai_Assistant_Outputs
 
-Discord: https://discord.gg/pb5zcNa7zE
+Discord Server: https://discord.gg/pb5zcNa7zE
+
+Join the Discord for more in-depth information!
 
 **Version 0.036 requires a DB reset**
 

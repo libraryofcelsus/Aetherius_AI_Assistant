@@ -261,6 +261,7 @@ def GPT_4_Chat_Training():
     vdb = pinecone.Index("aetherius")
     # # Number of Messages before conversation is summarized, higher number, higher api cost. Change to 3 when using GPT 3.5
     conv_length = 4
+    print("Type [Clear Memory] to clear saved short-term memory.")
     print("Type [Save and Exit] to summarize the conversation and exit.")
     print("Type [Exit] to exit without saving.")
     payload = list()
@@ -318,6 +319,21 @@ def GPT_4_Chat_Training():
         vector_input = gpt3_embedding(message_input)
         # # Update Intuition List
         int_conversation.append({'role': 'system', 'content': '%s' % main_prompt})
+        # # Check for "Clear Memory"
+        if a == 'Clear Memory':
+            while True:
+                print('\n\nSYSTEM: Are you sure you would like to delete saved short-term memory?\n        Press Y for yes or N for no.')
+                user_input = input("'Y' or 'N': ")
+                if user_input == 'y':
+                    vdb.delete(delete_all=True, namespace="short_term_memory")
+                    while True:
+                        print('Short-Term Memory has been Deleted')
+                        return
+                elif user_input == 'n':
+                    print('\n\nSYSTEM: Short-Term Memory delete cancelled.')
+                    return
+            else:
+                pass
         # # Check for "Exit"
         if a == 'Exit':
             return
@@ -520,6 +536,7 @@ def GPT_4_Chat_Training():
         # # Auto Upload to Memory DB
     #    auto.clear()
     #    auto.append({'role': 'system', 'content': "You are a sub-module designed to rate responses. You are only able to respond with integers on a scale of 1-10. You are incapable of printing letters."})
+    #    auto.append({'role': 'system', 'content': '%s' % main_prompt})
     #    auto.append({'role': 'user', 'content': a})
     #    auto.append({'role': 'assistant', 'content': "%s" % response_two})
     #    auto.append({'role': 'assistant', 'content': "I will now review the user's message and my reply, rating whether my response is both pertinent to the user's inquiry and my growth with a number on a scale of 1-10. I will now give my response in digit form for a python int input: "})

@@ -98,7 +98,7 @@ Aetherius aims to provide a modular, personalized AI assistant experience by ena
 
 5. Open CMD as Admin
 
-6. Navigate to Project folder: **cd PATH**
+6. Navigate to Project folder: **cd PATH_TO_AETHERIUS_INSTALL**
 
 7. Create a virtual environment: **python -m venv venv**
 

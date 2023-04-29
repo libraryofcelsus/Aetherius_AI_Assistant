@@ -1,5 +1,5 @@
 # Aetherius
-Version 0.036d of the Aetherius Personal Assistant by LibraryofCelsus.com
+Version 0.037 of the Aetherius Personal Assistant by LibraryofCelsus.com
 
 More output examples can be found at https://github.com/libraryofcelsus/Aetherius_Ai_Assistant_Outputs
 
@@ -23,17 +23,23 @@ Currently working on a version of Aetherius that uses GPT4ALL, however this may 
 Aetherius aims to provide a modular, personalized AI assistant experience by enabling the addition of task-specific Modules and Sub-Modules. If all goes as planned, Aetherius will support integration with other open-source projects and models.
 
 ## Changelog:
-0.036d
+0.037
 
--Actually fixed Intuition Loop context length bug...probably
+-Added Reset_Pinecone_Index.py to DB Management. This will allow you to reset Aetherius without having to log into pinecone.io
 
--Added Retry loop for Auto Memory
+-Added "Clear Memory" command to main chatbot. This will clear the saved short-term memory.
 
--Various Bug Fixes
+-Worked on Improving Memory Auto Upload
 
 0.036
 
 -Implemented Memory Consolidation
+
+-Added Retry loop for Auto Memory
+
+-Fixed Intuition Loop context length bug
+
+-Various Bug Fixes
 
 0.035
 
@@ -58,12 +64,6 @@ Aetherius aims to provide a modular, personalized AI assistant experience by ena
 -Implemented new system for memory recall
 
 -Added Debug output scripts, these print all of the internal loops that are hidden in the other scripts.
-
-0.031
-
--Reworked some internal prompts, internal monologue consistancy issue should be fixed.
-
--Various Bug Fixes
 
 ## Future Plans
 -Give Aetherius tools like web-search

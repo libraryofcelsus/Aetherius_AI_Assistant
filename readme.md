@@ -1,5 +1,5 @@
 # Aetherius
-Version 0.037 of the Aetherius Personal Assistant by LibraryofCelsus.com
+Version 0.037a of the Aetherius Personal Assistant by LibraryofCelsus.com
 
 More output examples can be found at https://github.com/libraryofcelsus/Aetherius_Ai_Assistant_Outputs
 
@@ -21,6 +21,10 @@ Currently working on a version of Aetherius that uses GPT4ALL, however this may 
 Aetherius aims to provide a modular, personalized AI assistant experience by enabling the addition of task-specific Modules and Sub-Modules. If all goes as planned, Aetherius will support integration with other open-source projects and models.
 
 ## Changelog:
+0.037a
+
+-Added Manual Long-Term memory Consolidation script in DB Management
+
 0.037
 
 -Added Reset_Pinecone_Index.py to DB Management. This will allow you to reset Aetherius without having to log into pinecone.io
@@ -56,12 +60,6 @@ Aetherius aims to provide a modular, personalized AI assistant experience by ena
 -Improved Auto Memory Upload
 
 -Various Bug Fixes
-
-0.032
-
--Implemented new system for memory recall
-
--Added Debug output scripts, these print all of the internal loops that are hidden in the other scripts.
 
 ## Future Plans
 -Give Aetherius tools like web-search

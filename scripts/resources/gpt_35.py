@@ -94,9 +94,9 @@ def chatgptresponse_completion(messages, model="gpt-3.5-turbo", temp=0.4):
                 exit(1)
             print(f'Error communicating with OpenAI: "{oops}" - Retrying in {2 ** (retry - 1) * 5} seconds...')
             sleep(2 ** (retry - 1) * 5)
-            
-            
-def chatgptsummary_completion(messages, model="gpt-3.5-turbo", temp=0.0):
+   
+                    
+def chatgptsummary_completion(messages, model="gpt-3.5-turbo", temp=0.4):
     max_retry = 5
     retry = 0
     while True:
@@ -106,17 +106,27 @@ def chatgptsummary_completion(messages, model="gpt-3.5-turbo", temp=0.0):
             temperature = temp
             return text
         except Exception as oops:
-            print('Message too long, using GPT-4 as backup.')
-            while True:
-                try:
-                    response = openai.ChatCompletion.create(model="gpt-4", messages=messages, max_tokens=500)
-                    text = response['choices'][0]['message']['content']
-                    temperature = temp
-                    return text
-                except Exception as oops:
-                    retry += 1
-                    if retry >= max_retry:
-                        print(f"Exiting due to an error in ChatGPT: {oops}")
-                        exit(1)
-                    print(f'Error communicating with OpenAI: "{oops}" - Retrying in {2 ** (retry - 1) * 5} seconds...')
-                    sleep(2 ** (retry - 1) * 5)   
+            retry += 1
+            if retry >= max_retry:
+                print(f"Exiting due to an error in ChatGPT: {oops}")
+                exit(1)
+            print(f'Error communicating with OpenAI: "{oops}" - Retrying in {2 ** (retry - 1) * 5} seconds...')
+            sleep(2 ** (retry - 1) * 5)
+            
+            
+def chatgptconsolidation_completion(messages, model="gpt-3.5-turbo", temp=0.4):
+    max_retry = 5
+    retry = 0
+    while True:
+        try:
+            response = openai.ChatCompletion.create(model=model, messages=messages, max_tokens=800)
+            text = response['choices'][0]['message']['content']
+            temperature = temp
+            return text
+        except Exception as oops:
+            retry += 1
+            if retry >= max_retry:
+                print(f"Exiting due to an error in ChatGPT: {oops}")
+                exit(1)
+            print(f'Error communicating with OpenAI: "{oops}" - Retrying in {2 ** (retry - 1) * 5} seconds...')
+            sleep(2 ** (retry - 1) * 5)

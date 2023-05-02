@@ -85,7 +85,7 @@ def Memory_Consolidation():
         timestring = timestamp_to_datetime(timestamp)
         a = input(f'\n\nUSER: ')
         vector = gpt3_embedding(a)
-        results = vdb.query(vector=vector, top_k=5, namespace='long_term_memory') 
+        results = vdb.query(vector=vector, top_k=7, namespace='long_term_memory') 
         memory_consol_db = load_conversation_long_term_memory(results)
         ids_to_delete = [m['id'] for m in results['matches']]
         consolidation.append({'role': 'system', 'content': "%s" % main_prompt})
@@ -111,13 +111,14 @@ def Memory_Consolidation():
                     payload.append((unique_id, vector))
                     vdb.upsert(payload, namespace='long_term_memory')
                     payload.clear()    
-                vdb.delete(ids=ids_to_delete, namespace='long_term_memory')
+                    vdb.delete(ids=ids_to_delete, namespace='long_term_memory')
                 break
             elif user_input == 'n':
                 print('Cancelled')
                 break
             else:
                 print('Invalid Input')
+        consolidation.clear()
         print('Memory Consolidation Complete')        
         
         

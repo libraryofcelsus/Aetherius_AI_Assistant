@@ -29,7 +29,7 @@ Aetherius aims to provide a modular, personalized AI assistant experience by ena
 
 -Implemented Implicit Memory Consolidation
 
--Implemented Implicit Memory Assosiation/Pruning
+-Implemented Implicit Memory Association/Pruning
 
 0.037
 

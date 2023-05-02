@@ -1,5 +1,7 @@
 # Aetherius
-Version 0.037b of the Aetherius Personal Assistant by LibraryofCelsus.com
+Version 0.038 of the Aetherius Personal Assistant by LibraryofCelsus.com
+
+**Version 0.038 requires a full DB Reset, a new memory Architecture has been implemented**
 
 More output examples can be found at https://github.com/libraryofcelsus/Aetherius_Ai_Assistant_Outputs
 
@@ -21,13 +23,13 @@ Currently working on a version of Aetherius that uses GPT4ALL, however this may 
 Aetherius aims to provide a modular, personalized AI assistant experience by enabling the addition of task-specific Modules and Sub-Modules. If all goes as planned, Aetherius will support integration with other open-source projects and models.
 
 ## Changelog:
-0.037b
+0.038
 
--Cleaned up Code and added an Analysis file in the resources folder
+-Implemented Implicit Short-Term Memory
 
--Fixed TTS Bug
+-Implemented Implicit Memory Consolidation
 
--Added Manual Long-Term memory Consolidation script in DB Management
+-Implemented Implicit Memory Assosiation/Pruning
 
 0.037
 
@@ -35,7 +37,13 @@ Aetherius aims to provide a modular, personalized AI assistant experience by ena
 
 -Added "Clear Memory" command to main chatbot. This will clear the saved short-term memory.
 
--Worked on Improving Memory Auto Upload
+-Worked on Improving Memory Auto Upload|
+
+-Cleaned up Code and added an Analysis file in the resources folder
+
+-Fixed TTS Bug
+
+-Added Manual Long-Term memory Consolidation script in DB Management
 
 0.036
 
@@ -58,12 +66,6 @@ Aetherius aims to provide a modular, personalized AI assistant experience by ena
 -Added Voice Assistant Script, only on keypress for now. Always listening will come later.
 
 -Auto Memory Upload bug fix
-
-0.033
-
--Improved Auto Memory Upload
-
--Various Bug Fixes
 
 ## Future Plans
 -Give Aetherius tools like web-search

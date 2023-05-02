@@ -126,19 +126,17 @@ Aetherius aims to provide a modular, personalized AI assistant experience by ena
 
 18. Type "Exit" to return to the main menu. Now select "OpenAi_General_Chatbot"
 
-19. Select one of the "Training" chatbot modes, this will enable you to choose what gets uploaded to the chatbots memories.  It also enables a summary of Aetherius's inner loop.  Avoid uploading irrelivant information to the inner loop DB as they tend to take priority over other memories. 
+19. Select one of the "Training" chatbot modes, this will enable you to choose what gets uploaded to the chatbots memories.  It also functions as a "Manual" mode. (Previous Manual mode has been removed)
 
-20. Once the chatbots memories have been established, type "Exit" and then select one of the "Manual" chatbots, this mode is similar to the training mode, but disables the inner-loop summary and upload sequence.
+20. Once the chatbot has adopted a desired personality, I recommend creating a backup of the "nexus" folder and then create a collection of the "aetherius" index on pinecone.io.  This will let you revert back to a base state if issues arise later.
 
-21. Once the chatbot has adopted a desired personality, I recommend creating a backup of the "nexus" folder and then create a collection of the "aetherius" index on pinecone.io.  This will let you revert back to a base state if issues arise later.
+21. Once you have made a backup, you can start using the "Auto" mode, this mode has Aetherius decide for itself whether or not it should upload to its memories.
 
-22. Once you have made a backup, you can start using the "Auto" mode, this mode has Aetherius decide for itself whether or not it should upload to its memories.
+22. Type "Clear Memories" to clear short term memory. Type "Exit" to exit without saving the current conversation to episodic memory. Type "Save and Exit" to summarize the current conversation and upload it to episodic memories.
 
-23. Type "Clear Memories" to clear short term memory. Type "Exit" to exit without saving the current conversation to episodic memory. Type "Save and Exit" to summarize the current conversation and upload it to episodic memories.
+23. To reset Aetherius completely, enter DB Management and select "Reset Pinecone Index". Type "Reset Index" to delete and remake the index.  This takes a little bit so wait at least 1 minuite before attempting to access it.
 
-24. To reset Aetherius completely, enter DB Management and select "Reset Pinecone Index". Type "Delete All Data" to delete and remake the index.
-
-25. Using the GPT 3.5 scripts causes a significant decrease in intelligence, and as such generally shouldn't be used for training. Auto-Memory may also lead to some issues, chat-manual is recommended if only using GPT 3.5.
+24. Using the GPT 3.5 scripts causes a significant decrease in intelligence, and as such generally shouldn't be used for initial training.
 
 # Contact
 Discord: Kutkh#7805

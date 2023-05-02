@@ -62,8 +62,8 @@ if __name__ == '__main__':
 #   openai.api_key = key
     openai.api_key = open_file('api_keys/key_openai.txt')
     pinecone.init(api_key=open_file('api_keys/key_pinecone.txt'), environment=open_file('api_keys/key_pinecone_env.txt'))
-    if not os.path.exists('nexus/inner_loop_nexus'):
-        os.makedirs('nexus/inner_loop_nexus')
+    if not os.path.exists('nexus/implicit_short_term_memory_nexus'):
+        os.makedirs('nexus/implicit_short_term_memory_nexus')
     if not os.path.exists('nexus/short_term_memory_nexus'):
         os.makedirs('nexus/short_term_memory_nexus')
     if not os.path.exists('nexus/long_term_memory_nexus'):

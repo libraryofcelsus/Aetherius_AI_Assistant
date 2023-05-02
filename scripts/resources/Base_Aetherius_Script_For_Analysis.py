@@ -344,7 +344,7 @@ def Base_Aetherius_Script_For_Analysis():
     #    auto.append({'role': 'system', 'content': '%s' % main_prompt})
     #    auto.append({'role': 'user', 'content': a})
     #    auto.append({'role': 'assistant', 'content': "%s" % response_two})
-    #    auto.append({'role': 'assistant', 'content': "I will now review the user's message and my reply, rating whether my response is both pertinent to the user's inquiry and my growth with a number on a scale of 1-10. I will now give my response in digit form for a python int input: "})
+    #    auto.append({'role': 'assistant', 'content': "I will now review the user's message and my reply, rating whether my response is both pertinent to the user's inquiry and my growth with a number on a scale of 1-10. I will now give my response in digit form for a python integer input: "})
     #    auto_int = None
     #    while auto_int is None:
     #        automemory = chatgptyesno_completion(auto)
@@ -377,7 +377,7 @@ def Base_Aetherius_Script_For_Analysis():
         int_conversation.clear()
         summary.clear()
         counter += 1
-        # # Short Term Memory Consolidation
+        # # Short Term Memory Consolidation based on amount of vectors in namespace
         index_info = vdb.describe_index_stats()
         namespace_stats = index_info['namespaces']
         namespace_name = 'short_term_memory'
@@ -439,7 +439,7 @@ def Base_Aetherius_Script_For_Analysis():
                     break
                 else:
                     print('Invalid Input')
-        # # Implicit Short Term Memory Consolidation
+        # # Implicit Short Term Memory Consolidation based on amount of vectors in namespace
         index_info = vdb.describe_index_stats()
         namespace_stats = index_info['namespaces']
         namespace_name = 'consol_counter'
@@ -481,7 +481,7 @@ def Base_Aetherius_Script_For_Analysis():
                 print('Invalid Input')
         else:
             pass
-        # # Implicit Associative Processing/Pruning
+        # # Implicit Associative Processing/Pruning  based on amount of vectors in namespace
         consolidation.clear()
         index_info = vdb.describe_index_stats()
         namespace_stats = index_info['namespaces']

@@ -1,5 +1,5 @@
 # Aetherius
-Version 0.038a of the Aetherius Personal Assistant by LibraryofCelsus.com
+Version 0.038b of Aetherius Personal Assistant by LibraryofCelsus.com
 
 **Version 0.038 requires a full DB Reset, a new memory Architecture has been implemented**
 
@@ -23,7 +23,15 @@ Currently working on a version of Aetherius that uses GPT4ALL, however this may 
 Aetherius aims to provide a modular, personalized AI assistant experience by enabling the addition of task-specific Modules and Sub-Modules. If all goes as planned, Aetherius will support integration with other open-source projects and models.
 
 ## Changelog:
-0.038a
+0.038b
+
+-Added Cadence DB check, will no longer use Cadence prompt if Cadence DB is empty.
+
+-Fixed GPT 3.5 Context Length Bug
+
+-Worked on improving Auto-Memory
+
+a.
 
 -Implemented Auto Explicit Memory Association/Pruning
 

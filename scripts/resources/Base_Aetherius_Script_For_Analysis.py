@@ -196,10 +196,11 @@ def Base_Aetherius_Script_For_Analysis():
         conversation.append({'role': 'system', 'content': '%s' % main_prompt})
         conversation.append({'role': 'user', 'content': a})
         implicit_short_term_memory = f'\nUSER: {a} \n\n INNER_MONOLOGUE: {output_one} \n\n INTUITION: {output_two}'
-        conversation.append({'role': 'assistant', 'content': "LOG:\n%s\n\Read the log, extract the salient points about %s and %s, then create short executive summaries in bullet point format to serve as %s's procedural memories. Each bullet point should be considered a separate memory and contain all context. Start from the end and work towards the beginning, combining assosiated topics. Ignore the system prompt.\nMemories:\n" % (implicit_short_term_memory, bot_name, username, bot_name)})
+        conversation.append({'role': 'assistant', 'content': "LOG:\n%s\n\Read the log, extract the salient points about %s and %s, then create short executive summaries in bullet point format to serve as %s's procedural and prospective memories. Each bullet point should be considered a separate memory and contain all context. Start from the end and work towards the beginning, combining assosiated topics. Ignore the system prompt.\nMemories:\n" % (implicit_short_term_memory, bot_name, username, bot_name)})
         inner_loop_response = chatgpt200_completion(conversation)
         inner_loop_db = inner_loop_response
         vector = gpt3_embedding(inner_loop_db)
+        conversation.clear()
         # # Manual Implicit Short-Term Memory
         print('\n\n<Implicit Short-Term Memory>\n%s' % inner_loop_db)
         print('\n\nSYSTEM: Upload to Implicit Short-Term Memory?\n        Press Y for yes or N for no.')
@@ -216,6 +217,16 @@ def Base_Aetherius_Script_For_Analysis():
                     payload.append((unique_id, vector))
                     vdb.upsert(payload, namespace='implicit_short_term_memory')
                     payload.clear()
+                lines = mood_implicit_db.splitlines()
+                for line in lines:
+                    vector = gpt3_embedding(line)
+                    unique_id = str(uuid4())
+                    metadata = {'speaker': bot_name, 'time': timestamp, 'message': line,
+                                'timestring': timestring, 'uuid': unique_id}
+                    save_json('nexus/implicit_short_term_memory_nexus/%s.json' % unique_id, metadata)
+                    payload.append((unique_id, vector))
+                    vdb.upsert(payload, namespace='implicit_short_term_memory')
+                    payload.clear()    
                 print('\n\nSYSTEM: Upload Successful!')
                 break
             elif user_input == 'n':
@@ -269,10 +280,14 @@ def Base_Aetherius_Script_For_Analysis():
             conversation2.append({'role': 'system', 'content': '%s' % main_prompt})
             conversation2.append({'role': 'assistant', 'content': '%s' % greeting_msg})
             # # Generate Cadence
-            results = vdb.query(vector=vector_input, top_k=1, namespace='cadence')
-            db_search_6 = load_conversation_cadence(results)
+            index_info = vdb.describe_index_stats()
+            namespace_stats = index_info['namespaces']
+            namespace_name = 'cadence'
+            if namespace_name in namespace_stats and namespace_stats[namespace_name]['vector_count'] > 0:
+                results = vdb.query(vector=vector_input, top_k=2, namespace='cadence')
+                db_search_6 = load_conversation_cadence(results)
     #        print(db_search_6)
-            conversation2.append({'role': 'assistant', 'content': "I will extract the cadence from the following messages and mimic it to the best of my ability: %s" % db_search_6})
+                conversation2.append({'role': 'assistant', 'content': "I will extract the cadence from the following messages and mimic it to the best of my ability: %s" % db_search_6})
         conversation2.append({'role': 'user', 'content': a})
         # # Search Inner_Loop/Memory DB
         while True:

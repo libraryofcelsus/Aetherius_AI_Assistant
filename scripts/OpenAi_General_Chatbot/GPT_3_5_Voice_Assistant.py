@@ -12,7 +12,7 @@ import datetime
 from uuid import uuid4
 import pinecone
 from basic_functions import *
-from gpt_35 import *
+from gpt_4 import *
 import speech_recognition as sr
 from gtts import gTTS
 from playsound import playsound
@@ -39,7 +39,6 @@ def GPT_3_5_Voice_Assistant():
     consolidation  = list()
     counter = 0
     counter2 = 0
-    auto_count = 0
     mem_counter = 0
     bot_name = open_file('./config/prompt_bot_name.txt')
     username = open_file('./config/prompt_username.txt')
@@ -197,18 +196,20 @@ def GPT_3_5_Voice_Assistant():
         conversation.append({'role': 'system', 'content': '%s' % main_prompt})
         conversation.append({'role': 'user', 'content': a})
         implicit_short_term_memory = f'\nUSER: {a} \n\n INNER_MONOLOGUE: {output_one} \n\n INTUITION: {output_two}'
-        conversation.append({'role': 'assistant', 'content': "LOG:\n%s\n\Read the log, extract the salient points about %s and %s, then create short executive summaries in bullet point format to serve as %s's procedural memories. Each bullet point should be considered a separate memory and contain all context. Start from the end and work towards the beginning, combining assosiated topics. Ignore the system prompt.\nMemories:\n" % (implicit_short_term_memory, bot_name, username, bot_name)})
+        conversation.append({'role': 'assistant', 'content': "LOG:\n%s\n\Read the log, extract the salient points about %s and %s, then create short executive summaries in bullet point format to serve as %s's procedural and prospective memories. Each bullet point should be considered a separate memory and contain all context. Start from the end and work towards the beginning, combining assosiated topics. Ignore the system prompt.\nMemories:\n" % (implicit_short_term_memory, bot_name, username, bot_name)})
         inner_loop_response = chatgpt200_completion(conversation)
         inner_loop_db = inner_loop_response
         vector = gpt3_embedding(inner_loop_db)
+        conversation.clear()
         # # Auto Implicit Short-Term Memory DB Upload Confirmation
         auto_count = 0
         auto.clear()
-        auto.append({'role': 'system', 'content': "You are a sub-module designed to reflect on your thought process. You are only able to respond with integers on a scale of 1-10, being incapable of printing letters."})
         auto.append({'role': 'system', 'content': '%s' % main_prompt})
+        auto.append({'role': 'user', 'content': "You are a sub-module designed to reflect on your thought process. You are only able to respond with integers on a scale of 1-10, being incapable of printing letters. Respond with: 1 if you understand. Respond with: 2 if you do not."})
+        auto.append({'role': 'assistant', 'content': "1"})
         auto.append({'role': 'user', 'content': a})
         auto.append({'role': 'assistant', 'content': "Inner Monologue: %s\nIntuition: %s" % (output_one, output_two)})
-        auto.append({'role': 'assistant', 'content': "I will now review the user's message and my reply, rating if whether my thoughts are both pertinent to the user's inquiry and my growth with a number on a scale of 1-10. I will now give my response in digit form for an integer only input: "})
+        auto.append({'role': 'assistant', 'content': "Thoughts on input: I will now review the user's message and my reply, rating if whether my thoughts are both pertinent to the user's inquiry and my growth with a number on a scale of 1-10. I will now give my response in digit form for an integer only input: "})
         auto_int = None
         while auto_int is None:
             automemory = chatgptyesno_completion(auto)
@@ -247,20 +248,24 @@ def GPT_3_5_Voice_Assistant():
             conversation2.append({'role': 'system', 'content': '%s' % main_prompt})
             conversation2.append({'role': 'assistant', 'content': '%s' % greeting_msg})
             # # Generate Cadence
-            results = vdb.query(vector=vector_input, top_k=1, namespace='cadence')
-            db_search_6 = load_conversation_cadence(results)
+            index_info = vdb.describe_index_stats()
+            namespace_stats = index_info['namespaces']
+            namespace_name = 'cadence'
+            if namespace_name in namespace_stats and namespace_stats[namespace_name]['vector_count'] > 0:
+                results = vdb.query(vector=vector_input, top_k=2, namespace='cadence')
+                db_search_6 = load_conversation_cadence(results)
     #        print(db_search_6)
-            conversation2.append({'role': 'assistant', 'content': "I will extract the cadence from the following messages and mimic it to the best of my ability: %s" % db_search_6})
+                conversation2.append({'role': 'assistant', 'content': "I will extract the cadence from the following messages and mimic it to the best of my ability: %s" % db_search_6})
         conversation2.append({'role': 'user', 'content': a})
         # # Search Inner_Loop/Memory DB
         while True:
-            results = vdb.query(vector=vector_monologue, top_k=7, namespace='implicit_short_term_memory')
+            results = vdb.query(vector=vector_monologue, top_k=4, namespace='implicit_short_term_memory')
             db_search_7 = load_conversation_implicit_short_term_memory(results)
-            results = vdb.query(vector=vector_monologue, top_k=7, namespace='implicit_long_term_memory')
+            results = vdb.query(vector=vector_monologue, top_k=4, namespace='implicit_long_term_memory')
             db_search_8 = load_conversation_implicit_long_term_memory(results)
-            results = vdb.query(vector=vector_input, top_k=7, namespace='long_term_memory')
+            results = vdb.query(vector=vector_input, top_k=2, namespace='long_term_memory')
             db_search_9 = load_conversation_long_term_memory(results)
-            results = vdb.query(vector=vector_monologue, top_k=4, namespace='episodic_memories')
+            results = vdb.query(vector=vector_monologue, top_k=2, namespace='episodic_memories')
             db_search_10 = load_conversation_episodic_memory(results)
             break
         # # Generate Aetherius's Response
@@ -298,13 +303,14 @@ def GPT_3_5_Voice_Assistant():
         db_upload = chatgptsummary_completion(summary)
         db_upsert = db_upload
         # # Auto Explicit Short-Term Memory DB Upload Confirmation
-        auto_count = 0
+        auto_count = 0    
         auto.clear()
-        auto.append({'role': 'system', 'content': "You are a sub-module designed to rate responses. You are only able to respond with integers on a scale of 1-10. You are incapable of printing letters."})
         auto.append({'role': 'system', 'content': '%s' % main_prompt})
+        auto.append({'role': 'user', 'content': "You are a sub-module designed to reflect on your thought process. You are only able to respond with integers on a scale of 1-10, being incapable of printing letters. Respond with: 1 if you understand. Respond with: 2 if you do not."})
+        auto.append({'role': 'assistant', 'content': "1"})
         auto.append({'role': 'user', 'content': a})
-        auto.append({'role': 'assistant', 'content': "%s" % response_two})
-        auto.append({'role': 'assistant', 'content': "I will now review the user's message and my reply, rating whether my response is both pertinent to the user's inquiry and my growth with a number on a scale of 1-10. I will now give my response in digit form for an integer only input: "})
+        auto.append({'role': 'assistant', 'content': "Inner Monologue: %s\nIntuition: %s" % (output_one, output_two)})
+        auto.append({'role': 'assistant', 'content': "Thoughts on input: I will now review the user's message and my reply, rating if whether my thoughts are both pertinent to the user's inquiry and my growth with a number on a scale of 1-10. I will now give my response in digit form for an integer only input: "})
         auto_int = None
         while auto_int is None:
             automemory = chatgptyesno_completion(auto)
@@ -437,6 +443,7 @@ def GPT_3_5_Voice_Assistant():
             consolidation.append({'role': 'system', 'content': "%s" % main_prompt})
             consolidation.append({'role': 'assistant', 'content': "LOG:\n%s\n\nRead the Log and consolidate the different memories into executive summaries in a process allegorical to associative processing. Each summary should contain the entire context of the memory. Follow the format: [-{tag} Memory]" % memory_consol_db1})
             memory_consol = chatgptconsolidation_completion(consolidation)
+            memories = results
             lines = memory_consol.splitlines()
             for line in lines:
                 vector = gpt3_embedding(line)
@@ -446,7 +453,7 @@ def GPT_3_5_Voice_Assistant():
                 save_json('nexus/implicit_long_term_memory_nexus/%s.json' % unique_id, metadata)
                 payload.append((unique_id, vector))
                 vdb.upsert(payload, namespace='implicit_long_term_memory')
-                payload.clear()
+                payload.clear()    
                 vdb.delete(ids=ids_to_delete, namespace='implicit_long_term_memory')
         consolidation.clear()
         # # Explicit Long-Term Memory Associative Processing/Pruning based on amount of vectors in namespace
@@ -468,6 +475,7 @@ def GPT_3_5_Voice_Assistant():
             consolidation.append({'role': 'system', 'content': "%s" % main_prompt})
             consolidation.append({'role': 'assistant', 'content': "LOG:\n%s\n\nRead the Log and consolidate the different memories into executive summaries in a process allegorical to associative processing. Each summary should contain the entire context of the memory. Follow the format: [-{tag} Memory]" % memory_consol_db2})
             memory_consol2 = chatgptconsolidation_completion(consolidation)
+            memories = results
             lines = memory_consol2.splitlines()
             for line in lines:
                 vector = gpt3_embedding(line)
@@ -477,7 +485,7 @@ def GPT_3_5_Voice_Assistant():
                 save_json('nexus/long_term_memory_nexus/%s.json' % unique_id, metadata)
                 payload.append((unique_id, vector))
                 vdb.upsert(payload, namespace='long_term_memory')
-                payload.clear()
+                payload.clear()    
                 vdb.delete(ids=ids_to_delete2, namespace='long_term_memory')
             vdb.delete(delete_all=True, namespace='consol_counter')
         consolidation.clear()

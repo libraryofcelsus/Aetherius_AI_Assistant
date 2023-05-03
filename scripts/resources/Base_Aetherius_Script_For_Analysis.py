@@ -237,11 +237,12 @@ def Base_Aetherius_Script_For_Analysis():
         # # Auto Implicit Short-Term Memory DB Upload Confirmation
     #    auto_count = 0
     #    auto.clear()
-    #    auto.append({'role': 'system', 'content': "You are a sub-module designed to reflect on your thought process. You are only able to respond with integers on a scale of 1-10, being incapable of printing letters."})
     #    auto.append({'role': 'system', 'content': '%s' % main_prompt})
+    #    auto.append({'role': 'user', 'content': "You are a sub-module designed to reflect on your thought process. You are only able to respond with integers on a scale of 1-10, being incapable of printing letters. Respond with: 1 if you understand. Respond with: 2 if you do not."})
+    #    auto.append({'role': 'assistant', 'content': "1"})
     #    auto.append({'role': 'user', 'content': a})
     #    auto.append({'role': 'assistant', 'content': "Inner Monologue: %s\nIntuition: %s" % (output_one, output_two)})
-    #    auto.append({'role': 'assistant', 'content': "I will now review the user's message and my reply, rating if whether my thoughts are both pertinent to the user's inquiry and my growth with a number on a scale of 1-10. I will now give my response in digit form for an integer only input: "})
+    #    auto.append({'role': 'assistant', 'content': "Thoughts on input: I will now review the user's message and my reply, rating if whether my thoughts are both pertinent to the user's inquiry and my growth with a number on a scale of 1-10. I will now give my response in digit form for an integer only input: "})
     #    auto_int = None
     #    while auto_int is None:
     #        automemory = chatgptyesno_completion(auto)
@@ -360,11 +361,12 @@ def Base_Aetherius_Script_For_Analysis():
         # # Auto Explicit Short-Term Memory DB Upload Confirmation
     #    auto_count = 0    
     #    auto.clear()
-    #    auto.append({'role': 'system', 'content': "You are a sub-module designed to rate responses. You are only able to respond with integers on a scale of 1-10. You are incapable of printing letters."})
     #    auto.append({'role': 'system', 'content': '%s' % main_prompt})
+    #    auto.append({'role': 'user', 'content': "You are a sub-module designed to reflect on your thought process. You are only able to respond with integers on a scale of 1-10, being incapable of printing letters. Respond with: 1 if you understand. Respond with: 2 if you do not."})
+    #    auto.append({'role': 'assistant', 'content': "1"})
     #    auto.append({'role': 'user', 'content': a})
-    #    auto.append({'role': 'assistant', 'content': "%s" % response_two})
-    #    auto.append({'role': 'assistant', 'content': "I will now review the user's message and my reply, rating whether my response is both pertinent to the user's inquiry and my growth with a number on a scale of 1-10. I will now give my response in digit form for an integer only input: "})
+    #    auto.append({'role': 'assistant', 'content': "Inner Monologue: %s\nIntuition: %s" % (output_one, output_two)})
+    #    auto.append({'role': 'assistant', 'content': "Thoughts on input: I will now review the user's message and my reply, rating if whether my thoughts are both pertinent to the user's inquiry and my growth with a number on a scale of 1-10. I will now give my response in digit form for an integer only input: "})
     #    auto_int = None
     #    while auto_int is None:
     #        automemory = chatgptyesno_completion(auto)

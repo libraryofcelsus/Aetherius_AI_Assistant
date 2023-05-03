@@ -18,7 +18,7 @@ Inspired by https://github.com/daveshap/
 # Current Version Information
 Welcome to the pre-alpha release of Aetherius, a highly customizable AI assistant designed to adapt to your specific needs.  I prefer a more "anthropomorphized" personal Ai as talking to something like base GPT feels off-putting.  The end goal of Aetherius is to both provide a realistic Ai companion and a cognitive framework that can be added on top of other Ai tools.
 
-Currently working on a version of Aetherius that uses GPT4ALL, however this may be delayed until its capabilites improve.
+Currently, Aetherius's main focus is creating a good architecture for realistic long-term memory storage. Once this is complete, assistant like features and additional modules like the World Creator will be added.
 
 Aetherius aims to provide a modular, personalized AI assistant experience by enabling the addition of task-specific Modules and Sub-Modules. If all goes as planned, Aetherius will support integration with other open-source projects and models.
 

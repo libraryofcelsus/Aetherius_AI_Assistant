@@ -93,6 +93,7 @@ def Base_Aetherius_Script_For_Analysis():
                 user_input = input("'Y' or 'N': ")
                 if user_input == 'y':
                     vdb.delete(delete_all=True, namespace="short_term_memory")
+                    vdb.delete(delete_all=True, namespace="implicit_short_term_memory")
                     while True:
                         print('Short-Term Memory has been Deleted')
                         return
@@ -167,6 +168,8 @@ def Base_Aetherius_Script_For_Analysis():
         db_search_1 = load_conversation_episodic_memory(results)
         results = vdb.query(vector=vector_input, top_k=8, namespace='short_term_memory')
         db_search_2 = load_conversation_short_term_memory(results)
+        results = vdb.query(vector=vector_input, top_k=2, namespace='flashbulb_memory')
+        db_search_13 = load_conversation_flashbulb_memory(results)
         # # Search Heuristics DB
         results = vdb.query(vector=vector_input, top_k=5, namespace='heuristics')
         db_search_3= load_conversation_heuristics(results)
@@ -184,10 +187,12 @@ def Base_Aetherius_Script_For_Analysis():
         db_search_4 = load_conversation_episodic_memory(results)
         results = vdb.query(vector=vector_input, top_k=10, namespace='short_term_memory')
         db_search_5 = load_conversation_short_term_memory(results)
+        results = vdb.query(vector=vector_monologue, top_k=2, namespace='flashbulb_memory')
+        db_search_12 = load_conversation_flashbulb_memory(results)
         # # Intuition Generation
         int_conversation.append({'role': 'assistant', 'content': "%s" % greeting_msg})
         int_conversation.append({'role': 'user', 'content': a})
-        int_conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;\n%s\n\n%s'S INNER THOUGHTS: %s;\nUSER MESSAGE: %s;\nIn a single paragraph, interpret the user, %s's message as %s in third person by proactively discerning their intent, even if they are uncertain about their own needs.;\nINTUITION: " % (db_search_4, db_search_5, bot_name, output_one, a, username, bot_name)})
+        int_conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;\n%s;\n%s;\n\n%s'S INNER THOUGHTS: %s;\nUSER MESSAGE: %s;\nIn a single paragraph, interpret the user, %s's message as %s in third person by proactively discerning their intent, even if they are uncertain about their own needs.;\nINTUITION: " % (db_search_4, db_search_5, db_search_12, bot_name, output_one, a, username, bot_name)})
         output_two = chatgpt200_completion(int_conversation)
         message_two = output_two
     #    print('\n\nINTUITION: %s' % output_two)
@@ -217,16 +222,6 @@ def Base_Aetherius_Script_For_Analysis():
                     payload.append((unique_id, vector))
                     vdb.upsert(payload, namespace='implicit_short_term_memory')
                     payload.clear()
-                lines = mood_implicit_db.splitlines()
-                for line in lines:
-                    vector = gpt3_embedding(line)
-                    unique_id = str(uuid4())
-                    metadata = {'speaker': bot_name, 'time': timestamp, 'message': line,
-                                'timestring': timestring, 'uuid': unique_id}
-                    save_json('nexus/implicit_short_term_memory_nexus/%s.json' % unique_id, metadata)
-                    payload.append((unique_id, vector))
-                    vdb.upsert(payload, namespace='implicit_short_term_memory')
-                    payload.clear()    
                 print('\n\nSYSTEM: Upload Successful!')
                 break
             elif user_input == 'n':
@@ -271,7 +266,6 @@ def Base_Aetherius_Script_For_Analysis():
     #                print('Auto Memory Failed')
     #                break
     #    else:
-    #        print('Error with internal prompt, please report on github')
     #        pass  
         # # Update Second Conversation List for Response
         print('\n%s is thinking...\n' % bot_name)
@@ -292,17 +286,15 @@ def Base_Aetherius_Script_For_Analysis():
         conversation2.append({'role': 'user', 'content': a})
         # # Search Inner_Loop/Memory DB
         while True:
-            results = vdb.query(vector=vector_monologue, top_k=7, namespace='implicit_short_term_memory')
-            db_search_7 = load_conversation_implicit_short_term_memory(results)
-            results = vdb.query(vector=vector_monologue, top_k=7, namespace='implicit_long_term_memory')
+            results = vdb.query(vector=vector_monologue, top_k=3, namespace='implicit_long_term_memory')
             db_search_8 = load_conversation_implicit_long_term_memory(results)
-            results = vdb.query(vector=vector_input, top_k=7, namespace='long_term_memory')
-            db_search_9 = load_conversation_long_term_memory(results)
-            results = vdb.query(vector=vector_monologue, top_k=4, namespace='episodic_memories')
+            results = vdb.query(vector=vector_monologue, top_k=5, namespace='episodic_memories')
             db_search_10 = load_conversation_episodic_memory(results)
+            results = vdb.query(vector=vector_monologue, top_k=3, namespace='flashbulb_memory')
+            db_search_11 = load_conversation_flashbulb_memory(results)
             break
         # # Generate Aetherius's Response
-        conversation2.append({'role': 'assistant', 'content': "SUBCONSIOUS: %s\n%s;\n\nMEMORIES: %s;\n%s\n\nINNER THOUGHTS: %s;\n%s\nI am in the middle of a conversation with my user, %s. USER MESSAGE: %s; I will do my best to speak naturally and show emotional intelligence. I will intuit their needs: %s;\nMy current message window is limited to 2300 characters.\nI will now give a response with the diction of a real person: " % (db_search_8, db_search_7, db_search_9, db_search_10, output_one, second_prompt, username, a, output_two)})
+        conversation2.append({'role': 'assistant', 'content': "SUBCONSIOUS: %s\n%s;\n\nFLASHBULB MEMORIES: %s;\nINNER THOUGHTS: %s\n\n%s  I am in the middle of a conversation with my user, %s. USER MESSAGE: %s; I will do my best to speak naturally and show emotional intelligence. I will intuit their needs: %s;\nMy current message window is limited to 2300 characters.\nI will now give a response with the diction of a real person: " % (db_search_8, db_search_10, db_search_11, output_one, second_prompt, username, a, output_two)})
         response_two = chatgptresponse_completion(conversation2)
         print('\n\n%s: %s' % (bot_name, response_two))
         complete_message = f'\nUSER: {a}\n\nINNER_MONOLOGUE: {output_one}\n\nINTUITION: {output_two}\n\n{bot_name}: {response_two}'
@@ -395,7 +387,6 @@ def Base_Aetherius_Script_For_Analysis():
     #                print('Auto Memory Failed')
     #                break
     #    else:
-    #        print('Error with internal prompt, please report on github')
     #        pass  
         # # Clear Logs for Summary
         conversation.clear()
@@ -406,7 +397,7 @@ def Base_Aetherius_Script_For_Analysis():
         index_info = vdb.describe_index_stats()
         namespace_stats = index_info['namespaces']
         namespace_name = 'short_term_memory'
-        if namespace_name in namespace_stats and namespace_stats[namespace_name]['vector_count'] > 13:
+        if namespace_name in namespace_stats and namespace_stats[namespace_name]['vector_count'] > 3:
             print(f"{namespace_name} has 15 or more entries, starting memory consolidation.")
             results = vdb.query(vector=vector_input, top_k=50, namespace='short_term_memory')
             memory_consol_db = load_conversation_short_term_memory(results)
@@ -457,6 +448,7 @@ def Base_Aetherius_Script_For_Analysis():
                         payload.append((unique_id, vector))
                         vdb.upsert(payload, namespace='episodic_memories')
                         payload.clear()
+                    vdb.upsert(payload, namespace='flash_counter')    
                     print('\n\nSYSTEM: Upload Successful!')
                     break
                 elif user_input == 'n':
@@ -538,6 +530,46 @@ def Base_Aetherius_Script_For_Analysis():
                         vdb.upsert(payload, namespace='implicit_long_term_memory')
                         payload.clear()    
                         vdb.delete(ids=ids_to_delete, namespace='implicit_long_term_memory')
+                    break
+                elif user_input == 'n':
+                    print('Cancelled')
+                    break
+                else:
+                    print('Invalid Input')
+        consolidation.clear()
+        # # Flashbulb Memory Generation
+        index_info = vdb.describe_index_stats()
+        namespace_stats = index_info['namespaces']
+        namespace_name = 'flash_counter'
+        if namespace_name in namespace_stats and namespace_stats[namespace_name]['vector_count'] > 2:
+            results = vdb.query(vector=vector_input, top_k=10, namespace='episodic_memories') 
+            flash_db = load_conversation_episodic_memory(results)  
+            im_flash = gpt3_embedding(flash_db)
+            results = vdb.query(vector=im_flash, top_k=15, namespace='implicit_long_term_memory') 
+            flash_db1 = load_conversation_implicit_long_term_memory(results) 
+            # # Generate Implicit Short-Term Memory
+            consolidation.append({'role': 'system', 'content': 'You are a data extractor. Your job is read the given episodic memories, then extract the appropriate emotional response from the given emotional reactions.'})
+            consolidation.append({'role': 'user', 'content': "EMOTIONAL REACTIONS:\n%s\n\nRead the following episodic memories, then go back and extract the salient emotional information tied to each memory.\nEPISODIC MEMORIES: %s" % (flash_db, flash_db1)})
+            consolidation.append({'role': 'assistant', 'content': "I will now combine the extracted data to form flashbulb memories in bullet point format. I will only include memories with a strong emotion attached. I will use the format: [- {given Date and Time}{emotion} Memory]"})
+            flash_response = chatgptconsolidation_completion(consolidation)
+            print('\nFlashbulb Memories\n')
+            print(flash_response)
+            print('\nWould you like to upload flashbulb memories to DB?\nY for yes or N for no.')
+            while True:
+                user_input = input("'Y' or 'N': ")
+                if user_input == 'y':
+                    memories = results
+                    lines = flash_response.splitlines()
+                    for line in lines:
+                        vector = gpt3_embedding(line)
+                        unique_id = str(uuid4())
+                        metadata = {'speaker': bot_name, 'time': timestamp, 'message': (line),
+                                    'timestring': timestring, 'uuid': unique_id}
+                        save_json('nexus/flashbulb_memory_nexus/%s.json' % unique_id, metadata)
+                        payload.append((unique_id, vector))
+                        vdb.upsert(payload, namespace='flashbulb_memory')
+                        payload.clear()    
+                    vdb.delete(delete_all=True, namespace='flash_counter')
                     break
                 elif user_input == 'n':
                     print('Cancelled')

@@ -75,6 +75,16 @@ def load_conversation_episodic_memory(results):
     return '\n'.join(messages).strip()  
     
     
+def load_conversation_flashbulb_memory(results):
+    result = list()
+    for m in results['matches']:
+        info = load_json('nexus/flashbulb_memory_nexus/%s.json' % m['id'])
+        result.append(info)
+    ordered = sorted(result, key=lambda d: d['time'], reverse=False)  # sort them all chronologically
+    messages = [i['message'] for i in ordered]
+    return '\n'.join(messages).strip() 
+    
+    
 def load_conversation_heuristics(results):
     result = list()
     for m in results['matches']:

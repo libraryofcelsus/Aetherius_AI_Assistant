@@ -1,5 +1,5 @@
 # Aetherius
-Version 0.038b of Aetherius Personal Assistant by LibraryofCelsus.com
+Version 0.038c of Aetherius Personal Assistant by LibraryofCelsus.com
 
 **Version 0.038 requires a full DB Reset, a new memory Architecture has been implemented**
 
@@ -25,7 +25,15 @@ Currently, Aetherius's main focus is creating a good architecture for realistic 
 Aetherius aims to provide a modular, personalized AI assistant experience by enabling the addition of task-specific Modules and Sub-Modules. If all goes as planned, Aetherius will support integration with other open-source projects and models.
 
 ## Changelog:
-0.038b
+0.038c
+
+-Added Flashbulb Memory
+
+-Improved summary prompts
+
+-Various Bug Fixes
+
+b.
 
 -Added Cadence DB check, will no longer use Cadence prompt if Cadence DB is empty.
 

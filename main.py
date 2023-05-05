@@ -72,6 +72,8 @@ if __name__ == '__main__':
         os.makedirs('nexus/implicit_long_term_memory_nexus')
     if not os.path.exists('nexus/episodic_memory_nexus'):
         os.makedirs('nexus/episodic_memory_nexus')
+    if not os.path.exists('nexus/flashbulb_memory_nexus'):
+        os.makedirs('nexus/flashbulb_memory_nexus')
     if not os.path.exists('nexus/heuristics_nexus'):
         os.makedirs('nexus/heuristics_nexus')
     if not os.path.exists('nexus/cadence_nexus'):

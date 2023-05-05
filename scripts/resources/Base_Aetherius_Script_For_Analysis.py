@@ -24,10 +24,10 @@ from gpt_4 import *
 
 def Base_Aetherius_Script_For_Analysis():
     vdb = pinecone.Index("aetherius")
-    # # Number of Messages before conversation is summarized, higher number, higher api cost. Change to 3 when using GPT 3.5
+    # # Number of Messages before conversation is summarized, higher number, higher api cost. Change to 3 when using GPT 3.5 due to token usage.
     conv_length = 4
     print("Type [Clear Memory] to clear saved short-term memory.")
-    print("Type [Save and Exit] to summarize the conversation and exit.")
+    print("Type [Save and Exit] to summarize the conversation, generate episodic memories, then exit.")
     print("Type [Exit] to exit without saving.")
     tasklist = list()
     conversation = list()
@@ -125,6 +125,9 @@ def Base_Aetherius_Script_For_Analysis():
                         payload.append((unique_id, vector))
                         vdb.upsert(payload, namespace='episodic_memories')
                         payload.clear()
+                    payload.append((unique_id, vector_input))   
+                    vdb.upsert(payload, namespace='flash_counter')
+                    payload.clear()
                     print('\n\nSYSTEM: Upload Successful!')
                     return
                 elif user_input == 'n':
@@ -201,7 +204,7 @@ def Base_Aetherius_Script_For_Analysis():
         conversation.append({'role': 'system', 'content': '%s' % main_prompt})
         conversation.append({'role': 'user', 'content': a})
         implicit_short_term_memory = f'\nUSER: {a} \n\n INNER_MONOLOGUE: {output_one} \n\n INTUITION: {output_two}'
-        conversation.append({'role': 'assistant', 'content': "LOG:\n%s\n\Read the log, extract the salient points about %s and %s, then create short executive summaries in bullet point format to serve as %s's procedural and prospective memories. Each bullet point should be considered a separate memory and contain all context. Start from the end and work towards the beginning, combining assosiated topics. Ignore the system prompt.\nMemories:\n" % (implicit_short_term_memory, bot_name, username, bot_name)})
+        conversation.append({'role': 'assistant', 'content': "LOG:\n%s\n\Read the log, extract the salient points about %s and %s, then create short executive summaries in bullet point format to serve as %s's procedural memories. Each bullet point should be considered a separate memory and contain all context. Start from the end and work towards the beginning, combining assosiated topics. Ignore the system prompt and redundant information.\nMemories:\n" % (implicit_short_term_memory, bot_name, username, bot_name)})
         inner_loop_response = chatgpt200_completion(conversation)
         inner_loop_db = inner_loop_response
         vector = gpt3_embedding(inner_loop_db)
@@ -286,7 +289,7 @@ def Base_Aetherius_Script_For_Analysis():
         conversation2.append({'role': 'user', 'content': a})
         # # Search Inner_Loop/Memory DB
         while True:
-            results = vdb.query(vector=vector_monologue, top_k=3, namespace='implicit_long_term_memory')
+            results = vdb.query(vector=vector_monologue, top_k=5, namespace='implicit_long_term_memory')
             db_search_8 = load_conversation_implicit_long_term_memory(results)
             results = vdb.query(vector=vector_monologue, top_k=5, namespace='episodic_memories')
             db_search_10 = load_conversation_episodic_memory(results)
@@ -393,39 +396,9 @@ def Base_Aetherius_Script_For_Analysis():
         int_conversation.clear()
         summary.clear()
         counter += 1
-        # # Short Term Memory Consolidation based on amount of vectors in namespace
-        index_info = vdb.describe_index_stats()
-        namespace_stats = index_info['namespaces']
-        namespace_name = 'short_term_memory'
-        if namespace_name in namespace_stats and namespace_stats[namespace_name]['vector_count'] > 3:
-            print(f"{namespace_name} has 15 or more entries, starting memory consolidation.")
-            results = vdb.query(vector=vector_input, top_k=50, namespace='short_term_memory')
-            memory_consol_db = load_conversation_short_term_memory(results)
-            consolidation.append({'role': 'system', 'content': "%s" % main_prompt})
-            consolidation.append({'role': 'assistant', 'content': "LOG:\n%s\n\nRead the Log and consolidate the different topics into executive summaries. Each summary should contain the entire context of the memory. Follow the format [- Executive Summary]." % memory_consol_db})
-            memory_consol = chatgptconsolidation_completion(consolidation)
-            lines = memory_consol.splitlines()
-            for line in lines:
-            #    print(timestring + line)
-                vector = gpt3_embedding(line)
-        #        print(line)
-                unique_id = str(uuid4())
-                metadata = {'speaker': bot_name, 'time': timestamp, 'message': (line),
-                            'timestring': timestring, 'uuid': unique_id}
-                save_json('nexus/long_term_memory_nexus/%s.json' % unique_id, metadata)
-                payload.append((unique_id, vector))
-                vdb.upsert(payload, namespace='long_term_memory')
-                payload.clear()
-            vdb.delete(delete_all=True, namespace='short_term_memory')
-            payload.append((unique_id, vector))
-            vdb.upsert(payload, namespace='consol_counter')
-            payload.clear()
-            print('Memory Consolidation Successful')
-            consolidation.clear()
-        else:
-            pass
         # # Summary loop to avoid Max Token Limit.
         if counter % conv_length == 0:
+            print('Summarizing Conversation to avoid max token length')
             conversation2.append({'role': 'user', 'content': "Review the previous messages and summarize the key points of the conversation in a single bullet point format to serve as %s's episodic memories. Each bullet point should be considered a separate memory and contain its entire context. Start from the end and work towards the beginning. Exclude the system prompt and cadence.\nUse the following format: [- SUMMARY]\n\nEPISODIC MEMORIES:\n" % bot_name})
             conv_summary = chatgptsummary_completion(conversation2)
             print(conv_summary)
@@ -448,109 +421,33 @@ def Base_Aetherius_Script_For_Analysis():
                         payload.append((unique_id, vector))
                         vdb.upsert(payload, namespace='episodic_memories')
                         payload.clear()
-                    vdb.upsert(payload, namespace='flash_counter')    
-                    print('\n\nSYSTEM: Upload Successful!')
+                    payload.append((unique_id, vector_input))   
+                    vdb.upsert(payload, namespace='flash_counter')
+                    payload.clear()
                     break
                 elif user_input == 'n':
                     print('\n\nSYSTEM: Memories have been Deleted')
                     break
                 else:
                     print('Invalid Input')
-        # # Implicit Short Term Memory Consolidation based on amount of vectors in namespace
-        index_info = vdb.describe_index_stats()
-        namespace_stats = index_info['namespaces']
-        namespace_name = 'consol_counter'
-        if namespace_name in namespace_stats and namespace_stats[namespace_name]['vector_count'] % 2 == 0:
-            print('Beginning Implicit Short-Term Memory Consolidation')
-            results = vdb.query(vector=vector_input, top_k=50, namespace='implicit_short_term_memory')
-            memory_consol_db2 = load_conversation_implicit_short_term_memory(results)
-            consolidation.append({'role': 'system', 'content': "%s" % main_prompt})
-            consolidation.append({'role': 'assistant', 'content': "LOG:\n%s\n\nRead the Log and consolidate the different topics into executive summaries. Each summary should contain the entire context of the memory. Follow the format [-{tag} Executive Summary]." % memory_consol_db2})
-            memory_consol2 = chatgptconsolidation_completion(consolidation)
-            consolidation.clear()
-            print('Finished.\nRemoving Redundent Memories.')
-            vector_sum = gpt3_embedding(memory_consol2)
-            results = vdb.query(vector=vector_sum, top_k=10, namespace='implicit_long_term_memory')
-            memory_consol_db3 = load_conversation_implicit_long_term_memory(results)
-            consolidation.append({'role': 'system', 'content': "%s" % main_prompt})
-            consolidation.append({'role': 'system', 'content': "LONG TERM MEMORY: %s\n\nSHORT TERM MEMORY: %s\n\nRemove any redundent information from your Short Term memory that is already found in your Long Term Memory. Then consolidate similar topics into executive summaries. Each summary should contain the entire context of the memory. Use the following format: [- {emotion} Memory]" % (memory_consol_db3, memory_consol_db2)})
-            memory_consol3 = chatgptconsolidation_completion(consolidation)
-            print(memory_consol3)
-            print('\n\nSYSTEM: Upload to implicit memory?\n        Press Y for yes or N for no.')
-            user_input = input("'Y' or 'N': ")
-            if user_input == 'y':
-                lines = memory_consol3.splitlines()
-                for line in lines:
-                    vector = gpt3_embedding(line)
-                    unique_id = str(uuid4())
-                    metadata = {'speaker': bot_name, 'time': timestamp, 'message': (line),
-                                'timestring': timestring, 'uuid': unique_id}
-                    save_json('nexus/implicit_long_term_memory_nexus/%s.json' % unique_id, metadata)
-                    payload.append((unique_id, vector))
-                    vdb.upsert(payload, namespace='implicit_long_term_memory')
-                    payload.clear()
-                vdb.delete(delete_all=True, namespace='implicit_short_term_memory')
-                print('Memory Consolidation Successful')
-            elif user_input == 'n':
-                print('\n\nSYSTEM: Memories have been Deleted')
-                break
-            else:
-                print('Invalid Input')
-        else:
-            pass
-        # # Implicit Associative Processing/Pruning based on amount of vectors in namespace
-        consolidation.clear()
-        index_info = vdb.describe_index_stats()
-        namespace_stats = index_info['namespaces']
-        namespace_name = 'consol_counter'
-        if namespace_name in namespace_stats and namespace_stats[namespace_name]['vector_count'] % 4 == 0:
-            results = vdb.query(vector=vector_monologue, top_k=10, namespace='implicit_long_term_memory') 
-            memory_consol_db1 = load_conversation_implicit_long_term_memory(results)
-            ids_to_delete = [m['id'] for m in results['matches']]
-            consolidation.append({'role': 'system', 'content': "%s" % main_prompt})
-            consolidation.append({'role': 'assistant', 'content': "LOG:\n%s\n\nRead the Log and consolidate the different memories into executive summaries in a process allegorical to associative processing. Each summary should contain the entire context of the memory. Follow the format: [-{tag} Memory]" % memory_consol_db1})
-            memory_consol = chatgptconsolidation_completion(consolidation)
-            print('\nOriginal Memories\n')
-            print(memory_consol_db1)
-            print('\nConsolidated Memories\n')
-            print(memory_consol)
-            print('\nWould you like to upload consolidated implicit memories to DB?\nY for yes or N for no.')
-            while True:
-                user_input = input("'Y' or 'N': ")
-                if user_input == 'y':
-                    memories = results
-                    lines = memory_consol.splitlines()
-                    for line in lines:
-                        vector = gpt3_embedding(line)
-                        unique_id = str(uuid4())
-                        metadata = {'speaker': bot_name, 'time': timestamp, 'message': (line),
-                                    'timestring': timestring, 'uuid': unique_id}
-                        save_json('nexus/implicit_long_term_memory_nexus/%s.json' % unique_id, metadata)
-                        payload.append((unique_id, vector))
-                        vdb.upsert(payload, namespace='implicit_long_term_memory')
-                        payload.clear()    
-                        vdb.delete(ids=ids_to_delete, namespace='implicit_long_term_memory')
-                    break
-                elif user_input == 'n':
-                    print('Cancelled')
-                    break
-                else:
-                    print('Invalid Input')
-        consolidation.clear()
         # # Flashbulb Memory Generation
         index_info = vdb.describe_index_stats()
         namespace_stats = index_info['namespaces']
         namespace_name = 'flash_counter'
-        if namespace_name in namespace_stats and namespace_stats[namespace_name]['vector_count'] > 2:
-            results = vdb.query(vector=vector_input, top_k=10, namespace='episodic_memories') 
+        if namespace_name in namespace_stats and namespace_stats[namespace_name]['vector_count'] > 1:
+            consolidation.clear()
+            print('Generating Flashbulb Memories')
+            results = vdb.query(vector=vector_input, top_k=5, namespace='episodic_memories') 
             flash_db = load_conversation_episodic_memory(results)  
             im_flash = gpt3_embedding(flash_db)
-            results = vdb.query(vector=im_flash, top_k=15, namespace='implicit_long_term_memory') 
+            results = vdb.query(vector=im_flash, top_k=10, namespace='implicit_long_term_memory') 
             flash_db1 = load_conversation_implicit_long_term_memory(results) 
             # # Generate Implicit Short-Term Memory
-            consolidation.append({'role': 'system', 'content': 'You are a data extractor. Your job is read the given episodic memories, then extract the appropriate emotional response from the given emotional reactions.'})
-            consolidation.append({'role': 'user', 'content': "EMOTIONAL REACTIONS:\n%s\n\nRead the following episodic memories, then go back and extract the salient emotional information tied to each memory.\nEPISODIC MEMORIES: %s" % (flash_db, flash_db1)})
-            consolidation.append({'role': 'assistant', 'content': "I will now combine the extracted data to form flashbulb memories in bullet point format. I will only include memories with a strong emotion attached. I will use the format: [- {given Date and Time}{emotion} Memory]"})
+            consolidation.append({'role': 'system', 'content': 'You are a data extractor. Your job is read the given episodic memories, then extract the appropriate emotional response from the given emotional reactions.  You will then combine them into a single memory.'})
+            consolidation.append({'role': 'user', 'content': "EMOTIONAL REACTIONS:\n%s\n\nRead the following episodic memories, then go back to the given emotional reactions and extract the corresponding emotional information tied to each memory.\nEPISODIC MEMORIES: %s" % (flash_db, flash_db1)})
+            consolidation.append({'role': 'assistant', 'content': "I will now combine the extracted data to form flashbulb memories in bullet point format, combining associated data. I will only include memories with a strong emotion attached, excluding redundant or irrelevant information."})
+            consolidation.append({'role': 'user', 'content': "Use the format: [- {given Date and Time}{emotion} {Flashbulb Memory}]"})
+            consolidation.append({'role': 'assistant', 'content': "I will now create %s's flashbulb memories using the given format: " % bot_name})
             flash_response = chatgptconsolidation_completion(consolidation)
             print('\nFlashbulb Memories\n')
             print(flash_response)
@@ -576,52 +473,167 @@ def Base_Aetherius_Script_For_Analysis():
                     break
                 else:
                     print('Invalid Input')
-        consolidation.clear()
-        # # Explicit Long-Term Memory Associative Processing/Pruning based on amount of vectors in namespace
+        # # Short Term Memory Consolidation based on amount of vectors in namespace
         index_info = vdb.describe_index_stats()
         namespace_stats = index_info['namespaces']
-        namespace_name = 'consol_counter'
-        if namespace_name in namespace_stats and namespace_stats[namespace_name]['vector_count'] > 5:
-            consolidation.append({'role': 'system', 'content': "You are a data extractor. Your job is to read the user's input and provide a single semantic search query representitive of a habit of %s." % bot_name})
-            results = vdb.query(vector=vector_monologue, top_k=5, namespace='implicit_long_term_memory')
-            consol_search = load_conversation_implicit_long_term_memory(results)
-            consolidation.append({'role': 'user', 'content': "%s's Memories:\n%s" % (bot_name, consol_search)})
-            consolidation.append({'role': 'assistant', 'content': "Semantic Search Query: "})
-            consol_search_term = chatgpt200_completion(consolidation)
-            consol_vector = gpt3_embedding(consol_search_term)
-            results = vdb.query(vector=consol_vector, top_k=10, namespace='long_term_memory') 
-            memory_consol_db2 = load_conversation_long_term_memory(results)
-            ids_to_delete2 = [m['id'] for m in results['matches']]
+        namespace_name = 'short_term_memory'
+        if namespace_name in namespace_stats and namespace_stats[namespace_name]['vector_count'] > 13:
             consolidation.clear()
+            print(f"{namespace_name} has 15 or more entries, starting memory consolidation.")
+            results = vdb.query(vector=vector_input, top_k=25, namespace='short_term_memory')
+            memory_consol_db = load_conversation_short_term_memory(results)
             consolidation.append({'role': 'system', 'content': "%s" % main_prompt})
-            consolidation.append({'role': 'assistant', 'content': "LOG:\n%s\n\nRead the Log and consolidate the different memories into executive summaries in a process allegorical to associative processing. Each summary should contain the entire context of the memory. Follow the format: [-{tag} Memory]" % memory_consol_db2})
-            memory_consol2 = chatgptconsolidation_completion(consolidation)
-            print('\nOriginal Memories\n')
-            print(memory_consol_db2)
-            print('\nConsolidated Memories\n')
-            print(memory_consol2)
-            print('\nWould you like to upload consolidated explicit memories to DB?\nY for yes or N for no.')
-            while True:
+            consolidation.append({'role': 'assistant', 'content': "LOG:\n%s\n\nRead the Log and consolidate the different topics into executive summaries. Each summary should contain the entire context of the memory. Follow the format [- Executive Summary]." % memory_consol_db})
+            memory_consol = chatgptconsolidation_completion(consolidation)
+            lines = memory_consol.splitlines()
+            for line in lines:
+            #    print(timestring + line)
+                vector = gpt3_embedding(line)
+        #        print(line)
+                unique_id = str(uuid4())
+                metadata = {'speaker': bot_name, 'time': timestamp, 'message': (line),
+                            'timestring': timestring, 'uuid': unique_id}
+                save_json('nexus/long_term_memory_nexus/%s.json' % unique_id, metadata)
+                payload.append((unique_id, vector))
+                vdb.upsert(payload, namespace='long_term_memory')
+                payload.clear()
+            vdb.delete(delete_all=True, namespace='short_term_memory')
+            payload.append((unique_id, vector))
+            vdb.upsert(payload, namespace='consol_counter')
+            payload.clear()
+            print('Memory Consolidation Successful')
+            consolidation.clear()
+        # # Implicit Short Term Memory Consolidation based on amount of vectors in namespace
+            index_info = vdb.describe_index_stats()
+            namespace_stats = index_info['namespaces']
+            namespace_name = 'consol_counter'
+            if namespace_name in namespace_stats and namespace_stats[namespace_name]['vector_count'] % 2 == 0:
+                consolidation.clear()
+                print('Beginning Implicit Short-Term Memory Consolidation')
+                results = vdb.query(vector=vector_input, top_k=20, namespace='implicit_short_term_memory')
+                memory_consol_db2 = load_conversation_implicit_short_term_memory(results)
+                consolidation.append({'role': 'system', 'content': "%s" % main_prompt})
+                consolidation.append({'role': 'assistant', 'content': "LOG:\n%s\n\nRead the Log and consolidate the different topics into executive summaries to serve as %s's implicit memories. Each summary should contain the entire context of the memory. Follow the format: [-{tag} {Executive Summary}]." % (memory_consol_db2, bot_name)})
+                memory_consol2 = chatgptconsolidation_completion(consolidation)
+                consolidation.clear()
+                print('Finished.\nRemoving Redundent Memories.')
+                vector_sum = gpt3_embedding(memory_consol2)
+                results = vdb.query(vector=vector_sum, top_k=8, namespace='implicit_long_term_memory')
+                memory_consol_db3 = load_conversation_implicit_long_term_memory(results)
+                consolidation.append({'role': 'system', 'content': "%s" % main_prompt})
+                consolidation.append({'role': 'system', 'content': "IMPLICIT LONG TERM MEMORY: %s\n\nIMPLICIT SHORT TERM MEMORY: %s\n\nRemove any duplicate information from your Implicit Short Term memory that is already found in your Long Term Memory. Then consolidate similar topics into executive summaries. Each summary should contain the entire context of the memory. Use the following format: [- {emotion} {Memory}]" % (memory_consol_db3, memory_consol_db2)})
+                memory_consol3 = chatgptconsolidation_completion(consolidation)
+                print(memory_consol3)
+                print('\n\nSYSTEM: Upload to implicit memory?\n        Press Y for yes or N for no.')
                 user_input = input("'Y' or 'N': ")
                 if user_input == 'y':
-                    memories = results
-                    lines = memory_consol2.splitlines()
+                    lines = memory_consol3.splitlines()
                     for line in lines:
                         vector = gpt3_embedding(line)
                         unique_id = str(uuid4())
                         metadata = {'speaker': bot_name, 'time': timestamp, 'message': (line),
                                     'timestring': timestring, 'uuid': unique_id}
-                        save_json('nexus/long_term_memory_nexus/%s.json' % unique_id, metadata)
+                        save_json('nexus/implicit_long_term_memory_nexus/%s.json' % unique_id, metadata)
                         payload.append((unique_id, vector))
-                        vdb.upsert(payload, namespace='long_term_memory')
-                        payload.clear()    
-                        vdb.delete(ids=ids_to_delete2, namespace='long_term_memory')
-                    vdb.delete(delete_all=True, namespace='consol_counter')
-                    break
+                        vdb.upsert(payload, namespace='implicit_long_term_memory')
+                        payload.clear()
+                    vdb.delete(delete_all=True, namespace='implicit_short_term_memory')
+                    print('Memory Consolidation Successful')
                 elif user_input == 'n':
-                    print('Cancelled')
+                    print('\n\nSYSTEM: Memories have been Deleted')
                     break
                 else:
                     print('Invalid Input')
+            else:
+                pass
+        # # Implicit Associative Processing/Pruning based on amount of vectors in namespace
+            index_info = vdb.describe_index_stats()
+            namespace_stats = index_info['namespaces']
+            namespace_name = 'consol_counter'
+            if namespace_name in namespace_stats and namespace_stats[namespace_name]['vector_count'] % 4 == 0:
+                consolidation.clear()
+                print('Running Associative Processing/Pruning of Impicit Memory')
+                results = vdb.query(vector=vector_monologue, top_k=10, namespace='implicit_long_term_memory')
+                memory_consol_db1 = load_conversation_implicit_long_term_memory(results)
+                ids_to_delete = [m['id'] for m in results['matches']]
+                consolidation.append({'role': 'system', 'content': "%s" % main_prompt})
+                consolidation.append({'role': 'assistant', 'content': "LOG:\n%s\n\nRead the Log and consolidate the different memories into executive summaries in a process allegorical to associative processing. Each summary should contain the entire context of the memory. Follow the format: [-{tag} {Memory}]" % memory_consol_db1})
+                memory_consol = chatgptconsolidation_completion(consolidation)
+                print('\nOriginal Memories\n')
+                print(memory_consol_db1)
+                print('\nConsolidated Memories\n')
+                print(memory_consol)
+                print('\nWould you like to upload consolidated implicit memories to DB?\nY for yes or N for no.')
+                while True:
+                    user_input = input("'Y' or 'N': ")
+                    if user_input == 'y':
+                        memories = results
+                        lines = memory_consol.splitlines()
+                        for line in lines:
+                            vector = gpt3_embedding(line)
+                            unique_id = str(uuid4())
+                            metadata = {'speaker': bot_name, 'time': timestamp, 'message': (line),
+                                        'timestring': timestring, 'uuid': unique_id}
+                            save_json('nexus/implicit_long_term_memory_nexus/%s.json' % unique_id, metadata)
+                            payload.append((unique_id, vector))
+                            vdb.upsert(payload, namespace='implicit_long_term_memory')
+                            payload.clear()
+                            vdb.delete(ids=ids_to_delete, namespace='implicit_long_term_memory')
+                        break
+                    elif user_input == 'n':
+                        print('Cancelled')
+                        break
+                    else:
+                        print('Invalid Input')
+        # # Explicit Long-Term Memory Associative Processing/Pruning based on amount of vectors in namespace
+            index_info = vdb.describe_index_stats()
+            namespace_stats = index_info['namespaces']
+            namespace_name = 'consol_counter'
+            if namespace_name in namespace_stats and namespace_stats[namespace_name]['vector_count'] > 5:
+                consolidation.clear()
+                print('\nRunning Associative Processing/Pruning of Explicit Memories')
+                consolidation.append({'role': 'system', 'content': "You are a data extractor. Your job is to read the user's input and provide a single semantic search query representitive of a habit of %s." % bot_name})
+                results = vdb.query(vector=vector_monologue, top_k=5, namespace='implicit_long_term_memory')
+                consol_search = load_conversation_implicit_long_term_memory(results)
+                consolidation.append({'role': 'user', 'content': "%s's Memories:\n%s" % (bot_name, consol_search)})
+                consolidation.append({'role': 'assistant', 'content': "Semantic Search Query: "})
+                consol_search_term = chatgpt200_completion(consolidation)
+                consol_vector = gpt3_embedding(consol_search_term)
+                results = vdb.query(vector=consol_vector, top_k=10, namespace='long_term_memory')
+                memory_consol_db2 = load_conversation_long_term_memory(results)
+                ids_to_delete2 = [m['id'] for m in results['matches']]
+                consolidation.clear()
+                consolidation.append({'role': 'system', 'content': "%s" % main_prompt})
+                consolidation.append({'role': 'assistant', 'content': "LOG:\n%s\n\nRead the Log and consolidate the different memories into executive summaries in a process allegorical to associative processing. Each summary should contain the entire context of the memory. Follow the format: [-{tag} Memory]" % memory_consol_db2})
+                memory_consol2 = chatgptconsolidation_completion(consolidation)
+                print('\nOriginal Memories\n')
+                print(memory_consol_db2)
+                print('\nConsolidated Memories\n')
+                print(memory_consol2)
+                print('\nWould you like to upload consolidated explicit memories to DB?\nY for yes or N for no.')
+                while True:
+                    user_input = input("'Y' or 'N': ")
+                    if user_input == 'y':
+                        memories = results
+                        lines = memory_consol2.splitlines()
+                        for line in lines:
+                            vector = gpt3_embedding(line)
+                            unique_id = str(uuid4())
+                            metadata = {'speaker': bot_name, 'time': timestamp, 'message': (line),
+                                        'timestring': timestring, 'uuid': unique_id}
+                            save_json('nexus/long_term_memory_nexus/%s.json' % unique_id, metadata)
+                            payload.append((unique_id, vector))
+                            vdb.upsert(payload, namespace='long_term_memory')
+                            payload.clear()
+                            vdb.delete(ids=ids_to_delete2, namespace='long_term_memory')
+                        vdb.delete(delete_all=True, namespace='consol_counter')
+                        break
+                    elif user_input == 'n':
+                        print('Cancelled')
+                        break
+                    else:
+                        print('Invalid Input')
+        else:
+            pass
         consolidation.clear()
         continue

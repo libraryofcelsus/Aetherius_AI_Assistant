@@ -1,5 +1,5 @@
 # Aetherius
-Version 0.038c of Aetherius Personal Assistant by LibraryofCelsus.com
+Version 0.038d of Aetherius Personal Assistant by LibraryofCelsus.com
 
 **Version 0.038 requires a full DB Reset, a new memory Architecture has been implemented**
 
@@ -25,7 +25,15 @@ Currently, Aetherius's main focus is creating a good architecture for realistic 
 Aetherius aims to provide a modular, personalized AI assistant experience by enabling the addition of task-specific Modules and Sub-Modules. If all goes as planned, Aetherius will support integration with other open-source projects and models.
 
 ## Changelog:
-0.038c
+0.038d
+
+-Worked on Intuition
+
+-Reworded internal prompts to hopefully fix wrong username bug when using gpt 3.5
+
+-Added loop to skip uploading empty lines in memory upsert.
+
+c.
 
 -Added Flashbulb Memory
 

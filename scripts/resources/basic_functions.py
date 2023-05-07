@@ -123,3 +123,15 @@ def load_conversation_implicit_long_term_memory(results):
     ordered = sorted(result, key=lambda d: d['time'], reverse=False)  # sort them all chronologically
     messages = [i['message'] for i in ordered]
     return '\n'.join(messages).strip()
+    
+def timeout_check():
+    try:
+        pinecone.init(api_key=open_file('api_keys/key_pinecone.txt'), environment=open_file('api_keys/key_pinecone_env.txt'))
+        vdb = pinecone.Index("aetherius")
+        return vdb
+    except pinecone.exceptions.PineconeException as e:
+        if "timed out" in str(e):
+            print("Connection timed out. Reconnecting...")
+            timeout_check()
+        else:
+            raise e

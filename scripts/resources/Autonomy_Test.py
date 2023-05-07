@@ -51,6 +51,7 @@ def Autonomy_Test():
  #   r = sr.Recognizer()
     while True:
         # # Get Timestamp
+        vdb = timeout_check()
         timestamp = time()
         timestring = timestamp_to_datetime(timestamp)
         # # Start or Continue Conversation based on if response exists
@@ -182,18 +183,16 @@ def Autonomy_Test():
         # # Intuition Generation
         int_conversation.append({'role': 'assistant', 'content': "%s" % greeting_msg})
         int_conversation.append({'role': 'user', 'content': a})
-        int_conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;\n%s;\n%s;\n\n%s'S INNER THOUGHTS: %s;\nUSER MESSAGE: %s;\nIn a single paragraph, interpret the user, %s's message as %s in third person by creating an intuitive action plan, even if they are uncertain about their own needs.;\nINTUITION: " % (db_search_4, db_search_5, db_search_12, bot_name, output_one, a, username, bot_name)})
+        int_conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;\n%s;\n%s;\n\n%s'S INNER THOUGHTS: %s;\nUSER MESSAGE: %s;\nIn a single paragraph, interpret the user, %s's message as %s in third person by creating an informationally intuitive action plan, even if they are uncertain about their own needs.;\nINTUITION: " % (db_search_4, db_search_5, db_search_12, bot_name, output_one, a, username, bot_name)})
         output_two = chatgpt200_completion(int_conversation)
         message_two = output_two
         print('\n\nINTUITION: %s' % output_two)
         output_two_log = f'\nUSER: {a}\n\n{bot_name}: {output_two}'
         # # Test for basic Autonomous Tasklist Generation and Task Completion
-        master_tasklist.append({'role': 'system', 'content': "You are a task list coordinator. Your job is to take a user facing chatbot's intuitive action plan and create a list of inquiries in bullet point format to be used for orchestrating Ai agents. Include every salient task needed up to final completion. Final completion will be handled by another agent.  Use the format: - '____'"})
-        master_tasklist.append({'role': 'user', 'content': "CHATBOT'S INTUITIVE ACTION PLAN:\n%s" % output_two})
-        master_tasklist.append({'role': 'user', 'content': "Do you understand your imperatives?"})
-        master_tasklist.append({'role': 'assistant', 'content': "-Task list coordinator should research its own imperatives.\n-Task list coordinator should confirm if it understands it's imperatives."})
-        master_tasklist.append({'role': 'user', 'content': "Very good.  Here is the user's inquiry."})
+        master_tasklist.append({'role': 'system', 'content': "You are a task list coordinator. Your job is to take the user's input and transform it into a list of independent research queries that can be executed simultaneously by separate AI agents in a cluster computing environment. The other AI agents working asynchronously cannot communicate with each other or the user during task execution. Exclude tasks involving final product production, user communication, or checking work with other agents. Respond using the following format: '- [task]'"})
+        master_tasklist.append({'role': 'user', 'content': "USER FACING CHATBOT'S INTUITIVE ACTION PLAN:\n%s" % output_two})
         master_tasklist.append({'role': 'user', 'content': "USER INQUIRY:\n%s" % a})
+        master_tasklist.append({'role': 'assistant', 'content': "TASK LIST:"})
         master_tasklist_output = chatgpt_tasklist_completion(master_tasklist)
         print(master_tasklist_output)
         tasklist_completion.append({'role': 'system', 'content': "You are a final execution module. Your job is to take a completed task list, format it for the end user in accordance with their initial request, and then provide the user with a thourogh reply using the information from the tasklist."})
@@ -204,23 +203,31 @@ def Autonomy_Test():
         task_counter = 1
         # # Split bullet points into separate lines to be used as individual queries
         lines = master_tasklist_output.splitlines()
-        for line in lines:
-            if line.strip():
-                tasklist_completion.append({'role': 'user', 'content': "ASSIGNED TASK:\n%s" % line})
-                print(line)
-                conversation.append({'role': 'system', 'content': "You are a sub-module for an Autonomous Ai-Chatbot. You are one of many agents in a chain. You are to take the given task and complete it in its entirety. Take future tasks into account when formulating your answer."})
-                conversation.append({'role': 'user', 'content': "Task list:\n%s" % master_tasklist_output})
-                conversation.append({'role': 'assistant', 'content': "Bot %s: I have studied the given tasklist.  What is my assigned task?" % task_counter})
-                conversation.append({'role': 'user', 'content': "Bot %s's Assigned task: %s" % (task_counter, line)})
-                conversation.append({'role': 'assistant', 'content': "Bot %s:" % task_counter})
-                task_completion = chatgptresponse_completion(conversation)
-                conversation.clear()
-                task_counter += 1
-                print(task_completion)
-                tasklist_completion.append({'role': 'assistant', 'content': "COMPLETED TASK:\n%s" % task_completion})
-        tasklist_completion.append({'role': 'user', 'content': "Take the given set of tasks and responses and format them into a final response to the user's initial inquiry.  User's initial inquiry: %s" % a})
-        final_response_complete = chatgpt_tasklist_completion(tasklist_completion)
-        print('\nFINAL OUTPUT:\n%s' % final_response_complete)
-        consolidation.clear()
-        conversation
+        print('\n\nSYSTEM: Would you like to autonomously complete this task list?\n        Press Y for yes or N for no.')
+        user_input = input("'Y' or 'N': ")
+        if user_input == 'y':
+            for line in lines:
+                if line.strip():
+                    tasklist_completion.append({'role': 'user', 'content': "ASSIGNED TASK:\n%s" % line})
+                    print(line)
+                    conversation.append({'role': 'system', 'content': "You are a sub-module for an Autonomous Ai-Chatbot. You are one of many agents in a chain. You are to take the given task and complete it in its entirety. Take future tasks into account when formulating your answer."})
+                    conversation.append({'role': 'user', 'content': "Task list:\n%s" % master_tasklist_output})
+                    conversation.append({'role': 'assistant', 'content': "Bot %s: I have studied the given tasklist.  What is my assigned task?" % task_counter})
+                    conversation.append({'role': 'user', 'content': "Bot %s's Assigned task: %s" % (task_counter, line)})
+                    conversation.append({'role': 'assistant', 'content': "Bot %s:" % task_counter})
+                    task_completion = chatgptresponse_completion(conversation)
+                    conversation.clear()
+                    task_counter += 1
+                    print(task_completion)
+                    tasklist_completion.append({'role': 'assistant', 'content': "COMPLETED TASK:\n%s" % task_completion})
+            tasklist_completion.append({'role': 'user', 'content': "Take the given set of tasks and responses and format the information into a final product in relation to the user's initial inquiry.  User's initial inquiry: %s" % a})
+            final_response_complete = chatgpt_tasklist_completion(tasklist_completion)
+            print('\nFINAL OUTPUT:\n%s' % final_response_complete)
+            complete_message = f'\nUSER: {a}\n\nINNER_MONOLOGUE: {output_one}\n\nINTUITION: {output_two}\n\n{bot_name}: {tasklist_completion}\n{final_response_complete}'
+            filename = '%s_chat.txt' % timestamp
+            save_file('logs/complete_chat_logs/%s' % filename, complete_message)
+            consolidation.clear()
+            conversation.clear()
+            master_tasklist.clear()
+            task_completion.clear()
         continue

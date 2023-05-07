@@ -63,6 +63,7 @@ if __name__ == '__main__':
 #   openai.api_key = key
     openai.api_key = open_file('api_keys/key_openai.txt')
     pinecone.init(api_key=open_file('api_keys/key_pinecone.txt'), environment=open_file('api_keys/key_pinecone_env.txt'))
+    vdb = pinecone.Index("aetherius")
     if not os.path.exists('nexus/implicit_short_term_memory_nexus'):
         os.makedirs('nexus/implicit_short_term_memory_nexus')
     if not os.path.exists('nexus/short_term_memory_nexus'):

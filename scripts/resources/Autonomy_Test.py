@@ -229,5 +229,5 @@ def Autonomy_Test():
             consolidation.clear()
             conversation.clear()
             master_tasklist.clear()
-            task_completion.clear()
+            tasklist_completion.clear()
         continue

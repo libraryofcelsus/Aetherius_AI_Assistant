@@ -31,7 +31,7 @@ def gpt3_embedding(content, engine='text-embedding-ada-002'):
             sleep(2 ** (retry - 1) * 5)
     
     
-def chatgpt200_completion(messages, model="gpt-3.5-turbo", temp=0.0):
+def chatgpt200_completion(messages, model="gpt-3.5-turbo", temp=0.2):
     max_retry = 7
     retry = 0
     while  True:
@@ -49,7 +49,7 @@ def chatgpt200_completion(messages, model="gpt-3.5-turbo", temp=0.0):
             sleep(2 ** (retry - 1) * 5)
             
             
-def chatgpt250_completion(messages, model="gpt-3.5-turbo", temp=0.4):
+def chatgpt250_completion(messages, model="gpt-3.5-turbo", temp=0.45):
     max_retry = 7
     retry = 0
     while True:
@@ -67,7 +67,7 @@ def chatgpt250_completion(messages, model="gpt-3.5-turbo", temp=0.4):
             sleep(2 ** (retry - 1) * 5)
             
             
-def chatgpt500_completion(messages, model="gpt-3.5-turbo", temp=0.4):
+def chatgpt500_completion(messages, model="gpt-3.5-turbo", temp=0.5):
     max_retry = 7
     retry = 0
     while True:
@@ -85,7 +85,7 @@ def chatgpt500_completion(messages, model="gpt-3.5-turbo", temp=0.4):
             sleep(2 ** (retry - 1) * 5)
             
             
-def chatgptyesno_completion(messages, model="gpt-3.5-turbo", temp=0.0):
+def chatgptyesno_completion(messages, model="gpt-3.5-turbo", temp=0.1):
     max_retry = 7
     retry = 0
     while True:
@@ -107,7 +107,7 @@ def chatgptyesno_completion(messages, model="gpt-3.5-turbo", temp=0.0):
             sleep(2 ** (retry - 1) * 5)
                     
                     
-def chatgptresponse_completion(messages, model="gpt-4", temp=0.4):
+def chatgptresponse_completion(messages, model="gpt-4", temp=0.5):
     max_retry = 7
     retry = 0
     while  True:
@@ -125,7 +125,7 @@ def chatgptresponse_completion(messages, model="gpt-4", temp=0.4):
             sleep(2 ** (retry - 1) * 5)
             
             
-def chatgptsummary_completion(messages, model="gpt-3.5-turbo", temp=0.0):
+def chatgptsummary_completion(messages, model="gpt-3.5-turbo", temp=0.1):
     max_retry = 5
     retry = 0
     while True:
@@ -151,7 +151,7 @@ def chatgptsummary_completion(messages, model="gpt-3.5-turbo", temp=0.0):
                     sleep(2 ** (retry - 1) * 5)   
                     
                     
-def chatgptconsolidation_completion(messages, model="gpt-3.5-turbo", temp=0.0):
+def chatgptconsolidation_completion(messages, model="gpt-3.5-turbo", temp=0.1):
     max_retry = 5
     retry = 0
     while True:

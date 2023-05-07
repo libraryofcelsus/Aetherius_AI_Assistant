@@ -116,6 +116,18 @@ a.
 
 # Installation Guide
 
+## Installer bat
+
+https://github.com/libraryofcelsus/Aetherius_AI_Assistant/blob/main/scripts/resources/install.bat
+
+![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/05/Capture11111111.png)
+
+Copy API keys to api_key folder inside of the created Aetherius_Ai_Assistant folder
+
+Launch Aetherius with **run.bat**
+
+Upload heuristics to DB and start chatting!
+
 ## Windows Installation
 
 **Guide with Photos can be found at [https://www.libraryofcelsus.com/aetherius-setup-guide/]**

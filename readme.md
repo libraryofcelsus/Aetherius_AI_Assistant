@@ -5,6 +5,8 @@ More output examples can be found at https://github.com/libraryofcelsus/Aetheriu
 
 Latest Untested Version/Best Script for Code Viewing can be found at /scripts/resources/Base_Aetherius_Script_For_Analysis.py (This version has undergone very little testing and will most likely have bugs. Copy the script to the OpenAi_General_Chatbot folder to use.)
 
+Copy "Autonomy_Test.py" in the resources folder to "OpenAi_General_Chatbot" to experiment with it. *Note, it is still in its early stages.
+
 Discord Server: https://discord.gg/pb5zcNa7zE
 
 Join the Discord for help or to get more in-depth information!

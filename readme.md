@@ -17,6 +17,8 @@ Inspired by https://github.com/daveshap/
 
 ![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/05/Aetherius-Example.png)
 
+## Autonomous Architecture
+
 ![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/05/Aetherius_Reasoning.png)
 
 # Current Version Information

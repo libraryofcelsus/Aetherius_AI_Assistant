@@ -48,6 +48,7 @@ def Base_Aetherius_Script_For_Analysis():
  #   r = sr.Recognizer()
     while True:
         # # Get Timestamp
+        vdb = timeout_check()
         timestamp = time()
         timestring = timestamp_to_datetime(timestamp)
         # # Start or Continue Conversation based on if response exists
@@ -105,7 +106,7 @@ def Base_Aetherius_Script_For_Analysis():
         # # Check for "Exit"
         if a == 'Exit':
             return
-        # # Check for Exit then summarize current conversation
+        # # Check for Exit, summarize the conversation, and then upload to episodic_memories
         if a == 'Save and Exit':
             conversation2.append({'role': 'user', 'content': "Review the previous messages and summarize the key points of the conversation in a single bullet point format to serve as %s's episodic memories. Each bullet point should be considered a separate memory and contain its entire context. Start from the end and work towards the beginning. Exclude the system prompt and cadence.\nUse the following format: [- SUMMARY]\n\nEPISODIC MEMORIES:" % bot_name})
             conv_summary = chatgptsummary_completion(conversation2)
@@ -149,6 +150,7 @@ def Base_Aetherius_Script_For_Analysis():
         db_term_result = {}
         db_term_result2 = {}
         tasklist_counter = 0
+        # # Split bullet points into separate lines to be used as individual queries
         lines = tasklist_output.splitlines()
         for line in lines:
             if line.strip():
@@ -161,6 +163,7 @@ def Base_Aetherius_Script_For_Analysis():
                 db_term_result2[tasklist_counter] = load_conversation_implicit_long_term_memory(results)
                 conversation.append({'role': 'assistant', 'content': "MEMORIES: %s" % db_term_result[tasklist_counter]})
                 conversation.append({'role': 'assistant', 'content': "MEMORIES: %s" % db_term_result2[tasklist_counter]})
+                # # Stop updating conversation list for intuition loop to avoid token limit
                 if tasklist_counter < 4:
                     int_conversation.append({'role': 'assistant', 'content': "MEMORIES: %s" % db_term_result[tasklist_counter]})
                     int_conversation.append({'role': 'assistant', 'content': "MEMORIES: %s" % db_term_result2[tasklist_counter]})
@@ -364,6 +367,7 @@ def Base_Aetherius_Script_For_Analysis():
     #    auto.append({'role': 'user', 'content': a})
     #    auto.append({'role': 'assistant', 'content': "Inner Monologue: %s\nIntuition: %s" % (output_one, output_two)})
     #    auto.append({'role': 'assistant', 'content': "Thoughts on input: I will now review the user's message and my reply, rating if whether my thoughts are both pertinent to the user's inquiry and my growth with a number on a scale of 1-10. I will now give my response in digit form for an integer only input: "})
+        # # Check if response is 7 or higher.  If true, uploads memories to DB.
     #    auto_int = None
     #    while auto_int is None:
     #        automemory = chatgptyesno_completion(auto)
@@ -424,6 +428,7 @@ def Base_Aetherius_Script_For_Analysis():
                             payload.append((unique_id, vector))
                             vdb.upsert(payload, namespace='episodic_memories')
                             payload.clear()
+                    # # Increase Counter for Memory Consolidation Loop.
                     payload.append((unique_id, vector_input))
                     vdb.upsert(payload, namespace='flash_counter')
                     payload.clear()
@@ -433,7 +438,7 @@ def Base_Aetherius_Script_For_Analysis():
                     break
                 else:
                     print('Invalid Input')
-        # # Flashbulb Memory Generation
+        # # Flashbulb Memory Generation Based on Counter from Episodic Memory Generation
         index_info = vdb.describe_index_stats()
         namespace_stats = index_info['namespaces']
         namespace_name = 'flash_counter'
@@ -445,7 +450,7 @@ def Base_Aetherius_Script_For_Analysis():
             im_flash = gpt3_embedding(flash_db)
             results = vdb.query(vector=im_flash, top_k=10, namespace='implicit_long_term_memory') 
             flash_db1 = load_conversation_implicit_long_term_memory(results) 
-            # # Generate Implicit Short-Term Memory
+            # # Generate Flashbulb memories
             consolidation.append({'role': 'system', 'content': 'You are a data extractor. Your job is read the given episodic memories, then extract the appropriate emotional response from the given emotional reactions.  You will then combine them into a single memory.'})
             consolidation.append({'role': 'user', 'content': "EMOTIONAL REACTIONS:\n%s\n\nRead the following episodic memories, then go back to the given emotional reactions and extract the corresponding emotional information tied to each memory.\nEPISODIC MEMORIES: %s" % (flash_db, flash_db1)})
             consolidation.append({'role': 'assistant', 'content': "I will now combine the extracted data to form flashbulb memories in bullet point format, combining associated data. I will only include memories with a strong emotion attached, excluding redundant or irrelevant information."})
@@ -477,7 +482,7 @@ def Base_Aetherius_Script_For_Analysis():
                     break
                 else:
                     print('Invalid Input')
-        # # Short Term Memory Consolidation based on amount of vectors in namespace
+        # # Short Term Memory Consolidation/Long term memory generation based on amount of memories in short term explicit memory.
         index_info = vdb.describe_index_stats()
         namespace_stats = index_info['namespaces']
         namespace_name = 'short_term_memory'
@@ -502,12 +507,13 @@ def Base_Aetherius_Script_For_Analysis():
                     vdb.upsert(payload, namespace='long_term_memory')
                     payload.clear()
             vdb.delete(delete_all=True, namespace='short_term_memory')
+            # # Increase Memory Consolidation Counter.
             payload.append((unique_id, vector))
             vdb.upsert(payload, namespace='consol_counter')
             payload.clear()
             print('Memory Consolidation Successful')
             consolidation.clear()
-        # # Implicit Short Term Memory Consolidation based on amount of vectors in namespace
+        # # Implicit Short Term Memory Consolidation based on namespace counter from explicit long term memory generation
             index_info = vdb.describe_index_stats()
             namespace_stats = index_info['namespaces']
             namespace_name = 'consol_counter'
@@ -520,6 +526,7 @@ def Base_Aetherius_Script_For_Analysis():
                 consolidation.append({'role': 'assistant', 'content': "LOG:\n%s\n\nRead the Log and consolidate the different topics into executive summaries to serve as %s's implicit memories. Each summary should contain the entire context of the memory. Follow the format: [-{tag} {Executive Summary}]." % (memory_consol_db2, bot_name)})
                 memory_consol2 = chatgptconsolidation_completion(consolidation)
                 consolidation.clear()
+                # # Check consolidated implicit short-term memories against old long-term memories to avoid redundent uploads.
                 print('Finished.\nRemoving Redundent Memories.')
                 vector_sum = gpt3_embedding(memory_consol2)
                 results = vdb.query(vector=vector_sum, top_k=8, namespace='implicit_long_term_memory')
@@ -551,7 +558,7 @@ def Base_Aetherius_Script_For_Analysis():
                     print('Invalid Input')
             else:
                 pass
-        # # Implicit Associative Processing/Pruning based on amount of vectors in namespace
+        # # Implicit Associative Processing/Pruning based on namespace counter from explicit long term memory generation
             index_info = vdb.describe_index_stats()
             namespace_stats = index_info['namespaces']
             namespace_name = 'consol_counter'
@@ -591,7 +598,7 @@ def Base_Aetherius_Script_For_Analysis():
                         break
                     else:
                         print('Invalid Input')
-        # # Explicit Long-Term Memory Associative Processing/Pruning based on amount of vectors in namespace
+        # # Explicit Long-Term Memory Associative Processing/Pruning based on namespace counter from explicit long term memory generation
             index_info = vdb.describe_index_stats()
             namespace_stats = index_info['namespaces']
             namespace_name = 'consol_counter'

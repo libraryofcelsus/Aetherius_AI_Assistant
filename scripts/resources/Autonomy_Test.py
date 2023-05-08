@@ -137,6 +137,12 @@ def Autonomy_Test():
         db_term_result2 = {}
         tasklist_counter = 0
         # # Split bullet points into separate lines to be used as individual queries
+        
+     
+        
+        
+        
+        
         lines = tasklist_output.splitlines()
         for line in lines:
             if line.strip():
@@ -184,7 +190,7 @@ def Autonomy_Test():
         # # Intuition Generation
         int_conversation.append({'role': 'assistant', 'content': "%s" % greeting_msg})
         int_conversation.append({'role': 'user', 'content': a})
-        int_conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;\n%s;\n%s;\n\n%s'S INNER THOUGHTS: %s;\nUSER MESSAGE: %s;\nIn a single paragraph, interpret the user, %s's message as %s in third person by creating an informationally intuitive action plan, even if they are uncertain about their own needs.;\nINTUITION: " % (db_search_4, db_search_5, db_search_12, bot_name, output_one, a, username, bot_name)})
+        int_conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;\n%s;\n%s;\n\n%s'S INNER THOUGHTS: %s;\nUSER MESSAGE: %s;\nIn a single paragraph, interpret the user, %s's message as %s in third person by creating an intuitive plan on what information needs to be researched, even if the user is uncertain about their own needs.;\nINTUITION: " % (db_search_4, db_search_5, db_search_12, bot_name, output_one, a, username, bot_name)})
         output_two = chatgpt200_completion(int_conversation)
         message_two = output_two
         print('\n\nINTUITION: %s' % output_two)
@@ -196,7 +202,7 @@ def Autonomy_Test():
         master_tasklist.append({'role': 'assistant', 'content': "TASK LIST:"})
         master_tasklist_output = chatgpt_tasklist_completion(master_tasklist)
         print(master_tasklist_output)
-        tasklist_completion.append({'role': 'system', 'content': "You are a final execution module. Your job is to take a completed task list, format it for the end user in accordance with their initial request, and then provide the user with a thourogh reply using the information from the tasklist."})
+        tasklist_completion.append({'role': 'system', 'content': "You are the final response module of a cluster compute Ai-Chatbot. Your job is to take the completed task list, and give a verbose response to the end user in accordance with their initial request."})
         tasklist_completion.append({'role': 'user', 'content': "%s" % master_tasklist_output})
         task = {}
         task_result = {}
@@ -219,19 +225,18 @@ def Autonomy_Test():
                             conversation.append({'role': 'assistant', 'content': "Bot %s:" % task_counter}),
                             task_completion := chatgpt35_completion(conversation),
                             conversation.clear(),
+                            tasklist_completion.append({'role': 'assistant', 'content': "COMPLETED TASK:\n%s" % task_completion}),
                             print(line),
                             print(task_completion),
-                            tasklist_completion.append({'role': 'assistant', 'content': "COMPLETED TASK:\n%s" % task_completion}),
                         ) if line != "None" else tasklist_completion,
                         line, task_counter, conversation.copy(), []
                     )
                     for task_counter, line in enumerate(lines)
                 ]
-
-            tasklist_completion.append({'role': 'user', 'content': "Take the given set of tasks and responses and format the information into a final product in relation to the user's initial inquiry.  User's initial inquiry: %s" % a})
+            tasklist_completion.append({'role': 'user', 'content': "Take the given set of tasks and responses and format them into a verbose response for the end user in answer their request.  The end user is unaware and unable to see any of your research. User's initial request: %s" % a})
             final_response_complete = chatgpt_tasklist_completion(tasklist_completion)
             print('\nFINAL OUTPUT:\n%s' % final_response_complete)
-            complete_message = f'\nUSER: {a}\n\nINNER_MONOLOGUE: {output_one}\n\nINTUITION: {output_two}\n\n{bot_name}: {tasklist_completion}\n{final_response_complete}'
+            complete_message = f'\nUSER: {a}\n\nINNER_MONOLOGUE: {output_one}\n\nINTUITION: {output_two}\n\n{bot_name}: {tasklist_completion}\n\nFINAL OUTPUT: {final_response_complete}'
             filename = '%s_chat.txt' % timestamp
             save_file('logs/complete_chat_logs/%s' % filename, complete_message)
             consolidation.clear()

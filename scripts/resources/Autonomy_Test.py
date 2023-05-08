@@ -13,6 +13,7 @@ from uuid import uuid4
 import pinecone
 from basic_functions import *
 from gpt_4 import *
+import concurrent.futures
 # import speech_recognition as sr
 # from gtts import gTTS
 # from playsound import playsound
@@ -206,20 +207,27 @@ def Autonomy_Test():
         print('\n\nSYSTEM: Would you like to autonomously complete this task list?\n        Press Y for yes or N for no.')
         user_input = input("'Y' or 'N': ")
         if user_input == 'y':
-            for line in lines:
-                if line.strip():
-                    tasklist_completion.append({'role': 'user', 'content': "ASSIGNED TASK:\n%s" % line})
-                    print(line)
-                    conversation.append({'role': 'system', 'content': "You are a sub-module for an Autonomous Ai-Chatbot. You are one of many agents in a chain. You are to take the given task and complete it in its entirety. Take future tasks into account when formulating your answer."})
-                    conversation.append({'role': 'user', 'content': "Task list:\n%s" % master_tasklist_output})
-                    conversation.append({'role': 'assistant', 'content': "Bot %s: I have studied the given tasklist.  What is my assigned task?" % task_counter})
-                    conversation.append({'role': 'user', 'content': "Bot %s's Assigned task: %s" % (task_counter, line)})
-                    conversation.append({'role': 'assistant', 'content': "Bot %s:" % task_counter})
-                    task_completion = chatgptresponse_completion(conversation)
-                    conversation.clear()
-                    task_counter += 1
-                    print(task_completion)
-                    tasklist_completion.append({'role': 'assistant', 'content': "COMPLETED TASK:\n%s" % task_completion})
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                futures = [
+                    executor.submit(
+                        lambda line, task_counter, conversation, tasklist_completion: (
+                            tasklist_completion.append({'role': 'user', 'content': "ASSIGNED TASK:\n%s" % line}),
+                            conversation.append({'role': 'system', 'content': "You are a sub-module for an Autonomous Ai-Chatbot. You are one of many agents in a chain. You are to take the given task and complete it in its entirety. Take future tasks into account when formulating your answer."}),
+                            conversation.append({'role': 'user', 'content': "Task list:\n%s" % master_tasklist_output}),
+                            conversation.append({'role': 'assistant', 'content': "Bot %s: I have studied the given tasklist.  What is my assigned task?" % task_counter}),
+                            conversation.append({'role': 'user', 'content': "Bot %s's Assigned task: %s" % (task_counter, line)}),
+                            conversation.append({'role': 'assistant', 'content': "Bot %s:" % task_counter}),
+                            task_completion := chatgpt35_completion(conversation),
+                            conversation.clear(),
+                            print(line),
+                            print(task_completion),
+                            tasklist_completion.append({'role': 'assistant', 'content': "COMPLETED TASK:\n%s" % task_completion}),
+                        ) if line != "None" else tasklist_completion,
+                        line, task_counter, conversation.copy(), []
+                    )
+                    for task_counter, line in enumerate(lines)
+                ]
+
             tasklist_completion.append({'role': 'user', 'content': "Take the given set of tasks and responses and format the information into a final product in relation to the user's initial inquiry.  User's initial inquiry: %s" % a})
             final_response_complete = chatgpt_tasklist_completion(tasklist_completion)
             print('\nFINAL OUTPUT:\n%s' % final_response_complete)

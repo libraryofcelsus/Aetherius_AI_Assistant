@@ -17,6 +17,8 @@ Inspired by https://github.com/daveshap/
 
 ![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/05/Aetherius-Example.png)
 
+![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/05/Aetherius_Reasoning.png)
+
 # Current Version Information
 Welcome to the pre-alpha release of Aetherius, a highly customizable AI assistant designed to adapt to your specific needs.  I prefer a more "anthropomorphized" personal Ai as talking to something like base GPT feels off-putting.  The end goal of Aetherius is to both provide a realistic Ai companion and a cognitive framework that can be added on top of other Ai tools.
 

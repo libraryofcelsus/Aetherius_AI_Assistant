@@ -130,7 +130,7 @@ def chatgptresponse_completion(messages, model="gpt-4", temp=0.5):
     retry = 0
     while  True:
         try:
-            response = openai.ChatCompletion.create(model=model, messages=messages)
+            response = openai.ChatCompletion.create(model=model, messages=messages, max_tokens=500)
             text = response['choices'][0]['message']['content']
             temperature = temp
             return text

@@ -80,7 +80,6 @@ def Autonomy_Test_Bing():
             if counter % conv_length == 0:
                 print("\nConversation is continued, type [Exit] to clear conversation list.")
                 conversation.append({'role': 'assistant', 'content': "%s" % response_two})
-                conversation.append({'role': 'assistant', 'content': '%s.' % conv_summary})
             pass
         else:
             conversation.append({'role': 'assistant', 'content': "%s" % greeting_msg})
@@ -122,7 +121,7 @@ def Autonomy_Test_Bing():
         db_term_result = {}
         db_term_result2 = {}
         tasklist_counter = 0
-        # # Split bullet points into separate lines to be used as individual queries
+        # # Split bullet points into separate lines to be used as individual queries during a parallel db search
         with concurrent.futures.ThreadPoolExecutor() as executor:
             futures = [
                 executor.submit(
@@ -176,16 +175,20 @@ def Autonomy_Test_Bing():
         # # Clear Conversation List
         conversation.clear()
         # # Memory DB Search
-        results = vdb.query(vector=vector_monologue, top_k=5, namespace='episodic_memories')
-        db_search_4 = load_conversation_episodic_memory(results)
-        results = vdb.query(vector=vector_input, top_k=10, namespace='short_term_memory')
-        db_search_5 = load_conversation_short_term_memory(results)
-        results = vdb.query(vector=vector_monologue, top_k=2, namespace='flashbulb_memory')
-        db_search_12 = load_conversation_flashbulb_memory(results)
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            future1 = executor.submit(vdb.query, vector=vector_monologue, top_k=5, namespace='episodic_memories')
+            future2 = executor.submit(vdb.query, vector=vector_input, top_k=10, namespace='short_term_memory')
+            future3 = executor.submit(vdb.query, vector=vector_monologue, top_k=2, namespace='flashbulb_memory')
+            future4 = executor.submit(vdb.query, vector=vector_monologue, top_k=3, namespace='heuristics')
+
+            db_search_4 = load_conversation_episodic_memory(future1.result())
+            db_search_5 = load_conversation_short_term_memory(future2.result())
+            db_search_12 = load_conversation_flashbulb_memory(future3.result())
+            db_search_13 = load_conversation_heuristics(future4.result())
         # # Intuition Generation
         int_conversation.append({'role': 'assistant', 'content': "%s" % greeting_msg})
         int_conversation.append({'role': 'user', 'content': a})
-        int_conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;\n%s;\n%s;\n\n%s'S INNER THOUGHTS: %s;\nUSER MESSAGE: %s;\nIn a single paragraph, interpret the user, %s's message as %s in third person by creating an intuitive plan on what information needs to be researched, even if the user is uncertain about their own needs.;\nINTUITION: " % (db_search_4, db_search_5, db_search_12, bot_name, output_one, a, username, bot_name)})
+        int_conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;\n%s;\n%s;\n\n%s'S INNER THOUGHTS: %s;\nHEURISTICS: %s;\nUSER MESSAGE: %s;\nIn a single paragraph, interpret the user, %s's message as %s in third person by creating an intuitive plan on what information needs to be researched, even if the user is uncertain about their own needs.;\nINTUITION: " % (db_search_4, db_search_5, db_search_12, bot_name, output_one, db_search_13, a, username, bot_name)})
         output_two = chatgpt200_completion(int_conversation)
         message_two = output_two
         print('\n\nINTUITION: %s' % output_two)
@@ -214,7 +217,7 @@ def Autonomy_Test_Bing():
                     executor.submit(
                         lambda line, task_counter, conversation, tasklist_completion: (
                             tasklist_completion.append({'role': 'user', 'content': "ASSIGNED TASK:\n%s" % line}),
-                            conversation.append({'role': 'system', 'content': "You are a sub-module for an Autonomous Ai-Chatbot. You are one of many agents in a chain. You are to take the given task and complete it in its entirety. Take other tasks into account when formulating your answer."}),
+                            conversation.append({'role': 'system', 'content': "You are a sub-module for an Autonomous Ai-Chatbot. You are one of many agents in a chain. You are to take the given task and complete it in its entirety. Be Verbose and take other tasks into account when formulating your answer."}),
                             conversation.append({'role': 'user', 'content': "Task list:\n%s" % master_tasklist_output}),
                             conversation.append({'role': 'assistant', 'content': "Bot %s: I have studied the given tasklist.  What is my assigned task?" % task_counter}),
                             conversation.append({'role': 'user', 'content': "Bot %s's Assigned task: %s" % (task_counter, line)}),
@@ -225,6 +228,8 @@ def Autonomy_Test_Bing():
                                                 </tr>""".format(v["url"], v["name"], v["snippet"])
                                             for v in results["webPages"]["value"]]),
                             table := "<table>{0}</table>".format(rows),
+                            conversation.append({'role': 'assistant', 'content': "WEBSEARCH: %s" % table}),
+                            conversation.append({'role': 'user', 'content': "Bot %s Task Reinitialization: %s" % (task_counter, line)}),
                             conversation.append({'role': 'assistant', 'content': "WEBSEARCH: %s" % table}),
                             conversation.append({'role': 'user', 'content': "Bot %s Task Reinitialization: %s" % (task_counter, line)}),
                             conversation.append({'role': 'assistant', 'content': "Bot %s's Response:" % task_counter}),
@@ -256,4 +261,119 @@ def Autonomy_Test_Bing():
             master_tasklist.clear()
             tasklist.clear()
             tasklist_log.clear()
+            
+            
+        db_msg = f'\nUSER: {a} \n\n INNER_MONOLOGUE: {output_one} \n\n {bot_name}: {response_two}'
+        summary.append({'role': 'user', 'content': "LOG:\n%s\n\Read the log and create short executive summaries in bullet point format to serve as %s's explicit memories. Each bullet point should be considered a separate memory and contain all context. Start from the end and work towards the beginning, combining assosiated topics.\nMemories:\n" % (db_msg, bot_name)})
+        db_upload = chatgptsummary_completion(summary)
+        db_upsert = db_upload
+        # # Manual Short-Term Memory DB Upload Confirmation
+        print('\n\n<DATABASE INFO>\n%s' % db_upsert)
+        print('\n\nSYSTEM: Upload to short term memory? \n        Press Y for yes or N for no.')
+        while True:
+            user_input = input("'Y' or 'N': ")
+            if user_input == 'y':
+                lines = db_upsert.splitlines()
+                for line in lines:
+                    if line.strip():
+                        vector = gpt3_embedding(line)
+                        unique_id = str(uuid4())
+                        metadata = {'speaker': bot_name, 'time': timestamp, 'message': line,
+                                    'timestring': timestring, 'uuid': unique_id}
+                        save_json('nexus/short_term_memory_nexus/%s.json' % unique_id, metadata)
+                        payload.append((unique_id, vector))
+                        vdb.upsert(payload, namespace='short_term_memory')
+                        payload.clear()
+                print('\n\nSYSTEM: Upload Successful!')
+                break
+            elif user_input == 'n':
+                print('\n\nSYSTEM: Memories have been Deleted')
+                break
+            else:
+                print('Invalid Input')
+        index_info = vdb.describe_index_stats()
+        namespace_stats = index_info['namespaces']
+        namespace_name = 'short_term_memory'
+        if namespace_name in namespace_stats and namespace_stats[namespace_name]['vector_count'] > 13:
+            consolidation.clear()
+            print(f"{namespace_name} has 15 or more entries, starting memory consolidation.")
+            results = vdb.query(vector=vector_input, top_k=25, namespace='short_term_memory')
+            memory_consol_db = load_conversation_short_term_memory(results)
+            consolidation.append({'role': 'system', 'content': "%s" % main_prompt})
+            consolidation.append({'role': 'assistant', 'content': "LOG:\n%s\n\nRead the Log and consolidate the different topics into executive summaries. Each summary should contain the entire context of the memory. Follow the format [- Executive Summary]." % memory_consol_db})
+            memory_consol = chatgptconsolidation_completion(consolidation)
+            lines = memory_consol.splitlines()
+            for line in lines:
+                if line.strip():
+            #    print(timestring + line)
+                    vector = gpt3_embedding(line)
+                    unique_id = str(uuid4())
+                    metadata = {'speaker': bot_name, 'time': timestamp, 'message': (line),
+                                'timestring': timestring, 'uuid': unique_id}
+                    save_json('nexus/long_term_memory_nexus/%s.json' % unique_id, metadata)
+                    payload.append((unique_id, vector))
+                    vdb.upsert(payload, namespace='long_term_memory')
+                    payload.clear()
+            vdb.delete(delete_all=True, namespace='short_term_memory')
+            payload.append((unique_id, vector))
+            vdb.upsert(payload, namespace='consol_counter')
+            payload.clear()
+            print('Memory Consolidation Successful')
+            consolidation.clear()
+        # # Explicit Long-Term Memory Associative Processing/Pruning based on amount of vectors in namespace
+            index_info = vdb.describe_index_stats()
+            namespace_stats = index_info['namespaces']
+            namespace_name = 'consol_counter'
+            if namespace_name in namespace_stats and namespace_stats[namespace_name]['vector_count'] > 5:
+                consolidation.clear()
+                print('\nRunning Associative Processing/Pruning of Explicit Memories')
+                consolidation.append({'role': 'system', 'content': "You are a data extractor. Your job is to read the user's input and provide a single semantic search query representitive of a habit of %s." % bot_name})
+                results = vdb.query(vector=vector_monologue, top_k=5, namespace='implicit_long_term_memory')
+                consol_search = load_conversation_implicit_long_term_memory(results)
+                consolidation.append({'role': 'user', 'content': "%s's Memories:\n%s" % (bot_name, consol_search)})
+                consolidation.append({'role': 'assistant', 'content': "Semantic Search Query: "})
+                consol_search_term = chatgpt200_completion(consolidation)
+                consol_vector = gpt3_embedding(consol_search_term)
+                results = vdb.query(vector=consol_vector, top_k=10, namespace='long_term_memory')
+                memory_consol_db2 = load_conversation_long_term_memory(results)
+                ids_to_delete2 = [m['id'] for m in results['matches']]
+                consolidation.clear()
+                consolidation.append({'role': 'system', 'content': "%s" % main_prompt})
+                consolidation.append({'role': 'assistant', 'content': "LOG:\n%s\n\nRead the Log and consolidate the different memories into executive summaries in a process allegorical to associative processing. Each summary should contain the entire context of the memory. Follow the format: [-{tag} Memory]" % memory_consol_db2})
+                memory_consol2 = chatgptconsolidation_completion(consolidation)
+                print('\nOriginal Memories\n')
+                print(memory_consol_db2)
+                print('\nConsolidated Memories\n')
+                print(memory_consol2)
+                print('\nWould you like to upload consolidated explicit memories to DB?\nY for yes or N for no.')
+                while True:
+                    user_input = input("'Y' or 'N': ")
+                    if user_input == 'y':
+                        memories = results
+                        lines = memory_consol2.splitlines()
+                        for line in lines:
+                            if line.strip():
+                                vector = gpt3_embedding(line)
+                                unique_id = str(uuid4())
+                                metadata = {'speaker': bot_name, 'time': timestamp, 'message': (line),
+                                            'timestring': timestring, 'uuid': unique_id}
+                                save_json('nexus/long_term_memory_nexus/%s.json' % unique_id, metadata)
+                                payload.append((unique_id, vector))
+                                vdb.upsert(payload, namespace='long_term_memory')
+                                payload.clear()
+                                vdb.delete(ids=ids_to_delete2, namespace='long_term_memory')
+                        vdb.delete(delete_all=True, namespace='consol_counter')
+                        break
+                    elif user_input == 'n':
+                        print('Cancelled')
+                        break
+                    else:
+                        print('Invalid Input')
+            
+            
+            
+            
+            
+            
+            
         continue

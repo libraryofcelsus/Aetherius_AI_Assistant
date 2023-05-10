@@ -320,7 +320,6 @@ def Autonomy_Test():
                                          print("No Memories Needed")),
                             conversation.append({'role': 'assistant', 'content': "MEMORIES: %s" % memories}),
                             conversation.append({'role': 'user', 'content': "Bot %s Task Reinitialization: %s" % (task_counter, line)}),
-                            conversation.append({'role': 'user', 'content': "Bot %s Task Reinitialization: %s" % (task_counter, line)}),
                             conversation.append({'role': 'assistant', 'content': "Bot %s's Response:" % task_counter}),
                             task_completion := conversation.clear(),
                             #chatgpt35_completion(conversation),

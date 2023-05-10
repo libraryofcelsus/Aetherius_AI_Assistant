@@ -9,7 +9,7 @@ Version 0.038d of Aetherius Personal Assistant by LibraryofCelsus.com
 
 -(Needs Updating) Websearch with Bing API: https://www.microsoft.com/en-us/bing/apis/bing-web-search-api
 
-
+------
 
 More output examples can be found at https://github.com/libraryofcelsus/Aetherius_Ai_Assistant_Outputs
 

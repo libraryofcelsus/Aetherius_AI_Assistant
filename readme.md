@@ -1,6 +1,15 @@
 # Aetherius
 Version 0.038d of Aetherius Personal Assistant by LibraryofCelsus.com
 
+**Experimental Updates**
+-Autonomous Tasklist Generation and Completion
+
+-Basic Tasklist Tools
+
+-(Needs Updating) Websearch with Bing API: https://www.microsoft.com/en-us/bing/apis/bing-web-search-api
+
+
+
 More output examples can be found at https://github.com/libraryofcelsus/Aetherius_Ai_Assistant_Outputs
 
 Latest Untested Version/Best Script for Code Viewing can be found at /scripts/resources/Base_Aetherius_Script_For_Analysis.py (This version has undergone very little testing and will most likely have bugs. Copy the script to the OpenAi_General_Chatbot folder to use.)

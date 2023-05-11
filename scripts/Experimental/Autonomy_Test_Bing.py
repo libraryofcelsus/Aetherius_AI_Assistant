@@ -189,7 +189,7 @@ def google_search(line, my_api_key, my_cse_id, **kwargs):
 
 
 
-def Autonomy_Test():
+def Autonomy_Test_Bing():
     vdb = pinecone.Index("aetherius")
     # # Number of Messages before conversation is summarized, higher number, higher api cost. Change to 3 when using GPT 3.5 due to token usage.
     conv_length = 4

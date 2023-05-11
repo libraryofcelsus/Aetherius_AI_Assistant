@@ -7,6 +7,8 @@ Version 0.038d of Aetherius Personal Assistant by LibraryofCelsus.com
 
 -Websearch with Bing API: https://www.microsoft.com/en-us/bing/apis/bing-web-search-api
 
+-Google CSE API Added
+
 -Aetherius now decides for itself whether or not each task in its generated tasklist requires a websearch, memory search, or both.
 
 ------
@@ -136,11 +138,13 @@ https://github.com/libraryofcelsus/Aetherius_AI_Assistant/blob/main/scripts/reso
 
 ![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/05/Capture11111111.png)
 
-Copy API keys to api_key folder inside of the created Aetherius_Ai_Assistant folder
+Copy your OpenAi and Pinecone API keys to api_key folder inside of the created Aetherius_Ai_Assistant folder
 
 Launch Aetherius with **run.bat**
 
-Upload heuristics to DB and start chatting!
+Select DB Management and select Reset Pinecone Index to create an index.
+
+Upload heuristics to DB and start chatting with Aetheius, bot name, heuristic examples, and files to modify prompts can be found in the config folder!
 
 ## Windows Installation
 

@@ -5,9 +5,9 @@ Version 0.038d of Aetherius Personal Assistant by LibraryofCelsus.com
 
 -Autonomous Tasklist Generation and Completion
 
--Basic Tasklist Tools
+-Websearch with Bing API: https://www.microsoft.com/en-us/bing/apis/bing-web-search-api
 
--(Needs Updating) Websearch with Bing API: https://www.microsoft.com/en-us/bing/apis/bing-web-search-api
+-Aetherius now decides for itself whether or not each task in its generated tasklist requires a websearch, memory search, or both.
 
 ------
 

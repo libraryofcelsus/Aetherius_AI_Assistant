@@ -31,6 +31,8 @@ Inspired by https://github.com/daveshap/
 
 ![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/05/Aetherius-Example.png)
 
+# # Aether Scrape/Search
+
 ![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/05/Capture5.png)
 
 ![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/05/Capture6.png)

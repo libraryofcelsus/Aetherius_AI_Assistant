@@ -92,7 +92,7 @@ def google_search(query, my_api_key, my_cse_id, **kwargs):
     "key": my_api_key,
     "cx": my_cse_id,
     "q": query,
-    "num": 8,
+    "num": 2,
     "snippet": True
   }
   response = requests.get("https://www.googleapis.com/customsearch/v1", params=params)
@@ -108,7 +108,21 @@ def split_into_chunks(text, chunk_size):
     return [text[i:i+chunk_size] for i in range(0, len(text), chunk_size)]
 
 
-def chunk_text_from_url(url):
+def chunk_text(text, chunk_size, overlap):
+    chunks = []
+    start = 0
+    end = chunk_size
+    while end <= len(text):
+        chunks.append(text[start:end])
+        start += chunk_size - overlap
+        end += chunk_size - overlap
+    if end > len(text):
+        chunks.append(text[start:])
+    return chunks
+
+
+
+def chunk_text_from_url(url, chunk_size=8000, overlap=200):
     try:
         print("Scraping given URL, please wait...")
         bot_name = open_file('./config/prompt_bot_name.txt')
@@ -118,7 +132,7 @@ def chunk_text_from_url(url):
         texttemp = soup.get_text().strip()
         texttemp = texttemp.replace('\n', '').replace('\r', '')
         texttemp = '\n'.join(line for line in texttemp.splitlines() if line.strip())
-        chunks = split_into_chunks(texttemp, 8000)
+        chunks = chunk_text(texttemp, chunk_size, overlap)
         weblist = list()
         for chunk in chunks:
             websum = list()
@@ -274,11 +288,9 @@ def Autonomy_Test_Aether_Search():
             urls = google_search(query, my_api_key, my_cse_id)
             with concurrent.futures.ThreadPoolExecutor() as executor:
                 executor.map(chunk_text_from_url, urls)
-            
-            
-            
+        print('---------')
         # # User Input Text
-        a = input(f'\n\nUSER: ')
+        a = input(f'\n\nInput task: ')
         message_input = a
         vector_input = gpt3_embedding(message_input)
         # # Check for Commands

@@ -15,6 +15,8 @@ Version ---- of Aetherius Personal Assistant by LibraryofCelsus.com
 
 ------
 
+[Skip to installation guide](#installation-guide)
+
 More output examples can be found at https://github.com/libraryofcelsus/Aetherius_Ai_Assistant_Outputs
 
 Latest Untested Version/Best Script for Code Viewing can be found at /scripts/resources/Base_Aetherius_Script_For_Analysis.py (This version has undergone very little testing and will most likely have bugs. Copy the script to the OpenAi_General_Chatbot folder to use.)
@@ -28,6 +30,10 @@ Made by: https://github.com/libraryofcelsus
 Inspired by https://github.com/daveshap/
 
 ![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/05/Aetherius-Example.png)
+
+![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/05/Capture5.png)
+
+![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/05/Capture6.png)
 
 ## Autonomous Architecture
 

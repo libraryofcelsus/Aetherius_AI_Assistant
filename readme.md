@@ -1,5 +1,5 @@
 # Aetherius
-Version 0.038d of Aetherius Personal Assistant by LibraryofCelsus.com
+Version ---- of Aetherius Personal Assistant by LibraryofCelsus.com
 
 **Experimental Updates**
 
@@ -8,6 +8,8 @@ Version 0.038d of Aetherius Personal Assistant by LibraryofCelsus.com
 -Websearch with Bing API: https://www.microsoft.com/en-us/bing/apis/bing-web-search-api
 
 -Google CSE API Added
+
+-First iteration of Aether Search/Scrape implemented. This will be the eventual websearch system.  As of now it requires a Google CSE key and Google API key, other options coming soon.
 
 -Aetherius now decides for itself whether or not each task in its generated tasklist requires a websearch, memory search, or both.
 

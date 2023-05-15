@@ -92,7 +92,7 @@ def google_search(query, my_api_key, my_cse_id, **kwargs):
     "key": my_api_key,
     "cx": my_cse_id,
     "q": query,
-    "num": 5,
+    "num": 2,
     "snippet": True
   }
   response = requests.get("https://www.googleapis.com/customsearch/v1", params=params)
@@ -122,7 +122,7 @@ def chunk_text(text, chunk_size, overlap):
 
 
 
-def chunk_text_from_url(url, chunk_size=8000, overlap=200):
+def chunk_text_from_url(url, chunk_size=2000, overlap=200):
     try:
         print("Scraping given URL, please wait...")
         bot_name = open_file('./config/prompt_bot_name.txt')
@@ -136,25 +136,30 @@ def chunk_text_from_url(url, chunk_size=8000, overlap=200):
         weblist = list()
         for chunk in chunks:
             websum = list()
-            websum.append({'role': 'system', 'content': "You are a content analyzer. Your job is to take the given text from a webscrape, then remove all of the excess data. After excess data has been removed, you will return the main article without losing any factual data to the end-user for easy reading.  Use the format: [-{One Sentence Title}: {Article}]. Avoid using linebreaks inside of the article.  Lists should be made into continuous text form to avoid them."})
+            websum.append({'role': 'system', 'content': "You are a data extractor. Your job is to take the given text from a webscrape, then highlight important or factual information. After useless data has been removed, you will then return all salient information.  Use the format: [-{One Sentence Title}: {Article/Guide}]. Avoid using linebreaks inside of the article.  Lists should be made into continuous text form to avoid them."})
             websum.append({'role': 'user', 'content': f"ARTICLE CHUNK: {chunk}"})
             text = chatgpt35_completion(websum)
             paragraphs = text.split('\n\n')  # Split into paragraphs
-            for paragraph in paragraphs:  # Process each paragraph individually
+            for paragraph in paragraphs:  # Process each paragraph individually, add a check to see if paragraph contained actual information.
+                webcheck = list()
                 weblist.append(url + ' ' + paragraph)
-                print('---------')
-                print(url + ' ' + paragraph)
-                payload = list()
-                vector = gpt3_embedding(url + ' ' + paragraph)
-                timestamp = time()
-                timestring = timestamp_to_datetime(timestamp)
-                unique_id = str(uuid4())
-                metadata = {'speaker': bot_name, 'time': timestamp, 'message': url + ' ' + paragraph,
-                            'timestring': timestring, 'uuid': unique_id}
-                save_json('nexus/web_scrape_memory_nexus/%s.json' % unique_id, metadata)
-                payload.append((unique_id, vector))
-                vdb.upsert(payload, namespace='web_scrape_memory')
-                payload.clear()
+                webcheck.append({'role': 'system', 'content': f"You are an agent for an automated webscraping tool. You are one of many agents in a chain. Your task is to decide if the given text from a webscrape was scraped successfully. The scraped text should contain factual data or opinions. If the given data only consists of an error message or advertisments, skip it.  If the article was scraped successfully, print: YES.  If a web-search is not needed, print: NO."})
+                webcheck.append({'role': 'user', 'content': f"Is the scraped information useful to an end-user? YES/NO: {paragraph}"})
+                webyescheck = chatgptyesno_completion(webcheck)
+                if webyescheck == 'YES':
+                    print('---------')
+                    print(url + ' ' + paragraph)
+                    payload = list()
+                    vector = gpt3_embedding(url + ' ' + paragraph)
+                    timestamp = time()
+                    timestring = timestamp_to_datetime(timestamp)
+                    unique_id = str(uuid4())
+                    metadata = {'speaker': bot_name, 'time': timestamp, 'message': url + ' ' + paragraph,
+                                'timestring': timestring, 'uuid': unique_id}
+                    save_json('nexus/web_scrape_memory_nexus/%s.json' % unique_id, metadata)
+                    payload.append((unique_id, vector))
+                    vdb.upsert(payload, namespace='web_scrape_memory')
+                    payload.clear()
         table = weblist
         return table
     except Exception as e:

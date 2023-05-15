@@ -88,34 +88,24 @@ def search_explicit_db(line_vec):
        
        
         
-def fail():
-    print('')
-    fail = "Not Needed"
-    return fail
-
-
-def google_search(query, my_api_key, my_cse_id, **kwargs):
-  params = {
-    "key": my_api_key,
-    "cx": my_cse_id,
-    "q": query,
-    "num": 2,
-    "snippet": True
-  }
-  response = requests.get("https://www.googleapis.com/customsearch/v1", params=params)
-  if response.status_code == 200:
-    data = response.json()
-    urls = [item['link'] for item in data.get("items", [])]  # Return a list of URLs
-    return urls
-  else:
-    raise Exception(f"Request failed with status code {response.status_code}")
-
-
 def split_into_chunks(text, chunk_size):
     return [text[i:i+chunk_size] for i in range(0, len(text), chunk_size)]
 
 
-def chunk_text_from_url(url):
+def chunk_text(text, chunk_size, overlap):
+    chunks = []
+    start = 0
+    end = chunk_size
+    while end <= len(text):
+        chunks.append(text[start:end])
+        start += chunk_size - overlap
+        end += chunk_size - overlap
+    if end > len(text):
+        chunks.append(text[start:])
+    return chunks
+
+
+def chunk_text_from_url(url, chunk_size=2000, overlap=200):
     try:
         print("Scraping given URL, please wait...")
         bot_name = open_file('./config/prompt_bot_name.txt')
@@ -125,48 +115,40 @@ def chunk_text_from_url(url):
         texttemp = soup.get_text().strip()
         texttemp = texttemp.replace('\n', '').replace('\r', '')
         texttemp = '\n'.join(line for line in texttemp.splitlines() if line.strip())
-        chunks = split_into_chunks(texttemp, 8000)
+        chunks = chunk_text(texttemp, chunk_size, overlap)
         weblist = list()
         for chunk in chunks:
             websum = list()
-            websum.append({'role': 'system', 'content': "You are a content analyzer. Your job is to take the given text from a webscrape, then remove all of the excess data. After excess data has been removed, you will return the main article without losing any factual data to the end-user for easy reading.  Use the format: [-{Title}: {Article}]. Avoid using linebreaks inside of the article.  Lists should be hyphenated instead of having linebreaks. Example: [{Item 1} - {Item 2}]"})
-            websum.append({'role': 'user', 'content': f"{chunk}"})
+            websum.append({'role': 'system', 'content': "You are a data extractor. Your job is to take the given text from a webscrape, then highlight important or factual information. After useless data has been removed, you will then return all salient information.  Use the format: [-{One Sentence Title}: {Article/Guide}]. Avoid using linebreaks inside of the article.  Lists should be made into continuous text form to avoid them."})
+            websum.append({'role': 'user', 'content': f"ARTICLE CHUNK: {chunk}"})
             text = chatgpt35_completion(websum)
             paragraphs = text.split('\n\n')  # Split into paragraphs
-            for paragraph in paragraphs:  # Process each paragraph individually
+            for paragraph in paragraphs:  # Process each paragraph individually, add a check to see if paragraph contained actual information.
+                webcheck = list()
                 weblist.append(url + ' ' + paragraph)
-                print('---------')
-                print(url + ' ' + paragraph)
-                payload = list()
-                vector = gpt3_embedding(url + ' ' + paragraph)
-                timestamp = time()
-                timestring = timestamp_to_datetime(timestamp)
-                unique_id = str(uuid4())
-                metadata = {'speaker': bot_name, 'time': timestamp, 'message': url + ' ' + paragraph,
-                            'timestring': timestring, 'uuid': unique_id}
-                save_json('nexus/web_scrape_memory_nexus/%s.json' % unique_id, metadata)
-                payload.append((unique_id, vector))
-                vdb.upsert(payload, namespace='web_scrape_memory')
-                payload.clear()
+                webcheck.append({'role': 'system', 'content': f"You are an agent for an automated webscraping tool. You are one of many agents in a chain. Your task is to decide if the given text from a webscrape was scraped successfully. The scraped text should contain factual data or opinions. If the given data only consists of an error message or advertisments, skip it.  If the article was scraped successfully, print: YES.  If a web-search is not needed, print: NO."})
+                webcheck.append({'role': 'user', 'content': f"Is the scraped information useful to an end-user? YES/NO: {paragraph}"})
+                webyescheck = chatgptyesno_completion(webcheck)
+                if webyescheck == 'YES':
+                    print('---------')
+                    print(url + ' ' + paragraph)
+                    payload = list()
+                    vector = gpt3_embedding(url + ' ' + paragraph)
+                    timestamp = time()
+                    timestring = timestamp_to_datetime(timestamp)
+                    unique_id = str(uuid4())
+                    metadata = {'speaker': bot_name, 'time': timestamp, 'message': url + ' ' + paragraph,
+                                'timestring': timestring, 'uuid': unique_id}
+                    save_json('nexus/web_scrape_memory_nexus/%s.json' % unique_id, metadata)
+                    payload.append((unique_id, vector))
+                    vdb.upsert(payload, namespace='web_scrape_memory')
+                    payload.clear()
         table = weblist
         return table
     except Exception as e:
         print(e)
         table = "Error"
         return table  
-
-    
-
-
-def search_and_chunk(query, my_api_key, my_cse_id, **kwargs):
-    try:
-        urls = google_search(query, my_api_key, my_cse_id, **kwargs)
-        chunks = []
-        for url in urls:
-            chunks += chunk_text_from_url(url)
-        return chunks
-    except:
-        print('Fail1')
      
         
 def load_conversation_web_scrape_memory(results):
@@ -262,7 +244,7 @@ def Autonomy_Test_Aether_Scrape():
         url = input(f'\nEnter URL to scrape: ')
         if url == 'Clear Memory':
             while True:
-                print('\n\nSYSTEM: Are you sure you would like to delete saved short-term memory?\n        Press Y for yes or N for no.')
+                print('\n\nSYSTEM: Are you sure you would like to delete saved webscrape?\n        Press Y for yes or N for no.')
                 user_input = input("'Y' or 'N': ")
                 if user_input == 'y':
                     vdb.delete(delete_all=True, namespace="web_scrape_memory")
@@ -308,7 +290,7 @@ def Autonomy_Test_Aether_Scrape():
         # # Check for Exit, summarize the conversation, and then upload to episodic_memories
         conversation.append({'role': 'user', 'content': a})        
         # # Generate Semantic Search Terms
-        tasklist.append({'role': 'system', 'content': "You are a task coordinator. Your job is to take user input and create a list of 2-5 inquiries to be used for a semantic database search of a chatbot's memories. Use the format [- 'INQUIRY']."})
+        tasklist.append({'role': 'system', 'content': "You are a task coordinator. Your job is to take user input and create a list of 2-5 inquiries to be used for a semantic database search. Use the format [- 'INQUIRY']."})
         tasklist.append({'role': 'user', 'content': "USER INQUIRY: %s" % a})
         tasklist.append({'role': 'assistant', 'content': "List of Semantic Search Terms: "})
         tasklist_output = chatgpt200_completion(tasklist)

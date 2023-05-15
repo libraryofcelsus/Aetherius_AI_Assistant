@@ -92,7 +92,7 @@ def google_search(query, my_api_key, my_cse_id, **kwargs):
     "key": my_api_key,
     "cx": my_cse_id,
     "q": query,
-    "num": 2,
+    "num": 5,
     "snippet": True
   }
   response = requests.get("https://www.googleapis.com/customsearch/v1", params=params)
@@ -161,10 +161,8 @@ def chunk_text_from_url(url, chunk_size=8000, overlap=200):
         print(e)
         table = "Error"
         return table  
-
-    
-
-
+        
+        
 def search_and_chunk(query, my_api_key, my_cse_id, **kwargs):
     try:
         urls = google_search(query, my_api_key, my_cse_id, **kwargs)
@@ -241,6 +239,8 @@ def Autonomy_Test_Aether_Search():
     counter = 0
     counter2 = 0
     mem_counter = 0
+    if not os.path.exists('nexus/web_scrape_memory_nexus'):
+        os.makedirs('nexus/web_scrape_memory_nexus')
     bot_name = open_file('./config/prompt_bot_name.txt')
     username = open_file('./config/prompt_username.txt')
     main_prompt = open_file('./config/Chatbot_Prompts/prompt_main.txt').replace('<<NAME>>', bot_name)
@@ -494,7 +494,7 @@ def Autonomy_Test_Aether_Search():
                           #  conversation.clear(),
                             tasklist_completion.append({'role': 'assistant', 'content': "WEBSCRAPE: %s" % table}),
                             tasklist_completion.append({'role': 'assistant', 'content': "Research for Task Completion: %s" % memories}),
-                    #        tasklist_completion.append({'role': 'assistant', 'content': "COMPLETED TASK:\n%s" % task_completion}),
+                            tasklist_completion.append({'role': 'assistant', 'content': "COMPLETED TASK:\n%s" % task_completion}),
                             tasklist_log.append({'role': 'user', 'content': "ASSIGNED TASK:\n%s\n\n" % line}),
                             tasklist_log.append({'role': 'assistant', 'content': "COMPLETED TASK:\n%s\n\n" % memories}),
                             print(line),

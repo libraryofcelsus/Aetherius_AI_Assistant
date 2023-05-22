@@ -3,6 +3,8 @@ Version .04 of Aetherius Personal Assistant by LibraryofCelsus.com
 
 **Autonomous Tasklist Update!**
 
+**Webscrape and Search Added!**
+
 Aetherius now has an autonomous research loop.  This loop can either search its memories or search the web!
 
 ------

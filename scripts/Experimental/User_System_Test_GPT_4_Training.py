@@ -52,6 +52,7 @@ def User_System_Test_GPT_4_Training():
  #   r = sr.Recognizer()
     while True:
         # # Get Timestamp
+        vdb = timeout_check()
         timestamp = time()
         timestring = timestamp_to_datetime(timestamp)
         # # Start or Continue Conversation based on if response exists
@@ -216,6 +217,10 @@ def User_System_Test_GPT_4_Training():
             except Exception as e:
                 print(f"Caught an exception: {e}")
         # # Inner Monologue Generation
+        print(db_search_1)
+        print(db_search_2)
+        print(db_search_3)
+        print(db_search_4)
         conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;%s;%s;\n\nHEURISTICS: %s;\nUSER MESSAGE: %s;\nBased on %s's memories and the user, %s's message, compose a brief silent soliloquy as %s's inner monologue that reflects on %s's deepest contemplations and emotions in relation to the user's message.\n\nINNER_MONOLOGUE: " % (db_search_1, db_search_2, db_search_3, db_search_4, a, bot_name, username, bot_name, bot_name)})
         output_one = chatgpt250_completion(conversation)
         message = output_one
@@ -242,6 +247,7 @@ def User_System_Test_GPT_4_Training():
                 print(f"Length of lines: {len(lines)}")
             except Exception as e:
                 print(f"Caught an exception: {e}")
+        print(f'{db_search_4}\n{db_search_5}\n{db_search_12}')
         # # Intuition Generation
         int_conversation.append({'role': 'assistant', 'content': "%s" % greeting_msg})
         int_conversation.append({'role': 'user', 'content': a})
@@ -350,6 +356,7 @@ def User_System_Test_GPT_4_Training():
                 db_search_8 = load_conversation_implicit_long_term_memory(future1.result())
                 db_search_10 = load_conversation_episodic_memory(future2.result())
                 db_search_11 = load_conversation_flashbulb_memory(future3.result())
+                print(f'{db_search_8}\n{db_search_10}\n{db_search_11}')
             except IndexError as e:
                 print(f"Caught an IndexError: {e}")
                 print(f"Length of futures: {len(futures)}")
@@ -402,9 +409,9 @@ def User_System_Test_GPT_4_Training():
                         vector = gpt3_embedding(line)
                         unique_id = str(uuid4())
                         metadata = {'bot': bot_name, 'time': timestamp, 'message': line,
-                                    'timestring': timestring, 'uuid': unique_id, "memory_type": "explicit_long_term"}
+                                    'timestring': timestring, 'uuid': unique_id, "memory_type": "explicit_short_term"}
                         save_json('nexus/explicit_short_term_memory_nexus/%s.json' % unique_id, metadata)
-                        payload.append((unique_id, vector, {"memory_type": "explicit_long_term"}))
+                        payload.append((unique_id, vector, {"memory_type": "explicit_short_term"}))
                         vdb.upsert(payload, namespace=f'{username}_short_term_memory')
                         payload.clear()
                 print('\n\nSYSTEM: Upload Successful!')
@@ -520,7 +527,7 @@ def User_System_Test_GPT_4_Training():
         index_info = vdb.describe_index_stats()
         namespace_stats = index_info['namespaces']
         namespace_name = f'{username}_short_term_memory'
-        if namespace_name in namespace_stats and namespace_stats[namespace_name]['vector_count'] > 30:
+        if namespace_name in namespace_stats and namespace_stats[namespace_name]['vector_count'] > 2:
             consolidation.clear()
             print(f"{namespace_name} has 30 or more entries, starting memory consolidation.")
             results = vdb.query(vector=vector_input, filter={"memory_type": "explicit_short_term"}, top_k=25, namespace=f'{username}_short_term_memory')
@@ -536,7 +543,7 @@ def User_System_Test_GPT_4_Training():
                     unique_id = str(uuid4())
                     metadata = {'speaker': bot_name, 'time': timestamp, 'message': (line),
                                 'timestring': timestring, 'uuid': unique_id, "memory_type": "explicit_long_term"}
-                    save_json('nexus/long_term_memory_nexus/%s.json' % unique_id, metadata)
+                    save_json('nexus/explicit_long_term_memory_nexus/%s.json' % unique_id, metadata)
                     payload.append((unique_id, vector, {"memory_type": "explicit_long_term"}))
                     vdb.upsert(payload, namespace=f'{username}')
                     payload.clear()
@@ -606,7 +613,7 @@ def User_System_Test_GPT_4_Training():
                         payload.append((unique_id, vector, {"memory_type": "implicit_long_term"}))
                         vdb.upsert(payload, namespace=f'{username}')
                         payload.clear()
-                        vdb.delete(ids=ids_to_delete, namespace=f'{username}')
+                vdb.delete(ids=ids_to_delete, namespace=f'{username}')
         # # Explicit Long-Term Memory Associative Processing/Pruning based on amount of vectors in namespace
             index_info = vdb.describe_index_stats()
             namespace_stats = index_info['namespaces']
@@ -636,11 +643,11 @@ def User_System_Test_GPT_4_Training():
                         unique_id = str(uuid4())
                         metadata = {'speaker': bot_name, 'time': timestamp, 'message': (line),
                                     'timestring': timestring, 'uuid': unique_id, "memory_type": "explicit_long_term"}
-                        save_json('nexus/long_term_memory_nexus/%s.json' % unique_id, metadata)
+                        save_json('nexus/explicit_long_term_memory_nexus/%s.json' % unique_id, metadata)
                         payload.append((unique_id, vector, {"memory_type": "explicit_long_term"}))
                         vdb.upsert(payload, namespace=f'{username}')
                         payload.clear()
-                        vdb.delete(ids=ids_to_delete2, namespace=f'{username}')
+                vdb.delete(ids=ids_to_delete2, namespace=f'{username}')
                 vdb.delete(delete_all=True, namespace=f'{username}_consol_counter')
         else:
             pass

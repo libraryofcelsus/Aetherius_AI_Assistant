@@ -1,19 +1,9 @@
 # Aetherius
-Version ---- of Aetherius Personal Assistant by LibraryofCelsus.com
+Version .04 of Aetherius Personal Assistant by LibraryofCelsus.com
 
-**Experimental Updates**
+**Autonomous Tasklist Update!**
 
--Added Test Script for new User system
-
--Autonomous Tasklist Generation and Completion
-
--Websearch with Bing API: https://www.microsoft.com/en-us/bing/apis/bing-web-search-api
-
--Google CSE API Added
-
--First iteration of Aether Search/Scrape implemented. This will be the eventual websearch system.  As of now it requires a Google CSE key and Google API key, other options coming soon.
-
--Aetherius now decides for itself whether or not each task in its generated tasklist requires a websearch, memory search, or both.
+Aetherius now has an autonomous research loop.  This loop can either search its memories or search the web!
 
 ------
 
@@ -51,23 +41,17 @@ Currently, Aetherius's main focus is creating a good architecture for realistic 
 Aetherius aims to provide a modular, personalized AI assistant experience by enabling the addition of task-specific Modules and Sub-Modules. If all goes as planned, Aetherius will support integration with other open-source projects and models.
 
 ## Changelog:
-0.038d
+0.04
 
--Worked on Intuition
+-New User System Implemented
 
--Reworded internal prompts to hopefully fix wrong username bug when using gpt 3.5
+-First iteration of Aether Search/Scrape implemented. This will be the eventual websearch system.  As of now it requires a Google CSE key and Google API key, other options coming soon.
 
--Added loop to skip uploading empty lines in memory upsert.
+-Autonomous Tasklist Generation
 
-c.
+-Aetherius now decides for itself whether or not each task in its generated tasklist requires a websearch, memory search, or both.
 
--Added Flashbulb Memory
-
--Improved summary prompts
-
--Various Bug Fixes
-
-b.
+0.039
 
 -Added Cadence DB check, will no longer use Cadence prompt if Cadence DB is empty.
 
@@ -75,13 +59,25 @@ b.
 
 -Worked on improving Auto-Memory
 
-a.
-
 -Implemented Auto Explicit Memory Association/Pruning
 
 -Reworked Auto-Memory code
 
+-Various Bug Fixes
+
+
+
 0.038
+
+-Worked on Intuition
+
+-Reworded internal prompts to hopefully fix wrong username bug when using gpt 3.5
+
+-Added loop to skip uploading empty lines in memory upsert.
+
+-Added Flashbulb Memory
+
+-Improved summary prompts
 
 -Implemented Implicit Short-Term Memory
 

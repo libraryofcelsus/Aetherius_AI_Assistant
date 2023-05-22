@@ -3,6 +3,8 @@ Version ---- of Aetherius Personal Assistant by LibraryofCelsus.com
 
 **Experimental Updates**
 
+-Added Test Script for new User system
+
 -Autonomous Tasklist Generation and Completion
 
 -Websearch with Bing API: https://www.microsoft.com/en-us/bing/apis/bing-web-search-api

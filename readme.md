@@ -7,6 +7,10 @@ Version .04 of Aetherius Personal Assistant by LibraryofCelsus.com
 
 Aetherius now has an autonomous research loop.  This loop can either search its memories or search the web!
 
+**Experimental Folder Changelog**
+
+-Added .TXT file extractor. For now it just functions similarly to the webscrape.
+
 ------
 
 [Skip to installation guide](#installation-guide)

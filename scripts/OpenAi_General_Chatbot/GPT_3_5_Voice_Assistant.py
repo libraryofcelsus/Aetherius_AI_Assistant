@@ -217,7 +217,7 @@ def GPT_3_5_Voice_Assistant():
             except Exception as e:
                 print(f"Caught an exception: {e}")
         # # Inner Monologue Generation
-        print(f'{db_search_1}\n{db_search_2}\n{db_search_3}\n{db_search_4}')
+    #    print(f'{db_search_1}\n{db_search_2}\n{db_search_3}\n{db_search_4}')
         conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;%s;%s;\n\nHEURISTICS: %s;\nUSER MESSAGE: %s;\nBased on %s's memories and the user, %s's message, compose a brief silent soliloquy as %s's inner monologue that reflects on %s's deepest contemplations and emotions in relation to the user's message.\n\nINNER_MONOLOGUE: " % (db_search_1, db_search_2, db_search_3, db_search_4, a, bot_name, username, bot_name, bot_name)})
         output_one = chatgpt250_completion(conversation)
         message = output_one
@@ -244,7 +244,7 @@ def GPT_3_5_Voice_Assistant():
                 print(f"Length of lines: {len(lines)}")
             except Exception as e:
                 print(f"Caught an exception: {e}")
-        print(f'{db_search_4}\n{db_search_5}\n{db_search_12}')
+    #    print(f'{db_search_4}\n{db_search_5}\n{db_search_12}')
         # # Intuition Generation
         int_conversation.append({'role': 'assistant', 'content': "%s" % greeting_msg})
         int_conversation.append({'role': 'user', 'content': a})
@@ -329,7 +329,7 @@ def GPT_3_5_Voice_Assistant():
                 db_search_8 = load_conversation_implicit_long_term_memory(future1.result())
                 db_search_10 = load_conversation_episodic_memory(future2.result())
                 db_search_11 = load_conversation_flashbulb_memory(future3.result())
-                print(f'{db_search_8}\n{db_search_10}\n{db_search_11}')
+      #          print(f'{db_search_8}\n{db_search_10}\n{db_search_11}')
             except IndexError as e:
                 print(f"Caught an IndexError: {e}")
                 print(f"Length of futures: {len(futures)}")

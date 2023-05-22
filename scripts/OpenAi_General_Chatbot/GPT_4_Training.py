@@ -247,7 +247,7 @@ def GPT_4_Training():
                 print(f"Length of lines: {len(lines)}")
             except Exception as e:
                 print(f"Caught an exception: {e}")
-        print(f'{db_search_4}\n{db_search_5}\n{db_search_12}')
+    #    print(f'{db_search_4}\n{db_search_5}\n{db_search_12}')
         # # Intuition Generation
         int_conversation.append({'role': 'assistant', 'content': "%s" % greeting_msg})
         int_conversation.append({'role': 'user', 'content': a})
@@ -356,7 +356,7 @@ def GPT_4_Training():
                 db_search_8 = load_conversation_implicit_long_term_memory(future1.result())
                 db_search_10 = load_conversation_episodic_memory(future2.result())
                 db_search_11 = load_conversation_flashbulb_memory(future3.result())
-                print(f'{db_search_8}\n{db_search_10}\n{db_search_11}')
+      #          print(f'{db_search_8}\n{db_search_10}\n{db_search_11}')
             except IndexError as e:
                 print(f"Caught an IndexError: {e}")
                 print(f"Length of futures: {len(futures)}")

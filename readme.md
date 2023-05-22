@@ -43,7 +43,7 @@ Aetherius aims to provide a modular, personalized AI assistant experience by ena
 ## Changelog:
 0.04
 
--New User System Implemented
+-New User System Implemented.  Change the username prompt in the config folder to change users.  This will allow you to have multiple versions of Aetherius on the same index.
 
 -First iteration of Aether Search/Scrape implemented. This will be the eventual websearch system.  As of now it requires a Google CSE key and Google API key, other options coming soon.
 
@@ -64,8 +64,6 @@ Aetherius aims to provide a modular, personalized AI assistant experience by ena
 -Reworked Auto-Memory code
 
 -Various Bug Fixes
-
-
 
 0.038
 
@@ -184,27 +182,31 @@ Upload heuristics to DB and start chatting with Aetheius, bot name, heuristic ex
 
 13. Copy the Pinecone Enviornment and paste it in key_pinecone_env.txt
 
-14. Edit the .txt files in the "config" folder to customize the bot.
+14. Copy your Google Api key to key_google.txt
 
-15. Run main.py with **python main.py** to start Aetherius, Select DB Management.
+15. Copy your Google CSE ID to key_google_cse.txt
 
-16. Select DB Upload Heuristics to upload secondary Heuristics for the bot, this DB can also function as a Personality DB. An example of how to do this can be found in "personality_db_input_examples.txt" in the config folder.
+16. Edit the .txt files in the "config" folder to customize the bot.
 
-17. Upload your desired Cadence to "DB Upload Cadence" in DB Management. This should be a direct example of the speech style, not a description. I suggest asking Aetherius to use the diction of a "____" to generate an example, then copy paste the response to the Cadence Upload.
+17. Run main.py with **python main.py** to start Aetherius, Select DB Management.
 
-18. Type "Exit" to return to the main menu. Now select "OpenAi_General_Chatbot"
+18. Select DB Upload Heuristics to upload secondary Heuristics for the bot, this DB can also function as a Personality DB. An example of how to do this can be found in "personality_db_input_examples.txt" in the config folder.
 
-19. Select one of the "Training" chatbot modes, this will enable you to choose what gets uploaded to the chatbots memories.  It also functions as a "Manual" mode. (Previous Manual mode has been removed)
+19. Upload your desired Cadence to "DB Upload Cadence" in DB Management. This should be a direct example of the speech style, not a description. I suggest asking Aetherius to use the diction of a "____" to generate an example, then copy paste the response to the Cadence Upload.
 
-20. Once the chatbot has adopted a desired personality, I recommend creating a backup of the "nexus" folder and then create a collection of the "aetherius" index on pinecone.io.  This will let you revert back to a base state if issues arise later.
+20. Type "Exit" to return to the main menu. Now select "OpenAi_General_Chatbot"
 
-21. Once you have made a backup, you can start using the "Auto" mode, this mode has Aetherius decide for itself whether or not it should upload to its memories.
+21. Select one of the "Training" chatbot modes, this will enable you to choose what gets uploaded to the chatbots memories.  It also functions as a "Manual" mode. (Previous Manual mode has been removed)
 
-22. Type "Clear Memories" to clear short term memory. Type "Exit" to exit without saving the current conversation to episodic memory. Type "Save and Exit" to summarize the current conversation and upload it to episodic memories.
+22. Once the chatbot has adopted a desired personality, I recommend creating a backup of the "nexus" folder and then create a collection of the "aetherius" index on pinecone.io.  This will let you revert back to a base state if issues arise later.
 
-23. To reset Aetherius completely, enter DB Management and select "Reset Pinecone Index". Type "Reset Index" to delete and remake the index.  This takes a little bit so wait at least 1 minuite before attempting to access it.
+23. Once you have made a backup, you can start using the "Auto" mode, this mode has Aetherius decide for itself whether or not it should upload to its memories.
 
-24. Using the GPT 3.5 scripts causes a significant decrease in intelligence, and as such generally shouldn't be used for initial training.
+24. Type "Clear Memories" to clear short term memory. Type "Exit" to exit without saving the current conversation to episodic memory. Type "Save and Exit" to summarize the current conversation and upload it to episodic memories.
+
+25. To reset Aetherius completely, enter DB Management and select "Reset Pinecone Index". Type "Reset Index" to delete and remake the index.  This takes a little bit so wait at least 1 minuite before attempting to access it.
+
+26. Using the GPT 3.5 scripts causes a significant decrease in intelligence, and as such generally shouldn't be used for initial training.
 
 # Contact
 Discord: Kutkh#7805

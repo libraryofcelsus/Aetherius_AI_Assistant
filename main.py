@@ -66,10 +66,10 @@ if __name__ == '__main__':
     vdb = pinecone.Index("aetherius")
     if not os.path.exists('nexus/implicit_short_term_memory_nexus'):
         os.makedirs('nexus/implicit_short_term_memory_nexus')
-    if not os.path.exists('nexus/short_term_memory_nexus'):
-        os.makedirs('nexus/short_term_memory_nexus')
-    if not os.path.exists('nexus/long_term_memory_nexus'):
-        os.makedirs('nexus/long_term_memory_nexus')
+    if not os.path.exists('nexus/explicit_short_term_memory_nexus'):
+        os.makedirs('nexus/explicit_short_term_memory_nexus')
+    if not os.path.exists('nexus/explicit_long_term_memory_nexus'):
+        os.makedirs('nexus/explicit_long_term_memory_nexus')
     if not os.path.exists('nexus/implicit_long_term_memory_nexus'):
         os.makedirs('nexus/implicit_long_term_memory_nexus')
     if not os.path.exists('nexus/episodic_memory_nexus'):

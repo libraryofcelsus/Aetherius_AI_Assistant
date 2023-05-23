@@ -609,7 +609,10 @@ def GPT_3_5_Training():
                         payload.append((unique_id, vector, {"memory_type": "implicit_long_term"}))
                         vdb.upsert(payload, namespace=f'{username}')
                         payload.clear()
-                vdb.delete(ids=ids_to_delete, namespace=f'{username}')
+                        try:
+                            vdb.delete(ids=ids_to_delete, namespace=f'{username}')
+                        except:
+                            print('Failed')
         # # Explicit Long-Term Memory Associative Processing/Pruning based on amount of vectors in namespace
             index_info = vdb.describe_index_stats()
             namespace_stats = index_info['namespaces']
@@ -643,7 +646,10 @@ def GPT_3_5_Training():
                         payload.append((unique_id, vector, {"memory_type": "explicit_long_term"}))
                         vdb.upsert(payload, namespace=f'{username}')
                         payload.clear()
-                vdb.delete(ids=ids_to_delete2, namespace=f'{username}')
+                        try:
+                            vdb.delete(ids=ids_to_delete2, namespace=f'{username}')
+                        except:
+                            print('Failed')
                 vdb.delete(delete_all=True, namespace=f'{username}_consol_counter')
         else:
             pass

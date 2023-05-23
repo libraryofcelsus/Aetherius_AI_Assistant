@@ -870,8 +870,10 @@ def GPT_4_Tasklist_Web_Search():
                                 payload.append((unique_id, vector, {"memory_type": "implicit_long_term"}))
                                 vdb.upsert(payload, namespace=f'{username}')
                                 payload.clear()
-                                vdb.delete(ids=ids_to_delete, filter={
-        "memory_type": "implicit_long_term"}, namespace=f'{username}')
+                                try:
+                                    vdb.delete(ids=ids_to_delete, namespace=f'{username}')
+                                except:
+                                    print('Failed')
                         break
                     elif user_input == 'n':
                         print('Cancelled')
@@ -921,7 +923,10 @@ def GPT_4_Tasklist_Web_Search():
                                 payload.append((unique_id, vector, {"memory_type": "explicit_long_term"}))
                                 vdb.upsert(payload, namespace=f'{username}')
                                 payload.clear()
-                                vdb.delete(ids=ids_to_delete2, namespace=f'{username}')
+                                try:
+                                    vdb.delete(ids=ids_to_delete2, namespace=f'{username}')
+                                except:
+                                    print('Failed')
                         vdb.delete(delete_all=True, namespace=f'{username}_consol_counter')
                         break
                     elif user_input == 'n':

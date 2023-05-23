@@ -221,7 +221,7 @@ def GPT_4_Auto():
         conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;%s;%s;\n\nHEURISTICS: %s;\nUSER MESSAGE: %s;\nBased on %s's memories and the user, %s's message, compose a brief silent soliloquy as %s's inner monologue that reflects on %s's deepest contemplations and emotions in relation to the user's message.\n\nINNER_MONOLOGUE: " % (db_search_1, db_search_2, db_search_3, db_search_4, a, bot_name, username, bot_name, bot_name)})
         output_one = chatgpt250_completion(conversation)
         message = output_one
-        vector_monologue = gpt3_embedding('Inner Monologue: ' + message)
+        vector_monologue = gpt3_embedding(message)
         print('\n\nINNER_MONOLOGUE: %s' % output_one)
         output_log = f'\nUSER: {a}\n\n{bot_name}: {output_one}'
         # # Clear Conversation List
@@ -276,7 +276,7 @@ def GPT_4_Auto():
             automemory = chatgptyesno_completion(auto)
             if is_integer(automemory):
                 auto_int = int(automemory)
-                if auto_int > 7:
+                if auto_int > 6:
                     lines = inner_loop_db.splitlines()
                     for line in lines:
                         vector = gpt3_embedding(inner_loop_db)
@@ -476,7 +476,7 @@ def GPT_4_Auto():
         index_info = vdb.describe_index_stats()
         namespace_stats = index_info['namespaces']
         namespace_name = f'{username}_short_term_memory'
-        if namespace_name in namespace_stats and namespace_stats[namespace_name]['vector_count'] > 30:
+        if namespace_name in namespace_stats and namespace_stats[namespace_name]['vector_count'] > 5:
             consolidation.clear()
             print(f"{namespace_name} has 30 or more entries, starting memory consolidation.")
             results = vdb.query(vector=vector_input, filter={"memory_type": "explicit_short_term"}, top_k=25, namespace=f'{username}_short_term_memory')
@@ -528,9 +528,9 @@ def GPT_4_Auto():
                         vector = gpt3_embedding(line)
                         unique_id = str(uuid4())
                         metadata = {'speaker': bot_name, 'time': timestamp, 'message': (line),
-                                    'timestring': timestring, 'uuid': unique_id}
+                                    'timestring': timestring, 'uuid': unique_id, "memory_type": "implicit_short_term"}
                         save_json('nexus/implicit_long_term_memory_nexus/%s.json' % unique_id, metadata)
-                        payload.append((unique_id, vector))
+                        payload.append((unique_id, vector, {"memory_type": "implicit_long_term"}))
                         vdb.upsert(payload, namespace=f'{username}')
                         payload.clear()
                 vdb.delete(filter={"memory_type": "implicit_short_term"}, namespace=f'{username}_short_term_memory')
@@ -562,7 +562,10 @@ def GPT_4_Auto():
                         payload.append((unique_id, vector, {"memory_type": "implicit_long_term"}))
                         vdb.upsert(payload, namespace=f'{username}')
                         payload.clear()
-                vdb.delete(ids=ids_to_delete, namespace=f'{username}')
+                        try:
+                            vdb.delete(ids=ids_to_delete, namespace=f'{username}')
+                        except:
+                            print('Failed')
         # # Explicit Long-Term Memory Associative Processing/Pruning based on amount of vectors in namespace
             index_info = vdb.describe_index_stats()
             namespace_stats = index_info['namespaces']
@@ -596,7 +599,10 @@ def GPT_4_Auto():
                         payload.append((unique_id, vector, {"memory_type": "explicit_long_term"}))
                         vdb.upsert(payload, namespace=f'{username}')
                         payload.clear()
-                vdb.delete(ids=ids_to_delete2, namespace=f'{username}')
+                        try:
+                            vdb.delete(ids=ids_to_delete2, namespace=f'{username}')
+                        except:
+                            print('Failed')
                 vdb.delete(delete_all=True, namespace=f'{username}_consol_counter')
         else:
             pass

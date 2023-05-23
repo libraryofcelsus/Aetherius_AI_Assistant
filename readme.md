@@ -9,7 +9,7 @@ Aetherius now has an autonomous research loop.  This loop can either search its 
 
 **Experimental Folder Changelog**
 
--Added .TXT and .PDF file extractor. For now it just functions similarly to the webscrape. Place file in the "Upload" folder in its extensions respective folder.  Then run "GPT_4_Text_Extractor.py" to extract all of the files, they will be moved to the "Finished" folder after.
+-Added .TXT, .PDF, and .EPUB text extractors. For now it just functions similarly to the webscrape. Place file in the "Upload" folder in its extension's respective folder.  Then run "GPT_4_Text_Extractor.py" to extract all of the files, they will be moved to the "Finished" folder once done.
 
 ------
 

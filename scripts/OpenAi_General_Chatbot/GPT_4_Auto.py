@@ -476,7 +476,7 @@ def GPT_4_Auto():
         index_info = vdb.describe_index_stats()
         namespace_stats = index_info['namespaces']
         namespace_name = f'{username}_short_term_memory'
-        if namespace_name in namespace_stats and namespace_stats[namespace_name]['vector_count'] > 5:
+        if namespace_name in namespace_stats and namespace_stats[namespace_name]['vector_count'] > 30:
             consolidation.clear()
             print(f"{namespace_name} has 30 or more entries, starting memory consolidation.")
             results = vdb.query(vector=vector_input, filter={"memory_type": "explicit_short_term"}, top_k=25, namespace=f'{username}_short_term_memory')

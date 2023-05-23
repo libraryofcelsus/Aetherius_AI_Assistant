@@ -19,6 +19,7 @@ import concurrent.futures
 import shutil
 from concurrent.futures import ThreadPoolExecutor
 from bs4 import BeautifulSoup
+from PyPDF2 import PdfReader
 # import speech_recognition as sr
 # from gtts import gTTS
 # from playsound import playsound
@@ -152,37 +153,46 @@ def chunk_text_from_file(file_path, chunk_size=1500, overlap=200):
         bot_name = open_file('./config/prompt_bot_name.txt')
         username = open_file('./config/prompt_username.txt')
         vdb = pinecone.Index("aetherius")
-        with open(file_path, 'r') as file:
-            texttemp = file.read().replace('\n', ' ').replace('\r', '')
-            texttemp = '\n'.join(line for line in texttemp.splitlines() if line.strip())
-            chunks = chunk_text(texttemp, chunk_size, overlap)
-            filelist = list()
-            for chunk in chunks:
-                filesum = list()
-                filesum.append({'role': 'system', 'content': "You are a Data Summarizer sub-module, responsible for processing text data from files. Your role includes identifying and highlighting significant or factual information. Extraneous data should be discarded, and only essential details must be returned. Stick to the data provided; do not infer or generalize. Present your responses in a Running Text format using the following pattern: [SEMANTIC QUESTION TAG: SUMMARY]. Refrain from using linebreaks within the content. Convert lists into continuous text to maintain this format. Note that the semantic question tag should be a question that corresponds to the information within the article chunk."})
-                filesum.append({'role': 'user', 'content': f"TEXT CHUNK: {chunk}"})
-                text = chatgpt35_completion(filesum)
-                paragraphs = text.split('\n\n')  # Split into paragraphs
-                for paragraph in paragraphs:  # Process each paragraph individually, add a check to see if paragraph contained actual information.
-                    filecheck = list()
-                    filelist.append(file_path + ' ' + paragraph)
-                    filecheck.append({'role': 'system', 'content': f"You are an agent for an automated text-processing tool. You are one of many agents in a chain. Your task is to decide if the given text from a file was processed successfully. The processed text should contain factual data or opinions. If the given data only consists of an error message or advertisements, skip it.  If the article was processed successfully, print: YES.  If a file-process is not needed, print: NO."})
-                    filecheck.append({'role': 'user', 'content': f"Is the processed information useful to an end-user? YES/NO: {paragraph}"})
-                    fileyescheck = chatgptyesno_completion(filecheck)
-                    if fileyescheck == 'YES':
-                        print('---------')
-                        print(file_path + ' ' + paragraph)
-                        payload = list()
-                        vector = gpt3_embedding(file_path + ' ' + paragraph)
-                        timestamp = time()
-                        timestring = timestamp_to_datetime(timestamp)
-                        unique_id = str(uuid4())
-                        metadata = {'bot': bot_name, 'time': timestamp, 'message': file_path + ' ' + paragraph,
-                                    'timestring': timestring, 'uuid': unique_id, "memory_type": "file_process"}
-                        save_json('nexus/file_process_memory_nexus/%s.json' % unique_id, metadata)
-                        payload.append((unique_id, vector, {"memory_type": "file_process"}))
-                        vdb.upsert(payload, namespace=f'{username}_short_term_memory')
-                        payload.clear()
+        file_extension = os.path.splitext(file_path)[1]
+        if file_extension == '.txt':
+            with open(file_path, 'r', encoding='utf-8') as file:
+                texttemp = file.read().replace('\n', ' ').replace('\r', '')
+        elif file_extension == '.pdf':
+            with open(file_path, 'rb') as file:
+                pdf = PdfReader(file)
+                texttemp = " ".join(page.extract_text() for page in pdf.pages)
+        else:
+            print(f"Unsupported file type: {file_extension}")
+            return []
+        texttemp = '\n'.join(line for line in texttemp.splitlines() if line.strip())
+        chunks = chunk_text(texttemp, chunk_size, overlap)
+        filelist = list()
+        for chunk in chunks:
+            filesum = list()
+            filesum.append({'role': 'system', 'content': "You are a Data Summarizer sub-module, responsible for processing text data from files. Your role includes identifying and highlighting significant or factual information. Extraneous data should be discarded, and only essential details must be returned. Stick to the data provided; do not infer or generalize. Present your responses in a Running Text format using the following pattern: [SEMANTIC QUESTION TAG: SUMMARY]. Refrain from using linebreaks within the content. Convert lists into continuous text to maintain this format. Note that the semantic question tag should be a question that corresponds to the information within the article chunk."})
+            filesum.append({'role': 'user', 'content': f"TEXT CHUNK: {chunk}"})
+            text = chatgpt35_completion(filesum)
+            paragraphs = text.split('\n\n')  # Split into paragraphs
+            for paragraph in paragraphs:  # Process each paragraph individually, add a check to see if paragraph contained actual information.
+                filecheck = list()
+                filelist.append(file_path + ' ' + paragraph)
+                filecheck.append({'role': 'system', 'content': f"You are an agent for an automated text-processing tool. You are one of many agents in a chain. Your task is to decide if the given text from a file was processed successfully. The processed text should contain factual data or opinions. If the given data only consists of an error message or advertisements, skip it.  If the article was processed successfully, print: YES.  If a file-process is not needed, print: NO."})
+                filecheck.append({'role': 'user', 'content': f"Is the processed information useful to an end-user? YES/NO: {paragraph}"})
+                fileyescheck = chatgptyesno_completion(filecheck)
+                if fileyescheck == 'YES':
+                    print('---------')
+                    print(file_path + ' ' + paragraph)
+                    payload = list()
+                    vector = gpt3_embedding(file_path + ' ' + paragraph)
+                    timestamp = time()
+                    timestring = timestamp_to_datetime(timestamp)
+                    unique_id = str(uuid4())
+                    metadata = {'bot': bot_name, 'time': timestamp, 'message': file_path + ' ' + paragraph,
+                                'timestring': timestring, 'uuid': unique_id, "memory_type": "file_process"}
+                    save_json('nexus/file_process_memory_nexus/%s.json' % unique_id, metadata)
+                    payload.append((unique_id, vector, {"memory_type": "file_process"}))
+                    vdb.upsert(payload, namespace=f'{username}_short_term_memory')
+                    payload.clear()
         table = filelist
         return table
     except Exception as e:
@@ -291,10 +301,10 @@ def GPT_4_Text_Extractor():
         os.makedirs('Upload/TXT')
     if not os.path.exists('Upload/TXT/Finished'):
         os.makedirs('Upload/TXT/Finished')
-  #  if not os.path.exists('Upload/PDF'):
-  #      os.makedirs('Upload/PDF')
-  #  if not os.path.exists('Upload/PDF/Finished'):
-  #      os.makedirs('Upload/PDF/Finished')
+    if not os.path.exists('Upload/PDF'):
+        os.makedirs('Upload/PDF')
+    if not os.path.exists('Upload/PDF/Finished'):
+        os.makedirs('Upload/PDF/Finished')
     if not os.path.exists('nexus/file_process_memory_nexus'):
         os.makedirs('nexus/file_process_memory_nexus')
     bot_name = open_file('./config/prompt_bot_name.txt')
@@ -308,6 +318,7 @@ def GPT_4_Text_Extractor():
         timestamp = time()
         timestring = timestamp_to_datetime(timestamp)
         process_files_in_directory('./Upload/TXT', './Upload/TXT/Finished')
+        process_files_in_directory('./Upload/PDF', './Upload/PDF/Finished')
         # # Start or Continue Conversation based on if response exists
         conversation.append({'role': 'system', 'content': '%s' % main_prompt})
         int_conversation.append({'role': 'system', 'content': '%s' % main_prompt})
@@ -352,8 +363,7 @@ def GPT_4_Text_Extractor():
                 user_input = input("'Y' or 'N': ")
                 if user_input == 'y':
                     print('Still needs to be converted to new system')
-           #         vdb.delete(delete_all=True, namespace="short_term_memory")
-          #          vdb.delete(delete_all=True, namespace="implicit_short_term_memory")
+                    vdb.delete(filter={"memory_type": "file_process"}, namespace=f'{username}_short_term_memory')
                     while True:
                         print('Short-Term Memory has been Deleted')
                         return

@@ -1,5 +1,5 @@
 # Aetherius
-Version .04 of Aetherius Personal Assistant by LibraryofCelsus.com
+Version .04a of Aetherius Personal Assistant by LibraryofCelsus.com
 
 **Autonomous Tasklist Update!**
 
@@ -47,6 +47,12 @@ Currently, Aetherius's main focus is creating a good architecture for realistic 
 Aetherius aims to provide a modular, personalized AI assistant experience by enabling the addition of task-specific Modules and Sub-Modules. If all goes as planned, Aetherius will support integration with other open-source projects and models.
 
 ## Changelog:
+0.04a
+
+-Switched to Username based DB to Bot Name based DB, will add user's again later.
+
+-Various Bug Fixes
+
 0.04
 
 -New User System Implemented.  Change the username prompt in the config folder to change users.  This will allow you to have multiple versions of Aetherius on the same index.

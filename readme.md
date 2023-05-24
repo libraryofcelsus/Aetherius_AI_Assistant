@@ -11,6 +11,8 @@ Aetherius now has an autonomous research loop.  This loop can either search its 
 
 -Added .TXT, .PDF, and .EPUB text extractors. For now it just functions similarly to the webscrape. Place file in the "Upload" folder in its extension's respective folder.  Then run "GPT_4_Text_Extractor.py" to extract all of the files, they will be moved to the "Finished" folder once done.
 
+-Added a Role/Personality Extractor.  Give it a url to scrape and Aetherius will attempt to extract memories for a chatbot.  To talk to the chatbot, change the name in "prompt_bot_name.txt" to whatever name you entered in the Role Extractor script.
+
 ------
 
 [Skip to installation guide](#installation-guide)

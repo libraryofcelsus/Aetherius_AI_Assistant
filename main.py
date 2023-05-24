@@ -20,7 +20,7 @@ def open_file(filepath):
 def main_menu():
     print("*************************************")
     print("*Welcome to the  Aetherius Main Menu*")
-    print("*           Version  0.04           *")
+    print("*          Version  0.04a           *")
     print("*************************************")
     print("*  Please give a star on github and *")
     print("* share with friends if you wish to *")

@@ -132,7 +132,7 @@ def google_search(query, my_api_key, my_cse_id, **kwargs):
     "key": my_api_key,
     "cx": my_cse_id,
     "q": query,
-    "num": 1,
+    "num": 6,
     "snippet": True
   }
   response = requests.get("https://www.googleapis.com/customsearch/v1", params=params)

@@ -132,7 +132,7 @@ def google_search(query, my_api_key, my_cse_id, **kwargs):
     "key": my_api_key,
     "cx": my_cse_id,
     "q": query,
-    "num": 6,
+    "num": 1,
     "snippet": True
   }
   response = requests.get("https://www.googleapis.com/customsearch/v1", params=params)
@@ -866,7 +866,7 @@ def GPT_4_Tasklist_Web_Search():
                                 unique_id = str(uuid4())
                                 metadata = {'bot': bot_name, 'time': timestamp, 'message': (line),
                                             'timestring': timestring, 'uuid': unique_id, "memory_type": "implicit_long_term"}
-                                save_json('nexus/implicit_memory_nexus/%s.json' % unique_id, metadata)
+                                save_json('nexus/implicit_long_term_memory_nexus/%s.json' % unique_id, metadata)
                                 payload.append((unique_id, vector, {"memory_type": "implicit_long_term"}))
                                 vdb.upsert(payload, namespace=f'{bot_name}')
                                 payload.clear()
@@ -919,7 +919,7 @@ def GPT_4_Tasklist_Web_Search():
                                 unique_id = str(uuid4())
                                 metadata = {'bot': bot_name, 'time': timestamp, 'message': (line),
                                             'timestring': timestring, 'uuid': unique_id, "memory_type": "explicit_long_term"}
-                                save_json('nexus/explicit_memory_nexus/%s.json' % unique_id, metadata)
+                                save_json('nexus/explicit_long_term_memory_nexus/%s.json' % unique_id, metadata)
                                 payload.append((unique_id, vector, {"memory_type": "explicit_long_term"}))
                                 vdb.upsert(payload, namespace=f'{bot_name}')
                                 payload.clear()

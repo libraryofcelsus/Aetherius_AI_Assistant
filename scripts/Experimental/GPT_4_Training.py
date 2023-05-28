@@ -199,11 +199,6 @@ def GPT_4_Training():
                     load_conversation_heuristics)
                 ),
             ]
-            # Handle results
-        #    db_search_1 = futures[len(lines)].result()[1](futures[len(lines)].result()[0])
-        #    db_search_2 = futures[len(lines) + 1].result()[1](futures[len(lines) + 1].result()[0])
-        #    db_search_3 = futures[len(lines) + 2].result()[1](futures[len(lines) + 2].result()[0])
-        #    db_search_4 = futures[len(lines) + 3].result()[1](futures[len(lines) + 3].result()[0])
             try:
                 db_search_1 = futures[len(lines)].result()[1](futures[len(lines)].result()[0])
                 db_search_2 = futures[len(lines) + 1].result()[1](futures[len(lines) + 1].result()[0])
@@ -215,7 +210,7 @@ def GPT_4_Training():
                 print(f"Length of lines: {len(lines)}")
             except Exception as e:
                 print(f"Caught an exception: {e}")
-        print(db_search_1, db_search_2, db_search_3, db_search_4)
+    #    print(db_search_1, db_search_2, db_search_3, db_search_4)
         # # Inner Monologue Generation
         conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;%s;%s;\n\nHEURISTICS: %s;\nUSER MESSAGE: %s;\nBased on %s's memories and the user, %s's message, compose a brief silent soliloquy as %s's inner monologue that reflects on %s's deepest contemplations and emotions in relation to the user's message.\n\nINNER_MONOLOGUE: " % (db_search_1, db_search_2, db_search_3, db_search_4, a, bot_name, username, bot_name, bot_name)})
         output_one = chatgpt250_completion(conversation)
@@ -243,11 +238,11 @@ def GPT_4_Training():
                 print(f"Length of lines: {len(lines)}")
             except Exception as e:
                 print(f"Caught an exception: {e}")
-        print(f'{db_search_4}\n{db_search_5}\n{db_search_12}')
+    #    print(f'{db_search_4}\n{db_search_5}\n{db_search_12}')
         # # Intuition Generation
         int_conversation.append({'role': 'assistant', 'content': "%s" % greeting_msg})
         int_conversation.append({'role': 'user', 'content': a})
-        int_conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;\n%s;\n%s;\n\n%s'S INNER THOUGHTS: %s;\nUSER MESSAGE: %s;\nIn a single paragraph, interpret the user, %s's message as %s in third person by creating an intuitive action plan, even if they are uncertain about their own needs.;\nINTUITION: " % (db_search_4, db_search_5, db_search_12, bot_name, output_one, a, username, bot_name)})
+        int_conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;\n%s;\n%s;\n\n%s'S INNER THOUGHTS: %s;\nUSER MESSAGE: %s;\nIn a single paragraph, interpret the user, %s's message as %s in third person by creating an intuitive action plan using maieutic reasoning.  If needed use a process similar to creative imagination to visualize the outcome.;\nINTUITION: " % (db_search_4, db_search_5, db_search_12, bot_name, output_one, a, username, bot_name)})
         output_two = chatgpt200_completion(int_conversation)
         message_two = output_two
         print('\n\nINTUITION: %s' % output_two)
@@ -455,7 +450,7 @@ def GPT_4_Training():
     #                print('Auto Memory Failed')
     #                break
     #    else:
-    #        pass            
+    #        pass
         # # Clear Logs for Summary
         conversation.clear()
         int_conversation.clear()
@@ -544,7 +539,7 @@ def GPT_4_Training():
                     payload.append((unique_id, vector, {"memory_type": "explicit_long_term", "user": username}))
                     vdb.upsert(payload, namespace=f'{bot_name}')
                     payload.clear()
-            vdb.delete(filter={"memory_type": "explicit_short_term", "user": username}, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
+            vdb.delete(filter={"memory_type": "explicit_short_term"}, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
             payload.append((unique_id, vector))
             vdb.upsert(payload, namespace=f'{bot_name}_consol_counter')
             payload.clear()
@@ -581,7 +576,7 @@ def GPT_4_Training():
                         payload.append((unique_id, vector, {"memory_type": "implicit_long_term", "user": username}))
                         vdb.upsert(payload, namespace=f'{bot_name}')
                         payload.clear()
-                vdb.delete(filter={"memory_type": "implicit_short_term", "user": username}, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
+                vdb.delete(filter={"memory_type": "implicit_short_term"}, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
                 print('Memory Consolidation Successful')
             else:   
                 pass

@@ -456,36 +456,33 @@ def GPT_4_Training():
         int_conversation.clear()
         summary.clear()
         counter += 1
-        # # Summary loop to avoid Max Token Limit.
-        if counter % conv_length == 0:
-            print('Summarizing Conversation to avoid max token length')
-            conversation2.append({'role': 'user', 'content': "Review the previous messages and summarize the key points of the conversation in a single bullet point format to serve as %s's episodic memories. Each bullet point should be considered a separate memory and contain its entire context. Start from the end and work towards the beginning. Exclude the system prompt and cadence.\nUse the following format: [- SUMMARY]\n\nEPISODIC MEMORIES:\n" % bot_name})
-            conv_summary = chatgptsummary_completion(conversation2)
-    #        print(conv_summary)
-            conversation2.clear()
-            conversation2.append({'role': 'system', 'content': '%s' % main_prompt})
-            conversation2.append({'role': 'assistant', 'content': '%s.' % conv_summary})
-        # # Option to upload summary to Episodic Memory DB. - Placeholder for now
-        if counter % conv_length == 0:
-            lines = conv_summary.splitlines()
-            for line in lines:
-                if line.strip():
-                    vector = gpt3_embedding(timestring + line)
-                    unique_id = str(uuid4())
-                    metadata = {'speaker': bot_name, 'time': timestamp, 'message': (timestring + line),
-                                'timestring': timestring, 'uuid': unique_id, "memory_type": "episodic", "user": username}
-                    save_json('nexus/episodic_memory_nexus/%s.json' % unique_id, metadata)
-                    payload.append((unique_id, vector, {"memory_type": "episodic", "user": username}))
-                    vdb.upsert(payload, namespace=f'{bot_name}')
-                    payload.clear()
-            payload.append((unique_id, vector_input))
-            vdb.upsert(payload, namespace=f'{bot_name}_flash_counter')
-            payload.clear()
+        
+        
+        
+        print('Generating Episodic Memories')
+        conversation.append({'role': 'system', 'content': f"You are a sub-module of {bot_name}, an autonomous AI entity. Your function is to process the user, {username}'s message, comprehend {bot_name}'s internal workings, and decode {bot_name}'s final response to construct a concise third-person autobiographical narrative memory of the conversation in a single sentence. This autobiographical memory should portray an accurate and personalized account of {bot_name}'s interactions with {username}, focusing on the most significant and experiential details related to {bot_name} or {username}, without omitting any crucial context or emotions."})
+        conversation.append({'role': 'user', 'content': f"USER's INQUIRY: {a}"})
+        conversation.append({'role': 'user', 'content': f"{bot_name}'s INNER MONOLOGUE: {output_one}"})
+        conversation.append({'role': 'user', 'content': f"{bot_name}'s FINAL RESPONSE: {response_two}"})
+        conversation.append({'role': 'assistant', 'content': f"I will now extract an episodic memory based on the given conversation: "})
+        conv_summary = chatgptsummary_completion(conversation)
+        print(timestring + '-' + conv_summary)
+        vector = gpt3_embedding(timestring + '-' + conv_summary)
+        unique_id = str(uuid4())
+        metadata = {'speaker': bot_name, 'time': timestamp, 'message': (timestring + '-' + conv_summary),
+                    'timestring': timestring, 'uuid': unique_id, "memory_type": "episodic", "user": username}
+        save_json('nexus/episodic_memory_nexus/%s.json' % unique_id, metadata)
+        payload.append((unique_id, vector, {"memory_type": "episodic", "user": username}))
+        vdb.upsert(payload, namespace=f'{bot_name}')
+        payload.clear()
+        payload.append((unique_id, vector_input))
+        vdb.upsert(payload, namespace=f'{bot_name}_flash_counter')
+        payload.clear()
         # # Flashbulb Memory Generation
         index_info = vdb.describe_index_stats()
         namespace_stats = index_info['namespaces']
         namespace_name = f'{bot_name}_flash_counter'
-        if namespace_name in namespace_stats and namespace_stats[namespace_name]['vector_count'] > 1:
+        if namespace_name in namespace_stats and namespace_stats[namespace_name]['vector_count'] > 6:
             consolidation.clear()
             print('Generating Flashbulb Memories')
             results = vdb.query(vector=vector_input, filter={

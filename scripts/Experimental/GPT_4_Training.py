@@ -125,7 +125,7 @@ def GPT_4_Training():
                         unique_id = str(uuid4())
                         metadata = {'speaker': bot_name, 'time': timestamp, 'message': (timestring + line),
                                     'timestring': timestring, 'uuid': unique_id, "memory_type": "episodic", "user": username}
-                        save_json('nexus/episodic_memory_nexus/%s.json' % unique_id, metadata)
+                        save_json('nexus/{bot_name}/episodic_memory_nexus/%s.json' % unique_id, metadata)
                         payload.append((unique_id, vector, {"memory_type": "episodic", "user": username}))
                         vdb.upsert(payload, namespace=f'{bot_name}')
                         payload.clear()
@@ -204,13 +204,11 @@ def GPT_4_Training():
                 db_search_2 = futures[len(lines) + 1].result()[1](futures[len(lines) + 1].result()[0])
                 db_search_3 = futures[len(lines) + 2].result()[1](futures[len(lines) + 2].result()[0])
                 db_search_4 = futures[len(lines) + 3].result()[1](futures[len(lines) + 3].result()[0])
-            except IndexError as e:
-                print(f"Caught an IndexError: {e}")
-                print(f"Length of futures: {len(futures)}")
-                print(f"Length of lines: {len(lines)}")
-            except Exception as e:
-                print(f"Caught an exception: {e}")
-    #    print(db_search_1, db_search_2, db_search_3, db_search_4)
+            except:
+                db_search_1 = 'Database Empty'
+                db_search_2 = 'Database Empty'
+                db_search_3 = 'Database Empty'
+                db_search_4 = 'Database Empty'
         # # Inner Monologue Generation
         conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;%s;%s;\n\nHEURISTICS: %s;\nUSER MESSAGE: %s;\nBased on %s's memories and the user, %s's message, compose a brief silent soliloquy as %s's inner monologue that reflects on %s's deepest contemplations and emotions in relation to the user's message.\n\nINNER_MONOLOGUE: " % (db_search_1, db_search_2, db_search_3, db_search_4, a, bot_name, username, bot_name, bot_name)})
         output_one = chatgpt250_completion(conversation)
@@ -232,12 +230,10 @@ def GPT_4_Training():
                 db_search_4 = load_conversation_episodic_memory(future1.result())
                 db_search_5 = load_conversation_explicit_short_term_memory(future2.result())
                 db_search_12 = load_conversation_flashbulb_memory(future3.result())
-            except IndexError as e:
-                print(f"Caught an IndexError: {e}")
-                print(f"Length of futures: {len(futures)}")
-                print(f"Length of lines: {len(lines)}")
-            except Exception as e:
-                print(f"Caught an exception: {e}")
+            except:
+                db_search_4 = 'Database Empty'
+                db_search_5 = 'Database Empty'
+                db_search_12 = 'Database Empty'
     #    print(f'{db_search_4}\n{db_search_5}\n{db_search_12}')
         # # Intuition Generation
         int_conversation.append({'role': 'assistant', 'content': "%s" % greeting_msg})
@@ -251,7 +247,7 @@ def GPT_4_Training():
         conversation.append({'role': 'system', 'content': '%s' % main_prompt})
         conversation.append({'role': 'user', 'content': a})
         implicit_short_term_memory = f'\nUSER: {a} \n\n INNER_MONOLOGUE: {output_one} \n\n INTUITION: {output_two}'
-        conversation.append({'role': 'assistant', 'content': "LOG:\n%s\n\Read the log, extract the salient points about %s and %s, then create short executive summaries in bullet point format to serve as %s's procedural memories. Each bullet point should be considered a separate memory and contain all context. Start from the end and work towards the beginning, combining assosiated topics. Ignore the system prompt and redundant information.\nMemories:\n" % (implicit_short_term_memory, bot_name, username, bot_name)})
+        conversation.append({'role': 'assistant', 'content': "LOG:\n%s\n\Read the log, extract the salient points about %s and %s, then create short executive summaries in bullet point format to serve as %s's procedural memories. Each bullet point should be considered a separate memory and contain all context. Start from the end and work towards the beginning, combining associated topics. Ignore the system prompt and redundant information.\nMemories:\n" % (implicit_short_term_memory, bot_name, username, bot_name)})
         inner_loop_response = chatgpt200_completion(conversation)
         inner_loop_db = inner_loop_response
         vector = gpt3_embedding(inner_loop_db)
@@ -269,7 +265,7 @@ def GPT_4_Training():
                         unique_id = str(uuid4())
                         metadata = {'bot': bot_name, 'time': timestamp, 'message': line,
                                     'timestring': timestring, 'uuid': unique_id, "memory_type": "implicit_short_term", "user": username}
-                        save_json('nexus/implicit_short_term_memory_nexus/%s.json' % unique_id, metadata)
+                        save_json('nexus/{bot_name}/implicit_short_term_memory_nexus/%s.json' % unique_id, metadata)
                         payload.append((unique_id, vector, {"memory_type": "implicit_short_term"}))
                         vdb.upsert(payload, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
                         payload.clear()
@@ -301,7 +297,7 @@ def GPT_4_Training():
     #                    unique_id = str(uuid4())
     #                    metadata = {'bot': bot_name, 'time': timestamp, 'message': inner_loop_db,
     #                                'timestring': timestring, 'uuid': unique_id, "memory_type": "implicit_short_term", "user": username}
-    #                    save_json('nexus/implicit_short_term_memory_nexus/%s.json' % unique_id, metadata)
+    #                    save_json('nexus/{bot_name}/implicit_short_term_memory_nexus/%s.json' % unique_id, metadata)
     #                    payload.append((unique_id, vector, {"memory_type": "implicit_short_term"}))
     #                    vdb.upsert(payload, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
     #                    payload.clear()
@@ -347,16 +343,13 @@ def GPT_4_Training():
                 db_search_8 = load_conversation_implicit_long_term_memory(future1.result())
                 db_search_10 = load_conversation_episodic_memory(future2.result())
                 db_search_11 = load_conversation_flashbulb_memory(future3.result())
-      #          print(f'{db_search_8}\n{db_search_10}\n{db_search_11}')
-            except IndexError as e:
-                print(f"Caught an IndexError: {e}")
-                print(f"Length of futures: {len(futures)}")
-                print(f"Length of lines: {len(lines)}")
-            except Exception as e:
-                print(f"Caught an exception: {e}")
-        print(db_search_8, db_search_10, db_search_11)
+            except:
+                db_search_8 = 'Database Empty'
+                db_search_10 = 'Database Empty'
+                db_search_11 = 'Database Empty'
+      #     print(f'{db_search_8}\n{db_search_10}\n{db_search_11}')
         # # Generate Aetherius's Response
-        conversation2.append({'role': 'assistant', 'content': "SUBCONSIOUS: %s\n%s;\n\nFLASHBULB MEMORIES: %s;\nINNER THOUGHTS: %s\n\n%s  I am in the middle of a conversation with my user, %s. USER MESSAGE: %s; I will do my best to speak naturally and show emotional intelligence. I will intuit %s's needs: %s;\nMy current message window is limited to 2300 characters.\nI will now give a response with the diction of a real person: " % (db_search_8, db_search_10, db_search_11, output_one, second_prompt, username, a, username, output_two)})
+        conversation2.append({'role': 'assistant', 'content': "SUBCONSCIOUS: %s\n%s;\n\nFLASHBULB MEMORIES: %s;\nINNER THOUGHTS: %s\n\n%s  I am in the middle of a conversation with my user, %s. USER MESSAGE: %s; I will do my best to speak naturally and show emotional intelligence. I will intuit %s's needs: %s;\nMy current message window is limited to 2300 characters.\nI will now give a response with the diction of a real person: " % (db_search_8, db_search_10, db_search_11, output_one, second_prompt, username, a, username, output_two)})
         response_two = chatgptresponse_completion(conversation2)
         print('\n\n%s: %s' % (bot_name, response_two))
         complete_message = f'\nUSER: {a}\n\nINNER_MONOLOGUE: {output_one}\n\nINTUITION: {output_two}\n\n{bot_name}: {response_two}'
@@ -386,7 +379,7 @@ def GPT_4_Training():
         save_file('logs/complete_chat_logs/%s' % filename, complete_message)
         # # Generate Short-Term Memories
         db_msg = f'\nUSER: {a} \n\n INNER_MONOLOGUE: {output_one} \n\n {bot_name}: {response_two}'
-        summary.append({'role': 'user', 'content': "LOG:\n%s\n\Read the log and create short executive summaries in bullet point format to serve as %s's explicit memories. Each bullet point should be considered a separate memory and contain all context. Start from the end and work towards the beginning, combining assosiated topics.\nMemories:\n" % (db_msg, bot_name)})
+        summary.append({'role': 'user', 'content': "LOG:\n%s\n\Read the log and create short executive summaries in bullet point format to serve as %s's explicit memories. Each bullet point should be considered a separate memory and contain all context. Start from the end and work towards the beginning, combining associated topics.\nMemories:\n" % (db_msg, bot_name)})
         db_upload = chatgptsummary_completion(summary)
         db_upsert = db_upload
         # # Manual Short-Term Memory DB Upload Confirmation
@@ -402,7 +395,7 @@ def GPT_4_Training():
                         unique_id = str(uuid4())
                         metadata = {'bot': bot_name, 'time': timestamp, 'message': line,
                                     'timestring': timestring, 'uuid': unique_id, "memory_type": "explicit_short_term", "user": username}
-                        save_json('nexus/explicit_short_term_memory_nexus/%s.json' % unique_id, metadata)
+                        save_json('nexus/{bot_name}/explicit_short_term_memory_nexus/%s.json' % unique_id, metadata)
                         payload.append((unique_id, vector, {"memory_type": "explicit_short_term"}))
                         vdb.upsert(payload, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
                         payload.clear()
@@ -434,7 +427,7 @@ def GPT_4_Training():
     #                    unique_id = str(uuid4())
     #                    metadata = {'bot': bot_name, 'time': timestamp, 'message': db_upsert,
     #                                'timestring': timestring, 'uuid': unique_id, "memory_type": "explicit_short_term", "user": username}
-    #                    save_json('nexus/explicit_short_term_memory_nexus/%s.json' % unique_id, metadata)
+    #                    save_json('nexus/{bot_name}/explicit_short_term_memory_nexus/%s.json' % unique_id, metadata)
     #                    payload.append((unique_id, vector, {"memory_type": "explicit_short_term"}))
     #                    vdb.upsert(payload, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
     #                    payload.clear()
@@ -456,9 +449,6 @@ def GPT_4_Training():
         int_conversation.clear()
         summary.clear()
         counter += 1
-        
-        
-        
         print('Generating Episodic Memories')
         conversation.append({'role': 'system', 'content': f"You are a sub-module of {bot_name}, an autonomous AI entity. Your function is to process the user, {username}'s message, comprehend {bot_name}'s internal workings, and decode {bot_name}'s final response to construct a concise third-person autobiographical narrative memory of the conversation in a single sentence. This autobiographical memory should portray an accurate and personalized account of {bot_name}'s interactions with {username}, focusing on the most significant and experiential details related to {bot_name} or {username}, without omitting any crucial context or emotions."})
         conversation.append({'role': 'user', 'content': f"USER's INQUIRY: {a}"})
@@ -466,12 +456,12 @@ def GPT_4_Training():
         conversation.append({'role': 'user', 'content': f"{bot_name}'s FINAL RESPONSE: {response_two}"})
         conversation.append({'role': 'assistant', 'content': f"I will now extract an episodic memory based on the given conversation: "})
         conv_summary = chatgptsummary_completion(conversation)
-        print(timestring + '-' + conv_summary)
+    #    print(timestring + '-' + conv_summary)
         vector = gpt3_embedding(timestring + '-' + conv_summary)
         unique_id = str(uuid4())
         metadata = {'speaker': bot_name, 'time': timestamp, 'message': (timestring + '-' + conv_summary),
                     'timestring': timestring, 'uuid': unique_id, "memory_type": "episodic", "user": username}
-        save_json('nexus/episodic_memory_nexus/%s.json' % unique_id, metadata)
+        save_json('nexus/{bot_name}/episodic_memory_nexus/%s.json' % unique_id, metadata)
         payload.append((unique_id, vector, {"memory_type": "episodic", "user": username}))
         vdb.upsert(payload, namespace=f'{bot_name}')
         payload.clear()
@@ -482,7 +472,7 @@ def GPT_4_Training():
         index_info = vdb.describe_index_stats()
         namespace_stats = index_info['namespaces']
         namespace_name = f'{bot_name}_flash_counter'
-        if namespace_name in namespace_stats and namespace_stats[namespace_name]['vector_count'] > 6:
+        if namespace_name in namespace_stats and namespace_stats[namespace_name]['vector_count'] > 7:
             consolidation.clear()
             print('Generating Flashbulb Memories')
             results = vdb.query(vector=vector_input, filter={
@@ -507,7 +497,7 @@ def GPT_4_Training():
                     unique_id = str(uuid4())
                     metadata = {'speaker': bot_name, 'time': timestamp, 'message': (line),
                                 'timestring': timestring, 'uuid': unique_id, "memory_type": "flashbulb", "user": username}
-                    save_json('nexus/flashbulb_memory_nexus/%s.json' % unique_id, metadata)
+                    save_json('nexus/{bot_name}/flashbulb_memory_nexus/%s.json' % unique_id, metadata)
                     payload.append((unique_id, vector, {"memory_type": "flashbulb", "user": username}))
                     vdb.upsert(payload, namespace=f'{bot_name}')
                     payload.clear()
@@ -532,7 +522,7 @@ def GPT_4_Training():
                     unique_id = str(uuid4())
                     metadata = {'speaker': bot_name, 'time': timestamp, 'message': (line),
                                 'timestring': timestring, 'uuid': unique_id, "memory_type": "explicit_long_term", "user": username}
-                    save_json('nexus/explicit_long_term_memory_nexus/%s.json' % unique_id, metadata)
+                    save_json('nexus/{bot_name}/explicit_long_term_memory_nexus/%s.json' % unique_id, metadata)
                     payload.append((unique_id, vector, {"memory_type": "explicit_long_term", "user": username}))
                     vdb.upsert(payload, namespace=f'{bot_name}')
                     payload.clear()
@@ -555,7 +545,7 @@ def GPT_4_Training():
                 consolidation.append({'role': 'assistant', 'content': "LOG:\n%s\n\nRead the Log and consolidate the different topics into executive summaries to serve as %s's implicit memories. Each summary should contain the entire context of the memory. Follow the format: [-{tag} {Executive Summary}]." % (memory_consol_db2, bot_name)})
                 memory_consol2 = chatgptconsolidation_completion(consolidation)
                 consolidation.clear()
-                print('Finished.\nRemoving Redundent Memories.')
+                print('Finished.\nRemoving Redundant Memories.')
                 vector_sum = gpt3_embedding(memory_consol2)
                 results = vdb.query(vector=vector_sum, filter={"memory_type": "implicit_long_term", "user": username}, top_k=8, namespace=f'{bot_name}')
                 memory_consol_db3 = load_conversation_implicit_long_term_memory(results)
@@ -569,7 +559,7 @@ def GPT_4_Training():
                         unique_id = str(uuid4())
                         metadata = {'speaker': bot_name, 'time': timestamp, 'message': (line),
                                     'timestring': timestring, 'uuid': unique_id, "memory_type": "implicit_long_term", "user": username}
-                        save_json('nexus/implicit_long_term_memory_nexus/%s.json' % unique_id, metadata)
+                        save_json('nexus/{bot_name}/implicit_long_term_memory_nexus/%s.json' % unique_id, metadata)
                         payload.append((unique_id, vector, {"memory_type": "implicit_long_term", "user": username}))
                         vdb.upsert(payload, namespace=f'{bot_name}')
                         payload.clear()
@@ -583,7 +573,7 @@ def GPT_4_Training():
             namespace_name = f'{bot_name}_consol_counter'
             if namespace_name in namespace_stats and namespace_stats[namespace_name]['vector_count'] % 4 == 0:
                 consolidation.clear()
-                print('Running Associative Processing/Pruning of Impicit Memory')
+                print('Running Associative Processing/Pruning of Implicit Memory')
                 results = vdb.query(vector=vector_monologue, filter={"memory_type": "implicit_long_term", "user": username}, top_k=10, namespace=f'{bot_name}')
                 memory_consol_db1 = load_conversation_implicit_long_term_memory(results)
                 ids_to_delete = [m['id'] for m in results['matches']]
@@ -598,7 +588,7 @@ def GPT_4_Training():
                         unique_id = str(uuid4())
                         metadata = {'speaker': bot_name, 'time': timestamp, 'message': (line),
                                     'timestring': timestring, 'uuid': unique_id, "memory_type": "implicit_long_term", "user": username}
-                        save_json('nexus/implicit_long_term_memory_nexus/%s.json' % unique_id, metadata)
+                        save_json('nexus/{bot_name}/implicit_long_term_memory_nexus/%s.json' % unique_id, metadata)
                         payload.append((unique_id, vector, {"memory_type": "implicit_long_term", "user": username}))
                         vdb.upsert(payload, namespace=f'{bot_name}')
                         payload.clear()
@@ -613,7 +603,7 @@ def GPT_4_Training():
             if namespace_name in namespace_stats and namespace_stats[namespace_name]['vector_count'] > 5:
                 consolidation.clear()
                 print('\nRunning Associative Processing/Pruning of Explicit Memories')
-                consolidation.append({'role': 'system', 'content': "You are a data extractor. Your job is to read the user's input and provide a single semantic search query representitive of a habit of %s." % bot_name})
+                consolidation.append({'role': 'system', 'content': "You are a data extractor. Your job is to read the user's input and provide a single semantic search query representative of a habit of %s." % bot_name})
                 results = vdb.query(vector=vector_monologue, filter={"memory_type": "implicit_long_term", "user": username}, top_k=5, namespace=f'{bot_name}')
                 consol_search = load_conversation_implicit_long_term_memory(results)
                 consolidation.append({'role': 'user', 'content': "%s's Memories:\n%s" % (bot_name, consol_search)})
@@ -635,7 +625,7 @@ def GPT_4_Training():
                         unique_id = str(uuid4())
                         metadata = {'speaker': bot_name, 'time': timestamp, 'message': (line),
                                     'timestring': timestring, 'uuid': unique_id, "memory_type": "explicit_long_term", "user": username}
-                        save_json('nexus/explicit_long_term_memory_nexus/%s.json' % unique_id, metadata)
+                        save_json('nexus/{bot_name}/explicit_long_term_memory_nexus/%s.json' % unique_id, metadata)
                         payload.append((unique_id, vector, {"memory_type": "explicit_long_term", "user": username}))
                         vdb.upsert(payload, namespace=f'{bot_name}')
                         payload.clear()

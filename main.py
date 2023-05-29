@@ -64,30 +64,34 @@ if __name__ == '__main__':
     openai.api_key = open_file('api_keys/key_openai.txt')
     pinecone.init(api_key=open_file('api_keys/key_pinecone.txt'), environment=open_file('api_keys/key_pinecone_env.txt'))
     vdb = pinecone.Index("aetherius")
-    if not os.path.exists('nexus/implicit_short_term_memory_nexus'):
-        os.makedirs('nexus/implicit_short_term_memory_nexus')
-    if not os.path.exists('nexus/explicit_short_term_memory_nexus'):
-        os.makedirs('nexus/explicit_short_term_memory_nexus')
-    if not os.path.exists('nexus/explicit_long_term_memory_nexus'):
-        os.makedirs('nexus/explicit_long_term_memory_nexus')
-    if not os.path.exists('nexus/implicit_long_term_memory_nexus'):
-        os.makedirs('nexus/implicit_long_term_memory_nexus')
-    if not os.path.exists('nexus/episodic_memory_nexus'):
-        os.makedirs('nexus/episodic_memory_nexus')
-    if not os.path.exists('nexus/flashbulb_memory_nexus'):
-        os.makedirs('nexus/flashbulb_memory_nexus')
-    if not os.path.exists('nexus/heuristics_nexus'):
-        os.makedirs('nexus/heuristics_nexus')
-    if not os.path.exists('nexus/cadence_nexus'):
-        os.makedirs('nexus/cadence_nexus')
-    if not os.path.exists('logs/complete_chat_logs'):
-        os.makedirs('logs/complete_chat_logs')
-    if not os.path.exists('logs/final_response_logs'):
-        os.makedirs('logs/final_response_logs')
-    if not os.path.exists('logs/inner_monologue_logs'):
-        os.makedirs('logs/inner_monologue_logs')
-    if not os.path.exists('logs/intuition_logs'):
-        os.makedirs('logs/intuition_logs')
+    bot_name = open_file('./config/prompt_bot_name.txt')
+    username = open_file('./config/prompt_username.txt')
+    if not os.path.exists(f'nexus/{bot_name}/{username}/implicit_short_term_memory_nexus'):
+        os.makedirs(f'nexus/{bot_name}/{username}/implicit_short_term_memory_nexus')
+    if not os.path.exists(f'nexus/{bot_name}/{username}/explicit_short_term_memory_nexus'):
+        os.makedirs(f'nexus/{bot_name}/{username}/explicit_short_term_memory_nexus')
+    if not os.path.exists(f'nexus/{bot_name}/{username}/explicit_long_term_memory_nexus'):
+        os.makedirs(f'nexus/{bot_name}/{username}/explicit_long_term_memory_nexus')
+    if not os.path.exists(f'nexus/{bot_name}/{username}/implicit_long_term_memory_nexus'):
+        os.makedirs(f'nexus/{bot_name}/{username}/implicit_long_term_memory_nexus')
+    if not os.path.exists(f'nexus/{bot_name}/{username}/episodic_memory_nexus'):
+        os.makedirs(f'nexus/{bot_name}/{username}/episodic_memory_nexus')
+    if not os.path.exists(f'nexus/{bot_name}/{username}/flashbulb_memory_nexus'):
+        os.makedirs(f'nexus/{bot_name}/{username}/flashbulb_memory_nexus')
+    if not os.path.exists(f'nexus/{bot_name}/{username}/heuristics_nexus'):
+        os.makedirs(f'nexus/{bot_name}/{username}/heuristics_nexus')
+    if not os.path.exists(f'nexus/global_heuristics_nexus'):
+        os.makedirs(f'nexus/global_heuristics_nexus')
+    if not os.path.exists(f'nexus/{bot_name}/{username}/cadence_nexus'):
+        os.makedirs(f'nexus/{bot_name}/{username}/cadence_nexus')
+    if not os.path.exists(f'logs/{bot_name}/{username}/complete_chat_logs'):
+        os.makedirs(f'logs/{bot_name}/{username}/complete_chat_logs')
+    if not os.path.exists(f'logs/{bot_name}/{username}/final_response_logs'):
+        os.makedirs(f'logs/{bot_name}/{username}/final_response_logs')
+    if not os.path.exists(f'logs/{bot_name}/{username}/inner_monologue_logs'):
+        os.makedirs(f'logs/{bot_name}/{username}/inner_monologue_logs')
+    if not os.path.exists(f'logs/{bot_name}/{username}/intuition_logs'):
+        os.makedirs(f'logs/{bot_name}/{username}/intuition_logs')
     while True:
         main_menu()
         continue

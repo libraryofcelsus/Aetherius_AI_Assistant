@@ -1,12 +1,6 @@
 # Aetherius
 Version .04b of Aetherius Personal Assistant by LibraryofCelsus.com
 
-**Autonomous Tasklist Update!**
-
-**Webscrape and Search Added!**
-
-Aetherius now has an autonomous research loop.  This loop can either search its memories or search the web!
-
 **Experimental Folder Changelog**
 
 -Added .TXT, .PDF, and .EPUB text extractors. For now it just functions similarly to the webscrape. Place file in the "Upload" folder in its extension's respective folder.  Then run "GPT_4_Text_Extractor.py" to extract all of the files, they will be moved to the "Finished" folder once done.
@@ -44,7 +38,7 @@ Inspired by https://github.com/daveshap/
 # Current Version Information
 Welcome to the pre-alpha release of Aetherius, a highly customizable AI assistant designed to adapt to your specific needs.  I prefer a more "anthropomorphized" personal Ai as talking to something like base GPT feels off-putting.  The end goal of Aetherius is to both provide a realistic Ai companion and a cognitive framework that can be added on top of other Ai tools.
 
-Currently, Aetherius's main focus is creating a good architecture for realistic long-term memory storage and thought formation. Once this is complete, assistant like features and additional modules like the World Creator will be added.
+Currently, Aetherius's main focus is creating a good architecture for realistic long-term memory storage and thought formation. Currently Aetherius has websearch and document scraping abilities.  More features will come at a later date.
 
 Aetherius aims to provide a modular, personalized AI assistant experience by enabling the addition of task-specific Modules and Sub-Modules. If all goes as planned, Aetherius will support integration with other open-source projects and models.
 

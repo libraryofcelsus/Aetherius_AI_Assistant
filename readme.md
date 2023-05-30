@@ -7,6 +7,8 @@ Version .04b of Aetherius Personal Assistant by LibraryofCelsus.com
 
 -Added a Role/Personality Extractor.  Give it a url to scrape and Aetherius will attempt to extract memories for a chatbot.  To talk to the chatbot, change the name in "prompt_bot_name.txt" to whatever name you entered in the Role Extractor script.
 
+-Test of new conversation history that now persists past shutdown
+
 ------
 
 [Skip to installation guide](#installation-guide)

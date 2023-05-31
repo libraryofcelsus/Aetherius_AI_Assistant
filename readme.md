@@ -1,13 +1,11 @@
 # Aetherius
-Version .04b of Aetherius Personal Assistant by LibraryofCelsus.com
+Version .041 of Aetherius Personal Assistant by LibraryofCelsus.com
 
 **Experimental Folder Changelog**
 
 -Added .TXT, .PDF, and .EPUB text extractors. For now it just functions similarly to the webscrape. Place file in the "Upload" folder in its extension's respective folder.  Then run "GPT_4_Text_Extractor.py" to extract all of the files, they will be moved to the "Finished" folder once done.
 
 -Added a Role/Personality Extractor.  Give it a url to scrape and Aetherius will attempt to extract memories for a chatbot.  To talk to the chatbot, change the name in "prompt_bot_name.txt" to whatever name you entered in the Role Extractor script.
-
--Test of new conversation history that now persists past shutdown
 
 ------
 
@@ -45,6 +43,10 @@ Currently, Aetherius's main focus is creating a good architecture for realistic 
 Aetherius aims to provide a modular, personalized AI assistant experience by enabling the addition of task-specific Modules and Sub-Modules. If all goes as planned, Aetherius will support integration with other open-source projects and models.
 
 ## Changelog:
+0.041
+
+-Reworked Conversation History, it will now persist past shutdown.
+
 0.04b
 
 -Readded Users

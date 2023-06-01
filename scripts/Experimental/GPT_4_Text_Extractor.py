@@ -527,7 +527,7 @@ def GPT_4_Text_Extractor():
         print(int_scrape)
         int_conversation.append({'role': 'assistant', 'content': "%s" % greeting_msg})
         int_conversation.append({'role': 'user', 'content': a})
-        int_conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;\n%s;\n%s;\n\n%s'S INNER THOUGHTS: %s;\nHEURISTICS: %s;\nUSER MESSAGE: %s;\nTEXT FILE SAMPLE: %s\nIn a single paragraph, interpret the user, %s's message as %s in third person by creating an intuitive plan on what information needs to be researched from the text files, even if the user is uncertain about their own needs.;\nINTUITION: " % (db_search_4, db_search_5, db_search_12, bot_name, output_one, db_search_13, a, int_scrape, username, bot_name)})
+        int_conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;\n%s;\n%s;\n\n%s'S INNER THOUGHTS: %s;\nHEURISTICS: %s;\nUSER MESSAGE: %s;\nTEXT FILE SAMPLE: %s\nIn a single paragraph, interpret the user, %s's message as %s in third person by creating an intuitive plan on what information needs to be researched from the text file summaries, even if the user is uncertain about what information is required.;\nINTUITION: " % (db_search_4, db_search_5, db_search_12, bot_name, output_one, db_search_13, a, int_scrape, username, bot_name)})
         output_two = chatgpt200_completion(int_conversation)
         message_two = output_two
         print('\n\nINTUITION: %s' % output_two)
@@ -553,9 +553,9 @@ def GPT_4_Text_Extractor():
                         vector = gpt3_embedding(line)
                         unique_id = str(uuid4())
                         metadata = {'bot': bot_name, 'time': timestamp, 'message': line,
-                                    'timestring': timestring, 'uuid': unique_id, "memory_type": "implicit_short_term", "user": username}
+                                    'timestring': timestring, 'uuid': unique_id, "memory_type": "implicit_short_term"}
                         save_json(f'nexus/{bot_name}/{username}/implicit_short_term_memory_nexus/%s.json' % unique_id, metadata)
-                        payload.append((unique_id, vector, {"memory_type": "implicit_short_term", "user": username}))
+                        payload.append((unique_id, vector, {"memory_type": "implicit_short_term"}))
                         vdb.upsert(payload, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
                         payload.clear()
                 print('\n\nSYSTEM: Upload Successful!')
@@ -585,9 +585,9 @@ def GPT_4_Text_Extractor():
     #                    vector = gpt3_embedding(inner_loop_db)
     #                    unique_id = str(uuid4())
     #                    metadata = {'bot': bot_name, 'time': timestamp, 'message': inner_loop_db,
-    #                                'timestring': timestring, 'uuid': unique_id, "memory_type": "implicit_short_term", "user": username}
+    #                                'timestring': timestring, 'uuid': unique_id, "memory_type": "implicit_short_term"}
     #                    save_json(f'nexus/{bot_name}/{username}/implicit_short_term_memory_nexus/%s.json' % unique_id, metadata)
-    #                    payload.append((unique_id, vector, {"memory_type": "implicit_short_term", "user": username}))
+    #                    payload.append((unique_id, vector, {"memory_type": "implicit_short_term"}))
     #                    vdb.upsert(payload, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
     #                    payload.clear()
     #                print('\n\nSYSTEM: Auto-memory upload Successful!')
@@ -756,9 +756,9 @@ def GPT_4_Text_Extractor():
                         vector = gpt3_embedding(line)
                         unique_id = str(uuid4())
                         metadata = {'bot': bot_name, 'time': timestamp, 'message': line,
-                                    'timestring': timestring, 'uuid': unique_id, "memory_type": "explicit_long_term", "user": username}
+                                    'timestring': timestring, 'uuid': unique_id, "memory_type": "explicit_short_term"}
                         save_json(f'nexus/{bot_name}/{username}/explicit_short_term_memory_nexus/%s.json' % unique_id, metadata)
-                        payload.append((unique_id, vector, {"memory_type": "explicit_long_term", "user": username}))
+                        payload.append((unique_id, vector, {"memory_type": "explicit_short_term"}))
                         vdb.upsert(payload, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
                         payload.clear()
                 print('\n\nSYSTEM: Upload Successful!')

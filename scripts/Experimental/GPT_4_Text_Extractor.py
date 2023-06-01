@@ -21,6 +21,8 @@ from concurrent.futures import ThreadPoolExecutor
 from bs4 import BeautifulSoup
 from PyPDF2 import PdfReader
 from ebooklib import epub
+import pytesseract
+from PIL import Image
 # import speech_recognition as sr
 # from gtts import gTTS
 # from playsound import playsound
@@ -150,6 +152,21 @@ def chunk_text(text, chunk_size, overlap):
     if end > len(text):
         chunks.append(text[start:])
     return chunks
+    
+def open_image_file(image_path):
+    try:
+        img = Image.open(image_path)
+        return img
+    except IOError:
+        print("Error: File not found or the file format is not supported.")
+        return None
+
+def save_text_to_file(text, save_path):
+    try:
+        with open(save_path, 'w') as file:
+            file.write(text)
+    except Exception as e:
+        print(f"Error occurred while saving text to file: {str(e)}")
 
 
 def chunk_text_from_file(file_path, chunk_size=1500, overlap=300):
@@ -158,6 +175,8 @@ def chunk_text_from_file(file_path, chunk_size=1500, overlap=300):
         username = open_file('./config/prompt_username.txt')
         bot_name = open_file('./config/prompt_bot_name.txt')
         vdb = pinecone.Index("aetherius")
+        pytesseract.pytesseract.tesseract_cmd = '.\\Tesseract-ocr\\tesseract.exe'
+        textemp = None
         file_extension = os.path.splitext(file_path)[1]
         if file_extension == '.txt':
             with open(file_path, 'r') as file:
@@ -173,6 +192,13 @@ def chunk_text_from_file(file_path, chunk_size=1500, overlap=300):
                 soup = BeautifulSoup(item.content, 'html.parser')
                 texts.append(soup.get_text())
             texttemp = ' '.join(texts)
+        elif file_extension in ['.png', '.jpg', '.jpeg']:
+            image = open_image_file(file_path)
+            if image is not None:
+                texttemp = pytesseract.image_to_string(image).replace('\n', ' ').replace('\r', '')
+                # Save OCR output to raw text file
+                save_path = './Upload/SCANS/Finished/Raw/' + os.path.basename(file_path) + '.txt'
+                save_text_to_file(texttemp, save_path)
         else:
             print(f"Unsupported file type: {file_extension}")
             return []
@@ -337,6 +363,7 @@ def GPT_4_Text_Extractor():
         # # Get Timestamp
         timestamp = time()
         timestring = timestamp_to_datetime(timestamp)
+        process_files_in_directory('./Upload/SCANS', './Upload/SCANS/Finished')
         process_files_in_directory('./Upload/TXT', './Upload/TXT/Finished')
         process_files_in_directory('./Upload/PDF', './Upload/PDF/Finished')
         process_files_in_directory('./Upload/EPUB', './Upload/EPUB/Finished')

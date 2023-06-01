@@ -7,4 +7,5 @@ pyttsx3==2.90
 SpeechRecognition==3.10.0
 beautifulsoup4==4.12.2
 PyPDF2==3.0.1
-EbookLib==0.18
+PyAudio==0.2.13
+pytesseract==0.3.10

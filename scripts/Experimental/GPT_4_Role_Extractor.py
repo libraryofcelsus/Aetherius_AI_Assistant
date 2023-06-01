@@ -187,7 +187,7 @@ def chunk_text_from_url(url, chunk_size=1000, overlap=200):
                     unique_id = str(uuid4())
                     metadata = {'bot': bot_name, 'time': timestamp, 'message': paragraph,
                                 'timestring': timestring, 'uuid': unique_id}
-                    save_json('nexus/{bot_name}/{username}/role_extraction_nexus/%s.json' % unique_id, metadata)
+                    save_json(f'nexus/{bot_name}/{username}/role_extraction_nexus/%s.json' % unique_id, metadata)
                     payload.append((unique_id, vector))
                     vdb.upsert(payload, namespace=f'role_extractor_{username}')
                     payload.clear()
@@ -205,7 +205,7 @@ def load_conversation_web_scrape_memory(results):
     try:
         result = list()
         for m in results['matches']:
-            info = load_json('nexus/{bot_name}/{username}/web_scrape_memory_nexus/%s.json' % m['id'])
+            info = load_json(f'nexus/{bot_name}/{username}/web_scrape_memory_nexus/%s.json' % m['id'])
             result.append(info)
         ordered = sorted(result, key=lambda d: d['time'], reverse=False)  # sort them all chronologically
         messages = [i['message'] for i in ordered]
@@ -285,7 +285,7 @@ def chunk_text_from_file(file_path, chunk_size=1300, overlap=150):
                     unique_id = str(uuid4())
                     metadata = {'bot': bot_name, 'time': timestamp, 'message': file_path + ' ' + paragraph,
                                 'timestring': timestring, 'uuid': unique_id, "memory_type": "file_process"}
-                    save_json('nexus/{bot_name}/{username}/file_process_memory_nexus/%s.json' % unique_id, metadata)
+                    save_json(f'nexus/file_process_memory_nexus/%s.json' % unique_id, metadata)
                     payload.append((unique_id, vector, {"memory_type": "file_process"}))
                     vdb.upsert(payload, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
                     payload.clear()
@@ -331,7 +331,7 @@ def load_conversation_file_process_memory(results):
     try:
         result = list()
         for m in results['matches']:
-            info = load_json('nexus/{bot_name}/{username}/file_process_memory_nexus/%s.json' % m['id'])
+            info = load_json('nexus/file_process_memory_nexus/%s.json' % m['id'])
             result.append(info)
         ordered = sorted(result, key=lambda d: d['time'], reverse=False)  # sort them all chronologically
         messages = [i['message'] for i in ordered]
@@ -373,7 +373,7 @@ def load_conversation_role_extraction(results):
     try:
         result = list()
         for m in results['matches']:
-            info = load_json('nexus/{bot_name}/{username}/role_extraction_nexus/%s.json' % m['id'])
+            info = load_json(f'nexus/{bot_name}/{username}/role_extraction_nexus/%s.json' % m['id'])
             result.append(info)
         ordered = sorted(result, key=lambda d: d['time'], reverse=False)  # sort them all chronologically
         messages = [i['message'] for i in ordered]
@@ -409,7 +409,7 @@ def process_line(line, vdb, extractor_questions, gpt3_embedding, chatgptresponse
         unique_id = str(uuid4())
         metadata = {'bot': bot_name, 'time': timestamp, 'message': line,
                     'timestring': timestring, 'uuid': unique_id, "memory_type": "implicit_long_term", "user": username}
-        save_json('nexus/implicit_long_term_memory_nexus/%s.json' % unique_id, metadata)
+        save_json(f'nexus/{bot_name}/{username}/implicit_long_term_memory_nexus/%s.json' % unique_id, metadata)
         payload.append((unique_id, vector, {"memory_type": "implicit_long_term", "user": username}))
         vdb.upsert(payload, namespace=f'{user_selection}')
         payload.clear()
@@ -426,7 +426,7 @@ def process_line(line, vdb, extractor_questions, gpt3_embedding, chatgptresponse
         unique_id = str(uuid4())
         metadata = {'bot': bot_name, 'time': timestamp, 'message': line,
                     'timestring': timestring, 'uuid': unique_id, "memory_type": "explicit_long_term", "user": username}
-        save_json('nexus/explicit_long_term_memory_nexus/%s.json' % unique_id, metadata)
+        save_json(f'nexus/{bot_name}/{username}/explicit_long_term_memory_nexus/%s.json' % unique_id, metadata)
         payload.append((unique_id, vector, {"memory_type": "explicit_long_term", "user": username}))
         vdb.upsert(payload, namespace=f'{user_selection}')
         payload.clear()
@@ -461,12 +461,14 @@ def GPT_4_Role_Extractor():
     counter = 0
     counter2 = 0
     mem_counter = 0
-    if not os.path.exists('nexus/web_scrape_memory_nexus'):
-        os.makedirs('nexus/web_scrape_memory_nexus')
-    if not os.path.exists('nexus/role_extraction_nexus'):
-        os.makedirs('nexus/role_extraction_nexus')
-    if not os.path.exists('nexus/episodic_memory_nexus'):
-        os.makedirs('nexus/episodic_memory_nexus')
+    bot_name = open_file('./config/prompt_bot_name.txt')
+    username = open_file('./config/prompt_username.txt')
+    if not os.path.exists(f'nexus/{bot_name}/{username}/web_scrape_memory_nexus'):
+        os.makedirs(f'nexus/{bot_name}/{username}/web_scrape_memory_nexus')
+    if not os.path.exists(f'nexus/{bot_name}/{username}/role_extraction_nexus'):
+        os.makedirs(f'nexus/{bot_name}/{username}/role_extraction_nexus')
+    if not os.path.exists(f'nexus/{bot_name}/{username}/episodic_memory_nexus'):
+        os.makedirs(f'nexus/{bot_name}/{username}/episodic_memory_nexus')
     if not os.path.exists('Upload/TXT'):
         os.makedirs('Upload/TXT')
     if not os.path.exists('Upload/TXT/Finished'):
@@ -479,8 +481,8 @@ def GPT_4_Role_Extractor():
         os.makedirs('Upload/EPUB')
     if not os.path.exists('Upload/EPUB/Finished'):
         os.makedirs('Upload/EPUB/Finished')
-    if not os.path.exists('nexus/file_process_memory_nexus'):
-        os.makedirs('nexus/file_process_memory_nexus')
+    if not os.path.exists(f'nexus/file_process_memory_nexus'):
+        os.makedirs(f'nexus/file_process_memory_nexus')
     bot_name = open_file('./config/prompt_bot_name.txt')
     username = open_file('./config/prompt_username.txt')
     main_prompt = open_file('./config/Chatbot_Prompts/prompt_main.txt').replace('<<NAME>>', bot_name)
@@ -496,7 +498,7 @@ def GPT_4_Role_Extractor():
     #    process_files_in_directory('./Upload/PDF', './Upload/PDF/Finished')
     #    process_files_in_directory('./Upload/EPUB', './Upload/EPUB/Finished')
         print('Enter bot name you want memories to be extracted to.')
-        user_selection = input(f'\n\nUSER: ')
+        user_selection = input(f'\n\nBot Name: ')
         print('\nType [Clear Memory] to clear extracted info.')
         print("\nType [Skip] to skip url input.")
         query = input(f'\nEnter URL to scrape for role or personality: ')
@@ -505,7 +507,7 @@ def GPT_4_Role_Extractor():
                 print('\n\nSYSTEM: Are you sure you would like to delete saved short-term memory?\n        Press Y for yes or N for no.')
                 user_input = input("'Y' or 'N': ")
                 if user_input == 'y':
-                    vdb.delete(delete_all=True, namespace='role_extractor')
+                    vdb.delete(delete_all=True, namespace=f'role_extractor_{username}')
                     print('Extracted Info has been Deleted')
                     return
                 elif user_input == 'n':

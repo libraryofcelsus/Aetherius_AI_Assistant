@@ -177,7 +177,7 @@ def chunk_text_from_file(file_path, chunk_size=1500, overlap=300):
         vdb = pinecone.Index("aetherius")
         pytesseract.pytesseract.tesseract_cmd = '.\\Tesseract-ocr\\tesseract.exe'
         textemp = None
-        file_extension = os.path.splitext(file_path)[1]
+        file_extension = os.path.splitext(file_path)[1].lower() 
         if file_extension == '.txt':
             with open(file_path, 'r') as file:
                 texttemp = file.read().replace('\n', ' ').replace('\r', '')

@@ -3,6 +3,8 @@ Version .041 of Aetherius Personal Assistant by LibraryofCelsus.com
 
 **Experimental Folder Changelog**
 
+-Added Photo OCR to the Text Extractor.  To use, place the desired photo in the /Upload/SCANS folder.  Using this feature requires tesseract: https://github.com/UB-Mannheim/tesseract/wiki    Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aetherius_Ai_Assistant" Folder.
+
 -Added .TXT, .PDF, and .EPUB text extractors. For now it just functions similarly to the webscrape. Place file in the "Upload" folder in its extension's respective folder.  Then run "GPT_4_Text_Extractor.py" to extract all of the files, they will be moved to the "Finished" folder once done.
 
 -Added a Role/Personality Extractor.  Give it a url to scrape and Aetherius will attempt to extract memories for a chatbot.  To talk to the chatbot, change the name in "prompt_bot_name.txt" to whatever name you entered in the Role Extractor script.

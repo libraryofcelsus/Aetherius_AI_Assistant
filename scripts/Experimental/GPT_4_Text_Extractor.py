@@ -201,7 +201,7 @@ def chunk_text_from_file(file_path, chunk_size=1500, overlap=300):
                     unique_id = str(uuid4())
                     metadata = {'bot': bot_name, 'time': timestamp, 'message': file_path + ' ' + paragraph,
                                 'timestring': timestring, 'uuid': unique_id, "memory_type": "file_process"}
-                    save_json('nexus/{bot_name}/{username}/file_process_memory_nexus/%s.json' % unique_id, metadata)
+                    save_json(f'nexus/{bot_name}/{username}/file_process_memory_nexus/%s.json' % unique_id, metadata)
                     payload.append((unique_id, vector, {"memory_type": "file_process"}))
                     vdb.upsert(payload, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
                     payload.clear()
@@ -247,7 +247,7 @@ def load_conversation_file_process_memory(results):
     try:
         result = list()
         for m in results['matches']:
-            info = load_json('nexus/{bot_name}/{username}/file_process_memory_nexus/%s.json' % m['id'])
+            info = load_json(f'nexus/{bot_name}/{username}/file_process_memory_nexus/%s.json' % m['id'])
             result.append(info)
         ordered = sorted(result, key=lambda d: d['time'], reverse=False)  # sort them all chronologically
         messages = [i['message'] for i in ordered]
@@ -309,10 +309,12 @@ def GPT_4_Text_Extractor():
     counter = 0
     counter2 = 0
     mem_counter = 0
-    if not os.path.exists('nexus/{bot_name}/{username}/web_scrape_memory_nexus'):
-        os.makedirs('nexus/{bot_name}/{username}/web_scrape_memory_nexus')
-    if not os.path.exists('nexus/{bot_name}/{username}/episodic_memory_nexus'):
-        os.makedirs('nexus/{bot_name}/{username}/episodic_memory_nexus')
+    bot_name = open_file('./config/prompt_bot_name.txt')
+    username = open_file('./config/prompt_username.txt')
+    if not os.path.exists(f'nexus/{bot_name}/{username}/web_scrape_memory_nexus'):
+        os.makedirs(f'nexus/{bot_name}/{username}/web_scrape_memory_nexus')
+    if not os.path.exists(f'nexus/{bot_name}/{username}/episodic_memory_nexus'):
+        os.makedirs(f'nexus/{bot_name}/{username}/episodic_memory_nexus')
     if not os.path.exists('Upload/TXT'):
         os.makedirs('Upload/TXT')
     if not os.path.exists('Upload/TXT/Finished'):
@@ -325,10 +327,8 @@ def GPT_4_Text_Extractor():
         os.makedirs('Upload/EPUB')
     if not os.path.exists('Upload/EPUB/Finished'):
         os.makedirs('Upload/EPUB/Finished')
-    if not os.path.exists('nexus/file_process_memory_nexus'):
-        os.makedirs('nexus/{bot_name}/{username}/file_process_memory_nexus')
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    if not os.path.exists(f'nexus/{bot_name}/{username}/file_process_memory_nexus'):
+        os.makedirs(f'nexus/{bot_name}/{username}/file_process_memory_nexus')
     main_prompt = open_file('./config/Chatbot_Prompts/prompt_main.txt').replace('<<NAME>>', bot_name)
     second_prompt = open_file('./config/Chatbot_Prompts/prompt_secondary.txt')
     greeting_msg = open_file('./config/Chatbot_Prompts/prompt_greeting.txt').replace('<<NAME>>', bot_name)
@@ -527,7 +527,7 @@ def GPT_4_Text_Extractor():
                         unique_id = str(uuid4())
                         metadata = {'bot': bot_name, 'time': timestamp, 'message': line,
                                     'timestring': timestring, 'uuid': unique_id, "memory_type": "implicit_short_term", "user": username}
-                        save_json('nexus/{bot_name}/{username}/implicit_short_term_memory_nexus/%s.json' % unique_id, metadata)
+                        save_json(f'nexus/{bot_name}/{username}/implicit_short_term_memory_nexus/%s.json' % unique_id, metadata)
                         payload.append((unique_id, vector, {"memory_type": "implicit_short_term", "user": username}))
                         vdb.upsert(payload, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
                         payload.clear()
@@ -559,7 +559,7 @@ def GPT_4_Text_Extractor():
     #                    unique_id = str(uuid4())
     #                    metadata = {'bot': bot_name, 'time': timestamp, 'message': inner_loop_db,
     #                                'timestring': timestring, 'uuid': unique_id, "memory_type": "implicit_short_term", "user": username}
-    #                    save_json('nexus/{bot_name}/{username}/implicit_short_term_memory_nexus/%s.json' % unique_id, metadata)
+    #                    save_json(f'nexus/{bot_name}/{username}/implicit_short_term_memory_nexus/%s.json' % unique_id, metadata)
     #                    payload.append((unique_id, vector, {"memory_type": "implicit_short_term", "user": username}))
     #                    vdb.upsert(payload, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
     #                    payload.clear()
@@ -730,7 +730,7 @@ def GPT_4_Text_Extractor():
                         unique_id = str(uuid4())
                         metadata = {'bot': bot_name, 'time': timestamp, 'message': line,
                                     'timestring': timestring, 'uuid': unique_id, "memory_type": "explicit_long_term", "user": username}
-                        save_json('nexus/{bot_name}/{username}/explicit_short_term_memory_nexus/%s.json' % unique_id, metadata)
+                        save_json(f'nexus/{bot_name}/{username}/explicit_short_term_memory_nexus/%s.json' % unique_id, metadata)
                         payload.append((unique_id, vector, {"memory_type": "explicit_long_term", "user": username}))
                         vdb.upsert(payload, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
                         payload.clear()
@@ -762,7 +762,7 @@ def GPT_4_Text_Extractor():
     #                    unique_id = str(uuid4())
     #                    metadata = {'bot': bot_name, 'time': timestamp, 'message': db_upsert,
     #                                'timestring': timestring, 'uuid': unique_id, "memory_type": "explicit_short_term", "user": username}
-    #                    save_json('nexus/{bot_name}/{username}/short_term_memory_nexus/%s.json' % unique_id, metadata)
+    #                    save_json(f'nexus/{bot_name}/{username}/short_term_memory_nexus/%s.json' % unique_id, metadata)
     #                    payload.append((unique_id, vector, {"memory_type": "explicit_short_term", "user": username}))
     #                    vdb.upsert(payload, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
     #                    payload.clear()

@@ -164,7 +164,7 @@ def chunk_text_from_file(file_path, chunk_size=1500, overlap=300):
                 texttemp = file.read().replace('\n', ' ').replace('\r', '')
         elif file_extension == '.pdf':
             with open(file_path, 'rb') as file:
-                pdf = PdfFileReader(file)
+                pdf = PdfReader(file)
                 texttemp = " ".join(page.extract_text() for page in pdf.pages)
         elif file_extension == '.epub':
             book = epub.read_epub(file_path)

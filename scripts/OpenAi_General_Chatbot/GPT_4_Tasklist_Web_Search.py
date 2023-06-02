@@ -445,21 +445,18 @@ def GPT_4_Tasklist_Web_Search():
                     load_conversation_heuristics)
                 ),
             ]
-            # Handle results
-        #    db_search_1 = futures[len(lines)].result()[1](futures[len(lines)].result()[0])
-        #    db_search_2 = futures[len(lines) + 1].result()[1](futures[len(lines) + 1].result()[0])
-        #    db_search_3 = futures[len(lines) + 2].result()[1](futures[len(lines) + 2].result()[0])
-        #    db_search_4 = futures[len(lines) + 3].result()[1](futures[len(lines) + 3].result()[0])
+            db_search_1, db_search_2, db_search_3, db_search_14 = None, None, None, None
             try:
                 db_search_1 = futures[len(lines)].result()[1](futures[len(lines)].result()[0])
                 db_search_2 = futures[len(lines) + 1].result()[1](futures[len(lines) + 1].result()[0])
                 db_search_3 = futures[len(lines) + 2].result()[1](futures[len(lines) + 2].result()[0])
                 db_search_14 = futures[len(lines) + 3].result()[1](futures[len(lines) + 3].result()[0])
-            except:
-                db_search_1 = 'Database Empty'
-                db_search_2 = 'Database Empty'
-                db_search_3 = 'Database Empty'
-                db_search_14 = 'Database Empty'
+            except IndexError as e:
+                print(f"Caught an IndexError: {e}")
+                print(f"Length of futures: {len(futures)}")
+                print(f"Length of lines: {len(lines)}")
+            except Exception as e:
+                print(f"Caught an exception: {e}")
         # # Inner Monologue Generation
         conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;%s;%s;\n\nHEURISTICS: %s;\nUSER MESSAGE: %s;\nBased on %s's memories and the user, %s's message, compose a brief silent soliloquy as %s's inner monologue that reflects on %s's deepest contemplations and emotions in relation to the user's message.\n\nINNER_MONOLOGUE: " % (db_search_1, db_search_2, db_search_3, db_search_13, a, bot_name, username, bot_name, bot_name)})
         output_one = chatgpt250_completion(conversation)
@@ -479,16 +476,18 @@ def GPT_4_Tasklist_Web_Search():
         "memory_type": "flashbulb", "user": username}, top_k=2, namespace=f'{bot_name}')
             future4 = executor.submit(vdb.query, vector=vector_monologue, filter={
         "memory_type": "heuristics", "user": username}, top_k=3, namespace=f'{bot_name}')
+            db_search_4, db_search_5, db_search_12, db_search_15 = None, None, None, None
             try:
                 db_search_4 = load_conversation_episodic_memory(future1.result())
                 db_search_5 = load_conversation_explicit_short_term_memory(future2.result())
                 db_search_12 = load_conversation_flashbulb_memory(future3.result())
-                db_search_13 = load_conversation_heuristics(future4.result())
-            except:
-                db_search_4 = 'Database Empty'
-                db_search_5 = 'Database Empty'
-                db_search_12 = 'Database Empty'
-                db_search_13 = 'Database Empty'
+                db_search_15 = load_conversation_heuristics(future4.result())
+            except IndexError as e:
+                print(f"Caught an IndexError: {e}")
+                print(f"Length of futures: {len(futures)}")
+                print(f"Length of lines: {len(lines)}")
+            except Exception as e:
+                print(f"Caught an exception: {e}")
         # # Intuition Generation
         results = vdb.query(vector=vector_input, filter={
         "memory_type": "web_scrape"}, top_k=7, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')

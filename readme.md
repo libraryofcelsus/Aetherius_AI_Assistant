@@ -1,5 +1,5 @@
 # Aetherius
-Version .041 of Aetherius Personal Assistant by LibraryofCelsus.com
+Version .041a of Aetherius Personal Assistant by LibraryofCelsus.com
 
 **Experimental Folder Changelog**
 
@@ -161,6 +161,8 @@ Aetherius aims to provide a modular, personalized AI assistant experience by ena
 # Installation Guide
 
 ## Installer bat
+
+If the files do not work, run them as an Administrator
 
 https://github.com/libraryofcelsus/Aetherius_AI_Assistant/blob/main/scripts/resources/install.bat
 

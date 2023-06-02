@@ -458,7 +458,7 @@ def GPT_4_Tasklist_Web_Search():
             except Exception as e:
                 print(f"Caught an exception: {e}")
         # # Inner Monologue Generation
-        conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;%s;%s;\n\nHEURISTICS: %s;\nUSER MESSAGE: %s;\nBased on %s's memories and the user, %s's message, compose a brief silent soliloquy as %s's inner monologue that reflects on %s's deepest contemplations and emotions in relation to the user's message.\n\nINNER_MONOLOGUE: " % (db_search_1, db_search_2, db_search_3, db_search_13, a, bot_name, username, bot_name, bot_name)})
+        conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;%s;%s;\n\nHEURISTICS: %s;\nUSER MESSAGE: %s;\nBased on %s's memories and the user, %s's message, compose a brief silent soliloquy as %s's inner monologue that reflects on %s's deepest contemplations and emotions in relation to the user's message.\n\nINNER_MONOLOGUE: " % (db_search_1, db_search_2, db_search_3, db_search_14, a, bot_name, username, bot_name, bot_name)})
         output_one = chatgpt250_completion(conversation)
         message = output_one
         vector_monologue = gpt3_embedding('Inner Monologue: ' + message)

@@ -608,8 +608,8 @@ class ChatBotApplication(tk.Frame):
                 self.update_results(results_text, paragraph)
 
             def search_task():
-                # Call the modified GPT_4_Tasklist_Web_Search function with the callback
-                GPT_4_Tasklist_Web_Search(query, results_callback=update_results)
+                search_results = GPT_4_Tasklist_Web_Search(query)
+                self.update_results(results_text, search_results)
 
             t = threading.Thread(target=search_task)
             t.start()
@@ -646,8 +646,8 @@ class ChatBotApplication(tk.Frame):
 
             def search_task():
                 # Call the modified GPT_4_Tasklist_Web_Search function with the callback
-                GPT_4_Tasklist_Web_Scrape(query, results_callback=update_results)
-
+                search_results = GPT_4_Tasklist_Web_Scrape(query)
+                self.update_results(results_text, search_results)
             t = threading.Thread(target=search_task)
             t.start()
 
@@ -2010,7 +2010,7 @@ def process_line(line, task_counter, memcheck, memcheck2, webcheck, conversation
         
         
         
-def GPT_4_Tasklist_Web_Search(query, results_callback):
+def GPT_4_Tasklist_Web_Search(query):
     vdb = pinecone.Index("aetherius")
     my_api_key = open_file('api_keys/key_google.txt')
     my_cse_id = open_file('api_keys/key_google_cse.txt')
@@ -2072,7 +2072,7 @@ def GPT_4_Tasklist_Web_Search(query, results_callback):
         return
         
         
-def GPT_4_Tasklist_Web_Scrape(query, results_callback):
+def GPT_4_Tasklist_Web_Scrape(query):
     vdb = pinecone.Index("aetherius")
     my_api_key = open_file('api_keys/key_google.txt')
     my_cse_id = open_file('api_keys/key_google_cse.txt')
@@ -2144,6 +2144,7 @@ def GPT_4_Tasklist_Web_Scrape(query, results_callback):
         else:
             urls = urls = chunk_text_from_url(query)
         print('---------')
+        return 
         
         
 def GPT_4_Aether_Search():

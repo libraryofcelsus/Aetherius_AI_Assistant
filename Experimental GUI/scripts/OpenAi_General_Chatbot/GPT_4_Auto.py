@@ -166,6 +166,7 @@ class ChatBotApplication(tk.Frame):
             self.conversation_text.delete("1.0", tk.END)
             self.display_conversation_history()
         pass
+       
         
         
     def Edit_Main_Prompt(self):
@@ -319,6 +320,12 @@ class ChatBotApplication(tk.Frame):
         save_button.pack()
         
         
+    def update_results(self, text_widget, search_results):
+        self.after(0, text_widget.delete, "1.0", tk.END)
+        self.after(0, text_widget.insert, tk.END, search_results)
+        
+        
+        
     def open_cadence_window(self):
         cadence_window = tk.Toplevel(self)
         cadence_window.title("Cadence DB Upload")
@@ -329,7 +336,7 @@ class ChatBotApplication(tk.Frame):
         query_entry = tk.Entry(cadence_window)
         query_entry.pack()
 
-        results_label = tk.Label(cadence_window, text="Scrape results: (Not Working Yet, Results in Terminal)")
+        results_label = tk.Label(cadence_window, text="Scrape results: ")
         results_label.pack()
 
         results_text = tk.Text(cadence_window)
@@ -340,11 +347,13 @@ class ChatBotApplication(tk.Frame):
 
             def update_results():
                 # Update the GUI with the new paragraph
-                self.update_results(query)
+                self.results_text.insert(tk.END, f"{query}\n\n")
+                self.results_text.yview(tk.END)
 
             def search_task():
                 # Call the modified GPT_4_Tasklist_Web_Search function with the callback
-                DB_Upload_Cadence(query)
+                search_results = DB_Upload_Cadence(query)
+                self.update_results(results_text, search_results)
 
             t = threading.Thread(target=search_task)
             t.start()
@@ -363,11 +372,13 @@ class ChatBotApplication(tk.Frame):
         query_entry = tk.Entry(heuristics_window)
         query_entry.pack()
 
-        results_label = tk.Label(heuristics_window, text="Entered Heuristics: (Not Working Yet, Results in Terminal)")
+        results_label = tk.Label(heuristics_window, text="Entered Heuristics: ")
         results_label.pack()
 
         results_text = tk.Text(heuristics_window)
         results_text.pack()
+        results_text.bind("<Key>", lambda e: "break")  # Disable keyboard input
+        results_text.bind("<Button>", lambda e: "break")  # Disable mouse input
 
         def perform_search():
             query = query_entry.get()
@@ -378,7 +389,8 @@ class ChatBotApplication(tk.Frame):
 
             def search_task():
                 # Call the modified GPT_4_Tasklist_Web_Search function with the callback
-                DB_Upload_Heuristics(query)
+                search_results = DB_Upload_Heuristics(query)
+                self.update_results(results_text, search_results)
 
             t = threading.Thread(target=search_task)
             t.start()

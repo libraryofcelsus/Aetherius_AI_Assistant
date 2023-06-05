@@ -491,7 +491,7 @@ class ChatBotApplication(tk.Frame):
             os.remove(file_path)
             # Reload the script
             self.master.destroy()
-            GPT_4_Training()
+            GPT_4_Auto()
         except FileNotFoundError:
             pass
 

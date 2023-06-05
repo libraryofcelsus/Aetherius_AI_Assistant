@@ -27,7 +27,7 @@ Made by: https://github.com/libraryofcelsus
 
 Inspired by https://github.com/daveshap/
 
-![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/05/Aetherius-Example.png)
+![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/06/Aetherius-GUI.png)
 
 ## Aether Scrape/Search
 

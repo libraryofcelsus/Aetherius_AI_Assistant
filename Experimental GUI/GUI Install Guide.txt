@@ -1,0 +1,5 @@
+1. Change the name of the scripts folder to something else. (Old scripts do not work with the GUI.)
+
+2. Copy folder contents to main chatbot folder.
+
+3. Run main.py like normal!

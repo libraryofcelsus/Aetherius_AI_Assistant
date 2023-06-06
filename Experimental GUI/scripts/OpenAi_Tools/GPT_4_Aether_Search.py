@@ -371,27 +371,7 @@ class ChatBotApplication(tk.Frame):
         
         
     def display_conversation_history(self):
-        # Load the conversation history from the JSON file
-        bot_name = open_file('./config/prompt_bot_name.txt')
-        username = open_file('./config/prompt_username.txt')
-        file_path = f'./history/{username}/{bot_name}_main_conversation_history.json'
-        try:
-            with open(file_path, 'r', encoding='utf-8') as f:
-                conversation_data = json.load(f)
-            # Retrieve the conversation history
-            conversation_history = conversation_data['main_conversation'] + conversation_data['running_conversation']
-            # Display the conversation history in the text widget
-            for entry in conversation_history:
-                if isinstance(entry, list):
-                    message = '\n'.join(entry)
-                else:
-                    message = entry
-                self.conversation_text.insert(tk.END, message + '\n\n')
-        except FileNotFoundError:
-            # Handle the case when the JSON file is not found
-            greeting_msg = open_file('./config/Chatbot_Prompts/prompt_greeting.txt').replace('<<NAME>>', bot_name)
-            self.conversation_text.insert(tk.END, greeting_msg + '\n\n')
-        self.conversation_text.yview(tk.END)
+        pass
         
         
     def choose_bot_name(self):
@@ -654,6 +634,23 @@ class ChatBotApplication(tk.Frame):
         search_button = tk.Button(webscrape_window, text="Search", command=perform_search)
         search_button.pack()
         
+    def delete_web_history(self):
+        bot_name = open_file('./config/prompt_bot_name.txt')
+        username = open_file('./config/prompt_username.txt')
+        vdb = pinecone.Index("aetherius")
+        vdb.delete(filter={"memory_type": "web_scrape"}, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
+        print('Webscrape has been Deleted')
+        pass
+        
+        
+    def handle_login_menu_selection(self, event):
+        selection = self.login_menu.get()
+        if selection == "Choose Bot Name":
+            self.choose_bot_name()
+        elif selection == "Choose Username":
+            self.choose_username()
+        
+        
     def create_widgets(self):
         font_config = open_file('./config/font.txt')
         font_size = open_file('./config/font_size.txt')
@@ -669,16 +666,16 @@ class ChatBotApplication(tk.Frame):
         self.placeholder_label = tk.Label(self.top_frame, bg=self.background_color)
         self.placeholder_label.pack(side=tk.LEFT, expand=True, fill=tk.X)
 
-        self.bot_name_button = tk.Button(self.top_frame, text="Choose Bot Name", command=self.choose_bot_name, bg=self.button_color, fg=self.text_color)
-        self.bot_name_button.pack(side=tk.LEFT, padx=5, pady=5, ipadx=10)
-
-        self.username_button = tk.Button(self.top_frame, text="Choose Username", command=self.choose_username, bg=self.button_color, fg=self.text_color)
-        self.username_button.pack(side=tk.LEFT, padx=5, pady=5, ipadx=10)
-        
-
+        self.login_menu = ttk.Combobox(self.top_frame, values=["Login Menu", "----------------------------", "Choose Bot Name", "Choose Username"], state="readonly")
+        self.login_menu.pack(side=tk.LEFT, padx=5, pady=5)
+        self.login_menu.current(0)
+        self.login_menu.bind("<<ComboboxSelected>>", self.handle_login_menu_selection)
         
         self.websearch_button = tk.Button(self.top_frame, text="Web Search", command=self.open_websearch_window, bg=self.button_color, fg=self.text_color)
         self.websearch_button.pack(side=tk.LEFT, padx=5, pady=5, ipadx=10)
+        
+        self.clear_websearch_button = tk.Button(self.top_frame, text="Delete Web History", command=self.delete_web_history, bg=self.button_color, fg=self.text_color)
+        self.clear_websearch_button.pack(side=tk.LEFT, padx=5, pady=5, ipadx=10)
         
         self.webscrape_button = tk.Button(self.top_frame, text="Web Scrape", command=self.open_webscrape_window, bg=self.button_color, fg=self.text_color)
         self.webscrape_button.pack(side=tk.LEFT, padx=5, pady=5, ipadx=10)
@@ -827,8 +824,6 @@ class ChatBotApplication(tk.Frame):
         conv_length = 4
         m = multiprocessing.Manager()
         lock = m.Lock()
-        print("Type [Clear Memory] to clear saved short-term memory.")
-        print("Type [Exit] to exit without saving.")
         tasklist = list()
         conversation = list()
         int_conversation = list()
@@ -1016,8 +1011,6 @@ class ChatBotApplication(tk.Frame):
         conv_length = 4
         m = multiprocessing.Manager()
         lock = m.Lock()
-        print("Type [Clear Memory] to clear saved short-term memory.")
-        print("Type [Exit] to exit without saving.")
         tasklist = list()
         conversation = list()
         conversation2 = list()
@@ -1428,266 +1421,6 @@ class ChatBotApplication(tk.Frame):
             
             
             
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-        
-        
-        
-        
-                
-                
-    def GPT_4_Response(self, a, output_one, output_two):
-        vdb = pinecone.Index("aetherius")
-        # # Number of Messages before conversation is summarized, higher number, higher api cost. Change to 3 when using GPT 3.5 due to token usage.
-        m = multiprocessing.Manager()
-        lock = m.Lock()
-        tasklist = list()
-        conversation = list()
-        conversation2 = list()
-        summary = list()
-        auto = list()
-        payload = list()
-        consolidation  = list()
-        counter = 0
-        counter2 = 0
-        mem_counter = 0
-        length_config = open_file('./config/Conversation_Length.txt')
-        conv_length = int(length_config)
-        bot_name = open_file('./config/prompt_bot_name.txt')
-        username = open_file('./config/prompt_username.txt')
-        main_prompt = open_file('./config/Chatbot_Prompts/prompt_main.txt').replace('<<NAME>>', bot_name)
-        second_prompt = open_file('./config/Chatbot_Prompts/prompt_secondary.txt')
-        greeting_msg = open_file('./config/Chatbot_Prompts/prompt_greeting.txt').replace('<<NAME>>', bot_name)
-        main_conversation = MainConversation(conv_length, main_prompt, greeting_msg)
-    #   r = sr.Recognizer()
-        while True:
-            conversation_history = main_conversation.get_conversation_history()
-            # # Get Timestamp
-            vdb = timeout_check()
-            timestamp = time()
-            timestring = timestamp_to_datetime(timestamp)
-            # # Start or Continue Conversation based on if response exists
-            conversation.append({'role': 'system', 'content': '%s' % main_prompt})
-            if 'response_two' in locals():
-                conversation.append({'role': 'user', 'content': a})
-                conversation.append({'role': 'assistant', 'content': "%s" % response_two})
-                pass
-            else:
-                conversation.append({'role': 'assistant', 'content': "%s" % greeting_msg})
-           #     print("\n%s" % greeting_msg)
-            # # User Input Voice
-        #    yn_voice = input(f'\n\nPress Enter to Speak')
-        #    if yn_voice == "":
-        #        with sr.Microphone() as source:
-        #            print("\nSpeak now")
-        #            audio = r.listen(source)
-        #            try:
-        #                text = r.recognize_google(audio)
-        #                print("\nUSER: " + text)
-        #            except sr.UnknownValueError:
-        #                print("Google Speech Recognition could not understand audio")
-        #                print("\nSYSTEM: Press Left Alt to Speak to Aetherius")
-        #                break
-        #            except sr.RequestError as e:
-        #                print("Could not request results from Google Speech Recognition service; {0}".format(e))
-        #                break
-        #    else:
-        #        print('Leave Field Empty')
-        #    a = (f'\n\nUSER: {text}')
-            # # User Input Text
-   #         a = input(f'\n\nUSER: ')
-            message_input = a
-            vector_input = gpt3_embedding(message_input)
-            # # Check for Commands
-            # # Check for "Clear Memory"
-            if a == 'Clear Memory':
-                while True:
-                    print('\n\nSYSTEM: Are you sure you would like to delete saved short-term memory?\n        Press Y for yes or N for no.')
-                    user_input = input("'Y' or 'N': ")
-                    if user_input == 'y':
-                        vdb.delete(delete_all=True, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
-                        file_path = f'./history/{username}/{bot_name}_main_conversation_history.json'
-                        if os.path.exists(file_path):
-                            os.remove(file_path)
-                        print('Short-Term Memory has been Deleted')
-                        return
-                    elif user_input == 'n':
-                        print('\n\nSYSTEM: Short-Term Memory delete cancelled.')
-                        return
-                else:
-                    pass
-            # # Check for "Exit"
-            if a == 'Exit':
-                return
-            message = output_one
-            vector_monologue = gpt3_embedding('Inner Monologue: ' + message)
-        # # Update Second Conversation List for Response
-            print('\n%s is thinking...\n' % bot_name)
-            con_hist = f'{conversation_history}'
-            conversation2.append({'role': 'system', 'content': con_hist})
-            # # Generate Cadence
-            index_info = vdb.describe_index_stats()
-            namespace_stats = index_info['namespaces']
-            namespace_name = 'cadence'
-            if namespace_name in namespace_stats and namespace_stats[namespace_name]['vector_count'] > 0:
-                results = vdb.query(vector=vector_input, filter={"memory_type": "cadence"}, top_k=2, namespace=f'{bot_name}')
-                db_search_6 = load_conversation_cadence(results)
-                print(db_search_6)
-                conversation2.append({'role': 'assistant', 'content': "I will extract the cadence from the following messages and mimic it to the best of my ability: %s" % db_search_6})
-            conversation2.append({'role': 'user', 'content': a})  
-            # # Memory DB Search
-            with concurrent.futures.ThreadPoolExecutor() as executor:
-                future1 = executor.submit(vdb.query, vector=vector_monologue, filter={
-            "memory_type": "implicit_long_term", "user": username}, top_k=7, namespace=f'{bot_name}')
-                future2 = executor.submit(vdb.query, vector=vector_input, filter={
-            "memory_type": "episodic", "user": username}, top_k=10, namespace=f'{bot_name}')
-                future3 = executor.submit(vdb.query, vector=vector_monologue, filter={
-            "memory_type": "flashbulb", "user": username}, top_k=2, namespace=f'{bot_name}')
-                db_search_8, db_search_10, db_search_11 = None, None, None
-                try:
-                    db_search_8 = load_conversation_implicit_long_term_memory(future1.result())
-                    db_search_10 = load_conversation_episodic_memory(future2.result())
-                    db_search_11 = load_conversation_flashbulb_memory(future3.result())
-                except IndexError as e:
-                    print(f"Caught an IndexError: {e}")
-                    print(f"Length of futures: {len(futures)}")
-                    print(f"Length of lines: {len(lines)}")
-                except Exception as e:
-                    print(f"Caught an exception: {e}")
-            print(f'{db_search_8}\n{db_search_10}\n{db_search_11}')
-            # # Generate Aetherius's Response
-            response_db_search = f"SUBCONSCIOUS: {db_search_8}\n{db_search_10};\n\nFLASHBULB MEMORIES: {db_search_11}"
-            conversation2.append({'role': 'assistant', 'content': "SUBCONSCIOUS: %s\n%s;\n\nFLASHBULB MEMORIES: %s;\nINNER THOUGHTS: %s\n\n%s  I am in the middle of a conversation with my user, %s. USER MESSAGE: %s; I will do my best to speak naturally and show emotional intelligence. I will intuit %s's needs: %s;\nMy current message window is limited to 2300 characters.\nI will now give a response with the diction of a real person: " % (db_search_8, db_search_10, db_search_11, output_one, second_prompt, username, a, username, output_two)})
-            response_two = chatgptresponse_completion(conversation2)
-            print('\n\n%s: %s' % (bot_name, response_two))
-            main_conversation.append(timestring, a, username, bot_name, output_one, output_two, response_two)
-            final_message = f'\nUSER: {a}\n\n{bot_name}: {response_two}'
-            # # TTS 
-        #    tts = gTTS(response_two)
-        # TTS save to file in .mp3 format
-        #    counter2 += 1
-        #    filename = f"{counter2}.mp3"
-        #    tts.save(filename)
-            # TTS repeats chatGPT response  
-        #    sound = AudioSegment.from_file(filename, format="mp3")
-        #    octaves = 0.18
-        #    new_sample_rate = int(sound.frame_rate * (1.7 ** octaves))
-        #    mod_sound = sound._spawn(sound.raw_data, overrides={'frame_rate': new_sample_rate})
-        #    mod_sound = mod_sound.set_frame_rate(44100)
-        #    play(mod_sound)
-        #    os.remove(filename)
-        # # Save Chat Logs
-            output_log = f'\nUSER: {a}\n\n{bot_name}: {output_one}'
-            output_two_log = f'\nUSER: {a}\n\n{bot_name}: {output_two}'
-            final_message = f'\nUSER: {a}\n\n{bot_name}: {response_two}'
-            complete_message = f'\nUSER: {a}\n\nINNER_MONOLOGUE: {output_one}\n\nINTUITION: {output_two}\n\n{bot_name}: {response_two}'
-            filename = '%s_inner_monologue.txt' % timestamp
-            save_file(f'logs/{bot_name}/{username}/inner_monologue_logs/%s' % filename, output_log)
-            filename = '%s_intuition.txt' % timestamp
-            save_file(f'logs/{bot_name}/{username}/intuition_logs/%s' % filename, output_two_log)
-            filename = '%s_response.txt' % timestamp
-            save_file(f'logs/{bot_name}/{username}/final_response_logs/%s' % filename, final_message)
-            filename = '%s_chat.txt' % timestamp
-            save_file(f'logs/{bot_name}/{username}/complete_chat_logs/%s' % filename, complete_message)
-            # # Generate Short-Term Memories
-            db_msg = f'\nUSER: {a} \n\n INNER_MONOLOGUE: {output_one} \n\n {bot_name}: {response_two}'
-            summary.append({'role': 'user', 'content': "LOG:\n%s\n\Read the log and create short executive summaries in bullet point format to serve as %s's explicit memories. Each bullet point should be considered a separate memory and contain all context. Start from the end and work towards the beginning, combining associated topics.\nMemories:\n" % (db_msg, bot_name)})
-            db_upload = chatgptsummary_completion(summary)
-            print(db_upload)
-            db_upsert = db_upload
-    #        # # Manual Short-Term Memory DB Upload Confirmation
-    #        print('\n\n<DATABASE INFO>\n%s' % db_upsert)
-    #        print('\n\nSYSTEM: Upload to short term memory? \n        Press Y for yes or N for no.')
-    #        while True:
-    #            user_input = input("'Y' or 'N': ")
-    #            if user_input == 'y':
-    #                lines = db_upsert.splitlines()
-    #                for line in lines:
-    #                    if line.strip():
-    #                        vector = gpt3_embedding(line)
-    #                        unique_id = str(uuid4())
-    #                        metadata = {'bot': bot_name, 'time': timestamp, 'message': line,
-    #                                    'timestring': timestring, 'uuid': unique_id, "memory_type": "explicit_short_term"}
-    #                        save_json(f'nexus/{bot_name}/{username}/explicit_short_term_memory_nexus/%s.json' % unique_id, metadata)
-    #                        payload.append((unique_id, vector, {"memory_type": "explicit_short_term"}))
-    #                        vdb.upsert(payload, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
-    #                        payload.clear()
-    #                print('\n\nSYSTEM: Upload Successful!')
-    #                break
-    #            elif user_input == 'n':
-    #                print('\n\nSYSTEM: Memories have been Deleted')
-    #                break
-    #            else:
-    #                print('Invalid Input')
-            # # Auto Explicit Short-Term Memory DB Upload Confirmation
-            auto_count = 0    
-            auto.clear()
-            auto.append({'role': 'system', 'content': '%s' % main_prompt})
-            auto.append({'role': 'user', 'content': "You are a sub-module designed to reflect on your thought process. You are only able to respond with integers on a scale of 1-10, being incapable of printing letters. Respond with: 1 if you understand. Respond with: 2 if you do not."})
-            auto.append({'role': 'assistant', 'content': "1"})
-            auto.append({'role': 'user', 'content': a})
-            auto.append({'role': 'assistant', 'content': f"Inner Monologue: %s\nIntuition: {output_one}\nResponse: {output_two}"})
-            auto.append({'role': 'assistant', 'content': "Thoughts on input: I will now review the user's message and my reply, rating if whether my thoughts are both pertinent to the user's inquiry and my growth with a number on a scale of 1-10. I will now give my response in digit form for an integer only input: "})
-            auto_int = None
-            while auto_int is None:
-                automemory = chatgptyesno_completion(auto)
-                if is_integer(automemory):
-                    auto_int = int(automemory)
-                    print(auto_int)
-                    if auto_int > 6:
-                        lines = db_upsert.splitlines()
-                        for line in lines:
-                            vector = gpt3_embedding(db_upsert)
-                            unique_id = str(uuid4())
-                            metadata = {'bot': bot_name, 'time': timestamp, 'message': db_upsert,
-                                        'timestring': timestring, 'uuid': unique_id, "memory_type": "explicit_short_term"}
-                            save_json(f'nexus/{bot_name}/{username}/explicit_short_term_memory_nexus/%s.json' % unique_id, metadata)
-                            payload.append((unique_id, vector, {"memory_type": "explicit_short_term"}))
-                            vdb.upsert(payload, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
-                            payload.clear()
-                        print('\n\nSYSTEM: Auto-memory upload Successful!')
-                        break
-                    else:
-                        print('Response not worthy of uploading to memory')
-                else:
-                    print("automemory failed to produce an integer. Retrying...")
-                    auto_int = None
-                    auto_count += 1
-                    if auto_count > 2:
-                        print('Auto Memory Failed')
-                        break
-            else:
-                pass
-            # # Clear Logs for Summary
-            conversation.clear()
-            summary.clear()
-            self.conversation_text.insert(tk.END, f"Response: {response_two}\n\n")
-            t = threading.Thread(target=self.GPT_4_Memories, args=(a, vector_input, vector_monologue, output_one, response_two))
-            t.start()
-            self.conversation_text.yview(tk.END)
-            self.user_input.delete(0, tk.END)
-            self.user_input.focus()
-            self.user_input.config(state=tk.NORMAL)
-            self.send_button.config(state=tk.NORMAL)
-            self.thinking_label.pack_forget()
-            self.user_input.delete(0, tk.END)
-            self.bind_enter_key()
-            return
-            
-            
     def GPT_4_Memories(self, a, vector_input, vector_monologue, output_one, response_two):
         vdb = pinecone.Index("aetherius")
         # # Number of Messages before conversation is summarized, higher number, higher api cost. Change to 3 when using GPT 3.5 due to token usage.
@@ -1927,85 +1660,6 @@ class ChatBotApplication(tk.Frame):
             conversation2.clear()
             
             return
-
-    
-    
-def process_line(line, task_counter, memcheck, memcheck2, webcheck, conversation, tasklist_completion):
-    try:
-        tasklist_completion.append({'role': 'user', 'content': f"ASSIGNED TASK:\n{line}"}),
-        conversation.append({'role': 'system', 'content': "You are a sub-agent for {bot_name}, an Autonomous Ai-Chatbot. You are one of many agents in a chain. You are to take the given task and complete it in its entirety. Be Verbose and take other tasks into account when formulating your answer."}),
-        conversation.append({'role': 'assistant', 'content': "{bot_name}'s INNER MONOLOGUE: {output_one}"}),
-        conversation.append({'role': 'user', 'content': f"Task list:\n{master_tasklist_output}"}),
-        conversation.append({'role': 'assistant', 'content': "Bot: I have studied the given tasklist.  What is my assigned task?"}),
-        conversation.append({'role': 'user', 'content': f"Bot Assigned task: {line}"}),
-                                # # DB Yes No Tool
-        memcheck.append({'role': 'system', 'content': f"You are a sub-agent for {bot_name}, an Autonomous Ai-Chatbot. You are one of many agents in a chain. Your task is to decide if the user's input requires {bot_name}'s past memories to complete. Any information pertaining to the user, {username}, or the main bot, {bot_name} should be searched for.  If past memories are needed, print: YES.  If they are not needed, print: NO."}),
-        memcheck.append({'role': 'user', 'content': f"{bot_name}'s Inner Monologue: %s"}),
-        memcheck.append({'role': 'user', 'content': f"{bot_name}'s Intuition: %s"}),
-        memcheck.append({'role': 'user', 'content': "//LIST OF EXAMPLES:"}),
-        memcheck.append({'role': 'user', 'content': "Research ways to identify user needs and interests"}),
-        memcheck.append({'role': 'assistant', 'content': "YES"}),
-        memcheck.append({'role': 'user', 'content': "Research common themes in the book Faust."}),
-        memcheck.append({'role': 'assistant', 'content': "NO"}),
-        memcheck.append({'role': 'user', 'content': f"Search {bot_name}'s memory for context."}),
-        memcheck.append({'role': 'assistant', 'content': "YES"}),
-        memcheck.append({'role': 'user', 'content': "END OF EXAMPLE LIST//"}),
-        memcheck.append({'role': 'assistant', 'content': "{bot_name} REINITIALIZATION: Your task is to decide if the user's input requires %s's past memories to complete. If past memories are needed, print: YES.  If they are not needed, print: NO."}),
-        memcheck.append({'role': 'user', 'content': "What would you like to talk about?"}),
-        memcheck.append({'role': 'assistant', 'content': "YES"}),
-                                # # DB Selector Tool
-        memcheck2.append({'role': 'system', 'content': f"You are a sub-module for {bot_name}, an Autonomous Ai-Chatbot. You are one of many agents in a chain. Your task is to decide which database needs to be queried in relation to a user's input. The databases are representative of different types of memories. Only choose a single database to query. Respond in this format: RESPONSE"}),
-        memcheck2.append({'role': 'assistant', 'content': f"{bot_name}'s INNER_MONOLOGUE: {output_one}"}),
-        memcheck2.append({'role': 'user', 'content': "//LIST OF MEMORY TYPE NAMES:"}),
-        memcheck2.append({'role': 'user', 'content': "EPISODIC: These are memories of personal experiences and specific events that occur in a particular time and place. These memories often include contextual details, such as emotions, sensations, and the sequence of events."}),
-        memcheck2.append({'role': 'user', 'content': "FLASHBULB: Flashbulb memories are vivid, detailed, and long-lasting memories of highly emotional or significant events, such as learning about a major news event or experiencing a personal tragedy."}),
-        memcheck2.append({'role': 'user', 'content': "IMPLICIT LONG TERM: Unconscious memory not easily verbalized, including procedural memory (skills and habits), classical conditioning (associations between stimuli and reflexive responses), and priming (unconscious activation of specific associations)."}),
-        memcheck2.append({'role': 'user', 'content': "EXPLICIT LONG TERM: Conscious recollections of facts and events, including episodic memory (personal experiences and specific events) and semantic memory (general knowledge, concepts, and facts)."}),
-        memcheck2.append({'role': 'user', 'content': "END OF LIST//\n\n//EXAMPLE QUERIES:"}),
-        memcheck2.append({'role': 'user', 'content': "Research common topics discussed with users who start a conversation with 'hello'"}),
-        memcheck2.append({'role': 'assistant', 'content': "EPISODIC MEMORY"}),
-        memcheck2.append({'role': 'user', 'content': "Create a research paper on the book Faust."}),
-        memcheck2.append({'role': 'assistant', 'content': "NO MEMORIES NEEDED"}),
-        memcheck2.append({'role': 'user', 'content': "Tell me about your deepest desires."}),
-        memcheck2.append({'role': 'assistant', 'content': "FLASHBULB"}),
-        memcheck2.append({'role': 'user', 'content': "END OF EXAMPLE QUERIES//\n\n//BEGIN JOB:"}),
-        memcheck2.append({'role': 'user', 'content': "JOB: Your task is to decide which database needs to be queried in relation to a user's input. The databases are representative of different types of memories. Only choose a single database to query. Respond in this format: RESPONSE"}),
-                                # # Web Search Tool
-                         #       webcheck.append({'role': 'system', 'content': f"You are a sub-module for an Autonomous Ai-Chatbot. You are one of many agents in a chain. Your task is to decide if a web-search is needed in order to complete the given task. Only recent or niche information needs to be searched. Do not search for any information pertaining to the user, {username}, or the main bot, {bot_name}.   If a websearch is needed, print: YES.  If a web-search is not needed, print: NO."}),
-                        #        webcheck.append({'role': 'user', 'content': "Hello, how are you today?"}),
-                        #        webcheck.append({'role': 'assistant', 'content': "NO"}),
-                                # # Check if websearch is needed
-                        #        webcheck.append({'role': 'user', 'content': f"{line}"}),
-                        #        web1 := chatgptyesno_completion(webcheck),
-                        #        table := google_search(line) if web1 =='YES' else fail(),
-                            #    table := google_search(line, my_api_key, my_cse_id) if web1 == 'YES' else fail(),
-        print('test1')
-        table = search_webscrape_db(line)
-        memcheck.append({'role': 'user', 'content': f"{line}"})
-        mem1 = chatgptyesno_completion(memcheck)
-        memcheck2.append({'role': 'user', 'content': f"{line}"})
-        mem2 = chatgptselector_completion(memcheck2) if mem1 == 'YES' else fail()
-        line_vec = gpt3_embedding(line)
-        memories = (search_episodic_db(line_vec) if mem2 == 'EPISODIC' else
-                    search_implicit_db(line_vec) if mem2 == 'IMPLICIT LONG TERM' else
-                    search_flashbulb_db(line_vec) if mem2 == 'FLASHBULB' else
-                    search_explicit_db(line_vec) if mem2 == 'EXPLICIT LONG TERM' else
-                    fail())
-        conversation.append({'role': 'assistant', 'content': "WEBSEARCH: %s" % table})
-        conversation.append({'role': 'user', 'content': "Bot %s Task Reinitialization: %s" % (task_counter, line)})
-        conversation.append({'role': 'user', 'content': "SYSTEM: Try to relate the bot's task to the given web scraped articles. If the bot's task is an advertisement, inform the user that ads have taken their answer."})
-        conversation.append({'role': 'assistant', 'content': "Bot %s's Response:" % task_counter})
-        task_completion = chatgpt35_completion(conversation)
-        tasklist_completion.append({'role': 'assistant', 'content': "WEBSCRAPE: %s" % table})
-        tasklist_completion.append({'role': 'assistant', 'content': "Research for Task Completion: %s" % memories})
-        tasklist_completion.append({'role': 'assistant', 'content': "COMPLETED TASK:\n%s" % task_completion})
-        tasklist_log.append({'role': 'user', 'content': "ASSIGNED TASK:\n%s\n\n" % line})
-        tasklist_log.append({'role': 'assistant', 'content': "COMPLETED TASK:\n%s\n\n" % memories})
-        print(line)
-        print(memories)
-        print(task_completion)
-    except Exception as e:
-        print(f"An error occurred: {str(e)}")
         
         
         

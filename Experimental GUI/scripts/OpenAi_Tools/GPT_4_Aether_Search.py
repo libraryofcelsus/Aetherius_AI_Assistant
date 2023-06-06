@@ -1324,7 +1324,7 @@ class ChatBotApplication(tk.Frame):
                 print('\nFINAL OUTPUT:\n%s' % response_two)
                 complete_message = f'\nUSER: {a}\n\nINNER_MONOLOGUE: {output_one}\n\nINTUITION: {output_two}\n\n{bot_name}: {tasklist_log}\n\nFINAL OUTPUT: {response_two}'
                 filename = '%s_chat.txt' % timestamp
-                save_file('logs/complete_chat_logs/%s' % filename, complete_message)
+                save_file(f'logs/{bot_name}/{username}/complete_chat_logs/%s' % filename, complete_message)
                 conversation.clear()
                 conversation2.clear()
                 tasklist_completion.clear()
@@ -1396,7 +1396,7 @@ class ChatBotApplication(tk.Frame):
                             unique_id = str(uuid4())
                             metadata = {'bot': bot_name, 'time': timestamp, 'message': db_upsert,
                                         'timestring': timestring, 'uuid': unique_id, "memory_type": "explicit_short_term"}
-                            save_json(f'nexus/{bot_name}/{username}/short_term_memory_nexus/%s.json' % unique_id, metadata)
+                            save_json(f'nexus/{bot_name}/{username}/explicit_short_term_memory_nexus/%s.json' % unique_id, metadata)
                             payload.append((unique_id, vector, {"memory_type": "explicit_short_term"}))
                             vdb.upsert(payload, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
                             payload.clear()

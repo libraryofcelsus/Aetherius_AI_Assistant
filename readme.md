@@ -233,7 +233,7 @@ Upload heuristics to DB and start chatting with Aetheius, bot name, heuristic ex
 26. Using the GPT 3.5 scripts causes a significant decrease in intelligence, and as such generally shouldn't be used for initial training.
 
 # Contact
-Discord: Celsus#0262
+Discord: libraryofcelsus      -> Old Username Style: Celsus#0262
 
 Email: email@libraryofcelsus.com
 

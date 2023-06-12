@@ -237,5 +237,7 @@ Upload heuristics to DB and start chatting with Aetheius, bot name, heuristic ex
 # Contact
 Discord: libraryofcelsus      -> Old Username Style: Celsus#0262
 
+MEGA Chat: https://mega.nz/C!pmNmEIZQ
+
 Email: email@libraryofcelsus.com
 

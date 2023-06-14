@@ -15,7 +15,7 @@ from basic_functions import *
 import multiprocessing
 import threading
 import concurrent.futures
-from gpt_4 import *
+from gpt_35 import *
 import customtkinter
 import tkinter as tk
 from tkinter import ttk, scrolledtext, simpledialog, font, messagebox
@@ -343,7 +343,7 @@ class ChatBotApplication(tk.Frame):
                 self.update_results(query)
 
             def search_task():
-                # Call the modified GPT_4_Tasklist_Web_Search function with the callback
+                # Call the modified GPT_3_5_Tasklist_Web_Search function with the callback
                 DB_Upload_Cadence(query)
 
             t = threading.Thread(target=search_task)
@@ -493,7 +493,7 @@ class ChatBotApplication(tk.Frame):
             os.remove(file_path)
             # Reload the script
             self.master.destroy()
-            GPT_4_Training()
+            GPT_3_5_Training()
         except FileNotFoundError:
             pass
 
@@ -513,12 +513,12 @@ class ChatBotApplication(tk.Frame):
     def process_message(self, a):
         self.conversation_text.insert(tk.END, f"\nYou: {a}\n\n")
         self.conversation_text.yview(tk.END)
-        # Here, we're calling your GPT_4_Training function in a separate thread
-        t = threading.Thread(target=self.GPT_4_Inner_Monologue, args=(a,))
+        # Here, we're calling your GPT_3_5_Training function in a separate thread
+        t = threading.Thread(target=self.GPT_3_5_Inner_Monologue, args=(a,))
         t.start()
 
 
-    def GPT_4_Inner_Monologue(self, a):
+    def GPT_3_5_Inner_Monologue(self, a):
         vdb = pinecone.Index("aetherius")
         # # Number of Messages before conversation is summarized, higher number, higher api cost. Change to 3 when using GPT 3.5 due to token usage.
         m = multiprocessing.Manager()
@@ -534,7 +534,7 @@ class ChatBotApplication(tk.Frame):
         counter = 0
         counter2 = 0
         mem_counter = 0
-        length_config = open_file('./config/Conversation_Length.txt')
+        length_config = 3
         conv_length = int(length_config)
         bot_name = open_file('./config/prompt_bot_name.txt')
         username = open_file('./config/prompt_username.txt')
@@ -640,12 +640,12 @@ class ChatBotApplication(tk.Frame):
                 ] + [
                     executor.submit(lambda: (
                         vdb.query(vector=vector_input, filter={
-            "memory_type": "episodic", "user": username}, top_k=7, namespace=f'{bot_name}'),
+            "memory_type": "episodic", "user": username}, top_k=5, namespace=f'{bot_name}'),
                         load_conversation_episodic_memory)
                     ),
                     executor.submit(lambda: (
                         vdb.query(vector=vector_input, filter={
-            "memory_type": "explicit_short_term"}, top_k=6, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}'),
+            "memory_type": "explicit_short_term"}, top_k=5, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}'),
                         load_conversation_explicit_short_term_memory)
                     ),
                     executor.submit(lambda: (
@@ -683,8 +683,8 @@ class ChatBotApplication(tk.Frame):
             # Update the GUI elements on the main thread
             self.master.after(0, self.update_inner_monologue, output_one)
 
-            # After the operations are complete, call the GPT_4_Intuition function in a separate thread
-            t = threading.Thread(target=self.GPT_4_Intuition, args=(a, vector_input, output_one, int_conversation))
+            # After the operations are complete, call the GPT_3_5_Intuition function in a separate thread
+            t = threading.Thread(target=self.GPT_3_5_Intuition, args=(a, vector_input, output_one, int_conversation))
             t.start()
             return
             
@@ -696,7 +696,7 @@ class ChatBotApplication(tk.Frame):
         
 
             
-    def GPT_4_Intuition(self, a, vector_input, output_one, int_conversation):
+    def GPT_3_5_Intuition(self, a, vector_input, output_one, int_conversation):
         vdb = pinecone.Index("aetherius")
         # # Number of Messages before conversation is summarized, higher number, higher api cost. Change to 3 when using GPT 3.5 due to token usage.
         m = multiprocessing.Manager()
@@ -711,7 +711,7 @@ class ChatBotApplication(tk.Frame):
         counter = 0
         counter2 = 0
         mem_counter = 0
-        length_config = open_file('./config/Conversation_Length.txt')
+        length_config = 3
         conv_length = int(length_config)
         bot_name = open_file('./config/prompt_bot_name.txt')
         username = open_file('./config/prompt_username.txt')
@@ -783,7 +783,7 @@ class ChatBotApplication(tk.Frame):
             # # Memory DB Search
             with concurrent.futures.ThreadPoolExecutor() as executor:
                 future1 = executor.submit(vdb.query, vector=vector_monologue, filter={
-            "memory_type": "episodic", "user": username}, top_k=7, namespace=f'{bot_name}')
+            "memory_type": "episodic", "user": username}, top_k=5, namespace=f'{bot_name}')
                 future2 = executor.submit(vdb.query, vector=vector_input, filter={
             "memory_type": "explicit_short_term"}, top_k=5, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
                 future3 = executor.submit(vdb.query, vector=vector_monologue, filter={
@@ -889,12 +889,12 @@ class ChatBotApplication(tk.Frame):
             self.conversation_text.insert(tk.END, f"Upload Memories?\n{inner_loop_response}\n\n")
             ask_upload_implicit_memories(inner_loop_response)
             # After the operations are complete, call the response generation function in a separate thread
-            t = threading.Thread(target=self.GPT_4_Response, args=(a, output_one, output_two))
+            t = threading.Thread(target=self.GPT_3_5_Response, args=(a, output_one, output_two))
             t.start()
             return   
                       
                 
-    def GPT_4_Response(self, a, output_one, output_two):
+    def GPT_3_5_Response(self, a, output_one, output_two):
         vdb = pinecone.Index("aetherius")
         # # Number of Messages before conversation is summarized, higher number, higher api cost. Change to 3 when using GPT 3.5 due to token usage.
         m = multiprocessing.Manager()
@@ -909,7 +909,7 @@ class ChatBotApplication(tk.Frame):
         counter = 0
         counter2 = 0
         mem_counter = 0
-        length_config = open_file('./config/Conversation_Length.txt')
+        length_config = 3
         conv_length = int(length_config)
         bot_name = open_file('./config/prompt_bot_name.txt')
         username = open_file('./config/prompt_username.txt')
@@ -997,9 +997,9 @@ class ChatBotApplication(tk.Frame):
             # # Memory DB Search
             with concurrent.futures.ThreadPoolExecutor() as executor:
                 future1 = executor.submit(vdb.query, vector=vector_monologue, filter={
-            "memory_type": "implicit_long_term", "user": username}, top_k=7, namespace=f'{bot_name}')
+            "memory_type": "implicit_long_term", "user": username}, top_k=4, namespace=f'{bot_name}')
                 future2 = executor.submit(vdb.query, vector=vector_input, filter={
-            "memory_type": "episodic", "user": username}, top_k=10, namespace=f'{bot_name}')
+            "memory_type": "episodic", "user": username}, top_k=4, namespace=f'{bot_name}')
                 future3 = executor.submit(vdb.query, vector=vector_monologue, filter={
             "memory_type": "flashbulb", "user": username}, top_k=2, namespace=f'{bot_name}')
                 db_search_8, db_search_10, db_search_11 = None, None, None
@@ -1124,7 +1124,7 @@ class ChatBotApplication(tk.Frame):
             self.conversation_text.insert(tk.END, f"Response: {response_two}\n\n")
             self.conversation_text.insert(tk.END, f"Upload Memories?\n{db_upload}\n\n")
             ask_upload_explicit_memories(db_upsert)
-            t = threading.Thread(target=self.GPT_4_Memories, args=(a, vector_input, vector_monologue, output_one, response_two))
+            t = threading.Thread(target=self.GPT_3_5_Memories, args=(a, vector_input, vector_monologue, output_one, response_two))
             t.start()
             self.conversation_text.yview(tk.END)
             self.user_input.delete(0, tk.END)
@@ -1137,7 +1137,7 @@ class ChatBotApplication(tk.Frame):
             return
             
             
-    def GPT_4_Memories(self, a, vector_input, vector_monologue, output_one, response_two):
+    def GPT_3_5_Memories(self, a, vector_input, vector_monologue, output_one, response_two):
         vdb = pinecone.Index("aetherius")
         # # Number of Messages before conversation is summarized, higher number, higher api cost. Change to 3 when using GPT 3.5 due to token usage.
         m = multiprocessing.Manager()
@@ -1151,7 +1151,7 @@ class ChatBotApplication(tk.Frame):
         counter = 0
         counter2 = 0
         mem_counter = 0
-        length_config = open_file('./config/Conversation_Length.txt')
+        length_config = 3
         conv_length = int(length_config)
         bot_name = open_file('./config/prompt_bot_name.txt')
         username = open_file('./config/prompt_username.txt')
@@ -1229,10 +1229,10 @@ class ChatBotApplication(tk.Frame):
             index_info = vdb.describe_index_stats()
             namespace_stats = index_info['namespaces']
             namespace_name = f'short_term_memory_User_{username}_Bot_{bot_name}'
-            if namespace_name in namespace_stats and namespace_stats[namespace_name]['vector_count'] > 40:
+            if namespace_name in namespace_stats and namespace_stats[namespace_name]['vector_count'] > 30:
                 consolidation.clear()
                 print(f"{namespace_name} has 30 or more entries, starting memory consolidation.")
-                results = vdb.query(vector=vector_input, filter={"memory_type": "explicit_short_term"}, top_k=30, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
+                results = vdb.query(vector=vector_input, filter={"memory_type": "explicit_short_term"}, top_k=25, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
                 memory_consol_db = load_conversation_explicit_short_term_memory(results)
                 print(memory_consol_db)
                 consolidation.append({'role': 'system', 'content': "%s" % main_prompt})
@@ -1264,7 +1264,7 @@ class ChatBotApplication(tk.Frame):
                 if namespace_name in namespace_stats and namespace_stats[namespace_name]['vector_count'] % 2 == 0:
                     consolidation.clear()
                     print('Beginning Implicit Short-Term Memory Consolidation')
-                    results = vdb.query(vector=vector_input, filter={"memory_type": "implicit_short_term"}, top_k=30, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
+                    results = vdb.query(vector=vector_input, filter={"memory_type": "implicit_short_term"}, top_k=25, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
                     memory_consol_db2 = load_conversation_implicit_short_term_memory(results)
                     print(memory_consol_db2)
                     consolidation.append({'role': 'system', 'content': "%s" % main_prompt})
@@ -1529,7 +1529,7 @@ def ask_upload_explicit_memories(memories):
         
         
         
-def GPT_4_Training():
+def GPT_3_5_Training():
     set_dark_ancient_theme()
     root = tk.Tk()
     app = ChatBotApplication(root)

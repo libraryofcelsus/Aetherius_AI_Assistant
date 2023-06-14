@@ -15,10 +15,10 @@ from basic_functions import *
 import multiprocessing
 import threading
 import concurrent.futures
-from gpt_4 import *
+from gpt_35 import *
 import customtkinter
 import tkinter as tk
-from tkinter import ttk, scrolledtext, simpledialog, font, messagebox
+from tkinter import ttk, scrolledtext, simpledialog, font
 # import speech_recognition as sr
 # from gtts import gTTS
 # from playsound import playsound
@@ -166,6 +166,7 @@ class ChatBotApplication(tk.Frame):
             self.conversation_text.delete("1.0", tk.END)
             self.display_conversation_history()
         pass
+       
         
         
     def Edit_Main_Prompt(self):
@@ -319,6 +320,12 @@ class ChatBotApplication(tk.Frame):
         save_button.pack()
         
         
+    def update_results(self, text_widget, search_results):
+        self.after(0, text_widget.delete, "1.0", tk.END)
+        self.after(0, text_widget.insert, tk.END, search_results)
+        
+        
+        
     def open_cadence_window(self):
         cadence_window = tk.Toplevel(self)
         cadence_window.title("Cadence DB Upload")
@@ -329,7 +336,7 @@ class ChatBotApplication(tk.Frame):
         query_entry = tk.Entry(cadence_window)
         query_entry.pack()
 
-        results_label = tk.Label(cadence_window, text="Scrape results: (Not Working Yet, Results in Terminal)")
+        results_label = tk.Label(cadence_window, text="Scrape results: ")
         results_label.pack()
 
         results_text = tk.Text(cadence_window)
@@ -340,11 +347,13 @@ class ChatBotApplication(tk.Frame):
 
             def update_results():
                 # Update the GUI with the new paragraph
-                self.update_results(query)
+                self.results_text.insert(tk.END, f"{query}\n\n")
+                self.results_text.yview(tk.END)
 
             def search_task():
-                # Call the modified GPT_4_Tasklist_Web_Search function with the callback
-                DB_Upload_Cadence(query)
+                # Call the modified GPT_3_5_Tasklist_Web_Search function with the callback
+                search_results = DB_Upload_Cadence(query)
+                self.update_results(results_text, search_results)
 
             t = threading.Thread(target=search_task)
             t.start()
@@ -387,6 +396,46 @@ class ChatBotApplication(tk.Frame):
 
         search_button = tk.Button(heuristics_window, text="Upload", command=perform_search)
         search_button.pack()
+        
+        
+    def open_heuristics_window(self):
+        heuristics_window = tk.Toplevel(self)
+        heuristics_window.title("Heuristics DB Upload")
+
+        query_label = tk.Label(heuristics_window, text="Enter Heuristics:")
+        query_label.pack()
+
+        query_entry = tk.Entry(heuristics_window)
+        query_entry.pack()
+
+        results_label = tk.Label(heuristics_window, text="Entered Heuristics: ")
+        results_label.pack()
+
+        results_text = tk.Text(heuristics_window)
+        results_text.pack()
+
+        def perform_search():
+            query = query_entry.get()
+
+            def update_results(query):
+                # Update the GUI with the new paragraph
+                results_text.insert(tk.END, f"{query}\n\n")
+                results_text.yview(tk.END)
+
+            def search_task():
+                # Call the modified GPT_3_5_Tasklist_Web_Search function with the callback
+                search_results = DB_Upload_Heuristics(query)
+
+                # Use the `after` method to schedule the `update_results` function on the main Tkinter thread
+                heuristics_window.after(0, update_results, search_results)
+
+            t = threading.Thread(target=search_task)
+            t.start()
+
+        search_button = tk.Button(heuristics_window, text="Upload", command=perform_search)
+        search_button.pack()
+        
+        
     
         
     def handle_menu_selection(self, event):
@@ -493,7 +542,7 @@ class ChatBotApplication(tk.Frame):
             os.remove(file_path)
             # Reload the script
             self.master.destroy()
-            GPT_4_Training()
+            GPT_3_5_Auto()
         except FileNotFoundError:
             pass
 
@@ -513,12 +562,12 @@ class ChatBotApplication(tk.Frame):
     def process_message(self, a):
         self.conversation_text.insert(tk.END, f"\nYou: {a}\n\n")
         self.conversation_text.yview(tk.END)
-        # Here, we're calling your GPT_4_Training function in a separate thread
-        t = threading.Thread(target=self.GPT_4_Inner_Monologue, args=(a,))
+        # Here, we're calling your GPT_3_5_Training function in a separate thread
+        t = threading.Thread(target=self.GPT_3_5_Inner_Monologue, args=(a,))
         t.start()
 
 
-    def GPT_4_Inner_Monologue(self, a):
+    def GPT_3_5_Inner_Monologue(self, a):
         vdb = pinecone.Index("aetherius")
         # # Number of Messages before conversation is summarized, higher number, higher api cost. Change to 3 when using GPT 3.5 due to token usage.
         m = multiprocessing.Manager()
@@ -534,7 +583,7 @@ class ChatBotApplication(tk.Frame):
         counter = 0
         counter2 = 0
         mem_counter = 0
-        length_config = open_file('./config/Conversation_Length.txt')
+        length_config = 3
         conv_length = int(length_config)
         bot_name = open_file('./config/prompt_bot_name.txt')
         username = open_file('./config/prompt_username.txt')
@@ -640,12 +689,12 @@ class ChatBotApplication(tk.Frame):
                 ] + [
                     executor.submit(lambda: (
                         vdb.query(vector=vector_input, filter={
-            "memory_type": "episodic", "user": username}, top_k=7, namespace=f'{bot_name}'),
+            "memory_type": "episodic", "user": username}, top_k=5, namespace=f'{bot_name}'),
                         load_conversation_episodic_memory)
                     ),
                     executor.submit(lambda: (
                         vdb.query(vector=vector_input, filter={
-            "memory_type": "explicit_short_term"}, top_k=6, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}'),
+            "memory_type": "explicit_short_term"}, top_k=5, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}'),
                         load_conversation_explicit_short_term_memory)
                     ),
                     executor.submit(lambda: (
@@ -683,8 +732,8 @@ class ChatBotApplication(tk.Frame):
             # Update the GUI elements on the main thread
             self.master.after(0, self.update_inner_monologue, output_one)
 
-            # After the operations are complete, call the GPT_4_Intuition function in a separate thread
-            t = threading.Thread(target=self.GPT_4_Intuition, args=(a, vector_input, output_one, int_conversation))
+            # After the operations are complete, call the GPT_3_5_Intuition function in a separate thread
+            t = threading.Thread(target=self.GPT_3_5_Intuition, args=(a, vector_input, output_one, int_conversation))
             t.start()
             return
             
@@ -692,11 +741,9 @@ class ChatBotApplication(tk.Frame):
     def update_inner_monologue(self, output_one):
         self.conversation_text.insert(tk.END, f"Inner Monologue: {output_one}\n\n")
         self.conversation_text.yview(tk.END)
-        
-        
 
             
-    def GPT_4_Intuition(self, a, vector_input, output_one, int_conversation):
+    def GPT_3_5_Intuition(self, a, vector_input, output_one, int_conversation):
         vdb = pinecone.Index("aetherius")
         # # Number of Messages before conversation is summarized, higher number, higher api cost. Change to 3 when using GPT 3.5 due to token usage.
         m = multiprocessing.Manager()
@@ -783,7 +830,7 @@ class ChatBotApplication(tk.Frame):
             # # Memory DB Search
             with concurrent.futures.ThreadPoolExecutor() as executor:
                 future1 = executor.submit(vdb.query, vector=vector_monologue, filter={
-            "memory_type": "episodic", "user": username}, top_k=7, namespace=f'{bot_name}')
+            "memory_type": "episodic", "user": username}, top_k=5, namespace=f'{bot_name}')
                 future2 = executor.submit(vdb.query, vector=vector_input, filter={
             "memory_type": "explicit_short_term"}, top_k=5, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
                 future3 = executor.submit(vdb.query, vector=vector_monologue, filter={
@@ -820,7 +867,6 @@ class ChatBotApplication(tk.Frame):
             inner_loop_db = inner_loop_response
             vector = gpt3_embedding(inner_loop_db)
             conversation.clear()
-    #        ask_upload_implicit_memories(inner_loop_db)
    #         # # Manual Implicit Short-Term Memory
    #         print('\n\n<Implicit Short-Term Memory>\n%s' % inner_loop_db)
    #         print('\n\nSYSTEM: Upload to Implicit Short-Term Memory?\n        Press Y for yes or N for no.')
@@ -845,56 +891,60 @@ class ChatBotApplication(tk.Frame):
    #                 break
    #             else:
    #                 print('Invalid Input')
-   #         # # Auto Implicit Short-Term Memory DB Upload Confirmation
-   #         auto_count = 0
-   #         auto.clear()
-   #         auto.append({'role': 'system', 'content': '%s' % main_prompt})
-   #         auto.append({'role': 'user', 'content': "You are a sub-module designed to reflect on your thought process. You are only able to respond with integers on a scale of 1-10, being incapable of printing letters. Respond with: 1 if you understand. Respond with: 2 if you do not."})
-   #         auto.append({'role': 'assistant', 'content': "1"})
-   #         auto.append({'role': 'user', 'content': a})
-   #         auto.append({'role': 'assistant', 'content': "Inner Monologue: %s\nIntuition: %s" % (output_one, output_two)})
-   #         auto.append({'role': 'assistant', 'content': "Thoughts on input: I will now review the user's message and my reply, rating if whether my thoughts are both pertinent to the user's inquiry and my growth with a number on a scale of 1-10. I will now give my response in digit form for an integer only input: "})
-   #         auto_int = None
-   #         while auto_int is None:
-   #             automemory = chatgptyesno_completion(auto)
-   #             print(automemory)
-   #             if is_integer(automemory):
-   #                 auto_int = int(automemory)
-   #                 if auto_int > 6:
-   #                     lines = inner_loop_db.splitlines()
-   #                     for line in lines:
-   #                         vector = gpt3_embedding(inner_loop_db)
-   #                         unique_id = str(uuid4())
-   #                         metadata = {'bot': bot_name, 'time': timestamp, 'message': inner_loop_db,
-   #                                     'timestring': timestring, 'uuid': unique_id, "memory_type": "implicit_short_term"}
-   #                         save_json(f'nexus/{bot_name}/{username}/implicit_short_term_memory_nexus/%s.json' % unique_id, metadata)
-   #                         payload.append((unique_id, vector, {"memory_type": "implicit_short_term"}))
-   #                         vdb.upsert(payload, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
-   #                         payload.clear()
-   #                     print('\n\nSYSTEM: Auto-memory upload Successful!')
-   #                     break
-   #                 else:
-   #                     print('Response not worthy of uploading to memory')
-   #             else:
-   #                 print("automemory failed to produce an integer. Retrying...")
-   #                 auto_int = None
-   #                 auto_count += 1
-   #                 if auto_count > 2:
-   #                     print('Auto Memory Failed')
-   #                     break
-   #         else:
-   #             pass   
+            # # Auto Implicit Short-Term Memory DB Upload Confirmation
+            auto_count = 0
+            auto.clear()
+            auto.append({'role': 'system', 'content': '%s' % main_prompt})
+            auto.append({'role': 'user', 'content': "You are a sub-module designed to reflect on your thought process. You are only able to respond with integers on a scale of 1-10, being incapable of printing letters. Respond with: 1 if you understand. Respond with: 2 if you do not."})
+            auto.append({'role': 'assistant', 'content': "1"})
+            auto.append({'role': 'user', 'content': a})
+            auto.append({'role': 'assistant', 'content': "Inner Monologue: %s\nIntuition: %s" % (output_one, output_two)})
+            auto.append({'role': 'assistant', 'content': "Thoughts on input: I will now review the user's message and my reply, rating if whether my thoughts are both pertinent to the user's inquiry and my growth with a number on a scale of 1-10. I will now give my response in digit form for an integer only input: "})
+            auto_int = None
+            while auto_int is None:
+                automemory = chatgptyesno_completion(auto)
+                print(automemory)
+                if is_integer(automemory):
+                    auto_int = int(automemory)
+                    if auto_int > 6:
+                        lines = inner_loop_db.splitlines()
+                        for line in lines:
+                            vector = gpt3_embedding(inner_loop_db)
+                            unique_id = str(uuid4())
+                            metadata = {'bot': bot_name, 'time': timestamp, 'message': inner_loop_db,
+                                        'timestring': timestring, 'uuid': unique_id, "memory_type": "implicit_short_term"}
+                            save_json(f'nexus/{bot_name}/{username}/implicit_short_term_memory_nexus/%s.json' % unique_id, metadata)
+                            payload.append((unique_id, vector, {"memory_type": "implicit_short_term"}))
+                            vdb.upsert(payload, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
+                            payload.clear()
+                        print('\n\nSYSTEM: Auto-memory upload Successful!')
+                        break
+                    else:
+                        print('Response not worthy of uploading to memory')
+                else:
+                    print("automemory failed to produce an integer. Retrying...")
+                    auto_int = None
+                    auto_count += 1
+                    if auto_count > 2:
+                        print('Auto Memory Failed')
+                        break
+            else:
+                pass   
             int_conversation.clear()
-            self.conversation_text.insert(tk.END, f"Intuition: {output_two}\n\n")
-            self.conversation_text.insert(tk.END, f"Upload Memories?\n{inner_loop_response}\n\n")
-            ask_upload_implicit_memories(inner_loop_response)
+            self.master.after(0, self.update_intuition, output_two)
+
             # After the operations are complete, call the response generation function in a separate thread
-            t = threading.Thread(target=self.GPT_4_Response, args=(a, output_one, output_two))
+            t = threading.Thread(target=self.GPT_3_5_Response, args=(a, output_one, output_two))
             t.start()
             return   
-                      
                 
-    def GPT_4_Response(self, a, output_one, output_two):
+                
+    def update_intuition(self, output_two):
+        self.conversation_text.insert(tk.END, f"Intuition: {output_two}\n\n")
+        self.conversation_text.yview(tk.END)
+                
+                
+    def GPT_3_5_Response(self, a, output_one, output_two):
         vdb = pinecone.Index("aetherius")
         # # Number of Messages before conversation is summarized, higher number, higher api cost. Change to 3 when using GPT 3.5 due to token usage.
         m = multiprocessing.Manager()
@@ -909,7 +959,7 @@ class ChatBotApplication(tk.Frame):
         counter = 0
         counter2 = 0
         mem_counter = 0
-        length_config = open_file('./config/Conversation_Length.txt')
+        length_config = 3
         conv_length = int(length_config)
         bot_name = open_file('./config/prompt_bot_name.txt')
         username = open_file('./config/prompt_username.txt')
@@ -919,7 +969,6 @@ class ChatBotApplication(tk.Frame):
         main_conversation = MainConversation(conv_length, main_prompt, greeting_msg)
     #   r = sr.Recognizer()
         while True:
-        
             conversation_history = main_conversation.get_conversation_history()
             # # Get Timestamp
             vdb = timeout_check()
@@ -997,9 +1046,9 @@ class ChatBotApplication(tk.Frame):
             # # Memory DB Search
             with concurrent.futures.ThreadPoolExecutor() as executor:
                 future1 = executor.submit(vdb.query, vector=vector_monologue, filter={
-            "memory_type": "implicit_long_term", "user": username}, top_k=7, namespace=f'{bot_name}')
+            "memory_type": "implicit_long_term", "user": username}, top_k=4, namespace=f'{bot_name}')
                 future2 = executor.submit(vdb.query, vector=vector_input, filter={
-            "memory_type": "episodic", "user": username}, top_k=10, namespace=f'{bot_name}')
+            "memory_type": "episodic", "user": username}, top_k=4, namespace=f'{bot_name}')
                 future3 = executor.submit(vdb.query, vector=vector_monologue, filter={
             "memory_type": "flashbulb", "user": username}, top_k=2, namespace=f'{bot_name}')
                 db_search_8, db_search_10, db_search_11 = None, None, None
@@ -1054,7 +1103,6 @@ class ChatBotApplication(tk.Frame):
             db_upload = chatgptsummary_completion(summary)
             print(db_upload)
             db_upsert = db_upload
-    #        ask_upload_explicit_memories(db_upsert)
     #        # # Manual Short-Term Memory DB Upload Confirmation
     #        print('\n\n<DATABASE INFO>\n%s' % db_upsert)
     #        print('\n\nSYSTEM: Upload to short term memory? \n        Press Y for yes or N for no.')
@@ -1080,51 +1128,49 @@ class ChatBotApplication(tk.Frame):
     #            else:
     #                print('Invalid Input')
             # # Auto Explicit Short-Term Memory DB Upload Confirmation
-    #        auto_count = 0    
-    #        auto.clear()
-    #        auto.append({'role': 'system', 'content': '%s' % main_prompt})
-    #        auto.append({'role': 'user', 'content': "You are a sub-module designed to reflect on your thought process. You are only able to respond with integers on a scale of 1-10, being incapable of printing letters. Respond with: 1 if you understand. Respond with: 2 if you do not."})
-    #        auto.append({'role': 'assistant', 'content': "1"})
-    #        auto.append({'role': 'user', 'content': a})
-    #        auto.append({'role': 'assistant', 'content': f"Inner Monologue: %s\nIntuition: {output_one}\nResponse: {output_two}"})
-    #        auto.append({'role': 'assistant', 'content': "Thoughts on input: I will now review the user's message and my reply, rating if whether my thoughts are both pertinent to the user's inquiry and my growth with a number on a scale of 1-10. I will now give my response in digit form for an integer only input: "})
-    #        auto_int = None
-    #        while auto_int is None:
-    #            automemory = chatgptyesno_completion(auto)
-    #            if is_integer(automemory):
-    #                auto_int = int(automemory)
-    #                print(auto_int)
-    #                if auto_int > 6:
-    #                    lines = db_upsert.splitlines()
-    #                    for line in lines:
-    #                        vector = gpt3_embedding(db_upsert)
-    #                        unique_id = str(uuid4())
-    #                        metadata = {'bot': bot_name, 'time': timestamp, 'message': db_upsert,
-    #                                    'timestring': timestring, 'uuid': unique_id, "memory_type": "explicit_short_term"}
-    #                        save_json(f'nexus/{bot_name}/{username}/explicit_short_term_memory_nexus/%s.json' % unique_id, metadata)
-    #                        payload.append((unique_id, vector, {"memory_type": "explicit_short_term"}))
-    #                        vdb.upsert(payload, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
-    #                        payload.clear()
-    #                    print('\n\nSYSTEM: Auto-memory upload Successful!')
-    #                    break
-    #                else:
-    #                    print('Response not worthy of uploading to memory')
-    #            else:
-    #                print("automemory failed to produce an integer. Retrying...")
-    #                auto_int = None
-    #                auto_count += 1
-    #                if auto_count > 2:
-    #                    print('Auto Memory Failed')
-    #                    break
-    #        else:
-    #            pass
+            auto_count = 0    
+            auto.clear()
+            auto.append({'role': 'system', 'content': '%s' % main_prompt})
+            auto.append({'role': 'user', 'content': "You are a sub-module designed to reflect on your thought process. You are only able to respond with integers on a scale of 1-10, being incapable of printing letters. Respond with: 1 if you understand. Respond with: 2 if you do not."})
+            auto.append({'role': 'assistant', 'content': "1"})
+            auto.append({'role': 'user', 'content': a})
+            auto.append({'role': 'assistant', 'content': f"Inner Monologue: %s\nIntuition: {output_one}\nResponse: {output_two}"})
+            auto.append({'role': 'assistant', 'content': "Thoughts on input: I will now review the user's message and my reply, rating if whether my thoughts are both pertinent to the user's inquiry and my growth with a number on a scale of 1-10. I will now give my response in digit form for an integer only input: "})
+            auto_int = None
+            while auto_int is None:
+                automemory = chatgptyesno_completion(auto)
+                if is_integer(automemory):
+                    auto_int = int(automemory)
+                    print(auto_int)
+                    if auto_int > 6:
+                        lines = db_upsert.splitlines()
+                        for line in lines:
+                            vector = gpt3_embedding(db_upsert)
+                            unique_id = str(uuid4())
+                            metadata = {'bot': bot_name, 'time': timestamp, 'message': db_upsert,
+                                        'timestring': timestring, 'uuid': unique_id, "memory_type": "explicit_short_term"}
+                            save_json(f'nexus/{bot_name}/{username}/explicit_short_term_memory_nexus/%s.json' % unique_id, metadata)
+                            payload.append((unique_id, vector, {"memory_type": "explicit_short_term"}))
+                            vdb.upsert(payload, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
+                            payload.clear()
+                        print('\n\nSYSTEM: Auto-memory upload Successful!')
+                        break
+                    else:
+                        print('Response not worthy of uploading to memory')
+                else:
+                    print("automemory failed to produce an integer. Retrying...")
+                    auto_int = None
+                    auto_count += 1
+                    if auto_count > 2:
+                        print('Auto Memory Failed')
+                        break
+            else:
+                pass
             # # Clear Logs for Summary
             conversation.clear()
             summary.clear()
             self.conversation_text.insert(tk.END, f"Response: {response_two}\n\n")
-            self.conversation_text.insert(tk.END, f"Upload Memories?\n{db_upload}\n\n")
-            ask_upload_explicit_memories(db_upsert)
-            t = threading.Thread(target=self.GPT_4_Memories, args=(a, vector_input, vector_monologue, output_one, response_two))
+            t = threading.Thread(target=self.GPT_3_5_Memories, args=(a, vector_input, vector_monologue, output_one, response_two))
             t.start()
             self.conversation_text.yview(tk.END)
             self.user_input.delete(0, tk.END)
@@ -1137,7 +1183,7 @@ class ChatBotApplication(tk.Frame):
             return
             
             
-    def GPT_4_Memories(self, a, vector_input, vector_monologue, output_one, response_two):
+    def GPT_3_5_Memories(self, a, vector_input, vector_monologue, output_one, response_two):
         vdb = pinecone.Index("aetherius")
         # # Number of Messages before conversation is summarized, higher number, higher api cost. Change to 3 when using GPT 3.5 due to token usage.
         m = multiprocessing.Manager()
@@ -1151,7 +1197,7 @@ class ChatBotApplication(tk.Frame):
         counter = 0
         counter2 = 0
         mem_counter = 0
-        length_config = open_file('./config/Conversation_Length.txt')
+        length_config = 3
         conv_length = int(length_config)
         bot_name = open_file('./config/prompt_bot_name.txt')
         username = open_file('./config/prompt_username.txt')
@@ -1229,10 +1275,10 @@ class ChatBotApplication(tk.Frame):
             index_info = vdb.describe_index_stats()
             namespace_stats = index_info['namespaces']
             namespace_name = f'short_term_memory_User_{username}_Bot_{bot_name}'
-            if namespace_name in namespace_stats and namespace_stats[namespace_name]['vector_count'] > 40:
+            if namespace_name in namespace_stats and namespace_stats[namespace_name]['vector_count'] > 30:
                 consolidation.clear()
                 print(f"{namespace_name} has 30 or more entries, starting memory consolidation.")
-                results = vdb.query(vector=vector_input, filter={"memory_type": "explicit_short_term"}, top_k=30, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
+                results = vdb.query(vector=vector_input, filter={"memory_type": "explicit_short_term"}, top_k=25, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
                 memory_consol_db = load_conversation_explicit_short_term_memory(results)
                 print(memory_consol_db)
                 consolidation.append({'role': 'system', 'content': "%s" % main_prompt})
@@ -1264,7 +1310,7 @@ class ChatBotApplication(tk.Frame):
                 if namespace_name in namespace_stats and namespace_stats[namespace_name]['vector_count'] % 2 == 0:
                     consolidation.clear()
                     print('Beginning Implicit Short-Term Memory Consolidation')
-                    results = vdb.query(vector=vector_input, filter={"memory_type": "implicit_short_term"}, top_k=30, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
+                    results = vdb.query(vector=vector_input, filter={"memory_type": "implicit_short_term"}, top_k=25, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
                     memory_consol_db2 = load_conversation_implicit_short_term_memory(results)
                     print(memory_consol_db2)
                     consolidation.append({'role': 'system', 'content': "%s" % main_prompt})
@@ -1470,66 +1516,9 @@ def DB_Upload_Heuristics(query):
         vdb.upsert(payload, namespace=f'{bot_name}')
         print('\n\nSYSTEM: Upload Successful!')
         return query
-     
-
-def ask_upload_implicit_memories(memories):
-    vdb = pinecone.Index("aetherius")
-    index_info = vdb.describe_index_stats()
-    username = open_file('./config/prompt_username.txt')
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    timestamp = time()
-    timestring = timestamp_to_datetime(timestamp)
-    payload = list()
-    result = messagebox.askyesno("Upload Memories", "Do you want to upload memories?")
-    if result:
-        # User clicked "Yes"
-        lines = memories.splitlines()
-        for line in lines:
-            if line.strip():
-                vector = gpt3_embedding(line)  # Assuming you have the gpt3_embedding function defined
-                unique_id = str(uuid4())
-                metadata = {'bot': bot_name, 'time': timestamp, 'message': line, 'timestring': timestring,
-                            'uuid': unique_id, "memory_type": "implicit_short_term"}
-                save_json(f'nexus/{bot_name}/{username}/implicit_short_term_memory_nexus/%s.json' % unique_id, metadata)
-                payload.append((unique_id, vector, {"memory_type": "implicit_short_term"}))
-                vdb.upsert(payload, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
-                payload.clear()
-        print('\n\nSYSTEM: Upload Successful!')
-    else:
-        # User clicked "No"
-        print('\n\nSYSTEM: Memories have been Deleted.')
-     
-        
-def ask_upload_explicit_memories(memories):
-    vdb = pinecone.Index("aetherius")
-    index_info = vdb.describe_index_stats()
-    username = open_file('./config/prompt_username.txt')
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    timestamp = time()
-    timestring = timestamp_to_datetime(timestamp)
-    payload = list()
-    result = messagebox.askyesno("Upload Memories", "Do you want to upload memories?")
-    if result:
-        # User clicked "Yes"
-        lines = memories.splitlines()
-        for line in lines:
-            if line.strip():
-                vector = gpt3_embedding(line)  # Assuming you have the gpt3_embedding function defined
-                unique_id = str(uuid4())
-                metadata = {'bot': bot_name, 'time': timestamp, 'message': line, 'timestring': timestring,
-                            'uuid': unique_id, "memory_type": "explicit_short_term"}
-                save_json(f'nexus/{bot_name}/{username}/explicit_short_term_memory_nexus/%s.json' % unique_id, metadata)
-                payload.append((unique_id, vector, {"memory_type": "explicit_short_term"}))
-                vdb.upsert(payload, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
-                payload.clear()
-        print('\n\nSYSTEM: Upload Successful!')
-    else:
-        # User clicked "No"
-        print('\n\nSYSTEM: Memories have been Deleted.')
         
         
-        
-def GPT_4_Training():
+def GPT_3_5_Auto():
     set_dark_ancient_theme()
     root = tk.Tk()
     app = ChatBotApplication(root)

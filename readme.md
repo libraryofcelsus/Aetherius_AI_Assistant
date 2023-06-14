@@ -3,6 +3,8 @@ Version .041a of Aetherius Personal Assistant by LibraryofCelsus.com
 
 **Experimental Folder Changelog**
 
+-Added GPT 3.5 Turbo 16k to Experimental GUI.
+
 -Added Text Extractor to Experimental GUI.
 
 -Added Experimental GUI.  To use, rename the scripts folder and then copy the "Experimental GUI" folder's contents into the main Aetherius folder.

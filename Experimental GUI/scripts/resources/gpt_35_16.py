@@ -31,12 +31,12 @@ def gpt3_embedding(content, engine='text-embedding-ada-002'):
             sleep(2 ** (retry - 1) * 5)
     
     
-def chatgpt200_completion(messages, model="gpt-3.5-turbo", temp=0.2):
+def chatgpt200_completion(messages, model="gpt-3.5-turbo-16k", temp=0.2):
     max_retry = 7
     retry = 0
     while  True:
         try:
-            response = openai.ChatCompletion.create(model=model, messages=messages, max_tokens=200)
+            response = openai.ChatCompletion.create(model=model, messages=messages, max_tokens=300)
             text = response['choices'][0]['message']['content']
             temperature = temp
             return text
@@ -49,12 +49,12 @@ def chatgpt200_completion(messages, model="gpt-3.5-turbo", temp=0.2):
             sleep(2 ** (retry - 1) * 5)
             
             
-def chatgpt250_completion(messages, model="gpt-3.5-turbo", temp=0.45):
+def chatgpt250_completion(messages, model="gpt-3.5-turbo-16k", temp=0.45):
     max_retry = 7
     retry = 0
     while True:
         try:
-            response = openai.ChatCompletion.create(model=model, messages=messages, max_tokens=250)
+            response = openai.ChatCompletion.create(model=model, messages=messages, max_tokens=400)
             text = response['choices'][0]['message']['content']
             temperature = temp
             return text
@@ -67,7 +67,7 @@ def chatgpt250_completion(messages, model="gpt-3.5-turbo", temp=0.45):
             sleep(2 ** (retry - 1) * 5)
             
             
-def chatgpt_tasklist_completion(messages, model="gpt-3.5-turbo", temp=0.3):
+def chatgpt_tasklist_completion(messages, model="gpt-3.5-turbo-16k", temp=0.3):
     max_retry = 7
     retry = 0
     while True:
@@ -79,7 +79,7 @@ def chatgpt_tasklist_completion(messages, model="gpt-3.5-turbo", temp=0.3):
         except Exception as oops:
             while True:
                 try:
-                    response = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=messages, max_tokens=500)
+                    response = openai.ChatCompletion.create(model="gpt-3.5-turbo-16k", messages=messages, max_tokens=1000)
                     text = response['choices'][0]['message']['content']
                     temperature = temp
                     return text
@@ -93,7 +93,7 @@ def chatgpt_tasklist_completion(messages, model="gpt-3.5-turbo", temp=0.3):
                     
             
                 
-def chatgptyesno_completion(messages, model="gpt-3.5-turbo", temp=0.0):
+def chatgptyesno_completion(messages, model="gpt-3.5-turbo-16k", temp=0.0):
     max_retry = 7
     retry = 0
     while True:
@@ -115,7 +115,7 @@ def chatgptyesno_completion(messages, model="gpt-3.5-turbo", temp=0.0):
             sleep(2 ** (retry - 1) * 5)
             
             
-def chatgptselector_completion(messages, model="gpt-3.5-turbo", temp=0.1):
+def chatgptselector_completion(messages, model="gpt-3.5-turbo-16k", temp=0.1):
     max_retry = 7
     retry = 0
     m = multiprocessing.Manager()
@@ -133,7 +133,7 @@ def chatgptselector_completion(messages, model="gpt-3.5-turbo", temp=0.1):
         except Exception as oops:
             while True:
                 try:
-                    response = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=messages, max_tokens=4)
+                    response = openai.ChatCompletion.create(model="gpt-3.5-turbo-16k", messages=messages, max_tokens=4)
                     text = response['choices'][0]['message']['content']
                     temperature = temp
                     return text
@@ -147,12 +147,12 @@ def chatgptselector_completion(messages, model="gpt-3.5-turbo", temp=0.1):
             
                     
                     
-def chatgptresponse_completion(messages, model="gpt-3.5-turbo", temp=0.5):
+def chatgptresponse_completion(messages, model="gpt-3.5-turbo-16k", temp=0.5):
     max_retry = 7
     retry = 0
     while True:
         try:
-            response = openai.ChatCompletion.create(model=model, messages=messages, max_tokens=500)
+            response = openai.ChatCompletion.create(model=model, messages=messages, max_tokens=1000)
             text = response['choices'][0]['message']['content']
             temperature = temp
             return text
@@ -165,12 +165,12 @@ def chatgptresponse_completion(messages, model="gpt-3.5-turbo", temp=0.5):
             sleep(2 ** (retry - 1) * 5)
    
                     
-def chatgptsummary_completion(messages, model="gpt-3.5-turbo", temp=0.1):
+def chatgptsummary_completion(messages, model="gpt-3.5-turbo-16k", temp=0.1):
     max_retry = 5
     retry = 0
     while True:
         try:
-            response = openai.ChatCompletion.create(model=model, messages=messages, max_tokens=500)
+            response = openai.ChatCompletion.create(model=model, messages=messages, max_tokens=1000)
             text = response['choices'][0]['message']['content']
             temperature = temp
             return text
@@ -183,7 +183,7 @@ def chatgptsummary_completion(messages, model="gpt-3.5-turbo", temp=0.1):
             sleep(2 ** (retry - 1) * 5)
             
             
-def chatgptauto_completion(messages, model="gpt-3.5-turbo", temp=0.35):
+def chatgptauto_completion(messages, model="gpt-3.5-turbo-16k", temp=0.35):
     max_retry = 7
     retry = 0
     while  True:
@@ -201,12 +201,12 @@ def chatgptauto_completion(messages, model="gpt-3.5-turbo", temp=0.35):
             sleep(2 ** (retry - 1) * 5) 
             
             
-def chatgptconsolidation_completion(messages, model="gpt-3.5-turbo", temp=0.1):
+def chatgptconsolidation_completion(messages, model="gpt-3.5-turbo-16k", temp=0.1):
     max_retry = 5
     retry = 0
     while True:
         try:
-            response = openai.ChatCompletion.create(model=model, messages=messages, max_tokens=500)
+            response = openai.ChatCompletion.create(model=model, messages=messages, max_tokens=1000)
             text = response['choices'][0]['message']['content']
             temperature = temp
             return text

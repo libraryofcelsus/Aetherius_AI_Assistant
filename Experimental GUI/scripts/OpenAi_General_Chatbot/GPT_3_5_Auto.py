@@ -362,41 +362,6 @@ class ChatBotApplication(tk.Frame):
         search_button.pack()
         
         
-    def open_heuristics_window(self):
-        heuristics_window = tk.Toplevel(self)
-        heuristics_window.title("Heuristics DB Upload")
-
-        query_label = tk.Label(heuristics_window, text="Enter Heuristic:")
-        query_label.pack()
-
-        query_entry = tk.Entry(heuristics_window)
-        query_entry.pack()
-
-        results_label = tk.Label(heuristics_window, text="Entered Heuristics: ")
-        results_label.pack()
-
-        results_text = tk.Text(heuristics_window)
-        results_text.pack()
-
-        def perform_search():
-            query = query_entry.get()
-
-            def update_results(results):
-                # Update the GUI with the new paragraph
-                self.results_text.insert(tk.END, f"{query}\n\n{search_results}")
-                self.results_text.yview(tk.END)
-
-            def search_task():
-                # Call the modified DB_Upload_Heuristics function with the callback
-                search_results = DB_Upload_Heuristics(query)
-                self.update_results(query, search_results)
-
-            t = threading.Thread(target=search_task)
-            t.start()
-
-        search_button = tk.Button(heuristics_window, text="Upload", command=perform_search)
-        search_button.pack()
-        
         
     def open_heuristics_window(self):
         heuristics_window = tk.Toplevel(self)

@@ -1397,8 +1397,8 @@ def DB_Upload_Cadence(query):
     print("Type [Delete All Data] to delete saved Cadence.")
     username = open_file('./config/prompt_username.txt')
     bot_name = open_file('./config/prompt_bot_name.txt')
-    if not os.path.exists('nexus/{bot_name}/{username}/cadence_nexus'):
-        os.makedirs('nexus/{bot_name}/{username}/cadence_nexus')
+    if not os.path.exists(f'nexus/{bot_name}/{username}/cadence_nexus'):
+        os.makedirs(f'nexus/{bot_name}/{username}/cadence_nexus')
     while True:
         payload = list()
      #   a = input(f'\n\nUSER: ')
@@ -1443,8 +1443,8 @@ def DB_Upload_Heuristics(query):
     print("Type [Delete All Data] to delete saved Heuristics.")
     username = open_file('./config/prompt_username.txt')
     bot_name = open_file('./config/prompt_bot_name.txt')
-    if not os.path.exists('nexus/{bot_name}/{username}/heuristics_nexus'):
-        os.makedirs('nexus/{bot_name}/{username}/heuristics_nexus')
+    if not os.path.exists(f'nexus/{bot_name}/{username}/heuristics_nexus'):
+        os.makedirs(f'nexus/{bot_name}/{username}/heuristics_nexus')
     while True:
         payload = list()
     #    a = input(f'\n\nUSER: ')

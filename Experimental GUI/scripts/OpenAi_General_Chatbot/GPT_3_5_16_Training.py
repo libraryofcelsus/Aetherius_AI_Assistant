@@ -633,17 +633,17 @@ class ChatBotApplication(tk.Frame):
                             tasklist_vector := gpt3_embedding(line),
                             db_term.update({_index: tasklist_vector}),
                             results := vdb.query(vector=db_term[_index], filter={
-            "memory_type": "explicit_long_term", "user": username}, top_k=4, namespace=f'{bot_name}'),
+            "memory_type": "explicit_long_term", "user": username}, top_k=7, namespace=f'{bot_name}'),
                             db_term_result.update({_index: load_conversation_explicit_long_term_memory(results)}),
                             results := vdb.query(vector=db_term[_index], filter={
-            "memory_type": "implicit_long_term", "user": username}, top_k=4, namespace=f'{bot_name}'),
+            "memory_type": "implicit_long_term", "user": username}, top_k=7, namespace=f'{bot_name}'),
                             db_term_result2.update({_index: load_conversation_implicit_long_term_memory(results)}),
                             conversation.append({'role': 'assistant', 'content': "MEMORIES: %s" % db_term_result[_index]}),
                             conversation.append({'role': 'assistant', 'content': "MEMORIES: %s" % db_term_result2[_index]}),
                             (
                                 int_conversation.append({'role': 'assistant', 'content': "MEMORIES: %s" % db_term_result[_index]}),
                                 int_conversation.append({'role': 'assistant', 'content': "MEMORIES: %s" % db_term_result2[_index]})
-                            ) if _index < 4 else None,
+                            ) if _index < 5 else None,
                         ),
                         line, _index, conversation.copy(), int_conversation.copy()
                     )
@@ -651,7 +651,7 @@ class ChatBotApplication(tk.Frame):
                 ] + [
                     executor.submit(lambda: (
                         vdb.query(vector=vector_input, filter={
-            "memory_type": "episodic", "user": username}, top_k=7, namespace=f'{bot_name}'),
+            "memory_type": "episodic", "user": username}, top_k=10, namespace=f'{bot_name}'),
                         load_conversation_episodic_memory)
                     ),
                     executor.submit(lambda: (
@@ -794,9 +794,9 @@ class ChatBotApplication(tk.Frame):
             # # Memory DB Search
             with concurrent.futures.ThreadPoolExecutor() as executor:
                 future1 = executor.submit(vdb.query, vector=vector_monologue, filter={
-            "memory_type": "episodic", "user": username}, top_k=7, namespace=f'{bot_name}')
+            "memory_type": "episodic", "user": username}, top_k=10, namespace=f'{bot_name}')
                 future2 = executor.submit(vdb.query, vector=vector_input, filter={
-            "memory_type": "explicit_short_term"}, top_k=5, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
+            "memory_type": "explicit_short_term"}, top_k=7, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
                 future3 = executor.submit(vdb.query, vector=vector_monologue, filter={
             "memory_type": "flashbulb", "user": username}, top_k=3, namespace=f'{bot_name}')
                 future4 = executor.submit(vdb.query, vector=vector_input, filter={
@@ -1010,9 +1010,9 @@ class ChatBotApplication(tk.Frame):
                 future1 = executor.submit(vdb.query, vector=vector_monologue, filter={
             "memory_type": "implicit_long_term", "user": username}, top_k=7, namespace=f'{bot_name}')
                 future2 = executor.submit(vdb.query, vector=vector_input, filter={
-            "memory_type": "episodic", "user": username}, top_k=10, namespace=f'{bot_name}')
+            "memory_type": "episodic", "user": username}, top_k=13, namespace=f'{bot_name}')
                 future3 = executor.submit(vdb.query, vector=vector_monologue, filter={
-            "memory_type": "flashbulb", "user": username}, top_k=2, namespace=f'{bot_name}')
+            "memory_type": "flashbulb", "user": username}, top_k=4, namespace=f'{bot_name}')
                 db_search_8, db_search_10, db_search_11 = None, None, None
                 try:
                     db_search_8 = load_conversation_implicit_long_term_memory(future1.result())

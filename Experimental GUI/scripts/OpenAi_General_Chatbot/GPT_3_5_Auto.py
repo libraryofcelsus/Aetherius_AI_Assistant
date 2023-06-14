@@ -1465,7 +1465,7 @@ def DB_Upload_Cadence(query):
         unique_id = str(uuid4())
         metadata = {'speaker': bot_name, 'time': timestamp, 'message': query, 'timestring': timestring,
                     'uuid': unique_id, "memory_type": "cadence", "user": username}
-        save_json('nexus/{bot_name}/{username}/cadence_nexus/%s.json' % unique_id, metadata)
+        save_json(f'nexus/{bot_name}/{username}/cadence_nexus/%s.json' % unique_id, metadata)
         payload.append((unique_id, vector, {"memory_type": "cadence", "user": username}))
         vdb.upsert(payload, namespace=f'{bot_name}')
         print('\n\nSYSTEM: Upload Successful!')
@@ -1511,7 +1511,7 @@ def DB_Upload_Heuristics(query):
         unique_id = str(uuid4())
         metadata = {'speaker': 'AETHERIUS', 'time': timestamp, 'message': query, 'timestring': timestring,
                     'uuid': unique_id, "memory_type": "heuristics", "user": username}
-        save_json('nexus/{bot_name}/{username}/heuristics_nexus/%s.json' % unique_id, metadata)
+        save_json(f'nexus/{bot_name}/{username}/heuristics_nexus/%s.json' % unique_id, metadata)
         payload.append((unique_id, vector, {"memory_type": "heuristics", "user": username}))
         vdb.upsert(payload, namespace=f'{bot_name}')
         print('\n\nSYSTEM: Upload Successful!')

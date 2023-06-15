@@ -23,13 +23,13 @@ Made by: https://github.com/libraryofcelsus
 
 Inspired by https://github.com/daveshap/
 
-![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/06/Aetherius-GUI.png)
+![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/06/Aetherius-Example-1.png)
 
 ## Aether Scrape/Search
 
-![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/05/Capture5.png)
+![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/06/Aetherius-Example-2.png)
 
-![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/05/Capture6.png)
+![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/06/Aetherius-Example-3.png)
 
 ## Autonomous Architecture
 

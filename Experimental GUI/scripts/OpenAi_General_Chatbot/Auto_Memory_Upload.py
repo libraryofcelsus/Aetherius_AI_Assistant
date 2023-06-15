@@ -117,7 +117,6 @@ class ChatBotApplication(tk.Frame):
         self.master.title('Aetherius Chatbot')
         self.pack(fill="both", expand=True)
         self.create_widgets()
-        self.current_entry_index = 0
         # Load and display conversation history
         self.display_conversation_history()
         
@@ -352,20 +351,44 @@ class ChatBotApplication(tk.Frame):
         top = tk.Toplevel(self)
         top.title("Edit Running Conversation")
 
-        updated_conversation = []
+        entry_index = 0
 
-        for entry in running_conversation:
-            if entry:  # Skip empty entries
-                entry_text = tk.Text(top, height=10, width=60)
-                entry_text.insert(tk.END, entry.strip())  # Remove leading/trailing whitespace
-                entry_text.pack(fill=tk.BOTH, expand=True)
+        def update_entry():
+            nonlocal entry_index
+            entry_text.delete("1.0", tk.END)
+            entry_text.insert(tk.END, running_conversation[entry_index].strip())
+            entry_number_label.config(text=f"Entry {entry_index + 1}/{len(running_conversation)}")
 
-                updated_conversation.append(entry_text)  # Store the reference to each entry text widget
+        entry_text = tk.Text(top, height=10, width=60)
+        entry_text.pack(fill=tk.BOTH, expand=True)
+
+        entry_number_label = tk.Label(top, text=f"Entry {entry_index + 1}/{len(running_conversation)}")
+        entry_number_label.pack()
+
+        update_entry()
+
+        def go_back():
+            nonlocal entry_index
+            if entry_index > 0:
+                entry_index -= 1
+                update_entry()
+
+        def go_forward():
+            nonlocal entry_index
+            if entry_index < len(running_conversation) - 1:
+                entry_index += 1
+                update_entry()
+
+        back_button = tk.Button(top, text="Back", command=go_back)
+        back_button.pack(side=tk.LEFT)
+
+        forward_button = tk.Button(top, text="Forward", command=go_forward)
+        forward_button.pack(side=tk.LEFT)
 
         def save_conversation():
             updated_entries = []
 
-            for entry_text in updated_conversation:
+            for entry in running_conversation:
                 entry_lines = entry_text.get("1.0", tk.END).strip()  # Remove leading/trailing whitespace
                 updated_entries.append(entry_lines)
 

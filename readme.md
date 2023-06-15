@@ -1,23 +1,9 @@
 # Aetherius
-Version .041a of Aetherius Personal Assistant by LibraryofCelsus.com
+Version .042 of Aetherius Personal Assistant by LibraryofCelsus.com
 
 **Experimental Folder Changelog**
 
--Added Edit Conversation to Main Chatbot in Experimental GUI.
-
--Added Model Selection to Main Chatbot Config Menu in the Experimental GUI.
-
--Added GPT 3.5 Turbo 16k to Experimental GUI.
-
--Added Text Extractor to Experimental GUI.
-
--Added Experimental GUI.  To use, rename the scripts folder and then copy the "Experimental GUI" folder's contents into the main Aetherius folder.
-
--Added Photo OCR to the Text Extractor.  To use, place the desired photo in the /Upload/SCANS folder.  Using this feature requires tesseract: https://github.com/UB-Mannheim/tesseract/wiki    Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aetherius_Ai_Assistant" Folder.  This will allow you to take Screenshots with the windows snipping tool and upload them to Aetherius for processing.
-
--Added .TXT, .PDF, and .EPUB text extractors. For now it just functions similarly to the webscrape. Place file in the "Upload" folder in its extension's respective folder.  Then run "GPT_4_Text_Extractor.py" to extract all of the files, they will be moved to the "Finished" folder once done.
-
--Added a Role/Personality Extractor.  Give it a url to scrape and Aetherius will attempt to extract memories for a chatbot.  To talk to the chatbot, change the name in "prompt_bot_name.txt" to whatever name you entered in the Role Extractor script.
+N/A
 
 ------
 
@@ -55,9 +41,23 @@ Currently, Aetherius's main focus is creating a good architecture for realistic 
 Aetherius aims to provide a modular, personalized AI assistant experience by enabling the addition of task-specific Modules and Sub-Modules. If all goes as planned, Aetherius will support integration with other open-source projects and models.
 
 ## Changelog:
+0.042
+
+-Added GUI for Aetherius.  Very basic for now.
+
+-Added Edit Conversation
+
+-Added Model Selection
+
+-Added GPT 3.5 Turbo 16k
+
 0.041
 
 -Reworked Conversation History, it will now persist past shutdown.
+
+-Added .TXT, .PDF, and .EPUB text extractors. For now it just functions similarly to the webscrape. Place file in the "Upload" folder in its extension's respective folder.  Then run "GPT_4_Text_Extractor.py" to extract all of the files, they will be moved to the "Finished" folder once done.
+
+-Added Photo OCR to the Text Extractor.  To use, place the desired photo in the /Upload/SCANS folder.  Using this feature requires tesseract: https://github.com/UB-Mannheim/tesseract/wiki    Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aetherius_Ai_Assistant" Folder.  This will allow you to take Screenshots with the windows snipping tool and upload them to Aetherius for processing.
 
 0.04b
 

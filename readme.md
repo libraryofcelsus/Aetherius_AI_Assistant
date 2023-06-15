@@ -3,6 +3,8 @@ Version .041a of Aetherius Personal Assistant by LibraryofCelsus.com
 
 **Experimental Folder Changelog**
 
+-Added Edit Conversation to Main Chatbot in Experimental GUI.
+
 -Added Model Selection to Main Chatbot Config Menu in the Experimental GUI.
 
 -Added GPT 3.5 Turbo 16k to Experimental GUI.

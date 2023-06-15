@@ -11,6 +11,8 @@ N/A
 
 [Skip to installation guide](#installation-guide)
 
+[Skip to Changelog](#changelog)
+
 More output examples can be found at https://github.com/libraryofcelsus/Aetherius_Ai_Assistant_Outputs
 
 Latest Untested Version/Best Script for Code Viewing can be found at /scripts/resources/Base_Aetherius_Script_For_Analysis.py (This version has undergone very little testing and will most likely have bugs. Copy the script to the OpenAi_General_Chatbot folder to use.)
@@ -42,7 +44,7 @@ Currently, Aetherius's main focus is creating a good architecture for realistic 
 
 Aetherius aims to provide a modular, personalized AI assistant experience by enabling the addition of task-specific Modules and Sub-Modules. If all goes as planned, Aetherius will support integration with other open-source projects and models.
 
-## Changelog:
+# Changelog:
 0.042
 
 -Added GUI for Aetherius.  Very basic for now.

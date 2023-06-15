@@ -3,7 +3,7 @@ Version .041a of Aetherius Personal Assistant by LibraryofCelsus.com
 
 **Experimental Folder Changelog**
 
--Added Model Selection to Main Chatbot Menu.
+-Added Model Selection to Main Chatbot Config Menu in the Experimental GUI.
 
 -Added GPT 3.5 Turbo 16k to Experimental GUI.
 
@@ -185,6 +185,8 @@ Upload heuristics to DB and start chatting with Aetheius, bot name, heuristic ex
 ## Windows Installation
 
 **Guide with Photos can be found at [https://www.libraryofcelsus.com/aetherius-setup-guide/]**
+
+**Guide Out of Date**
 
 1. Install Git: **https://git-scm.com/** (Git can be skipped by downloading the repo as a zip file under the green code button)
 

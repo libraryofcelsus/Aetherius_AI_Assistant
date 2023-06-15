@@ -253,5 +253,5 @@ Discord: libraryofcelsus      -> Old Username Style: Celsus#0262
 
 MEGA Chat: https://mega.nz/C!pmNmEIZQ
 
-Email: email@libraryofcelsus.com
+Email: libraryofcelsusofficial@gmail.com
 

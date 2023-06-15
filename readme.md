@@ -1,6 +1,8 @@
 # Aetherius
 Version .042 of Aetherius Personal Assistant by LibraryofCelsus.com
 
+**GUI Update!**
+
 **Experimental Folder Changelog**
 
 N/A

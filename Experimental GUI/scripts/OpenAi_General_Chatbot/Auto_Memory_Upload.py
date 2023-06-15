@@ -351,7 +351,7 @@ class ChatBotApplication(tk.Frame):
         top = tk.Toplevel(self)
         top.title("Edit Running Conversation")
 
-        entry_index = 0
+        entry_texts = []  # List to store the entry text widgets
 
         def update_entry():
             nonlocal entry_index
@@ -359,8 +359,11 @@ class ChatBotApplication(tk.Frame):
             entry_text.insert(tk.END, running_conversation[entry_index].strip())
             entry_number_label.config(text=f"Entry {entry_index + 1}/{len(running_conversation)}")
 
+        entry_index = 0
+
         entry_text = tk.Text(top, height=10, width=60)
         entry_text.pack(fill=tk.BOTH, expand=True)
+        entry_texts.append(entry_text)  # Store the reference to the entry text widget
 
         entry_number_label = tk.Label(top, text=f"Entry {entry_index + 1}/{len(running_conversation)}")
         entry_number_label.pack()
@@ -386,13 +389,11 @@ class ChatBotApplication(tk.Frame):
         forward_button.pack(side=tk.LEFT)
 
         def save_conversation():
-            updated_entries = []
-
-            for entry in running_conversation:
+            for i, entry_text in enumerate(entry_texts):
                 entry_lines = entry_text.get("1.0", tk.END).strip()  # Remove leading/trailing whitespace
-                updated_entries.append(entry_lines)
+                running_conversation[entry_index + i] = entry_lines
 
-            conversation_data["running_conversation"] = updated_entries
+            conversation_data["running_conversation"] = running_conversation
 
             with open(file_path, 'w') as file:
                 json.dump(conversation_data, file, indent=4, ensure_ascii=False)
@@ -400,6 +401,7 @@ class ChatBotApplication(tk.Frame):
             # Update your conversation display or perform any required actions here
             self.conversation_text.delete("1.0", tk.END)
             self.display_conversation_history()
+            update_entry()  # Update the displayed entry in the cycling menu
 
         save_button = tk.Button(top, text="Save", command=save_conversation)
         save_button.pack()

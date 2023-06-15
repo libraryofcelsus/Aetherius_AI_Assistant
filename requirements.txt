@@ -10,3 +10,4 @@ PyPDF2==3.0.1
 PyAudio==0.2.13
 pytesseract==0.3.10
 customtkinter==0.3
+EbookLib==0.18

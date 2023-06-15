@@ -73,21 +73,20 @@ class MainConversation:
                 self.running_conversation = data.get('running_conversation', [])
         else:
             self.running_conversation = []
-            
-            
+
     def append(self, timestring, username, a, bot_name, output_one, output_two, response_two):
         # Append new entry to the running conversation
         entry = []
         entry.append(f"{timestring}-{username}: {a}")
-        entry.append(f"{bot_name}'s Inner Monologue: {output_one}\n")
-        entry.append(f"Intuition: {output_two}\n")
-        entry.append(f"Response: {response_two}\n")
-        self.running_conversation.append(entry)
+        entry.append(f"{bot_name}'s Inner Monologue: {output_one}")
+        entry.append(f"Intuition: {output_two}")
+        entry.append(f"Response: {response_two}")
+        self.running_conversation.append("\n\n".join(entry))  # Join the entry with "\n\n"
+
         # Remove oldest entry if conversation length exceeds max entries
         while len(self.running_conversation) > self.max_entries:
             self.running_conversation.pop(0)
         self.save_to_file()
-
 
     def save_to_file(self):
         # Combine main conversation and formatted running conversation for saving to file
@@ -97,10 +96,9 @@ class MainConversation:
         }
         with open(self.file_path, 'w', encoding='utf-8') as f:
             json.dump(data_to_save, f, indent=4)
-            
 
     def get_conversation_history(self):
-        return self.main_conversation + [message for entry in self.running_conversation for message in entry]
+        return self.main_conversation + ["\n\n".join(entry.split("\n\n")) for entry in self.running_conversation]
 
 
 
@@ -340,6 +338,55 @@ class ChatBotApplication(tk.Frame):
         save_button.pack()
         
         
+    def Edit_Conversation(self):
+        bot_name = open_file('./config/prompt_bot_name.txt')
+        username = open_file('./config/prompt_username.txt')
+        file_path = f"./history/{username}/{bot_name}_main_conversation_history.json"
+
+        with open(file_path, 'r') as file:
+            conversation_data = json.load(file)
+
+        running_conversation = conversation_data.get("running_conversation", [])
+
+        top = tk.Toplevel(self)
+        top.title("Edit Running Conversation")
+
+        updated_conversation = []
+
+        for entry in running_conversation:
+            if entry:  # Skip empty entries
+                entry_text = tk.Text(top, height=10, width=60)
+                entry_text.insert(tk.END, entry.strip())  # Remove leading/trailing whitespace
+                entry_text.pack(fill=tk.BOTH, expand=True)
+
+                updated_conversation.append(entry_text)  # Store the reference to each entry text widget
+
+        def save_conversation():
+            updated_entries = []
+
+            for entry_text in updated_conversation:
+                entry_lines = entry_text.get("1.0", tk.END).strip()  # Remove leading/trailing whitespace
+                updated_entries.append(entry_lines)
+
+            conversation_data["running_conversation"] = updated_entries
+
+            with open(file_path, 'w') as file:
+                json.dump(conversation_data, file, indent=4, ensure_ascii=False)
+
+            # Update your conversation display or perform any required actions here
+            self.conversation_text.delete("1.0", tk.END)
+            self.display_conversation_history()
+
+        save_button = tk.Button(top, text="Save", command=save_conversation)
+        save_button.pack()
+
+        # Configure the top level window to scale with the content
+        top.pack_propagate(False)
+        top.geometry("600x400")  # Set the initial size of the window
+
+        
+        
+        
     def Model_Selection(self):
         file_path = "./config/model.txt"
         
@@ -500,7 +547,7 @@ class ChatBotApplication(tk.Frame):
         self.login_menu.current(0)
         self.login_menu.bind("<<ComboboxSelected>>", self.handle_login_menu_selection)
         
-        self.update_history_button = tk.Button(self.top_frame, text="Placeholder", command=self.delete_conversation_history, bg=self.button_color, fg=self.text_color)
+        self.update_history_button = tk.Button(self.top_frame, text="Edit Conversation", command=self.Edit_Conversation, bg=self.button_color, fg=self.text_color)
         self.update_history_button.pack(side=tk.LEFT, padx=5, pady=5, ipadx=10)
         
         self.db_menu = ttk.Combobox(self.top_frame, values=["DB Management", "----------------------------", "Cadence DB Upload", "Heuristics DB Upload"], state="readonly")
@@ -1591,6 +1638,36 @@ def ask_upload_explicit_memories(memories):
         
         
 def Manual_Memory_Upload():
+    bot_name = open_file('./config/prompt_bot_name.txt')
+    username = open_file('./config/prompt_username.txt')
+    if not os.path.exists(f'nexus/{bot_name}/{username}/implicit_short_term_memory_nexus'):
+        os.makedirs(f'nexus/{bot_name}/{username}/implicit_short_term_memory_nexus')
+    if not os.path.exists(f'nexus/{bot_name}/{username}/explicit_short_term_memory_nexus'):
+        os.makedirs(f'nexus/{bot_name}/{username}/explicit_short_term_memory_nexus')
+    if not os.path.exists(f'nexus/{bot_name}/{username}/explicit_long_term_memory_nexus'):
+        os.makedirs(f'nexus/{bot_name}/{username}/explicit_long_term_memory_nexus')
+    if not os.path.exists(f'nexus/{bot_name}/{username}/implicit_long_term_memory_nexus'):
+        os.makedirs(f'nexus/{bot_name}/{username}/implicit_long_term_memory_nexus')
+    if not os.path.exists(f'nexus/{bot_name}/{username}/episodic_memory_nexus'):
+        os.makedirs(f'nexus/{bot_name}/{username}/episodic_memory_nexus')
+    if not os.path.exists(f'nexus/{bot_name}/{username}/flashbulb_memory_nexus'):
+        os.makedirs(f'nexus/{bot_name}/{username}/flashbulb_memory_nexus')
+    if not os.path.exists(f'nexus/{bot_name}/{username}/heuristics_nexus'):
+        os.makedirs(f'nexus/{bot_name}/{username}/heuristics_nexus')
+    if not os.path.exists(f'nexus/global_heuristics_nexus'):
+        os.makedirs(f'nexus/global_heuristics_nexus')
+    if not os.path.exists(f'nexus/{bot_name}/{username}/cadence_nexus'):
+        os.makedirs(f'nexus/{bot_name}/{username}/cadence_nexus')
+    if not os.path.exists(f'logs/{bot_name}/{username}/complete_chat_logs'):
+        os.makedirs(f'logs/{bot_name}/{username}/complete_chat_logs')
+    if not os.path.exists(f'logs/{bot_name}/{username}/final_response_logs'):
+        os.makedirs(f'logs/{bot_name}/{username}/final_response_logs')
+    if not os.path.exists(f'logs/{bot_name}/{username}/inner_monologue_logs'):
+        os.makedirs(f'logs/{bot_name}/{username}/inner_monologue_logs')
+    if not os.path.exists(f'logs/{bot_name}/{username}/intuition_logs'):
+        os.makedirs(f'logs/{bot_name}/{username}/intuition_logs')
+    if not os.path.exists(f'history/{username}'):
+        os.makedirs(f'history/{username}')
     set_dark_ancient_theme()
     root = tk.Tk()
     app = ChatBotApplication(root)

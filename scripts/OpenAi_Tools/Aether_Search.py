@@ -2173,6 +2173,101 @@ def GPT_4_Tasklist_Web_Scrape(query, results_callback):
         return
         
         
+def GPT_4_Tasklist_Web_Search(query, results_callback):
+    vdb = pinecone.Index("aetherius")
+    my_api_key = open_file('api_keys/key_google.txt')
+    my_cse_id = open_file('api_keys/key_google_cse.txt')
+        # # Number of Messages before conversation is summarized, higher number, higher api cost. Change to 3 when using GPT 3.5 due to token usage.
+    conv_length = 4
+    m = multiprocessing.Manager()
+    lock = m.Lock()
+    conversation = list()
+    int_conversation = list()
+    payload = list()
+    master_tasklist = list()
+    counter = 0
+    bot_name = open_file('./config/prompt_bot_name.txt')
+    username = open_file('./config/prompt_username.txt')
+    main_prompt = open_file('./config/Chatbot_Prompts/prompt_main.txt').replace('<<NAME>>', bot_name)
+    greeting_msg = open_file('./config/Chatbot_Prompts/prompt_greeting.txt').replace('<<NAME>>', bot_name)
+    if not os.path.exists(f'nexus/{bot_name}/{username}/web_scrape_memory_nexus'):
+        os.makedirs(f'nexus/{bot_name}/{username}/web_scrape_memory_nexus')
+    if not os.path.exists(f'nexus/{bot_name}/{username}/web_scrape_memory_nexus'):
+        os.makedirs(f'nexus/{bot_name}/{username}/web_scrape_memory_nexus')
+    if not os.path.exists(f'nexus/{bot_name}/{username}/episodic_memory_nexus'):
+        os.makedirs(f'nexus/{bot_name}/{username}/episodic_memory_nexus')
+    if not os.path.exists(f'nexus/{bot_name}/{username}/implicit_short_term_memory_nexus'):
+        os.makedirs(f'nexus/{bot_name}/{username}/implicit_short_term_memory_nexus')
+    if not os.path.exists(f'nexus/{bot_name}/{username}/explicit_short_term_memory_nexus'):
+        os.makedirs(f'nexus/{bot_name}/{username}/explicit_short_term_memory_nexus')
+    if not os.path.exists(f'nexus/{bot_name}/{username}/explicit_long_term_memory_nexus'):
+        os.makedirs(f'nexus/{bot_name}/{username}/explicit_long_term_memory_nexus')
+    if not os.path.exists(f'nexus/{bot_name}/{username}/implicit_long_term_memory_nexus'):
+        os.makedirs(f'nexus/{bot_name}/{username}/implicit_long_term_memory_nexus')
+    if not os.path.exists(f'nexus/{bot_name}/{username}/episodic_memory_nexus'):
+        os.makedirs(f'nexus/{bot_name}/{username}/episodic_memory_nexus')
+    if not os.path.exists(f'nexus/{bot_name}/{username}/flashbulb_memory_nexus'):
+        os.makedirs(f'nexus/{bot_name}/{username}/flashbulb_memory_nexus')
+    if not os.path.exists(f'nexus/{bot_name}/{username}/heuristics_nexus'):
+        os.makedirs(f'nexus/{bot_name}/{username}/heuristics_nexus')
+    if not os.path.exists(f'nexus/global_heuristics_nexus'):
+        os.makedirs(f'nexus/global_heuristics_nexus')
+    if not os.path.exists(f'nexus/{bot_name}/{username}/cadence_nexus'):
+        os.makedirs(f'nexus/{bot_name}/{username}/cadence_nexus')
+    if not os.path.exists(f'logs/{bot_name}/{username}/complete_chat_logs'):
+        os.makedirs(f'logs/{bot_name}/{username}/complete_chat_logs')
+    if not os.path.exists(f'logs/{bot_name}/{username}/final_response_logs'):
+        os.makedirs(f'logs/{bot_name}/{username}/final_response_logs')
+    if not os.path.exists(f'logs/{bot_name}/{username}/inner_monologue_logs'):
+        os.makedirs(f'logs/{bot_name}/{username}/inner_monologue_logs')
+    if not os.path.exists(f'logs/{bot_name}/{username}/intuition_logs'):
+        os.makedirs(f'logs/{bot_name}/{username}/intuition_logs')
+    if not os.path.exists(f'history/{username}'):
+        os.makedirs(f'history/{username}')
+     #   r = sr.Recognizer()
+    while True:
+            # # Get Timestamp
+        timestamp = time()
+        timestring = timestamp_to_datetime(timestamp)
+            # # Start or Continue Conversation based on if response exists
+        conversation.append({'role': 'system', 'content': '%s' % main_prompt})
+        int_conversation.append({'role': 'system', 'content': '%s' % main_prompt})
+        if 'response_two' in locals():
+            conversation.append({'role': 'user', 'content': a})
+            if counter % conv_length == 0:
+                print("\nConversation is continued, type [Exit] to clear conversation list.")
+                conversation.append({'role': 'assistant', 'content': "%s" % response_two})
+            pass
+        else:
+            conversation.append({'role': 'assistant', 'content': "%s" % greeting_msg})
+            print("\n%s" % greeting_msg)
+        print('\nType [Clear Memory] to clear webscrape memory. (Not Enabled)')
+        print("\nType [Skip] to skip url input.")
+        #    query = input(f'\nEnter search term to scrape: ')
+        if query == 'Clear Memory':
+            while True:
+                print('\n\nSYSTEM: Are you sure you would like to delete saved short-term memory?\n        Press Y for yes or N for no.')
+                user_input = input("'Y' or 'N': ")
+                if user_input == 'y':
+                    vdb.delete(filter={"memory_type": "web_scrape"}, namespace=f'Tools_User_{username}_Bot_{bot_name}')
+                    print('Webscrape has been Deleted')
+                    return
+                elif user_input == 'n':
+                    print('\n\nSYSTEM: Webscrape delete cancelled.')
+                    return
+            
+            # # Check for "Exit"
+        if query == 'Skip':   
+            pass
+        else:
+            urls = google_search(query, my_api_key, my_cse_id)
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                executor.map(chunk_text_from_url, urls)
+        print('---------')
+        return
+        
+        
+        
 def Aether_Search():
     set_dark_ancient_theme()
     root = tk.Tk()

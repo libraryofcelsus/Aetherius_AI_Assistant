@@ -842,6 +842,7 @@ class ChatBotApplication(tk.Frame):
                 with concurrent.futures.ThreadPoolExecutor() as executor:
                     executor.map(chunk_text_from_url, urls)
             print('---------')
+            return
             # Update the GUI elements on the main thread
 
             # After the operations are complete, call the GPT_4_Intuition function in a separate thread

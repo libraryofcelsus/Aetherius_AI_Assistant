@@ -172,7 +172,7 @@ def google_search(query, my_api_key, my_cse_id, **kwargs):
     "key": my_api_key,
     "cx": my_cse_id,
     "q": query,
-    "num": 7,
+    "num": 1,
     "snippet": True
   }
   response = requests.get("https://www.googleapis.com/customsearch/v1", params=params)
@@ -636,7 +636,9 @@ class ChatBotApplication(tk.Frame):
 
             def update_results(paragraph):
                 # Update the GUI with the new paragraph
-                self.update_results(results_text, paragraph)
+                results_text.insert(tk.END, f"{paragraph}\n\n")
+                results_text.yview(tk.END)
+            #    self.update_results(results_text, paragraph)
 
             def search_task():
                 # Call the modified GPT_4_Tasklist_Web_Search function with the callback
@@ -1353,7 +1355,7 @@ class ChatBotApplication(tk.Frame):
                                              fail()),
                                 conversation.append({'role': 'assistant', 'content': "WEBSEARCH: %s" % table}),
                                 conversation.append({'role': 'user', 'content': "Bot %s Task Reinitialization: %s" % (task_counter, line)}),
-                                conversation.append({'role': 'user', 'content': "SYSTEM: Try to relate the bot's task to the given web scraped articles. If the bot's task is an advertisement, inform the user that ads have taken their answer."}),
+                                conversation.append({'role': 'user', 'content': "SYSTEM: Try to relate the bot's task to the given web scraped articles. If the article is an advertisement, inform the user that ads have taken their answer."}),
                                 conversation.append({'role': 'assistant', 'content': "Bot %s's Response:" % task_counter}),
                                 task_completion := chatgpt35_completion(conversation),
                                 #chatgpt35_completion(conversation),
@@ -2066,32 +2068,78 @@ def process_line(line, task_counter, memcheck, memcheck2, webcheck, conversation
         
         
         
+       
         
-def GPT_4_Tasklist_Web_Search(query, results_callback):
+        
+def GPT_4_Tasklist_Web_Scrape(query, results_callback):
     vdb = pinecone.Index("aetherius")
     my_api_key = open_file('api_keys/key_google.txt')
     my_cse_id = open_file('api_keys/key_google_cse.txt')
-        # # Number of Messages before conversation is summarized, higher number, higher api cost. Change to 3 when using GPT 3.5 due to token usage.
+    # # Number of Messages before conversation is summarized, higher number, higher api cost. Change to 3 when using GPT 3.5 due to token usage.
     conv_length = 4
     m = multiprocessing.Manager()
     lock = m.Lock()
+    tasklist = list()
     conversation = list()
     int_conversation = list()
+    conversation2 = list()
+    summary = list()
+    auto = list()
     payload = list()
+    consolidation  = list()
+    tasklist_completion = list()
     master_tasklist = list()
+    tasklist = list()
+    tasklist_log = list()
+    memcheck = list()
+    memcheck2 = list()
+    webcheck = list()
     counter = 0
+    counter2 = 0
+    mem_counter = 0
     bot_name = open_file('./config/prompt_bot_name.txt')
     username = open_file('./config/prompt_username.txt')
     main_prompt = open_file('./config/Chatbot_Prompts/prompt_main.txt').replace('<<NAME>>', bot_name)
+    second_prompt = open_file('./config/Chatbot_Prompts/prompt_secondary.txt')
     greeting_msg = open_file('./config/Chatbot_Prompts/prompt_greeting.txt').replace('<<NAME>>', bot_name)
     if not os.path.exists(f'nexus/{bot_name}/{username}/web_scrape_memory_nexus'):
         os.makedirs(f'nexus/{bot_name}/{username}/web_scrape_memory_nexus')
-     #   r = sr.Recognizer()
+    if not os.path.exists(f'nexus/{bot_name}/{username}/episodic_memory_nexus'):
+        os.makedirs(f'nexus/{bot_name}/{username}/episodic_memory_nexus')
+    if not os.path.exists(f'nexus/{bot_name}/{username}/implicit_short_term_memory_nexus'):
+        os.makedirs(f'nexus/{bot_name}/{username}/implicit_short_term_memory_nexus')
+    if not os.path.exists(f'nexus/{bot_name}/{username}/explicit_short_term_memory_nexus'):
+        os.makedirs(f'nexus/{bot_name}/{username}/explicit_short_term_memory_nexus')
+    if not os.path.exists(f'nexus/{bot_name}/{username}/explicit_long_term_memory_nexus'):
+        os.makedirs(f'nexus/{bot_name}/{username}/explicit_long_term_memory_nexus')
+    if not os.path.exists(f'nexus/{bot_name}/{username}/implicit_long_term_memory_nexus'):
+        os.makedirs(f'nexus/{bot_name}/{username}/implicit_long_term_memory_nexus')
+    if not os.path.exists(f'nexus/{bot_name}/{username}/episodic_memory_nexus'):
+        os.makedirs(f'nexus/{bot_name}/{username}/episodic_memory_nexus')
+    if not os.path.exists(f'nexus/{bot_name}/{username}/flashbulb_memory_nexus'):
+        os.makedirs(f'nexus/{bot_name}/{username}/flashbulb_memory_nexus')
+    if not os.path.exists(f'nexus/{bot_name}/{username}/heuristics_nexus'):
+        os.makedirs(f'nexus/{bot_name}/{username}/heuristics_nexus')
+    if not os.path.exists(f'nexus/global_heuristics_nexus'):
+        os.makedirs(f'nexus/global_heuristics_nexus')
+    if not os.path.exists(f'nexus/{bot_name}/{username}/cadence_nexus'):
+        os.makedirs(f'nexus/{bot_name}/{username}/cadence_nexus')
+    if not os.path.exists(f'logs/{bot_name}/{username}/complete_chat_logs'):
+        os.makedirs(f'logs/{bot_name}/{username}/complete_chat_logs')
+    if not os.path.exists(f'logs/{bot_name}/{username}/final_response_logs'):
+        os.makedirs(f'logs/{bot_name}/{username}/final_response_logs')
+    if not os.path.exists(f'logs/{bot_name}/{username}/inner_monologue_logs'):
+        os.makedirs(f'logs/{bot_name}/{username}/inner_monologue_logs')
+    if not os.path.exists(f'logs/{bot_name}/{username}/intuition_logs'):
+        os.makedirs(f'logs/{bot_name}/{username}/intuition_logs')
+    if not os.path.exists(f'history/{username}'):
+        os.makedirs(f'history/{username}')
+ #   r = sr.Recognizer()
     while True:
-            # # Get Timestamp
+        # # Get Timestamp
         timestamp = time()
         timestring = timestamp_to_datetime(timestamp)
-            # # Start or Continue Conversation based on if response exists
+        # # Start or Continue Conversation based on if response exists
         conversation.append({'role': 'system', 'content': '%s' % main_prompt})
         int_conversation.append({'role': 'system', 'content': '%s' % main_prompt})
         if 'response_two' in locals():
@@ -2103,28 +2151,23 @@ def GPT_4_Tasklist_Web_Search(query, results_callback):
         else:
             conversation.append({'role': 'assistant', 'content': "%s" % greeting_msg})
             print("\n%s" % greeting_msg)
-        print('\nType [Clear Memory] to clear webscrape memory. (Not Enabled)')
-        print("\nType [Skip] to skip url input.")
-        #    query = input(f'\nEnter search term to scrape: ')
         if query == 'Clear Memory':
             while True:
                 print('\n\nSYSTEM: Are you sure you would like to delete saved short-term memory?\n        Press Y for yes or N for no.')
                 user_input = input("'Y' or 'N': ")
                 if user_input == 'y':
-                    vdb.delete(filter={"memory_type": "web_scrape"}, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
+                    vdb.delete(filter={"memory_type": "web_scrape"}, namespace=f'{bot_name}_short_term_memory')
                     print('Webscrape has been Deleted')
                     return
                 elif user_input == 'n':
                     print('\n\nSYSTEM: Webscrape delete cancelled.')
                     return
-            
-            # # Check for "Exit"
+        
+        # # Check for "Exit"
         if query == 'Skip':   
             pass
         else:
-            urls = google_search(query, my_api_key, my_cse_id)
-            with concurrent.futures.ThreadPoolExecutor() as executor:
-                executor.map(chunk_text_from_url, urls)
+            urls = urls = chunk_text_from_url(query)
         print('---------')
         return
         

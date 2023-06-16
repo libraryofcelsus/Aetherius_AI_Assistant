@@ -1273,8 +1273,8 @@ class ChatBotApplication(tk.Frame):
             master_tasklist.append({'role': 'assistant', 'content': "TASK LIST:"})
             master_tasklist_output = chatgpt_tasklist_completion(master_tasklist)
             print(master_tasklist_output)
-            tasklist_completion.append({'role': 'system', 'content': "{main_prompt}"})
-            tasklist_completion.append({'role': 'assistant', 'content': f"You are the final response module of the cluster compute Ai-Chatbot {bot_name}. Your job is to take the completed task list, and give a verbose response to the end user in accordance with their initial request."})
+            tasklist_completion.append({'role': 'system', 'content': f"{main_prompt}"})
+            tasklist_completion.append({'role': 'assistant', 'content': f"You are the final response module for the cluster compute Ai-Chatbot {bot_name}. Your job is to take the completed task list, and then give a verbose response to the end user in accordance with their initial request."})
             tasklist_completion.append({'role': 'user', 'content': "%s" % master_tasklist_output})
             task = {}
             task_result = {}

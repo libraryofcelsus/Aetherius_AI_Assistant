@@ -1294,7 +1294,7 @@ class ChatBotApplication(tk.Frame):
                         executor.submit(
                             lambda line, task_counter, conversation, memcheck, memcheck2, webcheck, tasklist_completion: (
                                 tasklist_completion.append({'role': 'user', 'content': f"ASSIGNED TASK:\n{line}"}),
-                                conversation.append({'role': 'system', 'content': "You are a sub-agent for {bot_name}, an Autonomous Ai-Chatbot. You are one of many agents in a chain. You are to take the given task and complete it in its entirety. Be Verbose and take other tasks into account when formulating your answer."}),
+                                conversation.append({'role': 'system', 'content': f"You are a sub-agent for {bot_name}, an Autonomous Ai-Chatbot. You are one of many agents in a chain. You are to take the given task and complete it in its entirety. Be Verbose and take other tasks into account when formulating your answer."}),
                                 conversation.append({'role': 'assistant', 'content': "{bot_name}'s INNER MONOLOGUE: {output_one}"}),
                                 conversation.append({'role': 'user', 'content': f"Task list:\n{master_tasklist_output}"}),
                                 conversation.append({'role': 'assistant', 'content': "Bot: I have studied the given tasklist.  What is my assigned task?"}),

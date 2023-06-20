@@ -1,5 +1,5 @@
 # Aetherius
-Version .042 of Aetherius Personal Assistant by LibraryofCelsus.com
+Version .042a of Aetherius Personal Assistant by LibraryofCelsus.com
 
 **GUI Update!**
 
@@ -47,6 +47,15 @@ Currently, Aetherius's main focus is creating a good architecture for realistic 
 Aetherius aims to provide a modular, personalized AI assistant experience by enabling the addition of task-specific Modules and Sub-Modules. If all goes as planned, Aetherius will support integration with other open-source projects and models.
 
 # Changelog:
+0.042a
+
+-Added Webscrape Delete Button
+
+-Small Webscrape prompt rework
+
+-Various Bug Fixes
+
+
 0.042
 
 -Added GUI for Aetherius.  Very basic for now.

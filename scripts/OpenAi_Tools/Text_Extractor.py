@@ -510,6 +510,20 @@ class ChatBotApplication(tk.Frame):
         print('fileprocess has been Deleted')
         pass
         
+        
+    def delete_fileprocess_db(self):
+        # Delete the conversation history JSON file
+        bot_name = open_file('./config/prompt_bot_name.txt')
+        username = open_file('./config/prompt_username.txt')
+        vdb = pinecone.Index("aetherius")
+        try:
+            vdb.delete(filter={"memory_type": "file_process"}, namespace=f'Tools_User_{username}_Bot_{bot_name}')
+            print('File DB has been Deleted')
+            self.master.destroy()
+            Text_Extractor()
+        except:
+            print("Fail")
+            pass
             
             
     def create_widgets(self):
@@ -535,6 +549,9 @@ class ChatBotApplication(tk.Frame):
         
         self.fileprocess_button = tk.Button(self.top_frame, text="Process Files", command=self.open_fileprocess_window, bg=self.button_color, fg=self.text_color)
         self.fileprocess_button.pack(side=tk.LEFT, padx=5, pady=5, ipadx=10)
+        
+        self.delete_fileprocess_button = tk.Button(self.top_frame, text="Clear File DB", command=self.delete_fileprocess_db, bg=self.button_color, fg=self.text_color)
+        self.delete_fileprocess_button.pack(side=tk.LEFT, padx=5, pady=5, ipadx=10)
         
         self.menu = ttk.Combobox(self.top_frame, values=["Config Menu", "----------------------------", "Model Selection", "Edit Font", "Edit Font Size", "Edit Main Prompt", "Edit Secondary Prompt", "Edit Greeting Prompt"], state="readonly")
         self.menu.pack(side=tk.LEFT, padx=5, pady=5)

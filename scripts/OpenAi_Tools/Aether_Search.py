@@ -893,11 +893,11 @@ class ChatBotApplication(tk.Frame):
         self.login_menu.current(0)
         self.login_menu.bind("<<ComboboxSelected>>", self.handle_login_menu_selection)
         
-        self.delete_websearch_button = tk.Button(self.top_frame, text="Clear Websearch DB", command=self.delete_websearch_db, bg=self.button_color, fg=self.text_color)
-        self.delete_websearch_button.pack(side=tk.LEFT, padx=5, pady=5, ipadx=10)
-        
         self.websearch_button = tk.Button(self.top_frame, text="Web Search", command=self.open_websearch_window, bg=self.button_color, fg=self.text_color)
         self.websearch_button.pack(side=tk.LEFT, padx=5, pady=5, ipadx=10)
+        
+        self.delete_websearch_button = tk.Button(self.top_frame, text="Clear Websearch DB", command=self.delete_websearch_db, bg=self.button_color, fg=self.text_color)
+        self.delete_websearch_button.pack(side=tk.LEFT, padx=5, pady=5, ipadx=10)
         
         self.webscrape_button = tk.Button(self.top_frame, text="Web Scrape", command=self.open_webscrape_window, bg=self.button_color, fg=self.text_color)
         self.webscrape_button.pack(side=tk.LEFT, padx=5, pady=5, ipadx=10)

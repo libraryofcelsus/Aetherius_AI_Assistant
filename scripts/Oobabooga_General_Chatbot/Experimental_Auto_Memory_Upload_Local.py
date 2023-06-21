@@ -640,7 +640,7 @@ class ChatBotApplication(tk.Frame):
 
             conversation_data["running_conversation"] = running_conversation
 
-            with open(file_path, 'w') as file:
+            with open(file_path, 'w', encoding='utf-8') as file:
                 json.dump(conversation_data, file, indent=4, ensure_ascii=False)
 
             # Update your conversation display or perform any required actions here

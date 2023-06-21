@@ -48,7 +48,7 @@ def oobabooga_250(prompt):
         # in presets/preset-name.yaml are used instead of the individual numbers.
         'preset': 'None',  
         'do_sample': True,
-        'temperature': 0.7,
+        'temperature': 0.8,
         'top_p': 0.1,
         'typical_p': 1,
         'epsilon_cutoff': 0,  # In units of 1e-4
@@ -86,13 +86,13 @@ def oobabooga_250(prompt):
 def oobabooga_500(prompt):
     request = {
         'prompt': prompt,
-        'max_new_tokens': 500,
+        'max_new_tokens': 800,
 
         # Generation params. If 'preset' is set to different than 'None', the values
         # in presets/preset-name.yaml are used instead of the individual numbers.
         'preset': 'None',  
         'do_sample': True,
-        'temperature': 0.7,
+        'temperature': 0.85,
         'top_p': 0.1,
         'typical_p': 1,
         'epsilon_cutoff': 0,  # In units of 1e-4
@@ -136,7 +136,7 @@ def oobabooga_yesno(prompt):
         # in presets/preset-name.yaml are used instead of the individual numbers.
         'preset': 'None',  
         'do_sample': True,
-        'temperature': 0.7,
+        'temperature': 0.5,
         'top_p': 0.1,
         'typical_p': 1,
         'epsilon_cutoff': 0,  # In units of 1e-4
@@ -1041,11 +1041,11 @@ class ChatBotApplication(tk.Frame):
                             results := vdb.query(vector=db_term[_index], filter={
             "memory_type": "implicit_long_term", "user": username}, top_k=4, namespace=f'{bot_name}'),
                             db_term_result2.update({_index: load_conversation_implicit_long_term_memory(results)}),
-                            conversation.append({'role': 'assistant', 'content': "MEMORIES: %s" % db_term_result[_index]}),
-                            conversation.append({'role': 'assistant', 'content': "MEMORIES: %s" % db_term_result2[_index]}),
+                            conversation.append({'role': 'assistant', 'content': "MEMORIES: %s\n" % db_term_result[_index]}),
+                            conversation.append({'role': 'assistant', 'content': "MEMORIES: %s\n" % db_term_result2[_index]}),
                             (
-                                int_conversation.append({'role': 'assistant', 'content': "MEMORIES: %s" % db_term_result[_index]}),
-                                int_conversation.append({'role': 'assistant', 'content': "MEMORIES: %s" % db_term_result2[_index]})
+                                int_conversation.append({'role': 'assistant', 'content': "MEMORIES: %s\n" % db_term_result[_index]}),
+                                int_conversation.append({'role': 'assistant', 'content': "MEMORIES: %s\n" % db_term_result2[_index]})
                             ) if _index < 4 else None,
                         ),
                         line, _index, conversation.copy(), int_conversation.copy()
@@ -1222,9 +1222,9 @@ class ChatBotApplication(tk.Frame):
                     print(f"Caught an exception: {e}")
             print(f'{db_search_4}\n{db_search_5}\n{db_search_12}')
             # # Intuition Generation
-            int_conversation.append({'role': 'assistant', 'content': "%s" % greeting_msg})
-            int_conversation.append({'role': 'user', 'content': a})
-            int_conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;\n%s;\n%s;\n\nHEURISTICS: %s;\n%s'S INNER THOUGHTS: %s;\nUSER MESSAGE: %s;\nIn a single paragraph, interpret the user, %s's message as %s in third person by creating an intuitive action plan using maieutic reasoning.  If needed use a process similar to creative imagination to visualize the outcome.;\nINTUITION: " % (db_search_4, db_search_5, db_search_12, db_search_15, bot_name, output_one, a, username, bot_name)})
+            int_conversation.append({'role': 'assistant', 'content': "BOT GREETING: %s\n" % greeting_msg})
+            int_conversation.append({'role': 'user', 'content': f"USER INPUT: {a}\n\n"})
+            int_conversation.append({'role': 'assistant', 'content': f"MEMORIES: {db_search_4}\n{db_search_5}\n{db_search_12}\n\nHEURISTICS: {db_search_15}\n{bot_name}'S INNER THOUGHTS: {output_one}\nUSER'S REQUEST: {a}\nIn a single paragraph, interpret the user, {username}'s message as {bot_name} in third person by creating an intuitive action plan using maieutic reasoning.  If needed use a process similar to creative imagination to visualize the outcome.\nINTUITIVE PLAN: "})
             
             
             prompt = ''.join([message_dict['content'] for message_dict in int_conversation])
@@ -1422,7 +1422,7 @@ class ChatBotApplication(tk.Frame):
         # # Update Second Conversation List for Response
             print('\n%s is thinking...\n' % bot_name)
             con_hist = f'{conversation_history}'
-            conversation2.append({'role': 'system', 'content': con_hist})
+            conversation2.append({'role': 'system', 'content': f"CONVERSATION HISTORY: {con_hist}\n\n"})
             # # Generate Cadence
             index_info = vdb.describe_index_stats()
             namespace_stats = index_info['namespaces']
@@ -1455,7 +1455,7 @@ class ChatBotApplication(tk.Frame):
             print(f'{db_search_8}\n{db_search_10}\n{db_search_11}')
             # # Generate Aetherius's Response
             response_db_search = f"SUBCONSCIOUS: {db_search_8}\n{db_search_10};\n\nFLASHBULB MEMORIES: {db_search_11}"
-            conversation2.append({'role': 'assistant', 'content': "SUBCONSCIOUS: %s\n%s;\n\nFLASHBULB MEMORIES: %s;\nINNER THOUGHTS: %s\n\n%s  I am in the middle of a conversation with my user, %s. USER MESSAGE: %s; I will do my best to speak naturally and show emotional intelligence.\nI will use my intuitive action plan to help formulate my response: %s\nUSER INPUT: %s;\nI will now give a complete response to the user with the diction of a real person: " % (db_search_8, db_search_10, db_search_11, output_one, second_prompt, username, a, output_two, a)})
+            conversation2.append({'role': 'assistant', 'content': f"SUBCONSCIOUS: {db_search_8}\n{db_search_10}\n\nFLASHBULB MEMORIES: {db_search_11}\nINNER THOUGHTS: {output_one}\n\n{second_prompt}\n\n{bot_name}: I am in the middle of a conversation with my user, {username}.\nI will do my best to speak naturally and show emotional intelligence.\nI will follow my intuitive action plan to help formulate my response:\n{output_two}\n\nINITIAL USER REQUEST: {a}\n\nI will now give a complete response to the user's request while following my action plan.\n\n{bot_name}:"})
             
             prompt = ''.join([message_dict['content'] for message_dict in conversation2])
             response_two = oobabooga_500(prompt)
@@ -1784,10 +1784,10 @@ class ChatBotApplication(tk.Frame):
                             payload.append((unique_id, vector, {"memory_type": "implicit_long_term", "user": username}))
                             vdb.upsert(payload, namespace=f'{bot_name}')
                             payload.clear()
-                            try:
-                                vdb.delete(ids=ids_to_delete, namespace=f'{bot_name}')
-                            except:
-                                print('Failed')
+                    try:
+                        vdb.delete(ids=ids_to_delete, namespace=f'{bot_name}')
+                    except:
+                        print('Failed')
             # # Explicit Long-Term Memory Associative Processing/Pruning based on amount of vectors in namespace
                 index_info = vdb.describe_index_stats()
                 namespace_stats = index_info['namespaces']

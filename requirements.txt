@@ -11,3 +11,4 @@ PyAudio==0.2.13
 pytesseract==0.3.10
 customtkinter==0.3
 EbookLib==0.18
+sentence-transformers==2.2.2

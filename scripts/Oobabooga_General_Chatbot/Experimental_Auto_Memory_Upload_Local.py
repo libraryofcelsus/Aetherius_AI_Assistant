@@ -29,6 +29,7 @@ from tkinter import ttk, scrolledtext, simpledialog, font
 import requests
 from sentence_transformers import SentenceTransformer
 
+
 # For local streaming, the websockets are hosted without ssl - http://
 HOST = 'localhost:5000'
 URI = f'http://{HOST}/api/v1/generate'
@@ -125,6 +126,65 @@ def oobabooga_500(prompt):
         result = response.json()['results'][0]['text']
     #    print(result)
         return result
+        
+        
+def oobabooga_inner_monologue(user_input, history):
+    bot_name = open_file('./config/prompt_bot_name.txt')
+    username = open_file('./config/prompt_username.txt')
+    request = {
+        'user_input': user_input,
+        'max_new_tokens': 250,
+        'history': history,
+        'mode': 'instruct',  # Valid options: 'chat', 'chat-instruct', 'instruct'
+        'character': f'{bot_name}',
+        'instruction_template': 'Vicuna-v1.1',
+        'your_name': f'{username}',
+
+        'regenerate': False,
+        '_continue': False,
+        'stop_at_newline': False,
+        'chat_prompt_size': 2048,
+        'chat_generation_attempts': 1,
+        'chat-instruct_command': f'Based on {bot_name}s memories and the user, {username}s message, compose a short and concise silent soliloquy as {bot_name}s inner monologue that reflects on {bot_name}s deepest contemplations and emotions in relation to the users message."<|character|>".\n\n"<|prompt|>"',
+
+        # Generation params. If 'preset' is set to different than 'None', the values
+        # in presets/preset-name.yaml are used instead of the individual numbers.
+        'preset': 'None',
+        'do_sample': True,
+        'temperature': 0.7,
+        'top_p': 0.1,
+        'typical_p': 1,
+        'epsilon_cutoff': 0,  # In units of 1e-4
+        'eta_cutoff': 0,  # In units of 1e-4
+        'tfs': 1,
+        'top_a': 0,
+        'repetition_penalty': 1.18,
+        'top_k': 40,
+        'min_length': 0,
+        'no_repeat_ngram_size': 0,
+        'num_beams': 1,
+        'penalty_alpha': 0,
+        'length_penalty': 1,
+        'early_stopping': False,
+        'mirostat_mode': 0,
+        'mirostat_tau': 5,
+        'mirostat_eta': 0.1,
+
+        'seed': -1,
+        'add_bos_token': True,
+        'truncation_length': 2048,
+        'ban_eos_token': False,
+        'skip_special_tokens': True,
+        'stopping_strings': []
+    }
+
+    response = requests.post(URI, json=request)
+
+    if response.status_code == 200:
+        result = response.json()['results'][0]['history']
+        print(json.dumps(result, indent=4))
+        print()
+        print(result['visible'][-1][1])
         
         
 def oobabooga_yesno(prompt):
@@ -304,6 +364,7 @@ class MainConversation:
         username = open_file('./config/prompt_username.txt')
         self.max_entries = max_entries
         self.file_path = f'./history/{username}/{bot_name}_main_conversation_history.json'
+        self.file_path2 = f'./history/{username}/{bot_name}_main_history.json'
         self.main_conversation = [prompt, greeting]
 
         # Load existing conversation from file
@@ -328,14 +389,26 @@ class MainConversation:
 
     def save_to_file(self):
         # Combine main conversation and formatted running conversation for saving to file
+        history = self.main_conversation + self.running_conversation
+
         data_to_save = {
             'main_conversation': self.main_conversation,
             'running_conversation': self.running_conversation
         }
+
+        # save history as a list of dictionaries with 'visible' key
+        data_to_save2 = {
+            'history': [{'visible': entry} for entry in history]
+        }
+
         with open(self.file_path, 'w', encoding='utf-8') as f:
             json.dump(data_to_save, f, indent=4)
+        with open(self.file_path2, 'w', encoding='utf-8') as f:
+            json.dump(data_to_save2, f, indent=4)
 
     def get_conversation_history(self):
+        if not os.path.exists(self.file_path) or not os.path.exists(self.file_path2):
+            self.save_to_file()
         return self.main_conversation + ["\n\n".join(entry.split("\n\n")) for entry in self.running_conversation]
         
     
@@ -918,7 +991,7 @@ class ChatBotApplication(tk.Frame):
         counter2 = 0
         mem_counter = 0
         length_config = open_file('./config/Conversation_Length.txt')
-        conv_length = 3
+        conv_length = 2
         bot_name = open_file('./config/prompt_bot_name.txt')
         username = open_file('./config/prompt_username.txt')
         main_prompt = open_file('./config/Chatbot_Prompts/prompt_main.txt').replace('<<NAME>>', bot_name)
@@ -960,16 +1033,21 @@ class ChatBotApplication(tk.Frame):
             vdb = timeout_check()
             timestamp = time()
             timestring = timestamp_to_datetime(timestamp)
+            
+            history = {'internal': [], 'visible': []}
+
+            # Open the JSON file and parse the data
+        #    with open(file_path, 'r', encoding='utf-8') as f:
+        #        data = json.load(f)
+
+            # Access the 'history' field
+        #    history = data['history']
+            
+        #    history = f'{conversation_history}'
+            con_hist = f'{conversation_history}'
             # # Start or Continue Conversation based on if response exists
-            conversation.append({'role': 'system', 'content': 'SYSTEM: %s' % main_prompt})
-            int_conversation.append({'role': 'system', 'content': 'SYSTEM: %s' % main_prompt})
-            if 'response_two' in locals():
-                conversation.append({'role': 'user', 'content': a})
-                conversation.append({'role': 'assistant', 'content': "%s" % response_two})
-                pass
-            else:
-                conversation.append({'role': 'assistant', 'content': f"{bot_name}: %s" % greeting_msg})
-                print("\n%s" % greeting_msg)
+            conversation.append({'role': 'system', 'content': f"%MAIN CHATBOT SYSTEM PROMPT%\n{main_prompt}\n\n"})
+            int_conversation.append({'role': 'system', 'content': f"%MAIN CHATBOT SYSTEM PROMPT%\n{main_prompt}\n\n"})
             # # User Input Voice
         #    yn_voice = input(f'\n\nPress Enter to Speak')
         #    if yn_voice == "":
@@ -1014,7 +1092,7 @@ class ChatBotApplication(tk.Frame):
             # # Check for "Exit"
             if a == 'Exit':
                 return
-            conversation.append({'role': 'user', 'content': f"USER INPUT: {a}"})        
+            conversation.append({'role': 'user', 'content': f"%USER INPUT%\n{a}\n\n"})        
             # # Generate Semantic Search Terms
             tasklist.append({'role': 'system', 'content': "SYSTEM: You are a semantic rephraser. Your role is to interpret the original user query and generate 2-5 synonymous search terms that will guide the exploration of the chatbot's memory database. Each alternative term should reflect the essence of the user's initial search input. Please list your results using a hyphenated bullet point structure.\n\n"})
             tasklist.append({'role': 'user', 'content': "USER: USER INQUIRY: %s\n\n" % a})
@@ -1036,16 +1114,16 @@ class ChatBotApplication(tk.Frame):
                             tasklist_vector := model.encode([line]).tolist(),
                             db_term.update({_index: tasklist_vector}),
                             results := vdb.query(vector=db_term[_index], filter={
-            "memory_type": "explicit_long_term", "user": username}, top_k=4, namespace=f'{bot_name}'),
+            "memory_type": "explicit_long_term", "user": username}, top_k=5, namespace=f'{bot_name}'),
                             db_term_result.update({_index: load_conversation_explicit_long_term_memory(results)}),
                             results := vdb.query(vector=db_term[_index], filter={
-            "memory_type": "implicit_long_term", "user": username}, top_k=4, namespace=f'{bot_name}'),
+            "memory_type": "implicit_long_term", "user": username}, top_k=5, namespace=f'{bot_name}'),
                             db_term_result2.update({_index: load_conversation_implicit_long_term_memory(results)}),
-                            conversation.append({'role': 'assistant', 'content': "MEMORIES: %s\n" % db_term_result[_index]}),
-                            conversation.append({'role': 'assistant', 'content': "MEMORIES: %s\n" % db_term_result2[_index]}),
+                            conversation.append({'role': 'assistant', 'content': f"%LONG TERM CHATBOT MEMORIES%\n{db_term_result[_index]}\n"}),
+                            conversation.append({'role': 'assistant', 'content': f"%LONG TERM CHATBOT MEMORIES%\n{db_term_result2[_index]}\n"}),
                             (
-                                int_conversation.append({'role': 'assistant', 'content': "MEMORIES: %s\n" % db_term_result[_index]}),
-                                int_conversation.append({'role': 'assistant', 'content': "MEMORIES: %s\n" % db_term_result2[_index]})
+                                int_conversation.append({'role': 'assistant', 'content': f"%LONG TERM CHATBOT MEMORIES%\n{db_term_result[_index]}\n" % db_term_result[_index]}),
+                                int_conversation.append({'role': 'assistant', 'content': f"%LONG TERM CHATBOT MEMORIES%\n{db_term_result2[_index]}\n"})
                             ) if _index < 4 else None,
                         ),
                         line, _index, conversation.copy(), int_conversation.copy()
@@ -1087,10 +1165,10 @@ class ChatBotApplication(tk.Frame):
                     print(f"Caught an exception: {e}")
             print(db_search_1, db_search_2, db_search_3, db_search_14)
             # # Inner Monologue Generation
-            conversation.append({'role': 'assistant', 'content': "[SYSTEM]:\nMEMORIES: %s;%s;%s;\n\nHEURISTICS: %s;\nUSER MESSAGE: %s;\nBased on %s's memories and the user, %s's message, compose a short and concise silent soliloquy as %s's inner monologue that reflects on %s's deepest contemplations and emotions in relation to the user's message.\n\nINNER_MONOLOGUE: " % (db_search_1, db_search_2, db_search_3, db_search_14, a, bot_name, username, bot_name, bot_name)})
+            conversation.append({'role': 'assistant', 'content': f"\n%EPISODIC MEMORIES%\n{db_search_1}\n\n%FLASHBULB MEMORIES%\n{db_search_3}\n\n%SHORT-TERM MEMORIES%\n{db_search_2}\n\n%HEURISTICS%\n{db_search_14}\n\n%USER MESSAGE%\n{a}\n\n%CHATBOT TASK%\nBased on {bot_name}'s memories and the user, {username}'s message, compose a short and concise silent soliloquy as {bot_name}'s inner monologue that reflects on {bot_name}'s deepest contemplations and emotions in relation to the conversation.\n\n%RESPONSE%\n{bot_name}: "})
         #    output_one = chatgpt250_completion(conversation)
             prompt = ''.join([message_dict['content'] for message_dict in conversation])
-            output_one = oobabooga_250(prompt)
+            output_one = oobabooga_500(prompt)
         #    message = output_one
             
             paragraph = output_one
@@ -1130,7 +1208,7 @@ class ChatBotApplication(tk.Frame):
         counter2 = 0
         mem_counter = 0
         length_config = open_file('./config/Conversation_Length.txt')
-        conv_length = 3
+        conv_length = 2
         bot_name = open_file('./config/prompt_bot_name.txt')
         username = open_file('./config/prompt_username.txt')
         main_prompt = open_file('./config/Chatbot_Prompts/prompt_main.txt').replace('<<NAME>>', bot_name)
@@ -1146,7 +1224,6 @@ class ChatBotApplication(tk.Frame):
             timestring = timestamp_to_datetime(timestamp)
             # # Start or Continue Conversation based on if response exists
             conversation.append({'role': 'system', 'content': '%s' % main_prompt})
-            int_conversation.append({'role': 'system', 'content': '%s' % main_prompt})
             if 'response_two' in locals():
                 conversation.append({'role': 'user', 'content': a})
                 conversation.append({'role': 'assistant', 'content': "%s" % response_two})
@@ -1203,9 +1280,9 @@ class ChatBotApplication(tk.Frame):
                 future1 = executor.submit(vdb.query, vector=vector_monologue, filter={
             "memory_type": "episodic", "user": username}, top_k=8, namespace=f'{bot_name}')
                 future2 = executor.submit(vdb.query, vector=vector_input, filter={
-            "memory_type": "explicit_short_term"}, top_k=4, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
+            "memory_type": "explicit_short_term"}, top_k=8, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
                 future3 = executor.submit(vdb.query, vector=vector_monologue, filter={
-            "memory_type": "flashbulb", "user": username}, top_k=2, namespace=f'{bot_name}')
+            "memory_type": "flashbulb", "user": username}, top_k=3, namespace=f'{bot_name}')
                 future4 = executor.submit(vdb.query, vector=vector_input, filter={
             "memory_type": "heuristics", "user": username}, top_k=5, namespace=f'{bot_name}')
                 db_search_4, db_search_5, db_search_12, db_search_15 = None, None, None, None
@@ -1222,9 +1299,8 @@ class ChatBotApplication(tk.Frame):
                     print(f"Caught an exception: {e}")
             print(f'{db_search_4}\n{db_search_5}\n{db_search_12}')
             # # Intuition Generation
-            int_conversation.append({'role': 'assistant', 'content': "BOT GREETING: %s\n" % greeting_msg})
-            int_conversation.append({'role': 'user', 'content': f"USER INPUT: {a}\n\n"})
-            int_conversation.append({'role': 'assistant', 'content': f"MEMORIES: {db_search_4}\n{db_search_5}\n{db_search_12}\n\nHEURISTICS: {db_search_15}\n{bot_name}'S INNER THOUGHTS: {output_one}\nUSER'S REQUEST: {a}\nIn a single paragraph, interpret the user, {username}'s message as {bot_name} in third person by creating an intuitive action plan using maieutic reasoning.  If needed use a process similar to creative imagination to visualize the outcome.\nINTUITIVE PLAN: "})
+            int_conversation.append({'role': 'user', 'content': f"%USER INPUT%\n{a}\n\n"})
+            int_conversation.append({'role': 'assistant', 'content': f"%MEMORIES%\n{db_search_4}\n{db_search_5}\n{db_search_12}\n\n%HEURISTICS%\n{db_search_15}\n\n%{bot_name}'S INNER THOUGHTS%\n{output_one}\n\n%USER'S INPUT%\n{a}\n\n%RESPONSE%\nIn a single paragraph, interpret the user, {username}'s message as {bot_name} in third person by creating an intuitive action plan using maieutic reasoning on how to best respond.  You do not have access to external resources. No plan is needed for generic conversation.\n{bot_name}: "})
             
             
             prompt = ''.join([message_dict['content'] for message_dict in int_conversation])
@@ -1350,7 +1426,7 @@ class ChatBotApplication(tk.Frame):
         counter2 = 0
         mem_counter = 0
         length_config = open_file('./config/Conversation_Length.txt')
-        conv_length = 3
+        conv_length = 2
         bot_name = open_file('./config/prompt_bot_name.txt')
         username = open_file('./config/prompt_username.txt')
         main_prompt = open_file('./config/Chatbot_Prompts/prompt_main.txt').replace('<<NAME>>', bot_name)
@@ -1422,7 +1498,7 @@ class ChatBotApplication(tk.Frame):
         # # Update Second Conversation List for Response
             print('\n%s is thinking...\n' % bot_name)
             con_hist = f'{conversation_history}'
-            conversation2.append({'role': 'system', 'content': f"CONVERSATION HISTORY: {con_hist}\n\n"})
+            conversation2.append({'role': 'system', 'content': f"%CONVERSATION HISTORY%\n{con_hist}\n\n"})
             # # Generate Cadence
             index_info = vdb.describe_index_stats()
             namespace_stats = index_info['namespaces']
@@ -1432,13 +1508,13 @@ class ChatBotApplication(tk.Frame):
                 db_search_6 = load_conversation_cadence(results)
                 print(db_search_6)
                 conversation2.append({'role': 'assistant', 'content': "I will extract the cadence from the following messages and mimic it to the best of my ability: %s" % db_search_6})
-            conversation2.append({'role': 'user', 'content': a})  
+            conversation2.append({'role': 'user', 'content': f"%USER INPUT%\n{a}\n\n"})  
             # # Memory DB Search
             with concurrent.futures.ThreadPoolExecutor() as executor:
                 future1 = executor.submit(vdb.query, vector=vector_monologue, filter={
             "memory_type": "implicit_long_term", "user": username}, top_k=3, namespace=f'{bot_name}')
                 future2 = executor.submit(vdb.query, vector=vector_input, filter={
-            "memory_type": "episodic", "user": username}, top_k=2, namespace=f'{bot_name}')
+            "memory_type": "episodic", "user": username}, top_k=5, namespace=f'{bot_name}')
                 future3 = executor.submit(vdb.query, vector=vector_monologue, filter={
             "memory_type": "flashbulb", "user": username}, top_k=2, namespace=f'{bot_name}')
                 db_search_8, db_search_10, db_search_11 = None, None, None
@@ -1454,8 +1530,8 @@ class ChatBotApplication(tk.Frame):
                     print(f"Caught an exception: {e}")
             print(f'{db_search_8}\n{db_search_10}\n{db_search_11}')
             # # Generate Aetherius's Response
-            response_db_search = f"SUBCONSCIOUS: {db_search_8}\n{db_search_10};\n\nFLASHBULB MEMORIES: {db_search_11}"
-            conversation2.append({'role': 'assistant', 'content': f"SUBCONSCIOUS: {db_search_8}\n{db_search_10}\n\nFLASHBULB MEMORIES: {db_search_11}\nINNER THOUGHTS: {output_one}\n\n{second_prompt}\n\n{bot_name}: I am in the middle of a conversation with my user, {username}.\nI will do my best to speak naturally and show emotional intelligence.\nI will follow my intuitive action plan to help formulate my response:\n{output_two}\n\nINITIAL USER REQUEST: {a}\n\nI will now give a complete response to the user's request while following my action plan.\n\n{bot_name}:"})
+            response_db_search = f"SUBCONSCIOUS: {db_search_8}\n{db_search_10}\n{db_search_11}"
+            conversation2.append({'role': 'assistant', 'content': f"%CHATBOTS MEMORIES%\n{db_search_8}\n{db_search_10}\n{db_search_11}\n\n%CHATBOTS INNER THOUGHTS%\n{output_one}\n\n{second_prompt}\nI am in the middle of a conversation with my user, {username}. I will read our conversation log.\nI will do my best to speak naturally and show emotional intelligence.\n\n%CHATBOTS RESPONSE PLANNING%\nnow, I will implement my intuitive action plan to structure my response:\n{output_two}\n\n%USER INPUT%\n{a}\n\n%CHATBOTS RESPONSE PROMPT%\nI am now going to generate a detailed and comprehensive response to the user's input by expanding upon my action plan in response planning.  I will ensure my response is congruent to the users input and continues the conversation.\n\n%RESPONSE%\n{bot_name}:"})
             
             prompt = ''.join([message_dict['content'] for message_dict in conversation2])
             response_two = oobabooga_500(prompt)
@@ -1463,7 +1539,7 @@ class ChatBotApplication(tk.Frame):
             
         #    response_two = chatgptresponse_completion(conversation2)
             print('\n\n%s: %s' % (bot_name, response_two))
-            main_conversation.append(timestring, a, username, bot_name, response_two)
+            main_conversation.append(timestring, username, a, bot_name, response_two)
             final_message = f'\nUSER: {a}\n\n{bot_name}: {response_two}'
             # # TTS 
         #    tts = gTTS(response_two)
@@ -1600,7 +1676,7 @@ class ChatBotApplication(tk.Frame):
         counter2 = 0
         mem_counter = 0
         length_config = open_file('./config/Conversation_Length.txt')
-        conv_length = 3
+        conv_length = 2
         bot_name = open_file('./config/prompt_bot_name.txt')
         username = open_file('./config/prompt_username.txt')
         main_prompt = open_file('./config/Chatbot_Prompts/prompt_main.txt').replace('<<NAME>>', bot_name)

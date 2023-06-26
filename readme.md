@@ -5,6 +5,8 @@ Version .042a of Aetherius Personal Assistant by LibraryofCelsus.com
 
 **Experimental Folder Changelog**
 
+-Added Local Embedding Version of the OpenAi API chatbot.  This version uses a 768 dimension Index.
+
 -Added Experimental Oobabooga API conversion.  Prompts still need to be finetuned.  Tested with TheBloke/Wizard-Vicuna-13B-Uncensored-HF.  A new Index on Pinecone needs to be created to use this using 768 Dimensions instead of 1536.
 
 ------

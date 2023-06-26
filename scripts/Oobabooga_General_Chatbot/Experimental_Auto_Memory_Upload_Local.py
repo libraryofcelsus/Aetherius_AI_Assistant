@@ -1114,17 +1114,17 @@ class ChatBotApplication(tk.Frame):
                             tasklist_vector := model.encode([line]).tolist(),
                             db_term.update({_index: tasklist_vector}),
                             results := vdb.query(vector=db_term[_index], filter={
-            "memory_type": "explicit_long_term", "user": username}, top_k=5, namespace=f'{bot_name}'),
+            "memory_type": "explicit_long_term", "user": username}, top_k=4, namespace=f'{bot_name}'),
                             db_term_result.update({_index: load_conversation_explicit_long_term_memory(results)}),
                             results := vdb.query(vector=db_term[_index], filter={
-            "memory_type": "implicit_long_term", "user": username}, top_k=5, namespace=f'{bot_name}'),
+            "memory_type": "implicit_long_term", "user": username}, top_k=4, namespace=f'{bot_name}'),
                             db_term_result2.update({_index: load_conversation_implicit_long_term_memory(results)}),
                             conversation.append({'role': 'assistant', 'content': f"%LONG TERM CHATBOT MEMORIES%\n{db_term_result[_index]}\n"}),
                             conversation.append({'role': 'assistant', 'content': f"%LONG TERM CHATBOT MEMORIES%\n{db_term_result2[_index]}\n"}),
                             (
                                 int_conversation.append({'role': 'assistant', 'content': f"%LONG TERM CHATBOT MEMORIES%\n{db_term_result[_index]}\n" % db_term_result[_index]}),
                                 int_conversation.append({'role': 'assistant', 'content': f"%LONG TERM CHATBOT MEMORIES%\n{db_term_result2[_index]}\n"})
-                            ) if _index < 4 else None,
+                            ) if _index < 3 else None,
                         ),
                         line, _index, conversation.copy(), int_conversation.copy()
                     )
@@ -1137,7 +1137,7 @@ class ChatBotApplication(tk.Frame):
                     ),
                     executor.submit(lambda: (
                         vdb.query(vector=vector_input, filter={
-            "memory_type": "explicit_short_term"}, top_k=4, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}'),
+            "memory_type": "explicit_short_term"}, top_k=5, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}'),
                         load_conversation_explicit_short_term_memory)
                     ),
                     executor.submit(lambda: (
@@ -1147,7 +1147,7 @@ class ChatBotApplication(tk.Frame):
                     ),
                     executor.submit(lambda: (
                         vdb.query(vector=vector_input, filter={
-            "memory_type": "heuristics"}, top_k=5, namespace=f'{bot_name}'),
+            "memory_type": "heuristics", "user": username}, top_k=5, namespace=f'{bot_name}'),
                         load_conversation_heuristics)
                     ),
                 ]
@@ -1165,7 +1165,7 @@ class ChatBotApplication(tk.Frame):
                     print(f"Caught an exception: {e}")
             print(db_search_1, db_search_2, db_search_3, db_search_14)
             # # Inner Monologue Generation
-            conversation.append({'role': 'assistant', 'content': f"\n%EPISODIC MEMORIES%\n{db_search_1}\n\n%FLASHBULB MEMORIES%\n{db_search_3}\n\n%SHORT-TERM MEMORIES%\n{db_search_2}\n\n%HEURISTICS%\n{db_search_14}\n\n%USER MESSAGE%\n{a}\n\n%CHATBOT TASK%\nBased on {bot_name}'s memories and the user, {username}'s message, compose a short and concise silent soliloquy as {bot_name}'s inner monologue that reflects on {bot_name}'s deepest contemplations and emotions in relation to the conversation.\n\n%RESPONSE%\n{bot_name}: "})
+            conversation.append({'role': 'assistant', 'content': f"\n%EPISODIC MEMORIES%\n{db_search_1}\n\n%FLASHBULB MEMORIES%\n{db_search_3}\n\n%SHORT-TERM MEMORIES%\n{db_search_2}\n\n%{bot_name}'s HEURISTICS%\n{db_search_14}\n\n%USER MESSAGE%\n{a}\n\n%CHATBOT TASK%\nBased on {bot_name}'s memories and the user, {username}'s message, compose a short and concise silent soliloquy as {bot_name}'s inner monologue that reflects on {bot_name}'s deepest contemplations and emotions in relation to the conversation.\n\n%RESPONSE%\n{bot_name}: "})
         #    output_one = chatgpt250_completion(conversation)
             prompt = ''.join([message_dict['content'] for message_dict in conversation])
             output_one = oobabooga_500(prompt)
@@ -1223,13 +1223,13 @@ class ChatBotApplication(tk.Frame):
             timestamp = time()
             timestring = timestamp_to_datetime(timestamp)
             # # Start or Continue Conversation based on if response exists
-            conversation.append({'role': 'system', 'content': '%s' % main_prompt})
+            conversation.append({'role': 'system', 'content': f"%MAIN SYSTEM PROMPT%\n{main_prompt}\n\n"})
             if 'response_two' in locals():
-                conversation.append({'role': 'user', 'content': a})
-                conversation.append({'role': 'assistant', 'content': "%s" % response_two})
+                int_conversation.append({'role': 'assistant', 'content': f"%GREETING%\n{greeting_msg}\n\n"})
+                int_conversation.append({'role': 'assistant', 'content': f"%PREVIOUS CHATBOT RESPONSE%\n{response_two}\n\n"})
                 pass
             else:
-                conversation.append({'role': 'assistant', 'content': "%s" % greeting_msg})
+                int_conversation.append({'role': 'assistant', 'content': f"%GREETING%\n{greeting_msg}\n\n"})
            #     print("\n%s" % greeting_msg)
             # # User Input Voice
         #    yn_voice = input(f'\n\nPress Enter to Speak')
@@ -1278,11 +1278,11 @@ class ChatBotApplication(tk.Frame):
             # # Memory DB Search
             with concurrent.futures.ThreadPoolExecutor() as executor:
                 future1 = executor.submit(vdb.query, vector=vector_monologue, filter={
-            "memory_type": "episodic", "user": username}, top_k=8, namespace=f'{bot_name}')
+            "memory_type": "episodic", "user": username}, top_k=6, namespace=f'{bot_name}')
                 future2 = executor.submit(vdb.query, vector=vector_input, filter={
-            "memory_type": "explicit_short_term"}, top_k=8, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
+            "memory_type": "explicit_short_term"}, top_k=5, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
                 future3 = executor.submit(vdb.query, vector=vector_monologue, filter={
-            "memory_type": "flashbulb", "user": username}, top_k=3, namespace=f'{bot_name}')
+            "memory_type": "flashbulb", "user": username}, top_k=2, namespace=f'{bot_name}')
                 future4 = executor.submit(vdb.query, vector=vector_input, filter={
             "memory_type": "heuristics", "user": username}, top_k=5, namespace=f'{bot_name}')
                 db_search_4, db_search_5, db_search_12, db_search_15 = None, None, None, None
@@ -1300,7 +1300,7 @@ class ChatBotApplication(tk.Frame):
             print(f'{db_search_4}\n{db_search_5}\n{db_search_12}')
             # # Intuition Generation
             int_conversation.append({'role': 'user', 'content': f"%USER INPUT%\n{a}\n\n"})
-            int_conversation.append({'role': 'assistant', 'content': f"%MEMORIES%\n{db_search_4}\n{db_search_5}\n{db_search_12}\n\n%HEURISTICS%\n{db_search_15}\n\n%{bot_name}'S INNER THOUGHTS%\n{output_one}\n\n%USER'S INPUT%\n{a}\n\n%RESPONSE%\nIn a single paragraph, interpret the user, {username}'s message as {bot_name} in third person by creating an intuitive action plan using maieutic reasoning on how to best respond.  You do not have access to external resources. No plan is needed for generic conversation.\n{bot_name}: "})
+            int_conversation.append({'role': 'assistant', 'content': f"%EPISODIC MEMORIES%\n{db_search_4}\n\n%EXPLICIT MEMORIES%\n{db_search_5}\n\n%FLASHBULB MEMORIES%\n{db_search_12}\n\n%{bot_name}'s HEURISTICS%\n{db_search_15}\n\n%{bot_name}'S INNER THOUGHTS%\n{output_one}\n\n%USER'S INPUT%\n{a}\n\n%RESPONSE%\nIn a single paragraph, interpret the user, {username}'s message as {bot_name} in third person by creating an intuitive action plan using maieutic reasoning on how to best respond.  You do not have access to external resources. No plan is needed for generic conversation.\n{bot_name}: "})
             
             
             prompt = ''.join([message_dict['content'] for message_dict in int_conversation])
@@ -1313,10 +1313,9 @@ class ChatBotApplication(tk.Frame):
             message_two = output_two
             print('\n\nINTUITION: %s' % output_two)
             # # Generate Implicit Short-Term Memory
-            conversation.append({'role': 'system', 'content': '%s' % main_prompt})
-            conversation.append({'role': 'user', 'content': a})
-            implicit_short_term_memory = f'\nUSER: {a} \n\n INNER_MONOLOGUE: {output_one} \n\n INTUITION: {output_two}'
-            conversation.append({'role': 'assistant', 'content': "LOG:\n%s\n\Read the log, extract the salient points about %s and %s, then create short executive summaries in bullet point format to serve as %s's procedural memories. Each bullet point should be considered a separate memory and contain all context. Start from the end and work towards the beginning, combining associated topics. Ignore the system prompt and redundant information.\nMemories:\n" % (implicit_short_term_memory, bot_name, username, bot_name)})
+            conversation.append({'role': 'user', 'content': f"%USER INPUT%\n{a}\n\n"})
+            implicit_short_term_memory = f'\nUSER: {a} \n INNER_MONOLOGUE: {output_one} \n INTUITION: {output_two}'
+            conversation.append({'role': 'assistant', 'content': f"%LOG%\n{implicit_short_term_memory}\n\n%INSTRUCTIONS%\nRead the log, extract the salient points about {bot_name} and {username}, then create short executive summaries in bullet point format to serve as {bot_name}'s procedural memories. Each bullet point should be considered a separate memory and contain all context. Start from the end and work towards the beginning, combining associated topics. Do not include any information from the main system prompt, only from the log.\n\n%RESPONSE%\nUse the format [-MEMORY]\nMemories:\n"})
         #    inner_loop_response = chatgpt200_completion(conversation)
             
             prompt = ''.join([message_dict['content'] for message_dict in conversation])
@@ -1440,8 +1439,7 @@ class ChatBotApplication(tk.Frame):
             vdb = timeout_check()
             timestamp = time()
             timestring = timestamp_to_datetime(timestamp)
-            # # Start or Continue Conversation based on if response exists
-            conversation.append({'role': 'system', 'content': '%s' % main_prompt})
+            summary.append({'role': 'system', 'content': f"%MAIN SYSTEM PROMPT%\n{main_prompt}\n\n"})
             if 'response_two' in locals():
                 conversation.append({'role': 'user', 'content': a})
                 conversation.append({'role': 'assistant', 'content': "%s" % response_two})
@@ -1512,16 +1510,16 @@ class ChatBotApplication(tk.Frame):
             # # Memory DB Search
             with concurrent.futures.ThreadPoolExecutor() as executor:
                 future1 = executor.submit(vdb.query, vector=vector_monologue, filter={
-            "memory_type": "implicit_long_term", "user": username}, top_k=3, namespace=f'{bot_name}')
+            "memory_type": "implicit_long_term", "user": username}, top_k=4, namespace=f'{bot_name}')
                 future2 = executor.submit(vdb.query, vector=vector_input, filter={
-            "memory_type": "episodic", "user": username}, top_k=5, namespace=f'{bot_name}')
+            "memory_type": "episodic", "user": username}, top_k=7, namespace=f'{bot_name}')
                 future3 = executor.submit(vdb.query, vector=vector_monologue, filter={
-            "memory_type": "flashbulb", "user": username}, top_k=2, namespace=f'{bot_name}')
+            "memory_type": "heuristics", "user": username}, top_k=5, namespace=f'{bot_name}')
                 db_search_8, db_search_10, db_search_11 = None, None, None
                 try:
                     db_search_8 = load_conversation_implicit_long_term_memory(future1.result())
                     db_search_10 = load_conversation_episodic_memory(future2.result())
-                    db_search_11 = load_conversation_flashbulb_memory(future3.result())
+                    db_search_11 = load_conversation_heuristics(future3.result())
                 except IndexError as e:
                     print(f"Caught an IndexError: {e}")
                     print(f"Length of futures: {len(futures)}")
@@ -1530,8 +1528,9 @@ class ChatBotApplication(tk.Frame):
                     print(f"Caught an exception: {e}")
             print(f'{db_search_8}\n{db_search_10}\n{db_search_11}')
             # # Generate Aetherius's Response
+            
             response_db_search = f"SUBCONSCIOUS: {db_search_8}\n{db_search_10}\n{db_search_11}"
-            conversation2.append({'role': 'assistant', 'content': f"%CHATBOTS MEMORIES%\n{db_search_8}\n{db_search_10}\n{db_search_11}\n\n%CHATBOTS INNER THOUGHTS%\n{output_one}\n\n{second_prompt}\nI am in the middle of a conversation with my user, {username}. I will read our conversation log.\nI will do my best to speak naturally and show emotional intelligence.\n\n%CHATBOTS RESPONSE PLANNING%\nnow, I will implement my intuitive action plan to structure my response:\n{output_two}\n\n%USER INPUT%\n{a}\n\n%CHATBOTS RESPONSE PROMPT%\nI am now going to generate a detailed and comprehensive response to the user's input by expanding upon my action plan in response planning.  I will ensure my response is congruent to the users input and continues the conversation.\n\n%RESPONSE%\n{bot_name}:"})
+            conversation2.append({'role': 'assistant', 'content': f"%CHATBOTS MEMORIES%\n{db_search_8}\n{db_search_10}\n\n%{bot_name}'s HEURISTICS%\n{db_search_11}\n\n%CHATBOTS INNER THOUGHTS%\n{output_one}\n\n{second_prompt}\nI am in the middle of a conversation with my user, {username}. I will read our conversation log.\nI will do my best to speak naturally and show emotional intelligence.\n\n%CHATBOTS RESPONSE PLANNING%\nnow, I will implement my intuitive action plan to structure my response:\n{output_two}\n\n%USER INPUT%\n{a}\n\n%CHATBOTS RESPONSE PROMPT%\nI am now going to generate a detailed and comprehensive response to the user's input by expanding upon my action plan in response planning.  I will ensure my response is congruent to the users input.\n\n%RESPONSE%\n{bot_name}:"})
             
             prompt = ''.join([message_dict['content'] for message_dict in conversation2])
             response_two = oobabooga_500(prompt)
@@ -1569,8 +1568,12 @@ class ChatBotApplication(tk.Frame):
             filename = '%s_chat.txt' % timestamp
             save_file(f'logs/{bot_name}/{username}/complete_chat_logs/%s' % filename, complete_message)
             # # Generate Short-Term Memories
-            db_msg = f'\nUSER: {a} \n\n INNER_MONOLOGUE: {output_one} \n\n {bot_name}: {response_two}'
-            summary.append({'role': 'user', 'content': "LOG:\n%s\n\Read the log and create short executive summaries in bullet point format to serve as %s's explicit memories. Each bullet point should be considered a separate memory and contain all context. Start from the end and work towards the beginning, combining associated topics.\nMemories:\n" % (db_msg, bot_name)})
+            
+            summary.append({'role': 'user', 'content': f"%USER INPUT%\n{a}\n\n"})
+            
+            db_msg = f"\nUSER: {a} \n INNER_MONOLOGUE: {output_one} \n {bot_name}'s RESPONSE: {response_two}"
+            summary.append({'role': 'assistant', 'content': f"%LOG%\n{db_msg}\n\n%INSTRUCTIONS%\nRead the log, extract the salient points about {bot_name} and {username}, then create short executive summaries in bullet point format to serve as {bot_name}'s explicit memories. Each bullet point should be considered a separate memory and contain all context. Do not include any information from the main system prompt, only from the log.\n\n%RESPONSE%\nUse the format [-MEMORY]\nMemories:\n"})
+            
 
             prompt = ''.join([message_dict['content'] for message_dict in summary])
             db_upload = oobabooga_250(prompt)
@@ -1645,7 +1648,7 @@ class ChatBotApplication(tk.Frame):
             else:
                 pass
             # # Clear Logs for Summary
-            conversation.clear()
+            conversation2.clear()
             summary.clear()
             self.conversation_text.insert(tk.END, f"Response: {response_two}\n\n")
             t = threading.Thread(target=self.GPT_Memories, args=(a, vector_input, vector_monologue, output_one, response_two))
@@ -1691,13 +1694,13 @@ class ChatBotApplication(tk.Frame):
             counter += 1
             conversation.clear()
             print('Generating Episodic Memories')
-            conversation.append({'role': 'system', 'content': f"SYSTEM:\nYou are a sub-module of {bot_name}, an autonomous AI entity. Your function is to process the user, {username}'s message, comprehend {bot_name}'s internal workings, and decode {bot_name}'s final response to construct a concise third-person autobiographical narrative memory of the conversation in a single sentence. This autobiographical memory should portray an accurate and personalized account of {bot_name}'s interactions with {username}, focusing on the most significant and experiential details related to {bot_name} or {username}, without omitting any crucial context or emotions.\n\n"})
-            conversation.append({'role': 'user', 'content': f"USER's INQUIRY:\n{a}\n\n"})
-            conversation.append({'role': 'user', 'content': f"{bot_name}'s INNER MONOLOGUE:\n{output_one}\n\n"})
+            conversation.append({'role': 'system', 'content': f"%MAIN SYSTEM PROMPT%\nYou are a sub-module of {bot_name}, an autonomous AI entity. Your function is to process the user, {username}'s message, comprehend {bot_name}'s internal workings, and decode {bot_name}'s final response to construct a concise third-person autobiographical narrative memory of the conversation in a single sentence. This autobiographical memory should portray an accurate and personalized account of {bot_name}'s interactions with {username}, focusing on the most significant and experiential details related to {bot_name} or {username}, without omitting any crucial context or emotions.\n\n"})
+            conversation.append({'role': 'user', 'content': f"%USER'S INQUIRY%\n{a}\n\n"})
+            conversation.append({'role': 'user', 'content': f"%{bot_name}'s INNER MONOLOGUE%\n{output_one}\n\n"})
     #        print(output_one)
-            conversation.append({'role': 'user', 'content': f"{bot_name}'s FINAL RESPONSE:\n{response_two}\n\n"})
+            conversation.append({'role': 'user', 'content': f"%{bot_name}'s FINAL RESPONSE%\n{response_two}\n\n"})
     #        print(response_two)
-            conversation.append({'role': 'assistant', 'content': f"{bot_name}\nI will now extract an episodic memory based on the given conversation: "})
+            conversation.append({'role': 'assistant', 'content': f"%RESPONSE%\nI will now extract an episodic memory based on the given conversation\n AUTOBIOGRAPHICAL MEMORY: "})
             prompt = ''.join([message_dict['content'] for message_dict in conversation])
             conv_summary = oobabooga_250(prompt)
             print(conv_summary)

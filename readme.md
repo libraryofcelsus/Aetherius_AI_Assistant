@@ -5,6 +5,10 @@ Version .042a of Aetherius Personal Assistant by LibraryofCelsus.com
 
 **Experimental Folder Changelog**
 
+-Oobabooga Chatbot prompts have been better finetuned and it performs much better.
+
+-Added Experimental Oobabooga Version of the webscrape tool.  As of now only the webscrape and search use the Oobabooga api, chatbot part still uses Open Ai.
+
 -Added Local Embedding Version of the OpenAi API chatbot.  This version uses a 768 dimension Index.
 
 -Added Experimental Oobabooga API conversion.  Prompts still need to be finetuned.  Tested with TheBloke/Wizard-Vicuna-13B-Uncensored-HF.  A new Index on Pinecone needs to be created to use this using 768 Dimensions instead of 1536.

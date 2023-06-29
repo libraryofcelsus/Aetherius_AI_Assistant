@@ -1225,7 +1225,7 @@ class ChatBotApplication(tk.Frame):
             timestring = timestamp_to_datetime(timestamp)
             con_hist = f'{conversation_history}'
             # # Start or Continue Conversation based on if response exists
-            conversation.append({'role': 'system', 'content': f"%MAIN SYSTEM PROMPT%\n{main_prompt}\n\n"})
+            conversation.append({'role': 'system', 'content': f"%MAIN SYSTEM PROMPT%\n{greeting_msg}\n\n"})
             int_conversation.append({'role': 'system', 'content': f"%MAIN SYSTEM PROMPT%\n{con_hist}\n\n"})
     #        if 'response_two' in locals():
     #            int_conversation.append({'role': 'assistant', 'content': f"%GREETING%\n{greeting_msg}\n\n"})
@@ -1532,7 +1532,7 @@ class ChatBotApplication(tk.Frame):
             # # Generate Aetherius's Response
             
             response_db_search = f"SUBCONSCIOUS: {db_search_8}\n{db_search_10}\n{db_search_11}"
-            conversation2.append({'role': 'assistant', 'content': f"%CHATBOTS MEMORIES%\n{db_search_8}\n{db_search_10}\n\n%{bot_name}'s HEURISTICS%\n{db_search_11}\n\n%CHATBOTS INNER THOUGHTS%\n{output_one}\n\n{second_prompt}\nI am in the middle of a conversation with my user, {username}. I will read our conversation log.\nI will do my best to speak naturally and show emotional intelligence.\n\n%CHATBOTS RESPONSE PLANNING%\nnow, I will implement my intuitive action plan to structure my response:\n{output_two}\n\n%USER INPUT%\n{a}\n\n%CHATBOTS RESPONSE PROMPT%\nI am now going to generate a single detailed and comprehensive response to the user's input by expanding upon my action plan in response planning.  I will ensure my response is congruent to the users input.\n\n%RESPONSE%\n{bot_name}:"})
+            conversation2.append({'role': 'assistant', 'content': f"%CHATBOTS MEMORIES%\n{db_search_8}\n{db_search_10}\n\n%{bot_name}'s HEURISTICS%\n{db_search_11}\n\n%CHATBOTS INNER THOUGHTS%\n{output_one}\n\n{second_prompt}\nI am in the middle of a conversation with my user, {username}. I will read our conversation log.\nI will do my best to speak naturally and show emotional intelligence.\n\n%CHATBOTS RESPONSE PLANNING%\nnow, I will implement my intuitive action plan to structure my response:\n{output_two}\n\n%USER INPUT%\n{username}: {a}\n\n%CHATBOTS RESPONSE PROMPT%\nI am now going to generate a single detailed and comprehensive response to the user's input by expanding upon my action plan in response planning.  I will ensure my response is congruent to the user, {username}'s input.\n\n%RESPONSE%\n{bot_name}:"})
             
             prompt = ''.join([message_dict['content'] for message_dict in conversation2])
             response_two = oobabooga_500(prompt)
@@ -1570,7 +1570,7 @@ class ChatBotApplication(tk.Frame):
             filename = '%s_chat.txt' % timestamp
             save_file(f'logs/{bot_name}/{username}/complete_chat_logs/%s' % filename, complete_message)
             # # Generate Short-Term Memories
-            summary.append({'role': 'system', 'content': f"%MAIN SYSTEM PROMPT%\n{main_prompt}\n\n"})
+            summary.append({'role': 'system', 'content': f"%MAIN SYSTEM PROMPT%\n{greeting_msg}\n\n"})
             summary.append({'role': 'user', 'content': f"%USER INPUT%\n{a}\n\n"})
             
             db_msg = f"\nUSER: {a} \n INNER_MONOLOGUE: {output_one} \n {bot_name}'s RESPONSE: {response_two}"
@@ -1763,10 +1763,10 @@ class ChatBotApplication(tk.Frame):
             index_info = vdb.describe_index_stats()
             namespace_stats = index_info['namespaces']
             namespace_name = f'short_term_memory_User_{username}_Bot_{bot_name}'
-            if namespace_name in namespace_stats and namespace_stats[namespace_name]['vector_count'] > 40:
+            if namespace_name in namespace_stats and namespace_stats[namespace_name]['vector_count'] > 25:
                 consolidation.clear()
                 print(f"{namespace_name} has 30 or more entries, starting memory consolidation.")
-                results = vdb.query(vector=vector_input, filter={"memory_type": "explicit_short_term"}, top_k=30, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
+                results = vdb.query(vector=vector_input, filter={"memory_type": "explicit_short_term"}, top_k=25, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
                 memory_consol_db = load_conversation_explicit_short_term_memory(results)
                 print(memory_consol_db)
                 print('--------')
@@ -1855,7 +1855,7 @@ class ChatBotApplication(tk.Frame):
                     print('--------')
                     ids_to_delete = [m['id'] for m in results['matches']]
                     consolidation.append({'role': 'system', 'content': "%s" % main_prompt})
-                    consolidation.append({'role': 'assistant', 'content': f"%LOG%\n{memory_consol_db1}\n\n%RESPONSE%\nRead the Log and consolidate the different memories into executive summaries in a process allegorical to associative processing. Each summary should contain the entire context of the memory. Follow the bullet point format: [-<EMOTIONAL TAG>: <IMPLICIT MEMORY>]:\n{bot_name}:"})
+                    consolidation.append({'role': 'assistant', 'content': f"%LOG%\n{memory_consol_db1}\n\n%RESPONSE INSTRUCTIONS%\nRead the Log and consolidate the different memories into executive summaries in a process allegorical to associative processing. Each summary should contain the entire context of the memory. Follow the bullet point format: [-<EMOTIONAL TAG>: <IMPLICIT MEMORY>].\n\n%RESPONSE%\n{bot_name}:\n"})
                     
                     prompt = ''.join([message_dict['content'] for message_dict in consolidation])
                     memory_consol4 = oobabooga_500(prompt)
@@ -1904,7 +1904,7 @@ class ChatBotApplication(tk.Frame):
                     ids_to_delete2 = [m['id'] for m in results['matches']]
                     consolidation.clear()
                     consolidation.append({'role': 'system', 'content': f"%MAIN SYSTEM PROMPT%\n{main_prompt}\n\n"})
-                    consolidation.append({'role': 'assistant', 'content': f"%LOG%\n{memory_consol_db2}\n\n%RESPONSE%\nRead the Log and consolidate the different memories into executive summaries in a process allegorical to associative processing. Each summary should contain the entire context of the memory. Follow the bullet point format: [-<SEMANTIC TAG>: <EXPLICIT MEMORY>]:\n{bot_name}:"})
+                    consolidation.append({'role': 'assistant', 'content': f"%LOG%\n{memory_consol_db2}\n\n%INSTRUCTIONS%\nRead the Log and consolidate the different memories into executive summaries in a process allegorical to associative processing. Each summary should contain the entire context of the memory.\n\n%FORMAT%\nFollow the bullet point format: [-<SEMANTIC TAG>: <EXPLICIT MEMORY>].\n\n%RESPONSE%\n{bot_name}:\n"})
                     
                     prompt = ''.join([message_dict['content'] for message_dict in consolidation])
                     memory_consol5 = oobabooga_500(prompt)

@@ -225,13 +225,13 @@ Upload heuristics to DB and start chatting with Aetheius, bot name, heuristic ex
 
 7. Create a virtual environment: **python -m venv venv**
 
-8. Activate the environment: **.\venv\scripts\activate**   (This must be done before running Aetherius each time, using an IDE like PyCharm can let you skip this.)
+8. Activate the environment: **.\venv\scripts\activate**   (This must be done before running Aetherius each time, using an IDE like PyCharm can let you skip this. The run.bat will also automatically do this.)
 
 9. Install the required packages: **pip install -r requirements.txt**
 
 10. Copy your OpenAI api key to key_openai.txt
 
-11. Create a Index on pinecone.io titled: "aetherius" with 1536 dimensions and cosine as the metric. I usually do a P1 instance.
+11. Create a Index on pinecone.io titled: "aetherius" with 768 dimensions and cosine as the metric. I usually do a P1 instance. (Use 1536 dimensions for Open Ai embeddings.)
 
 12. Copy Api key for that Index and paste it in key_pinecone.txt
 
@@ -241,27 +241,19 @@ Upload heuristics to DB and start chatting with Aetheius, bot name, heuristic ex
 
 15. Copy your Google CSE ID to key_google_cse.txt
 
-16. Edit the .txt files in the "config" folder to customize the bot.
+17. Run main.py with **python main.py** in cmd to start Aetherius.
 
-17. Run main.py with **python main.py** to start Aetherius, Select DB Management.
+18. Select DB Upload Heuristics from the DB Management menu to upload Heuristics for the bot, this DB can also function as a Personality DB. An example of how to do this can be found in "personality_db_input_examples.txt" in the config folder.
 
-18. Select DB Upload Heuristics to upload secondary Heuristics for the bot, this DB can also function as a Personality DB. An example of how to do this can be found in "personality_db_input_examples.txt" in the config folder.
+21. Edit the chatbot's prompts with the Config Menu. This will let you change the main, secondary, and greeting prompts.  You can also change things like the font style and size.
 
-19. Upload your desired Cadence to "DB Upload Cadence" in DB Management. This should be a direct example of the speech style, not a description. I suggest asking Aetherius to use the diction of a "____" to generate an example, then copy paste the response to the Cadence Upload.
+22. You can change the botname and the username in the login menu.  Changing either of these will create a new chatbot.
 
-20. Type "Exit" to return to the main menu. Now select "OpenAi_General_Chatbot"
+23. Once the chatbot has adopted a desired personality, I recommend creating a backup of the "nexus" folder and then create a collection of the "aetherius" index on pinecone.io.  This will let you revert back to a base state if issues arise later.
 
-21. Select one of the "Training" chatbot modes, this will enable you to choose what gets uploaded to the chatbots memories.  It also functions as a "Manual" mode. (Previous Manual mode has been removed)
+24. Once you have made a backup, you can start using the "Auto" mode, this mode has Aetherius decide for itself whether or not it should upload to its memories.
 
-22. Once the chatbot has adopted a desired personality, I recommend creating a backup of the "nexus" folder and then create a collection of the "aetherius" index on pinecone.io.  This will let you revert back to a base state if issues arise later.
 
-23. Once you have made a backup, you can start using the "Auto" mode, this mode has Aetherius decide for itself whether or not it should upload to its memories.
-
-24. Type "Clear Memories" to clear short term memory. Type "Exit" to exit without saving the current conversation to episodic memory. Type "Save and Exit" to summarize the current conversation and upload it to episodic memories.
-
-25. To reset Aetherius completely, enter DB Management and select "Reset Pinecone Index". Type "Reset Index" to delete and remake the index.  This takes a little bit so wait at least 1 minuite before attempting to access it.
-
-26. Using the GPT 3.5 scripts causes a significant decrease in intelligence, and as such generally shouldn't be used for initial training.
 
 # Contact
 Discord: libraryofcelsus      -> Old Username Style: Celsus#0262

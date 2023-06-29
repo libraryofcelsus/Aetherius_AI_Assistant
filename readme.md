@@ -201,9 +201,19 @@ Copy your OpenAi and Pinecone API keys to api_key folder inside of the created A
 
 Launch Aetherius with **run.bat**
 
-Select DB Management and select Reset Pinecone Index to create an index.
+At pinecone.io, create an index named "Aetherius" with 768 dimensions and "cosine" as the metric.
 
-Upload heuristics to DB and start chatting with Aetheius, bot name, heuristic examples, and files to modify prompts can be found in the config folder!
+Upload heuristics to DB and start chatting with Aetheius. Heuristic examples, and files to modify prompts can be found in the config folder!  Prompts can also be edited through the Config Menu.
+
+To run Aetherius Locally using Oobabooga, first install the web-ui at: https://github.com/oobabooga/text-generation-webui
+
+Then, under the "Interface Mode" tab, enable the api checkbox in both fields. Then click apply and restart the interface.
+
+Next, navigate to the models tab. Uncheck the autoload models box and then input "TheBloke/Wizard-Vicuna-13B-Uncensored-SuperHOT-8K-GPTQ" into the downloads box. Other models may work, but this is the one that is tested.
+
+Once the download is completed, reload the model selection menu and then select the model. Change the model loader to Exllama and set the max_seq_len to "4096" and compress_pos_emb to "2".
+
+Click the "load" button and load the model. The Oobabooga API bots should now work!
 
 ## Windows Installation
 

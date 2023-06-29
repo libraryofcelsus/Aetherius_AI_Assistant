@@ -253,6 +253,15 @@ Upload heuristics to DB and start chatting with Aetheius, bot name, heuristic ex
 
 24. Once you have made a backup, you can start using the "Auto" mode, this mode has Aetherius decide for itself whether or not it should upload to its memories.
 
+25. To run Aetherius Locally using Oobabooga, first install the web-ui at: https://github.com/oobabooga/text-generation-webui
+
+26. Then, under the "Interface Mode" tab, enable the api checkbox in both fields.  Then click apply and restart the interface.
+
+27. Next, navigate to the models tab. Uncheck the autoload models box and then input "TheBloke/Wizard-Vicuna-13B-Uncensored-SuperHOT-8K-GPTQ" into the downloads box. Other models may work, but this is the one that is tested.
+
+28. Once the download is completed, reload the model selection menu and then select the model. Change the model loader to Exllama and set the max_seq_len to "4096" and compress_pos_emb to "2".
+
+29. Click the "load" button and load the model.  The Oobabooga API bots should now work!
 
 
 # Contact

@@ -70,7 +70,7 @@ def oobabooga_250(prompt):
 
         'seed': -1,
         'add_bos_token': True,
-        'truncation_length': 2048,
+        'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
         'stopping_strings': []
@@ -114,7 +114,7 @@ def oobabooga_500(prompt):
 
         'seed': -1,
         'add_bos_token': True,
-        'truncation_length': 2048,
+        'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
         'stopping_strings': []
@@ -172,7 +172,7 @@ def oobabooga_inner_monologue(user_input, history):
 
         'seed': -1,
         'add_bos_token': True,
-        'truncation_length': 2048,
+        'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
         'stopping_strings': []
@@ -217,7 +217,7 @@ def oobabooga_yesno(prompt):
 
         'seed': -1,
         'add_bos_token': True,
-        'truncation_length': 2048,
+        'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
         'stopping_strings': []
@@ -1359,7 +1359,7 @@ class ChatBotApplication(tk.Frame):
             print(f'{db_search_4}\n{db_search_5}\n{db_search_12}')
             # # Intuition Generation
             int_conversation.append({'role': 'user', 'content': f"%USER INPUT%\n{a}\n\n"})
-            int_conversation.append({'role': 'assistant', 'content': f"%FLASHBULB MEMORIES%\n{db_search_12}\n\n%EPISODIC MEMORIES%\n{db_search_4}\n\n%EXPLICIT MEMORIES%\n{db_search_5}\n\n%{bot_name}'s HEURISTICS%\n{db_search_15}\n\n%{bot_name}'S INNER THOUGHTS%\n{output_one}\n\n%USER'S INPUT%\n{a}\n\n%RESPONSE%\nIn a single paragraph, interpret the user, {username}'s message as {bot_name} in third person by creating an intuitive action plan using maieutic reasoning on how to best respond.  You do not have access to external resources. No plan is needed for generic conversation.\n{bot_name}: "})
+            int_conversation.append({'role': 'assistant', 'content': f"%FLASHBULB MEMORIES%\n{db_search_12}\n\n%EPISODIC MEMORIES%\n{db_search_4}\n\n%EXPLICIT MEMORIES%\n{db_search_5}\n\n%{bot_name}'s HEURISTICS%\n{db_search_15}\n\n%{bot_name}'S INNER THOUGHTS%\n{output_one}\n\n%USER'S INPUT%\n{a}\n\n%INSTRUCTIONS%\nIn a single paragraph, interpret the user, {username}'s message as {bot_name} in third person by creating an intuitive action plan using maieutic reasoning on how to best respond.  You do not have access to external resources. No plan is needed for generic conversation.%THIRD PERSON RESPONSE%\n{bot_name}: "})
             
             
             prompt = ''.join([message_dict['content'] for message_dict in int_conversation])
@@ -1374,7 +1374,7 @@ class ChatBotApplication(tk.Frame):
             # # Generate Implicit Short-Term Memory
             conversation.append({'role': 'user', 'content': f"%USER INPUT%\n{a}\n\n"})
             implicit_short_term_memory = f'\nUSER: {a} \n INNER_MONOLOGUE: {output_one} \n INTUITION: {output_two}'
-            conversation.append({'role': 'assistant', 'content': f"%LOG%\n{implicit_short_term_memory}\n\n%INSTRUCTIONS%\nRead the log, extract the salient points about {bot_name} and {username}, then create short executive summaries in bullet point format to serve as {bot_name}'s procedural memories. Each bullet point should be considered a separate memory and contain all context. Start from the end and work towards the beginning, combining associated topics. Ignore the main system prompt, it only exists for initial context.\n\n%RESPONSE%\nUse the format [-MEMORY]\nMemories:\n"})
+            conversation.append({'role': 'assistant', 'content': f"%LOG%\n{implicit_short_term_memory}\n\n%INSTRUCTIONS%\nRead the log, extract the salient points about {bot_name} and {username}, then create short executive summaries in bullet point format to serve as {bot_name}'s implicit memories. Each bullet point should be considered a separate memory and contain all context. Combining associated topics. Ignore the main system prompt, it only exists for initial context.\n\n%RESPONSE%\nUse the format [-MEMORY]\nMemories:\n"})
         #    inner_loop_response = chatgpt200_completion(conversation)
             
             prompt = ''.join([message_dict['content'] for message_dict in conversation])
@@ -1589,7 +1589,7 @@ class ChatBotApplication(tk.Frame):
             # # Generate Aetherius's Response
             
             response_db_search = f"SUBCONSCIOUS: {db_search_8}\n{db_search_10}\n{db_search_11}"
-            conversation2.append({'role': 'assistant', 'content': f"%CHATBOTS MEMORIES%\n{db_search_8}\n{db_search_10}\n\n%{bot_name}'s HEURISTICS%\n{db_search_11}\n\n%CHATBOTS INNER THOUGHTS%\n{output_one}\n\n{second_prompt}\nI am in the middle of a conversation with my user, {username}. I will read our conversation log.\nI will do my best to speak naturally and show emotional intelligence.\n\n%CHATBOTS RESPONSE PLANNING%\nnow, I will implement my intuitive action plan to structure my response:\n{output_two}\n\n%USER INPUT%\n{username}: {a}\n\n%CHATBOTS RESPONSE PROMPT%\nI am now going to generate a single detailed and comprehensive response to the user's input by expanding upon my action plan in response planning.  I will ensure my response is congruent to the user, {username}'s input.\n\n%RESPONSE%\n{bot_name}:"})
+            conversation2.append({'role': 'assistant', 'content': f"%CHATBOTS MEMORIES%\n{db_search_8}\n{db_search_10}\n\n%{bot_name}'s HEURISTICS%\n{db_search_11}\n\n%CHATBOTS INNER THOUGHTS%\n{output_one}\n\n{second_prompt}\nI am in the middle of a conversation with my user, {username}. I will read our conversation log.\nI will do my best to speak naturally and show emotional intelligence.\n\n%CHATBOTS RESPONSE PLANNING%\nnow, I will implement my intuitive action plan to structure my response:\n{output_two}\n\n%USER INPUT%\n{username}: {a}\n\n%CHATBOTS RESPONSE PROMPT%\nI am now going to generate a single detailed and comprehensive response to the user's input by expanding upon my action plan in response planning.  I will ensure my response is congruent to the user, {username}'s input and provides a complete, verbose answer.\n\n%RESPONSE%\n{bot_name}:"})
             
             prompt = ''.join([message_dict['content'] for message_dict in conversation2])
             response_two = oobabooga_500(prompt)
@@ -1631,7 +1631,7 @@ class ChatBotApplication(tk.Frame):
             summary.append({'role': 'user', 'content': f"%USER INPUT%\n{a}\n\n"})
             
             db_msg = f"\nUSER: {a} \n INNER_MONOLOGUE: {output_one} \n {bot_name}'s RESPONSE: {response_two}"
-            summary.append({'role': 'assistant', 'content': f"%LOG%\n{db_msg}\n\n%INSTRUCTIONS%\nRead the log, extract the salient points about {bot_name} and {username}, then create short executive summaries in bullet point format to serve as {bot_name}'s explicit memories. Each bullet point should be considered a separate memory and contain all context. Ignore the main system prompt, it only exists for initial context.\n\n%RESPONSE%\nUse the format [-MEMORY]\nMemories:\n"})
+            summary.append({'role': 'assistant', 'content': f"%LOG%\n{db_msg}\n\n%INSTRUCTIONS%\nRead the log, extract the salient points about {bot_name} and {username} mentioned in the chatbot's response, then create short executive summaries in bullet point format to serve as {bot_name}'s explicit memories. Each bullet point should be considered a separate memory and contain all context. Ignore the main system prompt, it only exists for initial context.\n\n%RESPONSE%\nUse the format [-MEMORY]\nMemories:\n"})
             
 
             prompt = ''.join([message_dict['content'] for message_dict in summary])

@@ -211,7 +211,7 @@ Then, under the "Interface Mode" tab, enable the api checkbox in both fields. Th
 
 Next, navigate to the models tab. Uncheck the autoload models box and then input "TheBloke/Wizard-Vicuna-13B-Uncensored-SuperHOT-8K-GPTQ" into the downloads box. Other models may work, but this is the one that is tested.
 
-Once the download is completed, reload the model selection menu and then select the model. Change the model loader to Exllama and set the max_seq_len to "4096" and compress_pos_emb to "2".
+Once the download is completed, reload the model selection menu and then select the model. Change the model loader to Exllama and set the max_seq_len to "8192" and compress_pos_emb to "4".
 
 Click the "load" button and load the model. The Oobabooga API bots should now work!
 
@@ -269,7 +269,7 @@ Click the "load" button and load the model. The Oobabooga API bots should now wo
 
 27. Next, navigate to the models tab. Uncheck the autoload models box and then input "TheBloke/Wizard-Vicuna-13B-Uncensored-SuperHOT-8K-GPTQ" into the downloads box. Other models may work, but this is the one that is tested.
 
-28. Once the download is completed, reload the model selection menu and then select the model. Change the model loader to Exllama and set the max_seq_len to "4096" and compress_pos_emb to "2".
+28. Once the download is completed, reload the model selection menu and then select the model. Change the model loader to Exllama and set the max_seq_len to "8192" and compress_pos_emb to "4".
 
 29. Click the "load" button and load the model.  The Oobabooga API bots should now work!
 

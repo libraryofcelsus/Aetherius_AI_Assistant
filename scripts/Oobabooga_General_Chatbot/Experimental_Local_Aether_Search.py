@@ -1531,7 +1531,7 @@ class ChatBotApplication(tk.Frame):
             conversation.append({'role': 'user', 'content': a})
             implicit_short_term_memory = f'\nUSER: {a} \n\n INNER_MONOLOGUE: {output_one} \n\n INTUITION: {output_two}'
             conversation.append({'role': 'assistant', 'content': f"%LOG%\n{implicit_short_term_memory}\n\n%INSTRUCTIONS%\nRead the log, extract the salient points about {bot_name} and {username}, then create short executive summaries in bullet point format to serve as {bot_name}'s implicit memories. Each bullet point should be considered a separate memory and contain all context. Combining associated topics. Ignore the main system prompt, it only exists for initial context.\n\n%RESPONSE%\nUse the format [-MEMORY]\nMemories:\n"})
-            inner_loop_response = chatgpt200_completion(conversation)
+            inner_loop_response = oobabooga_500(conversation)
             inner_loop_db = inner_loop_response
             vector = model.encode([inner_loop_db]).tolist()
             conversation.clear()
@@ -1804,7 +1804,7 @@ class ChatBotApplication(tk.Frame):
         #    os.remove(filename)              
             db_msg = f'\nUSER: {a} \n\n INNER_MONOLOGUE: {output_one} \n\n {bot_name}: {response_two}'
             summary.append({'role': 'user', 'content': "LOG:\n%s\n\Read the log and create short executive summaries in bullet point format to serve as %s's explicit memories. Each bullet point should be considered a separate memory and contain all context. Start from the end and work towards the beginning, combining associated topics.\nMemories:\n" % (db_msg, bot_name)})
-            db_upload = chatgptsummary_completion(summary)
+            db_upload = oobabooga_500(summary)
             db_upsert = db_upload
             # # Manual Short-Term Memory DB Upload Confirmation
     #        print('\n\n<DATABASE INFO>\n%s' % db_upsert)

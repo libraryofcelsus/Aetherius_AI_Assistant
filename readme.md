@@ -5,6 +5,8 @@ Version .042a of Aetherius Personal Assistant by LibraryofCelsus.com
 
 **Experimental Folder Changelog**
 
+-Added Experimental Oobabooga only Aethersearch.  Still needs alot of work.
+
 -Oobabooga Chatbot prompts have been better finetuned and it performs much better.
 
 -Added Experimental Oobabooga Version of the webscrape tool.  As of now only the webscrape and search use the Oobabooga api, chatbot part still uses Open Ai.

@@ -1696,7 +1696,7 @@ class ChatBotApplication(tk.Frame):
             master_tasklist.append({'role': 'system', 'content': f"%MAIN SYSTEM PROMPT%\nYou are a stateless task list coordinator for {bot_name} an autonomous Ai chatbot. Your job is to combine the user's input and the user facing chatbots intuitive action plan, then transform it into a list of independent research queries that can be executed by separate AI agents in a cluster computing environment. The other asynchronous Ai agents are stateless and cannot communicate with each other or the user during task execution, however the agents do have access to {bot_name}'s memories. Exclude tasks involving final product production, user communication, or checking work with other agents. Respond using the following bullet point format: '- [task]'\n\n"})
             master_tasklist.append({'role': 'user', 'content': f"%USER FACING CHATBOT'S INTUITIVE ACTION PLAN%\n{output_two}\n\n"})
             master_tasklist.append({'role': 'user', 'content': f"%USER INQUIRY%\n{a}\n\n"})
-            master_tasklist.append({'role': 'assistant', 'content': f"%RESPONSE%\nRESEARCH TASK LIST:"})
+            master_tasklist.append({'role': 'assistant', 'content': f"%RESPONSE%\nBULLET POINT RESEARCH TASK LIST:"})
             
             prompt = ''.join([message_dict['content'] for message_dict in master_tasklist])
             master_tasklist_output = oobabooga_500(prompt)
@@ -1794,7 +1794,7 @@ class ChatBotApplication(tk.Frame):
                                             fail()),           
                                 conversation.append({'role': 'assistant', 'content': f"%WEBSEARCH%\n{table}\n\n"}),
                                 conversation.append({'role': 'user', 'content': f"%BOT {task_counter} TASK REINITIALIZATION%\n{line}\n\n"}),
-                                conversation.append({'role': 'user', 'content': f"%RESPONSE INSTRUCTIONS%\nSummarize the given webscrape articles that are relivent to the given task. Your job is to provide concise information without leaving anything out.\n\n"}),
+                                conversation.append({'role': 'user', 'content': f"%RESPONSE INSTRUCTIONS%\nSummarize the given webscraped articles that are relivent to the given task. Your job is to provide concise information without leaving anything out.\n\n"}),
                                 conversation.append({'role': 'assistant', 'content': f"%RESPONSE%\nBOT {task_counter}:"}),
                                 prompt := ''.join([message_dict['content'] for message_dict in conversation]),
                                 task_completion := oobabooga_800(prompt),
@@ -1924,6 +1924,32 @@ class ChatBotApplication(tk.Frame):
             self.conversation_text.insert(tk.END, f"Response: {response_two}\n\n")
     #        t = threading.Thread(target=self.GPT_4_Memories, args=(a, vector_input, vector_monologue, output_one, response_two))
     #        t.start()
+            vdb = timeout_check()
+            counter += 1
+            conversation.clear()
+            print('Generating Episodic Memories')
+            conversation.append({'role': 'system', 'content': f"%MAIN SYSTEM PROMPT%\nYou are a sub-module of {bot_name}, an autonomous AI entity. Your function is to process the user, {username}'s message, comprehend {bot_name}'s internal monologue, and decode {bot_name}'s final response to construct a short and concise third-person autobiographical narrative memory of the conversation in a single sentence. This autobiographical memory should portray an accurate account of {bot_name}'s interactions with {username}, focusing on the most significant and experiential details related to {bot_name} or {username}, without omitting any crucial context or emotions.\n\n"})
+            conversation.append({'role': 'user', 'content': f"%USER'S INQUIRY%\n{a}\n\n"})
+            conversation.append({'role': 'user', 'content': f"%{bot_name}'s INNER MONOLOGUE%\n{output_one}\n\n"})
+    #        print(output_one)
+            conversation.append({'role': 'user', 'content': f"%{bot_name}'s FINAL RESPONSE%\n{response_two}\n\n"})
+    #        print(response_two)
+            conversation.append({'role': 'assistant', 'content': f"%RESPONSE%\nI will now extract a concise episodic memory based on the the user's Inquiry and {bot_name}'s final response.\n AUTOBIOGRAPHICAL MEMORY: "})
+            prompt = ''.join([message_dict['content'] for message_dict in conversation])
+            conv_summary = oobabooga_250(prompt)
+            print(conv_summary)
+            vector = model.encode([timestring + '-' + conv_summary]).tolist()
+            unique_id = str(uuid4())
+            metadata = {'speaker': bot_name, 'time': timestamp, 'message': (timestring + '-' + conv_summary),
+                        'timestring': timestring, 'uuid': unique_id, "memory_type": "episodic", "user": username}
+            save_json(f'nexus/{bot_name}/{username}/episodic_memory_nexus/%s.json' % unique_id, metadata)
+            payload.append((unique_id, vector, {"memory_type": "episodic", "user": username}))
+            vdb.upsert(payload, namespace=f'{bot_name}')
+            payload.clear()
+            payload.append((unique_id, vector_input))
+            vdb.upsert(payload, namespace=f'{bot_name}_flash_counter')
+            payload.clear()
+    
             self.conversation_text.yview(tk.END)
             self.user_input.delete(0, tk.END)
             self.user_input.focus()

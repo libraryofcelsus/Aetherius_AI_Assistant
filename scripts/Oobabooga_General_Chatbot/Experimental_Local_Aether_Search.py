@@ -177,7 +177,7 @@ def oobabooga_scrape(prompt):
         # in presets/preset-name.yaml are used instead of the individual numbers.
         'preset': 'None',  
         'do_sample': True,
-        'temperature': 0.6,
+        'temperature': 0.7,
         'top_p': 0.1,
         'typical_p': 1,
         'epsilon_cutoff': 0,  # In units of 1e-4
@@ -504,8 +504,8 @@ def chunk_text_from_url(url, chunk_size=700, overlap=100, results_callback=None)
         weblist = list()
         for chunk in chunks:
             websum = list()
-            websum.append({'role': 'system', 'content': "%MAIN SYSTEM PROMPT%\nYou are a data extractor. Your job is to take the given text from a webscrape, then condense all important or factual information. All salient information should be returned in an executive summary. Only use given info, do not generalize or use other latent knowledge.  Use the format: [<Semantic Question Title>]: <Article/Guide>. Avoid using linebreaks inside of the article or its formatting.  Lists should be made into continuous text form to avoid them. If no article is given, print no article.\n\n"})
-            websum.append({'role': 'user', 'content': f"%GIVEN WEBSCRAPED ARTICLE FOR SUMMARY%\nARTICLE: {chunk}\n\n%RESPONSE%\nSure, here is the summary of the given article.\nDATA EXTRACTOR:"})
+            websum.append({'role': 'system', 'content': "%MAIN SYSTEM PROMPT%\nYou are a data extractor. Your job is to take the given text from a webscrape, then highlight all important or factual information without losing any data. All salient information should be returned condensed without modifying its factual nature. Only use the given information, do not generalize, rephrase, or use other latent knowledge.  Use the format: [<Semantic Question Title>]: <Article/Guide>. Avoid using linebreaks inside of the article or its formatting.  Lists should be made into continuous text form to avoid them. If no article is given, print no article.\n\n"})
+            websum.append({'role': 'user', 'content': f"%GIVEN WEBSCRAPED ARTICLE FOR SUMMARY%\nARTICLE: {chunk}\n\n%RESPONSE%\nSure, here is a condensed version of the given article.\nDATA EXTRACTOR:"})
             prompt = ''.join([message_dict['content'] for message_dict in websum])
             text = oobabooga_scrape(prompt)
         #    text = chatgpt35_completion(websum)
@@ -558,7 +558,7 @@ def chunk_text_from_url(url, chunk_size=700, overlap=100, results_callback=None)
                 if 'provide me' in paragraph.lower():
                     pass
                 else:
-                    if len(paragraph) > 80:
+                    if len(paragraph) > 50:
                         print('---------')
                         print(url + ' ' + paragraph)
                         if results_callback is not None:
@@ -1565,7 +1565,7 @@ class ChatBotApplication(tk.Frame):
             print(int_scrape)
             
             int_conversation.append({'role': 'user', 'content': f"%USER INPUT%\n{a}\n\n"})
-            int_conversation.append({'role': 'assistant', 'content': f"%FLASHBULB MEMORIES%\n{db_search_12}\n\n%EPISODIC MEMORIES%\n{db_search_4}\n\n%EXPLICIT MEMORIES%\n{db_search_5}\n\n%{bot_name}'s HEURISTICS%\n{db_search_15}\n\n%{bot_name}'S INNER THOUGHTS%\n{output_one}\n\n%WEBSCRAPE SAMPLE%\n{int_scrape}\n\n%USER'S INPUT%\n{a}\n\n%INSTRUCTIONS%\nIn a single paragraph, interpret the user, {username}'s message as {bot_name} in third person by creating an intuitive action plan using maieutic reasoning on how to best respond.  The only external resources you have access to is a Webscrape database and {bot_name}'s memories.\nEnsure the plan is congruent to the user's inquiry: {a}.\n\n%THIRD PERSON RESPONSE%\n{bot_name}: "})
+            int_conversation.append({'role': 'assistant', 'content': f"%FLASHBULB MEMORIES%\n{db_search_12}\n\n%EPISODIC MEMORIES%\n{db_search_4}\n\n%EXPLICIT MEMORIES%\n{db_search_5}\n\n%{bot_name}'s HEURISTICS%\n{db_search_15}\n\n%{bot_name}'S INNER THOUGHTS%\n{output_one}\n\n%WEBSCRAPE SAMPLE%\n{int_scrape}\n\n%USER'S INPUT%\n{a}\n\n%INSTRUCTIONS%\nIn a single paragraph, interpret the user, {username}'s message as {bot_name} in third person by creating an intuitive action plan using maieutic reasoning on how to best respond.  The only external resources you have access to is a Webscrape database and {bot_name}'s memories.\nEnsure the plan is congruent to the user's inquiry: {a}.\n\n%RESPONSE%\nI will now respond with an action plan in third person as {bot_name}.\n{bot_name}: "})
              
             
             prompt = ''.join([message_dict['content'] for message_dict in int_conversation])

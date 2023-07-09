@@ -504,8 +504,8 @@ def chunk_text_from_url(url, chunk_size=700, overlap=100, results_callback=None)
         weblist = list()
         for chunk in chunks:
             websum = list()
-            websum.append({'role': 'system', 'content': "%MAIN SYSTEM PROMPT%\nYou are a data extractor. Your job is to take the given text from a webscrape, then highlight important or factual information. All salient information should be returned in an executive summary. Only use given info, do not generalize or use other knowledge.  Use the format: [<Title Tag>]: <Article/Guide>. Avoid using linebreaks inside of the article or its formatting.  Lists should be made into continuous text form to avoid them.\n\n"})
-            websum.append({'role': 'user', 'content': f"%WEBSCRAPED ARTICLE FOR SUMMARY%\nWEBSCRAPE: {chunk}\n\n%RESPONSE%\nCHATBOT:"})
+            websum.append({'role': 'system', 'content': "%MAIN SYSTEM PROMPT%\nYou are a data extractor. Your job is to take the given text from a webscrape, then condense all important or factual information. All salient information should be returned in an executive summary. Only use given info, do not generalize or use other latent knowledge.  Use the format: [<Semantic Question Title>]: <Article/Guide>. Avoid using linebreaks inside of the article or its formatting.  Lists should be made into continuous text form to avoid them. If no article is given, print no article.\n\n"})
+            websum.append({'role': 'user', 'content': f"%GIVEN WEBSCRAPED ARTICLE FOR SUMMARY%\nARTICLE: {chunk}\n\n%RESPONSE%\nSure, here is the summary of the given article.\nDATA EXTRACTOR:"})
             prompt = ''.join([message_dict['content'] for message_dict in websum])
             text = oobabooga_scrape(prompt)
         #    text = chatgpt35_completion(websum)
@@ -551,10 +551,14 @@ def chunk_text_from_url(url, chunk_size=700, overlap=100, results_callback=None)
         #            payload.append((unique_id, vector, {"memory_type": "web_scrape"}))
         #            vdb.upsert(payload, namespace=f'Tools_User_{username}_Bot_{bot_name}')
         #            payload.clear()
-                if 'no article' in paragraph.lower():  
+                if 'no article' in paragraph.lower():
+                    pass
+                if 'not available' in paragraph.lower():
+                    pass
+                if 'provide me' in paragraph.lower():
                     pass
                 else:
-                    if len(paragraph) > 40:
+                    if len(paragraph) > 80:
                         print('---------')
                         print(url + ' ' + paragraph)
                         if results_callback is not None:

@@ -28,6 +28,7 @@ from tkinter import ttk, scrolledtext, simpledialog, font
 # from pydub import effects
 import requests
 from sentence_transformers import SentenceTransformer
+import shutil
 
 
 # For local streaming, the websockets are hosted without ssl - http://
@@ -455,6 +456,7 @@ class ChatBotApplication(tk.Frame):
         # Load the conversation history from the JSON file
         bot_name = open_file('./config/prompt_bot_name.txt')
         username = open_file('./config/prompt_username.txt')
+        
         file_path = f'./history/{username}/{bot_name}_main_conversation_history.json'
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
@@ -470,7 +472,7 @@ class ChatBotApplication(tk.Frame):
                 self.conversation_text.insert(tk.END, message + '\n\n')
         except FileNotFoundError:
             # Handle the case when the JSON file is not found
-            greeting_msg = open_file('./config/Chatbot_Prompts/prompt_greeting.txt').replace('<<NAME>>', bot_name)
+            greeting_msg = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_greeting.txt').replace('<<NAME>>', bot_name)
             self.conversation_text.insert(tk.END, greeting_msg + '\n\n')
         self.conversation_text.yview(tk.END)
         
@@ -483,7 +485,9 @@ class ChatBotApplication(tk.Frame):
             with open(file_path, 'w') as file:
                 file.write(bot_name)
             self.conversation_text.delete("1.0", tk.END)
-            self.display_conversation_history()  
+            self.display_conversation_history() 
+            self.master.destroy()
+            Experimental_Auto_Memory_Upload_Local()
         
 
     # Edit User Name
@@ -495,12 +499,14 @@ class ChatBotApplication(tk.Frame):
                 file.write(username)
             self.conversation_text.delete("1.0", tk.END)
             self.display_conversation_history()
+            self.master.destroy()
+            Experimental_Auto_Memory_Upload_Local()
         pass
         
         
     # Edits Main Chatbot System Prompt
     def Edit_Main_Prompt(self):
-        file_path = "./config/Chatbot_Prompts/prompt_main.txt"
+        file_path = f"./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt"
 
         with open(file_path, 'r') as file:
             prompt_contents = file.read()
@@ -526,7 +532,7 @@ class ChatBotApplication(tk.Frame):
         
     # Edit secondary prompt (Less priority than main prompt)    
     def Edit_Secondary_Prompt(self):
-        file_path = "./config/Chatbot_Prompts/prompt_secondary.txt"
+        file_path = f"./config/Chatbot_Prompts/{username}/{bot_name}/prompt_secondary.txt"
         
         with open(file_path, 'r') as file:
             prompt_contents = file.read()
@@ -632,7 +638,7 @@ class ChatBotApplication(tk.Frame):
         
     # Edits initial chatbot greeting, called in create widgets
     def Edit_Greeting_Prompt(self):
-        file_path = "./config/Chatbot_Prompts/prompt_greeting.txt"
+        file_path = f"./config/Chatbot_Prompts/{username}/{bot_name}/prompt_greeting.txt"
         
         with open(file_path, 'r') as file:
             prompt_contents = file.read()
@@ -995,9 +1001,23 @@ class ChatBotApplication(tk.Frame):
         conv_length = 2
         bot_name = open_file('./config/prompt_bot_name.txt')
         username = open_file('./config/prompt_username.txt')
-        main_prompt = open_file('./config/Chatbot_Prompts/prompt_main.txt').replace('<<NAME>>', bot_name)
-        second_prompt = open_file('./config/Chatbot_Prompts/prompt_secondary.txt')
-        greeting_msg = open_file('./config/Chatbot_Prompts/prompt_greeting.txt').replace('<<NAME>>', bot_name)
+        
+    #    base_path = "./config/Chatbot_Prompts"
+    #    base_prompts_path = os.path.join(base_path, "Base")
+    #    user_bot_path = os.path.join(base_path, username, bot_name)
+    #    if not os.path.exists(user_bot_path):
+    #        os.makedirs(user_bot_path)  # Create directory
+    #        print(f'Created new directory at: {user_bot_path}')
+    #    # Copy the base prompts to the newly created folder
+    #        for filename in os.listdir(base_prompts_path):
+    #            src = os.path.join(base_prompts_path, filename)
+    ##            dst = os.path.join(user_bot_path, filename)
+     #           shutil.copy2(src, dst)
+        
+        
+        main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+        second_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_secondary.txt')
+        greeting_msg = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_greeting.txt').replace('<<NAME>>', bot_name)
         main_conversation = MainConversation(conv_length, main_prompt, greeting_msg)
         if not os.path.exists(f'nexus/{bot_name}/{username}/implicit_short_term_memory_nexus'):
             os.makedirs(f'nexus/{bot_name}/{username}/implicit_short_term_memory_nexus')
@@ -1212,9 +1232,9 @@ class ChatBotApplication(tk.Frame):
         conv_length = 2
         bot_name = open_file('./config/prompt_bot_name.txt')
         username = open_file('./config/prompt_username.txt')
-        main_prompt = open_file('./config/Chatbot_Prompts/prompt_main.txt').replace('<<NAME>>', bot_name)
-        second_prompt = open_file('./config/Chatbot_Prompts/prompt_secondary.txt')
-        greeting_msg = open_file('./config/Chatbot_Prompts/prompt_greeting.txt').replace('<<NAME>>', bot_name)
+        main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+        second_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_secondary.txt')
+        greeting_msg = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_greeting.txt').replace('<<NAME>>', bot_name)
         main_conversation = MainConversation(conv_length, main_prompt, greeting_msg)
     #   r = sr.Recognizer()
         while True:
@@ -1431,9 +1451,9 @@ class ChatBotApplication(tk.Frame):
         conv_length = 2
         bot_name = open_file('./config/prompt_bot_name.txt')
         username = open_file('./config/prompt_username.txt')
-        main_prompt = open_file('./config/Chatbot_Prompts/prompt_main.txt').replace('<<NAME>>', bot_name)
-        second_prompt = open_file('./config/Chatbot_Prompts/prompt_secondary.txt')
-        greeting_msg = open_file('./config/Chatbot_Prompts/prompt_greeting.txt').replace('<<NAME>>', bot_name)
+        main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+        second_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_secondary.txt')
+        greeting_msg = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_greeting.txt').replace('<<NAME>>', bot_name)
         main_conversation = MainConversation(conv_length, main_prompt, greeting_msg)
     #   r = sr.Recognizer()
         while True:
@@ -1684,9 +1704,9 @@ class ChatBotApplication(tk.Frame):
         conv_length = 2
         bot_name = open_file('./config/prompt_bot_name.txt')
         username = open_file('./config/prompt_username.txt')
-        main_prompt = open_file('./config/Chatbot_Prompts/prompt_main.txt').replace('<<NAME>>', bot_name)
-        second_prompt = open_file('./config/Chatbot_Prompts/prompt_secondary.txt')
-        greeting_msg = open_file('./config/Chatbot_Prompts/prompt_greeting.txt').replace('<<NAME>>', bot_name)
+        main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+        second_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_secondary.txt')
+        greeting_msg = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_greeting.txt').replace('<<NAME>>', bot_name)
     #   r = sr.Recognizer()
         while True:
             # # Get Timestamp
@@ -1938,6 +1958,33 @@ class ChatBotApplication(tk.Frame):
 def Experimental_Auto_Memory_Upload_Local():
     bot_name = open_file('./config/prompt_bot_name.txt')
     username = open_file('./config/prompt_username.txt')
+
+    base_path = "./config/Chatbot_Prompts"
+    base_prompts_path = os.path.join(base_path, "Base")
+    user_bot_path = os.path.join(base_path, username, bot_name)
+
+    # Check if user_bot_path exists
+    if not os.path.exists(user_bot_path):
+        os.makedirs(user_bot_path)  # Create directory
+        print(f'Created new directory at: {user_bot_path}')
+
+        # Define list of base prompt files
+        base_files = ['prompt_main.txt', 'prompt_greeting.txt', 'prompt_secondary.txt']
+
+        # Copy the base prompts to the newly created folder
+        for filename in base_files:
+            src = os.path.join(base_prompts_path, filename)
+            if os.path.isfile(src):  # Ensure it's a file before copying
+                dst = os.path.join(user_bot_path, filename)
+                shutil.copy2(src, dst)  # copy2 preserves file metadata
+                print(f'Copied {src} to {dst}')
+            else:
+                print(f'Source file not found: {src}')
+
+    else:
+        print(f'Directory already exists at: {user_bot_path}')
+
+    
     if not os.path.exists(f'nexus/{bot_name}/{username}/implicit_short_term_memory_nexus'):
         os.makedirs(f'nexus/{bot_name}/{username}/implicit_short_term_memory_nexus')
     if not os.path.exists(f'nexus/{bot_name}/{username}/explicit_short_term_memory_nexus'):

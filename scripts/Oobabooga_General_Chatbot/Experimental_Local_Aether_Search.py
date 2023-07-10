@@ -24,6 +24,7 @@ from bs4 import BeautifulSoup
 import importlib.util
 import requests
 from sentence_transformers import SentenceTransformer
+import shutil
 
 
 # For local streaming, the websockets are hosted without ssl - http://
@@ -622,9 +623,9 @@ def GPT_4_Tasklist_Web_Scrape(query, results_callback):
     mem_counter = 0
     bot_name = open_file('./config/prompt_bot_name.txt')
     username = open_file('./config/prompt_username.txt')
-    main_prompt = open_file('./config/Chatbot_Prompts/prompt_main.txt').replace('<<NAME>>', bot_name)
-    second_prompt = open_file('./config/Chatbot_Prompts/prompt_secondary.txt')
-    greeting_msg = open_file('./config/Chatbot_Prompts/prompt_greeting.txt').replace('<<NAME>>', bot_name)
+    main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+    second_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_secondary.txt')
+    greeting_msg = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_greeting.txt').replace('<<NAME>>', bot_name)
     if not os.path.exists(f'nexus/{bot_name}/{username}/web_scrape_memory_nexus'):
         os.makedirs(f'nexus/{bot_name}/{username}/web_scrape_memory_nexus')
     if not os.path.exists(f'nexus/{bot_name}/{username}/episodic_memory_nexus'):
@@ -710,8 +711,8 @@ def GPT_4_Tasklist_Web_Search(query, results_callback):
     counter = 0
     bot_name = open_file('./config/prompt_bot_name.txt')
     username = open_file('./config/prompt_username.txt')
-    main_prompt = open_file('./config/Chatbot_Prompts/prompt_main.txt').replace('<<NAME>>', bot_name)
-    greeting_msg = open_file('./config/Chatbot_Prompts/prompt_greeting.txt').replace('<<NAME>>', bot_name)
+    main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+    greeting_msg = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_greeting.txt').replace('<<NAME>>', bot_name)
     if not os.path.exists(f'nexus/{bot_name}/{username}/web_scrape_memory_nexus'):
         os.makedirs(f'nexus/{bot_name}/{username}/web_scrape_memory_nexus')
     if not os.path.exists(f'nexus/{bot_name}/{username}/web_scrape_memory_nexus'):
@@ -884,6 +885,8 @@ class ChatBotApplication(tk.Frame):
                 file.write(bot_name)
             self.conversation_text.delete("1.0", tk.END)
             self.display_conversation_history()  
+            self.master.destroy()
+            Experimental_Local_Aether_Search()
         
 
     def choose_username(self):
@@ -894,6 +897,8 @@ class ChatBotApplication(tk.Frame):
                 file.write(username)
             self.conversation_text.delete("1.0", tk.END)
             self.display_conversation_history()
+            self.master.destroy()
+            Experimental_Local_Aether_Search()
         pass
         
     def update_results(self, text_widget, url, paragraph):
@@ -902,7 +907,7 @@ class ChatBotApplication(tk.Frame):
         
         
     def Edit_Main_Prompt(self):
-        file_path = "./config/Chatbot_Prompts/prompt_main.txt"
+        file_path = f"./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt"
 
         with open(file_path, 'r') as file:
             prompt_contents = file.read()
@@ -927,7 +932,7 @@ class ChatBotApplication(tk.Frame):
         
         
     def Edit_Secondary_Prompt(self):
-        file_path = "./config/Chatbot_Prompts/prompt_secondary.txt"
+        file_path = f"./config/Chatbot_Prompts/{username}/{bot_name}/prompt_secondary.txt"
         
         with open(file_path, 'r') as file:
             prompt_contents = file.read()
@@ -1056,7 +1061,7 @@ class ChatBotApplication(tk.Frame):
         
         
     def Edit_Greeting_Prompt(self):
-        file_path = "./config/Chatbot_Prompts/prompt_greeting.txt"
+        file_path = f"./config/Chatbot_Prompts/{username}/{bot_name}/prompt_greeting.txt"
         
         with open(file_path, 'r') as file:
             prompt_contents = file.read()
@@ -1317,9 +1322,9 @@ class ChatBotApplication(tk.Frame):
         mem_counter = 0
         bot_name = open_file('./config/prompt_bot_name.txt')
         username = open_file('./config/prompt_username.txt')
-        main_prompt = open_file('./config/Chatbot_Prompts/prompt_main.txt').replace('<<NAME>>', bot_name)
-        second_prompt = open_file('./config/Chatbot_Prompts/prompt_secondary.txt')
-        greeting_msg = open_file('./config/Chatbot_Prompts/prompt_greeting.txt').replace('<<NAME>>', bot_name)
+        main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+        second_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_secondary.txt')
+        greeting_msg = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_greeting.txt').replace('<<NAME>>', bot_name)
         if not os.path.exists(f'nexus/{bot_name}/{username}/web_scrape_memory_nexus'):
             os.makedirs(f'nexus/{bot_name}/{username}/web_scrape_memory_nexus')
         if not os.path.exists(f'nexus/{bot_name}/{username}/implicit_short_term_memory_nexus'):
@@ -1524,9 +1529,9 @@ class ChatBotApplication(tk.Frame):
         mem_counter = 0
         bot_name = open_file('./config/prompt_bot_name.txt')
         username = open_file('./config/prompt_username.txt')
-        main_prompt = open_file('./config/Chatbot_Prompts/prompt_main.txt').replace('<<NAME>>', bot_name)
-        second_prompt = open_file('./config/Chatbot_Prompts/prompt_secondary.txt')
-        greeting_msg = open_file('./config/Chatbot_Prompts/prompt_greeting.txt').replace('<<NAME>>', bot_name)
+        main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+        second_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_secondary.txt')
+        greeting_msg = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_greeting.txt').replace('<<NAME>>', bot_name)
         if not os.path.exists(f'nexus/{bot_name}/{username}/web_scrape_memory_nexus'):
             os.makedirs(f'nexus/{bot_name}/{username}/web_scrape_memory_nexus')
      #   r = sr.Recognizer()
@@ -1565,7 +1570,7 @@ class ChatBotApplication(tk.Frame):
             print(int_scrape)
             
             int_conversation.append({'role': 'user', 'content': f"%USER INPUT%\n{a}\n\n"})
-            int_conversation.append({'role': 'assistant', 'content': f"%FLASHBULB MEMORIES%\n{db_search_12}\n\n%EPISODIC MEMORIES%\n{db_search_4}\n\n%EXPLICIT MEMORIES%\n{db_search_5}\n\n%{bot_name}'s HEURISTICS%\n{db_search_15}\n\n%{bot_name}'S INNER THOUGHTS%\n{output_one}\n\n%WEBSCRAPE SAMPLE%\n{int_scrape}\n\n%USER'S INPUT%\n{a}\n\n%INSTRUCTIONS%\nIn a single paragraph, interpret the user, {username}'s message as {bot_name} in third person by creating an intuitive action plan using maieutic reasoning on how to best respond.  The only external resources you have access to is a Webscrape database and {bot_name}'s memories.\nEnsure the plan is congruent to the user's inquiry: {a}.\n\n%RESPONSE%\nI will now respond with an action plan in third person as {bot_name}.\n{bot_name}: "})
+            int_conversation.append({'role': 'assistant', 'content': f"%FLASHBULB MEMORIES%\n{db_search_12}\n\n%EPISODIC MEMORIES%\n{db_search_4}\n\n%EXPLICIT MEMORIES%\n{db_search_5}\n\n%{bot_name}'s HEURISTICS%\n{db_search_15}\n\n%{bot_name}'S INNER THOUGHTS%\n{output_one}\n\n%WEBSCRAPE SAMPLE%\n{int_scrape}\n\n%USER'S INPUT%\n{a}\n\n%INSTRUCTIONS%\nIn a single paragraph, interpret the user, {username}'s message as {bot_name} in third person by creating an intuitive action plan using using the Socratic method.  The only external resources you have access to is a Webscrape database and {bot_name}'s memories.\nEnsure the plan is congruent to the user's inquiry: {a}.\n\n%RESPONSE%\nI will now respond with an action plan in third person as {bot_name}.\n{bot_name}: "})
              
             
             prompt = ''.join([message_dict['content'] for message_dict in int_conversation])
@@ -1686,9 +1691,9 @@ class ChatBotApplication(tk.Frame):
         mem_counter = 0
         bot_name = open_file('./config/prompt_bot_name.txt')
         username = open_file('./config/prompt_username.txt')
-        main_prompt = open_file('./config/Chatbot_Prompts/prompt_main.txt').replace('<<NAME>>', bot_name)
-        second_prompt = open_file('./config/Chatbot_Prompts/prompt_secondary.txt')
-        greeting_msg = open_file('./config/Chatbot_Prompts/prompt_greeting.txt').replace('<<NAME>>', bot_name)
+        main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+        second_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_secondary.txt')
+        greeting_msg = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_greeting.txt').replace('<<NAME>>', bot_name)
         if not os.path.exists(f'nexus/{bot_name}/{username}/web_scrape_memory_nexus'):
             os.makedirs(f'nexus/{bot_name}/{username}/web_scrape_memory_nexus')
      #   r = sr.Recognizer()
@@ -1983,9 +1988,9 @@ class ChatBotApplication(tk.Frame):
         conv_length = 2
         bot_name = open_file('./config/prompt_bot_name.txt')
         username = open_file('./config/prompt_username.txt')
-        main_prompt = open_file('./config/Chatbot_Prompts/prompt_main.txt').replace('<<NAME>>', bot_name)
-        second_prompt = open_file('./config/Chatbot_Prompts/prompt_secondary.txt')
-        greeting_msg = open_file('./config/Chatbot_Prompts/prompt_greeting.txt').replace('<<NAME>>', bot_name)
+        main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+        second_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_secondary.txt')
+        greeting_msg = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_greeting.txt').replace('<<NAME>>', bot_name)
     #   r = sr.Recognizer()
         while True:
             # # Get Timestamp
@@ -2235,6 +2240,61 @@ class ChatBotApplication(tk.Frame):
             
             
 def Experimental_Local_Aether_Search():
+    bot_name = open_file('./config/prompt_bot_name.txt')
+    username = open_file('./config/prompt_username.txt')
+
+    base_path = "./config/Chatbot_Prompts"
+    base_prompts_path = os.path.join(base_path, "Base")
+    user_bot_path = os.path.join(base_path, username, bot_name)
+
+    # Check if user_bot_path exists
+    if not os.path.exists(user_bot_path):
+        os.makedirs(user_bot_path)  # Create directory
+        print(f'Created new directory at: {user_bot_path}')
+
+        # Define list of base prompt files
+        base_files = ['prompt_main.txt', 'prompt_greeting.txt', 'prompt_secondary.txt']
+
+        # Copy the base prompts to the newly created folder
+        for filename in base_files:
+            src = os.path.join(base_prompts_path, filename)
+            if os.path.isfile(src):  # Ensure it's a file before copying
+                dst = os.path.join(user_bot_path, filename)
+                shutil.copy2(src, dst)  # copy2 preserves file metadata
+                print(f'Copied {src} to {dst}')
+            else:
+                print(f'Source file not found: {src}')
+
+    else:
+        print(f'Directory already exists at: {user_bot_path}')
+    if not os.path.exists(f'nexus/{bot_name}/{username}/implicit_short_term_memory_nexus'):
+        os.makedirs(f'nexus/{bot_name}/{username}/implicit_short_term_memory_nexus')
+    if not os.path.exists(f'nexus/{bot_name}/{username}/explicit_short_term_memory_nexus'):
+        os.makedirs(f'nexus/{bot_name}/{username}/explicit_short_term_memory_nexus')
+    if not os.path.exists(f'nexus/{bot_name}/{username}/explicit_long_term_memory_nexus'):
+        os.makedirs(f'nexus/{bot_name}/{username}/explicit_long_term_memory_nexus')
+    if not os.path.exists(f'nexus/{bot_name}/{username}/implicit_long_term_memory_nexus'):
+        os.makedirs(f'nexus/{bot_name}/{username}/implicit_long_term_memory_nexus')
+    if not os.path.exists(f'nexus/{bot_name}/{username}/episodic_memory_nexus'):
+        os.makedirs(f'nexus/{bot_name}/{username}/episodic_memory_nexus')
+    if not os.path.exists(f'nexus/{bot_name}/{username}/flashbulb_memory_nexus'):
+        os.makedirs(f'nexus/{bot_name}/{username}/flashbulb_memory_nexus')
+    if not os.path.exists(f'nexus/{bot_name}/{username}/heuristics_nexus'):
+        os.makedirs(f'nexus/{bot_name}/{username}/heuristics_nexus')
+    if not os.path.exists(f'nexus/global_heuristics_nexus'):
+        os.makedirs(f'nexus/global_heuristics_nexus')
+    if not os.path.exists(f'nexus/{bot_name}/{username}/cadence_nexus'):
+        os.makedirs(f'nexus/{bot_name}/{username}/cadence_nexus')
+    if not os.path.exists(f'logs/{bot_name}/{username}/complete_chat_logs'):
+        os.makedirs(f'logs/{bot_name}/{username}/complete_chat_logs')
+    if not os.path.exists(f'logs/{bot_name}/{username}/final_response_logs'):
+        os.makedirs(f'logs/{bot_name}/{username}/final_response_logs')
+    if not os.path.exists(f'logs/{bot_name}/{username}/inner_monologue_logs'):
+        os.makedirs(f'logs/{bot_name}/{username}/inner_monologue_logs')
+    if not os.path.exists(f'logs/{bot_name}/{username}/intuition_logs'):
+        os.makedirs(f'logs/{bot_name}/{username}/intuition_logs')
+    if not os.path.exists(f'history/{username}'):
+        os.makedirs(f'history/{username}')
     set_dark_ancient_theme()
     root = tk.Tk()
     app = ChatBotApplication(root)

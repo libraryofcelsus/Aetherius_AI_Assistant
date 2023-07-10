@@ -1380,12 +1380,10 @@ class ChatBotApplication(tk.Frame):
             # # Auto Implicit Short-Term Memory DB Upload Confirmation
             auto_count = 0
             auto.clear()
-            auto.append({'role': 'system', 'content': 'SYSTEM: %s\n\n' % main_prompt})
-            auto.append({'role': 'user', 'content': "SYSTEM: You are a sub-module designed to reflect on your thought process. You are only able to respond with integers on a scale of 1-10, being incapable of printing letters. Respond with: 1 if you understand. Respond with: 2 if you do not.\n"})
-            auto.append({'role': 'assistant', 'content': "SUB-MODULE: 1\n"})
-            auto.append({'role': 'user', 'content': f"USER INPUT: {a}\n"})
-            auto.append({'role': 'assistant', 'content': "Inner Monologue: %s\nIntuition: %s\n" % (output_one, output_two)})
-            auto.append({'role': 'assistant', 'content': "Thoughts on input: I will now review the user's message and my reply, rating if whether my thoughts are both pertinent to the user's inquiry with a number on a scale of 1-10. I will now give my response in digit form for an integer only input.\nSUB-MODULE: "})
+            auto.append({'role': 'system', 'content': f'%MAIN CHATBOT SYSTEM PROMPT%\n{main_prompt}\n\n'})
+            auto.append({'role': 'user', 'content': "%CURRENT SYSTEM PROMPT%\nYou are a sub-module designed to reflect on your thought process. You are only able to respond with integers on a scale of 1-10, being incapable of printing letters.\n\n"})
+            auto.append({'role': 'user', 'content': f"%USER INPUT%\n{a}\n\n"})
+            auto.append({'role': 'assistant', 'content': f"%CHATBOTS INNER THOUGHTS%\n{output_one}\n{output_two}\n\n%INSTRUCTIONS%\nI will now review the user's message and my inner thoughts, rating if whether my thoughts are both pertinent to the user's inquiry with a number on a scale of 1-10.\n\n%RESPONSE%\nI will now give my response in digit form for an integer only input.\nRATING: "})
             auto_int = None
             while auto_int is None:
                 prompt = ''.join([message_dict['content'] for message_dict in auto])
@@ -1630,12 +1628,12 @@ class ChatBotApplication(tk.Frame):
             # # Auto Explicit Short-Term Memory DB Upload Confirmation
             auto_count = 0    
             auto.clear()
-            auto.append({'role': 'system', 'content': 'SYSTEM: %s\n\n' % main_prompt})
-            auto.append({'role': 'user', 'content': "SYSTEM: You are a sub-module designed to reflect on your response to the user. You are only able to respond with integers on a scale of 1-10, being incapable of printing letters. Respond with: 1 if you understand. Respond with: 2 if you do not.\n"})
-            auto.append({'role': 'assistant', 'content': "SUB-MODULE: 1\n"})
-            auto.append({'role': 'user', 'content': f"USER INPUT: {a}\n"}) 
-            auto.append({'role': 'assistant', 'content': "Inner Monologue: %s\n\nResponse: %s\n" % (output_one, response_two)})
-            auto.append({'role': 'assistant', 'content': "Thoughts on input: I will now review the user's message and my reply, rating if whether my response is pertinent to the user's inquiry with a number on a scale of 1-10. I will now give my response in digit form for an integer only input.\nSUB-MODULE: "})
+
+            auto.append({'role': 'system', 'content': f'%MAIN CHATBOT SYSTEM PROMPT%\n{main_prompt}\n\n'})
+            auto.append({'role': 'user', 'content': "%CURRENT SYSTEM PROMPT%\nYou are a sub-module designed to reflect on your response to the user. You are only able to respond with integers on a scale of 1-10, being incapable of printing letters.\n\n"})
+            auto.append({'role': 'user', 'content': f"%USER INPUT%\n{a}\n\n"})
+            auto.append({'role': 'assistant', 'content': f"%CHATBOTS INNER THOUGHTS%\n{output_one}\n\n%CHATBOTS RESPONSE%\n{output_two}\n\n%INSTRUCTIONS%\nI will now review the user's message and my reply, rating if whether my response is both pertinent to the user's inquiry with a number on a scale of 1-10.\n\n%RESPONSE%\nI will now give my response in digit form for an integer only input.\nRATING: "})
+            
             auto_int = None
             while auto_int is None:
                 prompt = ''.join([message_dict['content'] for message_dict in auto])
@@ -1716,13 +1714,13 @@ class ChatBotApplication(tk.Frame):
             counter += 1
             conversation.clear()
             print('Generating Episodic Memories')
-            conversation.append({'role': 'system', 'content': f"%MAIN SYSTEM PROMPT%\nYou are a sub-module of {bot_name}, an autonomous AI entity. Your function is to process the user, {username}'s message, comprehend {bot_name}'s internal monologue, and decode {bot_name}'s final response to construct a short and concise third-person autobiographical narrative memory of the conversation in a single sentence. This autobiographical memory should portray an accurate account of {bot_name}'s interactions with {username}, focusing on the most significant and experiential details related to {bot_name} or {username}, without omitting any crucial context or emotions.\n\n"})
+            conversation.append({'role': 'system', 'content': f"%MAIN SYSTEM PROMPT%\nYou are a sub-module of {bot_name}, an autonomous AI entity. Your function is to process the user, {username}'s message, comprehend {bot_name}'s internal monologue, and summarize {bot_name}'s final response to construct a short and concise third-person autobiographical narrative memory of the conversation. This condensed memory should portray an accurate account of {bot_name}'s interactions with {username}, focusing on the most salient details and events related to {bot_name} or {username}, without omitting any crucial context.  Extraneous details should be discarded.\n\n"})
             conversation.append({'role': 'user', 'content': f"%USER'S INQUIRY%\n{a}\n\n"})
             conversation.append({'role': 'user', 'content': f"%{bot_name}'s INNER MONOLOGUE%\n{output_one}\n\n"})
     #        print(output_one)
             conversation.append({'role': 'user', 'content': f"%{bot_name}'s FINAL RESPONSE%\n{response_two}\n\n"})
     #        print(response_two)
-            conversation.append({'role': 'assistant', 'content': f"%RESPONSE%\nI will now extract a concise episodic memory based on the the user's Inquiry and {bot_name}'s final response.\n AUTOBIOGRAPHICAL MEMORY: "})
+            conversation.append({'role': 'assistant', 'content': f"%RESPONSE%\nI will now create a short episodic memory based on a summarized version of the the user's Inquiry and {bot_name}'s final response.\nAUTOBIOGRAPHICAL MEMORY: "})
             prompt = ''.join([message_dict['content'] for message_dict in conversation])
             conv_summary = oobabooga_250(prompt)
             print(conv_summary)

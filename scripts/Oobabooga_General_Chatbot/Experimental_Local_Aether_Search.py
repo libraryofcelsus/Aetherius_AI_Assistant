@@ -907,6 +907,8 @@ class ChatBotApplication(tk.Frame):
         
         
     def Edit_Main_Prompt(self):
+        bot_name = open_file('./config/prompt_bot_name.txt')
+        username = open_file('./config/prompt_username.txt')
         file_path = f"./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt"
 
         with open(file_path, 'r') as file:
@@ -932,6 +934,8 @@ class ChatBotApplication(tk.Frame):
         
         
     def Edit_Secondary_Prompt(self):
+        bot_name = open_file('./config/prompt_bot_name.txt')
+        username = open_file('./config/prompt_username.txt')
         file_path = f"./config/Chatbot_Prompts/{username}/{bot_name}/prompt_secondary.txt"
         
         with open(file_path, 'r') as file:
@@ -1061,6 +1065,8 @@ class ChatBotApplication(tk.Frame):
         
         
     def Edit_Greeting_Prompt(self):
+        bot_name = open_file('./config/prompt_bot_name.txt')
+        username = open_file('./config/prompt_username.txt')
         file_path = f"./config/Chatbot_Prompts/{username}/{bot_name}/prompt_greeting.txt"
         
         with open(file_path, 'r') as file:

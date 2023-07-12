@@ -584,13 +584,20 @@ def chunk_text_from_url(url, chunk_size=550, overlap=80, results_callback=None):
                 pass                
             else:
                 if 'yes' in webyescheck.lower():
+                    semanticterm = list()
+                    semanticterm.append({'role': 'system', 'content': f"%MAIN SYSTEM PROMPT%\nYou are a bot responsible for taging articles for database queries.  Your job is to read the given text, then create a title in question form representative of what the article is about.  The title should be semantically identical to the overview of the article and not include extraneous info. Use the format: [<TITLE IN QUESTION FORM>].\n\n"})
+                    semanticterm.append({'role': 'user', 'content': f"%ARTICLE%\n{text}\n\n"})
+                    semanticterm.append({'role': 'user', 'content': f"%RESPONSE FORMAT%\nUse the format: [<QUSTION TITLE>]\n\n"})
+                    semanticterm.append({'role': 'user', 'content': f"%RESPONSE%\n["})
+                    prompt = ''.join([message_dict['content'] for message_dict in semanticterm])
+                    semantic_db_term = oobabooga_scrape(prompt)
                     print('---------')
                     weblist.append(url + ' ' + text)
-                    print(url + ' ' + text)
+                    print(url + '\n' + semantic_db_term + '\n' + text)
                     if results_callback is not None:
                         results_callback(url + ' ' + text)
                     payload = list()
-                    vector = model.encode([url + ' ' + text]).tolist()
+                    vector = model.encode([url + ' ' + semantic_db_term + ' ' + text]).tolist()
                     timestamp = time()
                     timestring = timestamp_to_datetime(timestamp)
                     unique_id = str(uuid4())

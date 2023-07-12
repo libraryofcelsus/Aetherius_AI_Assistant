@@ -489,7 +489,7 @@ def chunk_text(text, chunk_size, overlap):
 
 
 
-def chunk_text_from_url(url, chunk_size=700, overlap=100, results_callback=None):
+def chunk_text_from_url(url, chunk_size=550, overlap=80, results_callback=None):
     bot_name = open_file('./config/prompt_bot_name.txt')
     try:
         print("Scraping given URL, please wait...")
@@ -505,20 +505,30 @@ def chunk_text_from_url(url, chunk_size=700, overlap=100, results_callback=None)
         weblist = list()
         for chunk in chunks:
             websum = list()
+            websum2 = list()
+            websum2.append({'role': 'system', 'content': "%MAIN SYSTEM PROMPT%\nYou are an ai text editor.  Your job is to take the given text from a webscrape, then return the scraped text in an informational article form.  Do not generalize, rephrase, or use latent knowledge in your summary.  If no article is given, print no article.\n\n"})
+            websum2.append({'role': 'user', 'content': f"%WEBSCRAPE%\n{chunk}\n\n%INSTRUCTIONS%\nSummarize the webscrape without losing any factual knowledge and maintaining full context.\n\n%RESPONSE%\n"})
             websum.append({'role': 'system', 'content': "%MAIN SYSTEM PROMPT%\nYou are a data extractor. Your job is to take the given text from a webscrape, then highlight all important or factual information without losing any data. All salient information should be returned condensed without modifying its factual nature. Only use the given information, do not generalize, rephrase, or use other latent knowledge.  Use the format: [<Semantic Question Title>]: <Article/Guide>. Avoid using linebreaks inside of the article or its formatting.  Lists should be made into continuous text form to avoid them. If no article is given, print no article.\n\n"})
-            websum.append({'role': 'user', 'content': f"%GIVEN WEBSCRAPED ARTICLE FOR SUMMARY%\nARTICLE: {chunk}\n\n%RESPONSE%\nSure, here is a condensed version of the given article.\nDATA EXTRACTOR:"})
-            prompt = ''.join([message_dict['content'] for message_dict in websum])
+            websum.append({'role': 'user', 'content': f"%WEBSCRAPED ARTICLE%\n{chunk}\n\n%RESPONSE FORMAT%\nHere is a condensed version of the given webscrape. Use the format: [<Semantic Question Title>]: <Article/Guide>.\n\n%RESPONSE%\n"})
+            prompt = ''.join([message_dict['content'] for message_dict in websum2])
             text = oobabooga_scrape(prompt)
+            if len(text) < 20:
+                text = "No Webscrape available"
         #    text = chatgpt35_completion(websum)
-            paragraphs = text.split('\n\n')  # Split into paragraphs
-            for paragraph in paragraphs:  # Process each paragraph individually, add a check to see if paragraph contained actual information.
-        #        webcheck = list()
-                weblist.append(url + ' ' + paragraph)
-        #        webcheck.append({'role': 'system', 'content': f"%MAIN SYSTEM PROMPT%\nYou are an agent for an automated webscraping tool. Your task is to decide if the given text input from a webscrape agent was scraped successfully. The scraped text should contain factual data or opinions. If the article was scraped successfully, print: YES.  If a web-search is not needed, print: NO.\n"})
-        #        webcheck.append({'role': 'user', 'content': f"%INSTRUCTION%\nIs the scraped information useful to an end-user? YES/NO.\n%WEBSCRAPE%\n{paragraph}\n\n%RESPONSE%\nDoes the response contain an informational sentence or paragraph, YES or NO?  You can only respond with either YES or NO.\nAI AGENT: "})
-        #        prompt = ''.join([message_dict['content'] for message_dict in webcheck])
-        #        webyescheck = oobabooga_yesno(prompt)
-        #        print(webyescheck)
+        #    paragraphs = text.split('\n\n')  # Split into paragraphs
+        #    for paragraph in paragraphs:  # Process each paragraph individually, add a check to see if paragraph contained actual information.
+            webcheck = list()
+            webcheck.append({'role': 'system', 'content': f"%MAIN SYSTEM PROMPT%\nYou are an agent for an automated webscraping tool. Your task is to decide if the previous Ai Agent scraped the text successfully. The scraped text should contain some form of article, if it does, print 'YES'. If the article was scraped successfully, print: 'YES'.  If the webscrape failed or is a response from the first agent, print: 'NO'.\n\n"})
+            webcheck.append({'role': 'user', 'content': f"%ORIGINAL TEXT FROM SCRAPE%\n{chunk}\n\n"})
+            webcheck.append({'role': 'user', 'content': f"%PROCESSED WEBSCRAPE%\n{text}\n\n"})
+            
+            webcheck.append({'role': 'user', 'content': f"%RESPONSE FORMAT%\nYou are responding for a Yes or No input field. You are only capible of printing Yes or No. Use the format: [AI AGENT: <'Yes'/'No'>]\n\n"})
+            webcheck.append({'role': 'user', 'content': f"%RESPONSE%\n["})
+       
+            
+            prompt = ''.join([message_dict['content'] for message_dict in webcheck])
+            webyescheck = oobabooga_selector(prompt)
+            
         #        webyescheck = chatgptyesno_completion(webcheck)
         #        if 'yes' in webyescheck.lower():
         #            print('---------')
@@ -552,31 +562,67 @@ def chunk_text_from_url(url, chunk_size=700, overlap=100, results_callback=None)
         #            payload.append((unique_id, vector, {"memory_type": "web_scrape"}))
         #            vdb.upsert(payload, namespace=f'Tools_User_{username}_Bot_{bot_name}')
         #            payload.clear()
-                if 'no article' in paragraph.lower():
-                    pass
-                if 'not available' in paragraph.lower():
-                    pass
-                if 'provide me' in paragraph.lower():
-                    pass
+            if 'no webscrape' in text.lower():
+                print('---------')
+                print('Summarization Failed')
+                pass
+            if 'no article' in text.lower():
+                print('---------')
+                print('Summarization Failed')
+                pass
+            if 'you are a text' in text.lower():
+                print('---------')
+                print('Summarization Failed')
+                pass
+            if 'no summary' in text.lower():
+                print('---------')
+                print('Summarization Failed')
+                pass  
+            if 'i am an ai' in text.lower():
+                print('---------')
+                print('Summarization Failed')
+                pass                
+            else:
+                if 'yes' in webyescheck.lower():
+                    print('---------')
+                    weblist.append(url + ' ' + text)
+                    print(url + ' ' + text)
+                    if results_callback is not None:
+                        results_callback(url + ' ' + text)
+                    payload = list()
+                    vector = model.encode([url + ' ' + text]).tolist()
+                    timestamp = time()
+                    timestring = timestamp_to_datetime(timestamp)
+                    unique_id = str(uuid4())
+                    metadata = {'bot': bot_name, 'time': timestamp, 'message': url + ' ' + text,
+                                'timestring': timestring, 'uuid': unique_id, "memory_type": "web_scrape"}
+                    save_json(f'nexus/{bot_name}/{username}/web_scrape_memory_nexus/%s.json' % unique_id, metadata)
+                    payload.append((unique_id, vector, {"memory_type": "web_scrape"}))
+                    vdb.upsert(payload, namespace=f'Tools_User_{username}_Bot_{bot_name}')
+                    payload.clear()           
+                    pass  
                 else:
-                    if len(paragraph) > 50:
-                        print('---------')
-                        print(url + ' ' + paragraph)
-                        if results_callback is not None:
-                            results_callback(url + ' ' + paragraph)
-                        payload = list()
-                        vector = model.encode([url + ' ' + paragraph]).tolist()
-                        timestamp = time()
-                        timestring = timestamp_to_datetime(timestamp)
-                        unique_id = str(uuid4())
-                        metadata = {'bot': bot_name, 'time': timestamp, 'message': url + ' ' + paragraph,
-                                    'timestring': timestring, 'uuid': unique_id, "memory_type": "web_scrape"}
-                        save_json(f'nexus/{bot_name}/{username}/web_scrape_memory_nexus/%s.json' % unique_id, metadata)
-                        payload.append((unique_id, vector, {"memory_type": "web_scrape"}))
-                        vdb.upsert(payload, namespace=f'Tools_User_{username}_Bot_{bot_name}')
-                        payload.clear()
+                    print('---------')
+                    print(f'\n\n\nERROR MESSAGE FROM BOT: {webyescheck}\n\n\n')
+                #    if len(text) > 50:
+                #        print('---------')
+                #        print(url + ' ' + text)
+                #        if results_callback is not None:
+                #            results_callback(url + ' ' + text)
+                #        payload = list()
+                #        vector = model.encode([url + ' ' + text]).tolist()
+                #        timestamp = time()
+                #        timestring = timestamp_to_datetime(timestamp)
+                #        unique_id = str(uuid4())
+                #        metadata = {'bot': bot_name, 'time': timestamp, 'message': url + ' ' + text,
+                #                    'timestring': timestring, 'uuid': unique_id, "memory_type": "web_scrape"}
+                #        save_json(f'nexus/{bot_name}/{username}/web_scrape_memory_nexus/%s.json' % unique_id, metadata)
+                #        payload.append((unique_id, vector, {"memory_type": "web_scrape"}))
+                #        vdb.upsert(payload, namespace=f'Tools_User_{username}_Bot_{bot_name}')
+                #        payload.clear()
                             
         table = weblist
+        
         return table
     except Exception as e:
         print(e)
@@ -1416,7 +1462,7 @@ class ChatBotApplication(tk.Frame):
             conversation.append({'role': 'system', 'content': f"%MAIN CHATBOT SYSTEM PROMPT%\n{main_prompt}\n\n"})
             int_conversation.append({'role': 'system', 'content': f"%MAIN CHATBOT SYSTEM PROMPT%\n{main_prompt}\n\n"})
             # # Check for Exit, summarize the conversation, and then upload to episodic_memories
-            tasklist.append({'role': 'system', 'content': "SYSTEM: You are a semantic rephraser. Your role is to interpret the original user query and generate 2-5 synonymous search terms that will guide the exploration of the chatbot's memory database. Each alternative term should reflect the essence of the user's initial search input. Please list your results using a hyphenated bullet point structure.\n\n"})
+            tasklist.append({'role': 'system', 'content': "SYSTEM: You are a semantic rephraser. Your role is to interpret the original user query and generate 2-3 synonymous search terms that will guide the exploration of the chatbot's memory database. Each alternative term should reflect the essence of the user's initial search input. Please list your results using a hyphenated bullet point structure.\n\n"})
             tasklist.append({'role': 'user', 'content': "USER: USER INQUIRY: %s\n\n" % a})
             tasklist.append({'role': 'assistant', 'content': "TASK COORDINATOR: List of synonymous Semantic Terms:\n"})
             prompt = ''.join([message_dict['content'] for message_dict in tasklist])
@@ -1437,10 +1483,10 @@ class ChatBotApplication(tk.Frame):
                             tasklist_vector := model.encode([line]).tolist(),
                             db_term.update({_index: tasklist_vector}),
                             results := vdb.query(vector=db_term[_index], filter={
-            "memory_type": "explicit_long_term", "user": username}, top_k=3, namespace=f'{bot_name}'),
+            "memory_type": "explicit_long_term", "user": username}, top_k=2, namespace=f'{bot_name}'),
                             db_term_result.update({_index: load_conversation_explicit_long_term_memory(results)}),
                             results := vdb.query(vector=db_term[_index], filter={
-            "memory_type": "implicit_long_term", "user": username}, top_k=2, namespace=f'{bot_name}'),
+            "memory_type": "implicit_long_term", "user": username}, top_k=1, namespace=f'{bot_name}'),
                             db_term_result2.update({_index: load_conversation_implicit_long_term_memory(results)}),
                             conversation.append({'role': 'assistant', 'content': f"%LONG TERM CHATBOT MEMORIES%\n{db_term_result[_index]}\n"}),
                             conversation.append({'role': 'assistant', 'content': f"%LONG TERM CHATBOT MEMORIES%\n{db_term_result2[_index]}\n"}),
@@ -1455,12 +1501,12 @@ class ChatBotApplication(tk.Frame):
                 ] + [
                     executor.submit(lambda: (
                         vdb.query(vector=vector_input, filter={
-            "memory_type": "episodic", "user": username}, top_k=4, namespace=f'{bot_name}'),
+            "memory_type": "episodic", "user": username}, top_k=3, namespace=f'{bot_name}'),
                         load_conversation_episodic_memory)
                     ),
                     executor.submit(lambda: (
                         vdb.query(vector=vector_input, filter={
-            "memory_type": "web_scrape"}, top_k=7, namespace=f'Tools_User_{username}_Bot_{bot_name}'),
+            "memory_type": "web_scrape"}, top_k=9, namespace=f'Tools_User_{username}_Bot_{bot_name}'),
                         load_conversation_web_scrape_memory)
                     ),
                     executor.submit(lambda: (
@@ -1487,7 +1533,7 @@ class ChatBotApplication(tk.Frame):
                 except Exception as e:
                     print(f"Caught an exception: {e}")
             # # Inner Monologue Generation
-            conversation.append({'role': 'assistant', 'content': f"\n%FLASHBULB MEMORIES%\n{db_search_3}\n\n%EPISODIC MEMORIES%\n{db_search_1}\n\n%WEBSCRAPE%\n{db_search_2}\n\n%{bot_name}'s HEURISTICS%\n{db_search_14}\n\n%USER MESSAGE%\n{a}\n\n%CHATBOT TASK%\nBased on {bot_name}'s memories and the user, {username}'s message, compose a short and concise silent soliloquy as {bot_name}'s inner monologue that reflects on {bot_name}'s deepest contemplations and emotions in relation to the webscrape and the user's message.\n\n%RESPONSE%\n{bot_name}: "})
+            conversation.append({'role': 'assistant', 'content': f"\n%FLASHBULB MEMORIES%\n{db_search_3}\n\n%EPISODIC MEMORIES%\n{db_search_1}\n\n%WEBSCRAPE%\n{db_search_2}\n\n%{bot_name}'s HEURISTICS%\n{db_search_14}\n\n%USER MESSAGE%\n{a}\n\n%CHATBOT TASK%\nBased on {bot_name}'s memories, the webscrape, and the user, {username}'s message, compose a short and concise silent soliloquy as {bot_name}'s inner monologue that reflects on {bot_name}'s deepest contemplations in relation to how the user's message relates to the webscrape.\n\n%RESPONSE%\n{bot_name}: "})
             
             prompt = ''.join([message_dict['content'] for message_dict in conversation])
             output_one = oobabooga_500(prompt)
@@ -1571,7 +1617,7 @@ class ChatBotApplication(tk.Frame):
                     print(f"Caught an exception: {e}")
             # # Intuition Generation
             results = vdb.query(vector=vector_input, filter={
-            "memory_type": "web_scrape"}, top_k=5, namespace=f'Tools_User_{username}_Bot_{bot_name}')
+            "memory_type": "web_scrape"}, top_k=7, namespace=f'Tools_User_{username}_Bot_{bot_name}')
             int_scrape = load_conversation_web_scrape_memory(results)
             print(int_scrape)
             
@@ -1708,10 +1754,11 @@ class ChatBotApplication(tk.Frame):
             timestamp = time()
             timestring = timestamp_to_datetime(timestamp)
             # # Test for basic Autonomous Tasklist Generation and Task Completion
-            master_tasklist.append({'role': 'system', 'content': f"%MAIN SYSTEM PROMPT%\nYou are a stateless task list coordinator for {bot_name} an autonomous Ai chatbot. Your job is to combine the user's input and the user facing chatbots intuitive action plan, then transform it into a list of independent research queries that can be executed by separate AI agents in a cluster computing environment. The other asynchronous Ai agents are stateless and cannot communicate with each other or the user during task execution, however the agents do have access to {bot_name}'s memories. Exclude tasks involving final product production, user communication, or checking work with other agents. Respond using the following bullet point format: '- [task]'\n\n"})
+            master_tasklist.append({'role': 'system', 'content': f"%MAIN SYSTEM PROMPT%\nYou are a stateless task list coordinator for {bot_name} an autonomous Ai chatbot. Your job is to combine the user's input and the user facing chatbots intuitive action plan, then transform it into a list of independent research queries for {bot_name}'s response that can be executed by separate AI agents in a cluster computing environment. The other asynchronous Ai agents are stateless and cannot communicate with each other or the user during task execution, however the agents do have access to {bot_name}'s memories. Exclude tasks involving final product production, user communication, using external sources, or checking work with other agents. Respond using bullet point format following: '- [task]'\n\n"})
             master_tasklist.append({'role': 'user', 'content': f"%USER FACING CHATBOT'S INTUITIVE ACTION PLAN%\n{output_two}\n\n"})
             master_tasklist.append({'role': 'user', 'content': f"%USER INQUIRY%\n{a}\n\n"})
-            master_tasklist.append({'role': 'assistant', 'content': f"%RESPONSE%\nBULLET POINT RESEARCH TASK LIST:"})
+            master_tasklist.append({'role': 'assistant', 'content': f"%RESPONSE FORMAT%\nYou may only print the list in bullet point format. Use the format: '-[task]\n-[task]'\n\n"})
+            master_tasklist.append({'role': 'assistant', 'content': f"%RESPONSE%\nBULLET POINT RESEARCH TASKLIST:"})
             
             prompt = ''.join([message_dict['content'] for message_dict in master_tasklist])
             master_tasklist_output = oobabooga_500(prompt)
@@ -1744,18 +1791,7 @@ class ChatBotApplication(tk.Frame):
                                 conversation.append({'role': 'assistant', 'content': "%TASK ASSIGNMENT%\nBot: I have studied the given tasklist.  What is my assigned task?\n"}),
                                 conversation.append({'role': 'user', 'content': f"Bot Assigned task: {line}\n\n"}),
                                 # # DB Yes No Tool
-                                memcheck.append({'role': 'system', 'content': f"%MAIN SYSTEM PROMPT%\nYou are a sub-agent for {bot_name}, an Autonomous Ai-Chatbot. Your purpose is to decide if the user's input requires {bot_name}'s past memories to complete. Any information pertaining to the user, the chatbot, {bot_name}, or past personal events should be searched for in memory.  If memories are needed, print: 'YES'.  If they are not needed, print: 'NO'. You may only print YES or NO.\n\n\n"}),
-                                memcheck.append({'role': 'user', 'content': "//LIST OF EXAMPLES:\n\n"}),
-                                memcheck.append({'role': 'user', 'content': "%USER INPUT%\nResearch ways to identify user needs and interests\n\n"}),
-                                memcheck.append({'role': 'assistant', 'content': f"%RESPONSE%\n{bot_name}: YES\n\n"}),
-                                memcheck.append({'role': 'user', 'content': "%USER INPUT%\nResearch common themes in the book Faust.\n\n"}),
-                                memcheck.append({'role': 'assistant', 'content': f"%RESPONSE%\n{bot_name}: NO\n\n"}),
-                                memcheck.append({'role': 'user', 'content': f"%USER INPUT%\nSearch {bot_name}'s memory for information on {username}.\n\n"}),
-                                memcheck.append({'role': 'assistant', 'content': f"%RESPONSE%\n{bot_name}: YES\n\n"}),
-                                memcheck.append({'role': 'user', 'content': "%USER INPUT%\nSearch past interactions with the user.\n\n"}),
-                                memcheck.append({'role': 'assistant', 'content': f"%RESPONSE%\n{bot_name}: YES\n\n"}),
-                                memcheck.append({'role': 'user', 'content': "END OF EXAMPLE LIST//\n\n\n"}),
-                                memcheck.append({'role': 'assistant', 'content': f"%{bot_name}'s REINITIALIZATION%\nYour task is to decide if the user's input requires {bot_name}'s memories. Any information pertaining to the user, the chatbot, {bot_name}, or past personal events should be searched for in memory. If memories are needed, print: 'YES'.  If they are not needed, print: 'NO'.  {bot_name} can only output YES or NO.\n\n"}),
+                                memcheck.append({'role': 'system', 'content': f"%MAIN SYSTEM PROMPT%\nYou are a sub-agent for {bot_name}, an Autonomous Ai-Chatbot. Your purpose is to decide if the user's input requires {bot_name}'s past memories to complete. If the user's request pertains to information about the user, the chatbot, {bot_name}, or past personal events should be searched for in memory by printing 'YES'.  If memories are needed, print: 'YES'.  If they are not needed, print: 'NO'. You may only print YES or NO.\n\n\n"}),
                                 memcheck.append({'role': 'user', 'content': f"%USER INPUT%\n{line}\n\n"}),
                                 memcheck.append({'role': 'assistant', 'content': f"%RESPONSE FORMAT%\nYou may only print Yes or No. Use the format: [{bot_name}: 'YES OR NO']\n\n"}),
                                 memcheck.append({'role': 'assistant', 'content': f"%RESPONSE%\n"}),
@@ -1778,7 +1814,7 @@ class ChatBotApplication(tk.Frame):
                                 memcheck2.append({'role': 'user', 'content': "%TASK REINITIALIZATION%\nYour task is to decide which database needs to be queried in relation to a user's input. The databases are representative of different types of memories. Only choose a single database to query. [{bot_name}: 'MEMORY TYPE']\n\n"}),
                                 memcheck2.append({'role': 'user', 'content': f"%USER INPUT%\n{line}\n\n"}),
                                 memcheck2.append({'role': 'assistant', 'content': f"%RESPONSE FORMAT%\nYou may only print the type of memory to be queried. Use the format: [{bot_name}: 'MEMORY TYPE']\n\n"}),
-                                memcheck2.append({'role': 'assistant', 'content': f"%RESPONSE%\n"}),
+                                memcheck2.append({'role': 'assistant', 'content': f"%RESPONSE%\nTYPE OF MEMORY: "}),
                                 # # Web Search Tool
                          #       webcheck.append({'role': 'system', 'content': f"You are a sub-module for an Autonomous Ai-Chatbot. You are one of many agents in a chain. Your task is to decide if a web-search is needed in order to complete the given task. Only recent or niche information needs to be searched. Do not search for any information pertaining to the user, {username}, or the main bot, {bot_name}.   If a websearch is needed, print: YES.  If a web-search is not needed, print: NO."}),
                         #        webcheck.append({'role': 'user', 'content': "Hello, how are you today?"}),
@@ -1795,28 +1831,30 @@ class ChatBotApplication(tk.Frame):
                                 mem1 := oobabooga_selector(prompt),
                                 print('-----------'),
                                 print(mem1),
-                                print('-----------'),
+                                print(' --------- '),
                     #            mem1 := chatgptyesno_completion(memcheck),
                                 # # Go to conditional for choosing DB Name
-                                memcheck2.append({'role': 'user', 'content': f"{line}"}),
                                 prompt := ''.join([message_dict['content'] for message_dict in memcheck2]),
                                 mem2 := oobabooga_selector(prompt) if 'YES' in mem1.upper() else fail(),
+                                print('-----------'),
+                                print(mem2) if 'YES' in mem1.upper() else fail(),
+                                print(' --------- '),
                                 line_vec := model.encode([line]).tolist(),    #EPISODIC, FLASHBULB, IMPLICIT LONG TERM, EXPLICIT LONG TERM                   
-                                memories := (search_episodic_db(line_vec) if 'EPISODIC' in mem2.upper() else 
-                                            search_implicit_db(line_vec) if 'IMPLICIT' in mem2.upper() else 
-                                            search_flashbulb_db(line_vec) if 'FLASHBULB' in mem2.upper() else
-                                            search_explicit_db(line_vec) if 'EXPLICIT' in mem2.upper() else
+                                memories := (search_episodic_db(line_vec) if 'EPISO' in mem2.upper() else 
+                                            search_implicit_db(line_vec) if 'IMPLI' in mem2.upper() else 
+                                            search_flashbulb_db(line_vec) if 'FLASH' in mem2.upper() else
+                                            search_explicit_db(line_vec) if 'EXPL' in mem2.upper() else
                                             fail()),           
                                 conversation.append({'role': 'assistant', 'content': f"%WEBSEARCH%\n{table}\n\n"}),
                                 conversation.append({'role': 'user', 'content': f"%BOT {task_counter} TASK REINITIALIZATION%\n{line}\n\n"}),
                                 conversation.append({'role': 'user', 'content': f"%RESPONSE INSTRUCTIONS%\nSummarize the given webscraped articles that are relivent to the given task. Your job is to provide concise information without leaving anything out.\n\n"}),
-                                conversation.append({'role': 'assistant', 'content': f"%RESPONSE%\nBOT {task_counter}:"}),
+                                conversation.append({'role': 'assistant', 'content': f"%RESPONSE%\nI will now summarize the given information based on the task.\nBOT {task_counter}:"}),
                                 prompt := ''.join([message_dict['content'] for message_dict in conversation]),
                                 task_completion := oobabooga_800(prompt),
                                 #chatgpt35_completion(conversation),
                               #  conversation.clear(),
-                                tasklist_completion.append({'role': 'assistant', 'content': f"%WEBSCRAPE%\n{table}\n\n"}),
                                 tasklist_completion.append({'role': 'assistant', 'content': f"%MEMORIES%\n{memories}\n\n"}),
+                                tasklist_completion.append({'role': 'assistant', 'content': f"%WEBSCRAPE%\n{table}\n\n"}),
                                 tasklist_completion.append({'role': 'assistant', 'content': f"%COMPLETED TASK%\n{task_completion}\n\n"}),
                                 tasklist_log.append({'role': 'user', 'content': "ASSIGNED TASK:\n%s\n\n" % line}),
                                 tasklist_log.append({'role': 'assistant', 'content': "COMPLETED TASK:\n%s\n\n" % memories}),
@@ -1835,7 +1873,7 @@ class ChatBotApplication(tk.Frame):
                     ]  
                 tasklist_completion.append({'role': 'assistant', 'content': f"%{bot_name}'s INNER_MONOLOGUE%\n{output_one}\n\n"})
         #        tasklist_completion.append({'role': 'user', 'content': f"%{bot_name}'s INTUITION%\n{output_two}\n\n"})
-                tasklist_completion.append({'role': 'user', 'content': f"%INSTRUCTION%\nRead the given set of tasks and completed responses and transmute them into a verbose response for {username}, the end user in accordance with their request. {username} is both unaware and unable to see any of your research.\n\n%USER'S INITIAL REQUEST%\n{a}.\n%RESPONSE%\nMy planning and research is now done. I will now give a response ensuring the user's request is finished to completion.\n{bot_name}:"})
+                tasklist_completion.append({'role': 'user', 'content': f"%INSTRUCTION%\nRead the given set of tasks and completed responses and transmute them into a verbose response for {username}, the end user in accordance with their request. {username} is both unaware and unable to see any of your research so any nessisary context or information must be relayed.\n\n%USER'S INITIAL REQUEST%\n{a}.\n%RESPONSE%\nMy planning and research is now done. I will now give a natural sounding response ensuring the user's request is finished to completion.\n{bot_name}:"})
                 print('\n\nGenerating Final Output...')
                 prompt = ''.join([message_dict['content'] for message_dict in tasklist_completion])
                 response_two = oobabooga_response(prompt)

@@ -188,10 +188,10 @@ def oobabooga_inner_monologue(user_input, history):
         print(result['visible'][-1][1])
         
         
-def oobabooga_yesno(prompt):
+def oobabooga_selector(prompt):
     request = {
         'prompt': prompt,
-        'max_new_tokens': 5,
+        'max_new_tokens': 10,
 
         # Generation params. If 'preset' is set to different than 'None', the values
         # in presets/preset-name.yaml are used instead of the individual numbers.
@@ -1192,7 +1192,7 @@ class ChatBotApplication(tk.Frame):
                     print(f"Caught an exception: {e}")
             print(db_search_1, db_search_2, db_search_3, db_search_14)
             # # Inner Monologue Generation
-            conversation.append({'role': 'assistant', 'content': f"\n%FLASHBULB MEMORIES%\n{db_search_3}\n\n%EPISODIC MEMORIES%\n{db_search_1}\n\n%SHORT-TERM MEMORIES%\n{db_search_2}\n\n%{bot_name}'s HEURISTICS%\n{db_search_14}\n\n%USER MESSAGE%\n{a}\n\n%CHATBOT TASK%\nBased on {bot_name}'s memories and the user, {username}'s message, compose a short and concise silent soliloquy as {bot_name}'s inner monologue that reflects on {bot_name}'s deepest contemplations and emotions in relation to the conversation.\n\n%RESPONSE%\n{bot_name}: "})
+            conversation.append({'role': 'assistant', 'content': f"\n%FLASHBULB MEMORIES%\n{db_search_3}\n\n%EPISODIC MEMORIES%\n{db_search_1}\n\n%SHORT-TERM MEMORIES%\n{db_search_2}\n\n%{bot_name}'s HEURISTICS%\n{db_search_14}\n\n%USER MESSAGE%\n{a}\n\n%CHATBOT TASK%\nBased on {bot_name}'s memories and the user, {username}'s message, compose a short and concise silent soliloquy as {bot_name}'s internal monologue that reflects on {bot_name}'s deepest contemplations and emotions in relation to the user's input.\n\n%RESPONSE%\n{bot_name}: "})
         #    output_one = chatgpt250_completion(conversation)
             prompt = ''.join([message_dict['content'] for message_dict in conversation])
             output_one = oobabooga_500(prompt)
@@ -1260,48 +1260,6 @@ class ChatBotApplication(tk.Frame):
     #        else:
     #            int_conversation.append({'role': 'assistant', 'content': f"%GREETING%\n{greeting_msg}\n\n"})
            #     print("\n%s" % greeting_msg)
-            # # User Input Voice
-        #    yn_voice = input(f'\n\nPress Enter to Speak')
-        #    if yn_voice == "":
-        #        with sr.Microphone() as source:
-        #            print("\nSpeak now")
-        #            audio = r.listen(source)
-        #            try:
-        #                text = r.recognize_google(audio)
-        #                print("\nUSER: " + text)
-        #            except sr.UnknownValueError:
-        #                print("Google Speech Recognition could not understand audio")
-        #                print("\nSYSTEM: Press Left Alt to Speak to Aetherius")
-        #                break
-        #            except sr.RequestError as e:
-        #                print("Could not request results from Google Speech Recognition service; {0}".format(e))
-        #                break
-        #    else:
-        #        print('Leave Field Empty')
-        #    a = (f'\n\nUSER: {text}')
-            # # User Input Text
-   #         a = input(f'\n\nUSER: ')
-            # # Check for Commands
-            # # Check for "Clear Memory"
-            if a == 'Clear Memory':
-                while True:
-                    print('\n\nSYSTEM: Are you sure you would like to delete saved short-term memory?\n        Press Y for yes or N for no.')
-                    user_input = input("'Y' or 'N': ")
-                    if user_input == 'y':
-                        vdb.delete(delete_all=True, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
-                        file_path = f'./history/{username}/{bot_name}_main_conversation_history.json'
-                        if os.path.exists(file_path):
-                            os.remove(file_path)
-                        print('Short-Term Memory has been Deleted')
-                        return
-                    elif user_input == 'n':
-                        print('\n\nSYSTEM: Short-Term Memory delete cancelled.')
-                        return
-                else:
-                    pass
-            # # Check for "Exit"
-            if a == 'Exit':
-                return
             message = output_one
             vector_monologue = model.encode([message]).tolist()
             # # Memory DB Search
@@ -1393,7 +1351,7 @@ class ChatBotApplication(tk.Frame):
             auto_int = None
             while auto_int is None:
                 prompt = ''.join([message_dict['content'] for message_dict in auto])
-                automemory = oobabooga_yesno(prompt)
+                automemory = oobabooga_selector(prompt)
             #    automemory = chatgptyesno_completion(auto)
         #        print(automemory)
                 if is_integer(automemory):
@@ -1600,7 +1558,6 @@ class ChatBotApplication(tk.Frame):
             db_msg = f"\nUSER: {a} \n INNER_MONOLOGUE: {output_one} \n {bot_name}'s RESPONSE: {response_two}"
             summary.append({'role': 'assistant', 'content': f"%LOG%\n{db_msg}\n\n%INSTRUCTIONS%\nRead the log, extract the salient points about {bot_name} and {username} mentioned in the chatbot's response, then create short executive summaries in bullet point format to serve as {bot_name}'s explicit memories. Each bullet point should be considered a separate memory and contain all context. Ignore the main system prompt, it only exists for initial context.\n\n%RESPONSE%\nUse the format [-MEMORY]\nMemories:\n"})
             
-
             prompt = ''.join([message_dict['content'] for message_dict in summary])
             db_upload = oobabooga_250(prompt)
             
@@ -1643,7 +1600,7 @@ class ChatBotApplication(tk.Frame):
             auto_int = None
             while auto_int is None:
                 prompt = ''.join([message_dict['content'] for message_dict in auto])
-                automemory = oobabooga_yesno(prompt)
+                automemory = oobabooga_selector(prompt)
             #    automemory = chatgptyesno_completion(auto)
                 print(automemory)
                 if is_integer(automemory):

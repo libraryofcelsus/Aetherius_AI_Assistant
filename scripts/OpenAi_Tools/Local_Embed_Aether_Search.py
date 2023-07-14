@@ -19,287 +19,13 @@ import threading
 import concurrent.futures
 import customtkinter
 import tkinter as tk
-from tkinter import ttk, scrolledtext, simpledialog, font, messagebox
+from tkinter import ttk, scrolledtext, simpledialog, font
 from bs4 import BeautifulSoup
 import importlib.util
-import requests
 from sentence_transformers import SentenceTransformer
-import shutil
-
-
-# For local streaming, the websockets are hosted without ssl - http://
-HOST = 'localhost:5000'
-URI = f'http://{HOST}/api/v1/generate'
-
-# For reverse-proxied streaming, the remote will likely host with ssl - https://
-# URI = 'https://your-uri-here.trycloudflare.com/api/v1/generate'
 
 
 model = SentenceTransformer('all-mpnet-base-v2')
-
-def oobabooga_250(prompt):
-    request = {
-        'prompt': prompt,
-        'max_new_tokens': 250,
-
-        # Generation params. If 'preset' is set to different than 'None', the values
-        # in presets/preset-name.yaml are used instead of the individual numbers.
-        'preset': 'None',  
-        'do_sample': True,
-        'temperature': 0.8,
-        'top_p': 0.1,
-        'typical_p': 1,
-        'epsilon_cutoff': 0,  # In units of 1e-4
-        'eta_cutoff': 0,  # In units of 1e-4
-        'tfs': 1,
-        'top_a': 0,
-        'repetition_penalty': 1.18,
-        'top_k': 40,
-        'min_length': 0,
-        'no_repeat_ngram_size': 0,
-        'num_beams': 1,
-        'penalty_alpha': 0,
-        'length_penalty': 1,
-        'early_stopping': False,
-        'mirostat_mode': 0,
-        'mirostat_tau': 5,
-        'mirostat_eta': 0.1,
-
-        'seed': -1,
-        'add_bos_token': True,
-        'truncation_length': 4096,
-        'ban_eos_token': False,
-        'skip_special_tokens': True,
-        'stopping_strings': []
-    }
-
-    response = requests.post(URI, json=request)
-
-    if response.status_code == 200:
-        result = response.json()['results'][0]['text']
-    #    print(result)
-        return result
-        
-        
-def oobabooga_500(prompt):
-    request = {
-        'prompt': prompt,
-        'max_new_tokens': 500,
-
-        # Generation params. If 'preset' is set to different than 'None', the values
-        # in presets/preset-name.yaml are used instead of the individual numbers.
-        'preset': 'None',  
-        'do_sample': True,
-        'temperature': 0.85,
-        'top_p': 0.1,
-        'typical_p': 1,
-        'epsilon_cutoff': 0,  # In units of 1e-4
-        'eta_cutoff': 0,  # In units of 1e-4
-        'tfs': 1,
-        'top_a': 0,
-        'repetition_penalty': 1.18,
-        'top_k': 40,
-        'min_length': 100,
-        'no_repeat_ngram_size': 0,
-        'num_beams': 1,
-        'penalty_alpha': 0,
-        'length_penalty': 1,
-        'early_stopping': False,
-        'mirostat_mode': 0,
-        'mirostat_tau': 5,
-        'mirostat_eta': 0.1,
-
-        'seed': -1,
-        'add_bos_token': True,
-        'truncation_length': 4096,
-        'ban_eos_token': False,
-        'skip_special_tokens': True,
-        'stopping_strings': []
-    }
-
-    response = requests.post(URI, json=request)
-
-    if response.status_code == 200:
-        result = response.json()['results'][0]['text']
-    #    print(result)
-        return result
-        
-        
-def oobabooga_800(prompt):
-    request = {
-        'prompt': prompt,
-        'max_new_tokens': 800,
-
-        # Generation params. If 'preset' is set to different than 'None', the values
-        # in presets/preset-name.yaml are used instead of the individual numbers.
-        'preset': 'None',  
-        'do_sample': True,
-        'temperature': 0.85,
-        'top_p': 0.1,
-        'typical_p': 1,
-        'epsilon_cutoff': 0,  # In units of 1e-4
-        'eta_cutoff': 0,  # In units of 1e-4
-        'tfs': 1,
-        'top_a': 0,
-        'repetition_penalty': 1.18,
-        'top_k': 40,
-        'min_length': 100,
-        'no_repeat_ngram_size': 0,
-        'num_beams': 1,
-        'penalty_alpha': 0,
-        'length_penalty': 1,
-        'early_stopping': False,
-        'mirostat_mode': 0,
-        'mirostat_tau': 5,
-        'mirostat_eta': 0.1,
-
-        'seed': -1,
-        'add_bos_token': True,
-        'truncation_length': 4096,
-        'ban_eos_token': False,
-        'skip_special_tokens': True,
-        'stopping_strings': []
-    }
-
-    response = requests.post(URI, json=request)
-
-    if response.status_code == 200:
-        result = response.json()['results'][0]['text']
-    #    print(result)
-        return result
-        
-        
-def oobabooga_scrape(prompt):
-    request = {
-        'prompt': prompt,
-        'max_new_tokens': 600,
-
-        # Generation params. If 'preset' is set to different than 'None', the values
-        # in presets/preset-name.yaml are used instead of the individual numbers.
-        'preset': 'None',  
-        'do_sample': True,
-        'temperature': 0.7,
-        'top_p': 0.1,
-        'typical_p': 1,
-        'epsilon_cutoff': 0,  # In units of 1e-4
-        'eta_cutoff': 0,  # In units of 1e-4
-        'tfs': 1,
-        'top_a': 0,
-        'repetition_penalty': 1.18,
-        'top_k': 40,
-        'min_length': 100,
-        'no_repeat_ngram_size': 0,
-        'num_beams': 1,
-        'penalty_alpha': 0,
-        'length_penalty': 1,
-        'early_stopping': False,
-        'mirostat_mode': 0,
-        'mirostat_tau': 5,
-        'mirostat_eta': 0.1,
-
-        'seed': -1,
-        'add_bos_token': True,
-        'truncation_length': 4096,
-        'ban_eos_token': False,
-        'skip_special_tokens': True,
-        'stopping_strings': []
-    }
-
-    response = requests.post(URI, json=request)
-
-    if response.status_code == 200:
-        result = response.json()['results'][0]['text']
-    #    print(result)
-        return result
-        
-        
-def oobabooga_response(prompt):
-    request = {
-        'prompt': prompt,
-        'max_new_tokens': 1500,
-
-        # Generation params. If 'preset' is set to different than 'None', the values
-        # in presets/preset-name.yaml are used instead of the individual numbers.
-        'preset': 'None',  
-        'do_sample': True,
-        'temperature': 0.85,
-        'top_p': 0.1,
-        'typical_p': 1,
-        'epsilon_cutoff': 0,  # In units of 1e-4
-        'eta_cutoff': 0,  # In units of 1e-4
-        'tfs': 1,
-        'top_a': 0,
-        'repetition_penalty': 1.18,
-        'top_k': 40,
-        'min_length': 100,
-        'no_repeat_ngram_size': 0,
-        'num_beams': 1,
-        'penalty_alpha': 0,
-        'length_penalty': 1,
-        'early_stopping': False,
-        'mirostat_mode': 0,
-        'mirostat_tau': 5,
-        'mirostat_eta': 0.1,
-
-        'seed': -1,
-        'add_bos_token': True,
-        'truncation_length': 4096,
-        'ban_eos_token': False,
-        'skip_special_tokens': True,
-        'stopping_strings': []
-    }
-
-    response = requests.post(URI, json=request)
-
-    if response.status_code == 200:
-        result = response.json()['results'][0]['text']
-    #    print(result)
-        return result
-        
-        
-        
-def oobabooga_selector(prompt):
-    request = {
-        'prompt': prompt,
-        'max_new_tokens': 10,
-
-        # Generation params. If 'preset' is set to different than 'None', the values
-        # in presets/preset-name.yaml are used instead of the individual numbers.
-        'preset': 'None',  
-        'do_sample': True,
-        'temperature': 0.4,
-        'top_p': 0.1,
-        'typical_p': 1,
-        'epsilon_cutoff': 0,  # In units of 1e-4
-        'eta_cutoff': 0,  # In units of 1e-4
-        'tfs': 1,
-        'top_a': 0,
-        'repetition_penalty': 1.18,
-        'top_k': 40,
-        'min_length': 100,
-        'no_repeat_ngram_size': 0,
-        'num_beams': 1,
-        'penalty_alpha': 0,
-        'length_penalty': 1,
-        'early_stopping': False,
-        'mirostat_mode': 0,
-        'mirostat_tau': 5,
-        'mirostat_eta': 0.1,
-
-        'seed': -1,
-        'add_bos_token': True,
-        'truncation_length': 4096,
-        'ban_eos_token': False,
-        'skip_special_tokens': True,
-        'stopping_strings': []
-    }
-
-    response = requests.post(URI, json=request)
-
-    if response.status_code == 200:
-        result = response.json()['results'][0]['text']
-    #    print(result)
-        return result
 
 
 def import_functions_from_script(script_path):
@@ -439,7 +165,8 @@ def search_webscrape_db(line):
     try:
         with lock:
             line_vec = model.encode([line]).tolist()
-            results = vdb.query(vector=line_vec, filter={"memory_type": "web_scrape"}, top_k=25, namespace=f'Tools_User_{username}_Bot_{bot_name}')
+            results = vdb.query(vector=line_vec, filter={
+        "memory_type": "web_scrape"}, top_k=30, namespace=f'Tools_User_{username}_Bot_{bot_name}')
             table = load_conversation_web_scrape_memory(results)
             return table
     except Exception as e:
@@ -489,7 +216,7 @@ def chunk_text(text, chunk_size, overlap):
 
 
 
-def chunk_text_from_url(url, chunk_size=500, overlap=80, results_callback=None):
+def chunk_text_from_url(url, chunk_size=800, overlap=100, results_callback=None):
     bot_name = open_file('./config/prompt_bot_name.txt')
     try:
         print("Scraping given URL, please wait...")
@@ -505,81 +232,33 @@ def chunk_text_from_url(url, chunk_size=500, overlap=80, results_callback=None):
         weblist = list()
         for chunk in chunks:
             websum = list()
-            websum2 = list()
-            websum2.append({'role': 'system', 'content': "%MAIN SYSTEM PROMPT%\nYou are an ai text editor.  Your job is to take the given text from a webscrape, then return the scraped text in an informational article form.  Do not generalize, rephrase, or use latent knowledge in your summary.  If no article is given, print no article.\n\n"})
-            websum2.append({'role': 'user', 'content': f"%WEBSCRAPE%\n{chunk}\n\n%INSTRUCTIONS%\nSummarize the webscrape without losing any factual knowledge and maintaining full context.\n\n%RESPONSE%\n"})
-            websum.append({'role': 'system', 'content': "%MAIN SYSTEM PROMPT%\nYou are a data extractor. Your job is to take the given text from a webscrape, then highlight all important or factual information without losing any data. All salient information should be returned condensed without modifying its factual nature. Only use the given information, do not generalize, rephrase, or use other latent knowledge.  Use the format: [<Semantic Question Title>]: <Article/Guide>. Avoid using linebreaks inside of the article or its formatting.  Lists should be made into continuous text form to avoid them. If no article is given, print no article.\n\n"})
-            websum.append({'role': 'user', 'content': f"%WEBSCRAPED ARTICLE%\n{chunk}\n\n%RESPONSE FORMAT%\nHere is a condensed version of the given webscrape. Use the format: [<Semantic Question Title>]: <Article/Guide>.\n\n%RESPONSE%\n"})
-            prompt = ''.join([message_dict['content'] for message_dict in websum2])
-            text = oobabooga_scrape(prompt)
-            if len(text) < 20:
-                text = "No Webscrape available"
-        #    text = chatgpt35_completion(websum)
-        #    paragraphs = text.split('\n\n')  # Split into paragraphs
-        #    for paragraph in paragraphs:  # Process each paragraph individually, add a check to see if paragraph contained actual information.
-            webcheck = list()
-            webcheck.append({'role': 'system', 'content': f"%MAIN SYSTEM PROMPT%\nYou are an agent for an automated webscraping tool. Your task is to decide if the previous Ai Agent scraped the text successfully. The scraped text should contain some form of article, if it does, print 'YES'. If the article was scraped successfully, print: 'YES'.  If the webscrape failed or is a response from the first agent, print: 'NO'.\n\n"})
-            webcheck.append({'role': 'user', 'content': f"%ORIGINAL TEXT FROM SCRAPE%\n{chunk}\n\n"})
-            webcheck.append({'role': 'user', 'content': f"%PROCESSED WEBSCRAPE%\n{text}\n\n"})
-            
-            webcheck.append({'role': 'user', 'content': f"%RESPONSE FORMAT%\nYou are responding for a Yes or No input field. You are only capible of printing Yes or No. Use the format: [AI AGENT: <'Yes'/'No'>]\n\n"})
-            webcheck.append({'role': 'user', 'content': f"%RESPONSE%\n["})
-       
-            
-            prompt = ''.join([message_dict['content'] for message_dict in webcheck])
-            webyescheck = oobabooga_selector(prompt)
-            
-            if 'no webscrape' in text.lower():
-                print('---------')
-                print('Summarization Failed')
-                pass
-            if 'no article' in text.lower():
-                print('---------')
-                print('Summarization Failed')
-                pass
-            if 'you are a text' in text.lower():
-                print('---------')
-                print('Summarization Failed')
-                pass
-            if 'no summary' in text.lower():
-                print('---------')
-                print('Summarization Failed')
-                pass  
-            if 'i am an ai' in text.lower():
-                print('---------')
-                print('Summarization Failed')
-                pass                
-            else:
-                if 'yes' in webyescheck.lower():
-                    semanticterm = list()
-                    semanticterm.append({'role': 'system', 'content': f"%MAIN SYSTEM PROMPT%\nYou are a bot responsible for taging articles with a title for database queries.  Your job is to read the given text, then create a title in question form representative of what the article is about.  The title should be semantically identical to the overview of the article and not include extraneous info. Use the format: [<TITLE IN QUESTION FORM>].\n\n"})
-                    semanticterm.append({'role': 'user', 'content': f"%ARTICLE%\n{text}\n\n"})
-                    semanticterm.append({'role': 'user', 'content': f"%RESPONSE FORMAT%\nCreate a question that encapsulates the semantic meaning of the Article.  Use the format: [<QUESTION TITLE>]\n\n"})
-                    semanticterm.append({'role': 'user', 'content': f"%RESPONSE%\n["})
-                    prompt = ''.join([message_dict['content'] for message_dict in semanticterm])
-                    semantic_db_term = oobabooga_scrape(prompt)
+            websum.append({'role': 'system', 'content': "You are a data extractor. Your job is to take the given text from a webscrape, then highlight important or factual information. After useless data has been removed, you will then return all salient information.  Only use given info, do not generalize.  Use the format: [-{Semantic Tag}: {Article/Guide}]. Avoid using linebreaks inside of the article.  Lists should be made into continuous text form to avoid them."})
+            websum.append({'role': 'user', 'content': f"ARTICLE CHUNK: {chunk}"})
+            text = chatgpt35_completion(websum)
+            paragraphs = text.split('\n\n')  # Split into paragraphs
+            for paragraph in paragraphs:  # Process each paragraph individually, add a check to see if paragraph contained actual information.
+                webcheck = list()
+                weblist.append(url + ' ' + paragraph)
+                webcheck.append({'role': 'system', 'content': f"You are an agent for an automated webscraping tool. You are one of many agents in a chain. Your task is to decide if the given text from a webscrape was scraped successfully. The scraped text should contain factual data or opinions. If the given data consists of an error message or advertisements, skip it.  If the article was scraped successfully, print: YES.  If a web-search is not needed, print: NO."})
+                webcheck.append({'role': 'user', 'content': f"Is the scraped information useful to an end-user? YES/NO: {paragraph}"})
+                webyescheck = chatgptyesno_completion(webcheck)
+                if webyescheck == 'YES':
                     print('---------')
-                    weblist.append(url + ' ' + text)
-                    print(url + '\n' + semantic_db_term + '\n' + text)
+                    print(url + ' ' + paragraph)
                     if results_callback is not None:
-                        results_callback(url + ' ' + text)
+                        results_callback(url + ' ' + paragraph)
                     payload = list()
-                    vector = model.encode([url + ' ' + semantic_db_term + ' ' + text]).tolist()
+                    vector = model.encode([url + ' ' + paragraph]).tolist()
                     timestamp = time()
                     timestring = timestamp_to_datetime(timestamp)
                     unique_id = str(uuid4())
-                    metadata = {'bot': bot_name, 'time': timestamp, 'message': url + ' ' + text,
+                    metadata = {'bot': bot_name, 'time': timestamp, 'message': url + ' ' + paragraph,
                                 'timestring': timestring, 'uuid': unique_id, "memory_type": "web_scrape"}
                     save_json(f'nexus/{bot_name}/{username}/web_scrape_memory_nexus/%s.json' % unique_id, metadata)
                     payload.append((unique_id, vector, {"memory_type": "web_scrape"}))
                     vdb.upsert(payload, namespace=f'Tools_User_{username}_Bot_{bot_name}')
-                    payload.clear()           
-                    pass  
-                else:
-                    print('---------')
-                    print(f'\n\n\nERROR MESSAGE FROM BOT: {webyescheck}\n\n\n')                          
+                    payload.clear()
         table = weblist
-        
         return table
     except Exception as e:
         print(e)
@@ -626,9 +305,9 @@ def GPT_4_Tasklist_Web_Scrape(query, results_callback):
     mem_counter = 0
     bot_name = open_file('./config/prompt_bot_name.txt')
     username = open_file('./config/prompt_username.txt')
-    main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
-    second_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_secondary.txt')
-    greeting_msg = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_greeting.txt').replace('<<NAME>>', bot_name)
+    main_prompt = open_file('./config/Chatbot_Prompts/prompt_main.txt').replace('<<NAME>>', bot_name)
+    second_prompt = open_file('./config/Chatbot_Prompts/prompt_secondary.txt')
+    greeting_msg = open_file('./config/Chatbot_Prompts/prompt_greeting.txt').replace('<<NAME>>', bot_name)
     if not os.path.exists(f'nexus/{bot_name}/{username}/web_scrape_memory_nexus'):
         os.makedirs(f'nexus/{bot_name}/{username}/web_scrape_memory_nexus')
     if not os.path.exists(f'nexus/{bot_name}/{username}/episodic_memory_nexus'):
@@ -714,8 +393,8 @@ def GPT_4_Tasklist_Web_Search(query, results_callback):
     counter = 0
     bot_name = open_file('./config/prompt_bot_name.txt')
     username = open_file('./config/prompt_username.txt')
-    main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
-    greeting_msg = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_greeting.txt').replace('<<NAME>>', bot_name)
+    main_prompt = open_file('./config/Chatbot_Prompts/prompt_main.txt').replace('<<NAME>>', bot_name)
+    greeting_msg = open_file('./config/Chatbot_Prompts/prompt_greeting.txt').replace('<<NAME>>', bot_name)
     if not os.path.exists(f'nexus/{bot_name}/{username}/web_scrape_memory_nexus'):
         os.makedirs(f'nexus/{bot_name}/{username}/web_scrape_memory_nexus')
     if not os.path.exists(f'nexus/{bot_name}/{username}/web_scrape_memory_nexus'):
@@ -793,56 +472,6 @@ def GPT_4_Tasklist_Web_Search(query, results_callback):
         return
         
         
-def ask_upload_memories(memories, memories2):
-    vdb = pinecone.Index("aetherius")
-    index_info = vdb.describe_index_stats()
-    username = open_file('./config/prompt_username.txt')
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    timestamp = time()
-    timestring = timestamp_to_datetime(timestamp)
-    payload = list()
-    print(f'\nIMPLICIT MEMORIES\n-------------')
-    print(memories)
-    print(f'\nEXPLICIT MEMORIES\n-------------')
-    print(memories2)
-    result = messagebox.askyesno("Upload Memories", "Do you want to upload memories?")
-    if result:
-        # User clicked "Yes"
-        lines = memories.splitlines()
-        for line in lines:
-            if line.strip():
-                vector = model.encode([line]).tolist()  # Assuming you have the gpt3_embedding function defined
-                unique_id = str(uuid4())
-                metadata = {'bot': bot_name, 'time': timestamp, 'message': line, 'timestring': timestring,
-                            'uuid': unique_id, "memory_type": "implicit_short_term"}
-                save_json(f'nexus/{bot_name}/{username}/implicit_short_term_memory_nexus/%s.json' % unique_id, metadata)
-                payload.append((unique_id, vector, {"memory_type": "implicit_short_term"}))
-                vdb.upsert(payload, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
-                payload.clear()
-        lines = memories2.splitlines()
-        for line in lines:
-            if line.strip():
-                vector = model.encode([line]).tolist()  # Assuming you have the gpt3_embedding function defined
-                unique_id = str(uuid4())
-                metadata = {'bot': bot_name, 'time': timestamp, 'message': line, 'timestring': timestring,
-                            'uuid': unique_id, "memory_type": "explicit_short_term"}
-                save_json(f'nexus/{bot_name}/{username}/explicit_short_term_memory_nexus/%s.json' % unique_id, metadata)
-                payload.append((unique_id, vector, {"memory_type": "explicit_short_term"}))
-                vdb.upsert(payload, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
-                payload.clear()
-        print('\n\nSYSTEM: Upload Successful!')
-                
-        print('\n\nSYSTEM: Upload Successful!')
-        return 'yes'
-    else:
-        # User clicked "No"
-        print('\n\nSYSTEM: Memories have been Deleted.')
-        return 'no'
-        
-        
-        
-        
-        
 class MainConversation:
     def __init__(self, max_entries, prompt, greeting):
         bot_name = open_file('./config/prompt_bot_name.txt')
@@ -860,10 +489,12 @@ class MainConversation:
             self.running_conversation = []
             
             
-    def append(self, timestring, username, a, bot_name, response_two):
+    def append(self, timestring, username, a, bot_name, output_one, output_two, response_two):
         # Append new entry to the running conversation
         entry = []
         entry.append(f"[{timestring}] {username}: {a}")
+        entry.append(f"{bot_name}'s Inner Monologue: {output_one}\n")
+        entry.append(f"Intuition: {output_two}\n")
         entry.append(f"Response: {response_two}\n")
         self.running_conversation.append(entry)
         # Remove oldest entry if conversation length exceeds max entries
@@ -938,8 +569,6 @@ class ChatBotApplication(tk.Frame):
                 file.write(bot_name)
             self.conversation_text.delete("1.0", tk.END)
             self.display_conversation_history()  
-            self.master.destroy()
-            Experimental_Local_Aether_Search()
         
 
     def choose_username(self):
@@ -950,8 +579,6 @@ class ChatBotApplication(tk.Frame):
                 file.write(username)
             self.conversation_text.delete("1.0", tk.END)
             self.display_conversation_history()
-            self.master.destroy()
-            Experimental_Local_Aether_Search()
         pass
         
     def update_results(self, text_widget, url, paragraph):
@@ -960,9 +587,7 @@ class ChatBotApplication(tk.Frame):
         
         
     def Edit_Main_Prompt(self):
-        bot_name = open_file('./config/prompt_bot_name.txt')
-        username = open_file('./config/prompt_username.txt')
-        file_path = f"./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt"
+        file_path = "./config/Chatbot_Prompts/prompt_main.txt"
 
         with open(file_path, 'r') as file:
             prompt_contents = file.read()
@@ -987,9 +612,7 @@ class ChatBotApplication(tk.Frame):
         
         
     def Edit_Secondary_Prompt(self):
-        bot_name = open_file('./config/prompt_bot_name.txt')
-        username = open_file('./config/prompt_username.txt')
-        file_path = f"./config/Chatbot_Prompts/{username}/{bot_name}/prompt_secondary.txt"
+        file_path = "./config/Chatbot_Prompts/prompt_secondary.txt"
         
         with open(file_path, 'r') as file:
             prompt_contents = file.read()
@@ -1118,9 +741,7 @@ class ChatBotApplication(tk.Frame):
         
         
     def Edit_Greeting_Prompt(self):
-        bot_name = open_file('./config/prompt_bot_name.txt')
-        username = open_file('./config/prompt_username.txt')
-        file_path = f"./config/Chatbot_Prompts/{username}/{bot_name}/prompt_greeting.txt"
+        file_path = "./config/Chatbot_Prompts/prompt_greeting.txt"
         
         with open(file_path, 'r') as file:
             prompt_contents = file.read()
@@ -1177,7 +798,7 @@ class ChatBotApplication(tk.Frame):
         query_entry = tk.Entry(websearch_window)
         query_entry.pack()
 
-        results_label = tk.Label(websearch_window, text="I recommend using OpenAi for the webscrape.\nSmaller models still struggle with summarization and don't do that well of a job.\n\nSearch results: (Not Working Yet, Results in Terminal)")
+        results_label = tk.Label(websearch_window, text="Search results: (Not Working Yet, Results in Terminal)")
         results_label.pack()
 
         results_text = tk.Text(websearch_window)
@@ -1216,7 +837,7 @@ class ChatBotApplication(tk.Frame):
         query_entry = tk.Entry(webscrape_window)
         query_entry.pack()
 
-        results_label = tk.Label(webscrape_window, text="I recommend using OpenAi for the webscrape.\nSmaller models still struggle with summarization and don't do that well of a job.\n\nScrape results: (Not Working Yet, Results in Terminal)")
+        results_label = tk.Label(webscrape_window, text="Scrape results: (Not Working Yet, Results in Terminal)")
         results_label.pack()
 
         results_text = tk.Text(webscrape_window)
@@ -1249,7 +870,7 @@ class ChatBotApplication(tk.Frame):
             vdb.delete(filter={"memory_type": "web_scrape"}, namespace=f'Tools_User_{username}_Bot_{bot_name}')
             print('Webscrape has been Deleted')
             self.master.destroy()
-            Experimental_Local_Aether_Search()
+            Local_Embed_Aether_Search()
         except:
             print("Fail")
             pass
@@ -1326,7 +947,7 @@ class ChatBotApplication(tk.Frame):
             vdb.delete(filter={"memory_type": "web_scrape"}, namespace=f'Tools_User_{username}_Bot_{bot_name}')
             print('Webscrape has been Deleted')
             self.master.destroy()
-            Experimental_Local_Aether_Search()
+            Local_Embed_Aether_Search()
         except:
             pass
 
@@ -1381,9 +1002,9 @@ class ChatBotApplication(tk.Frame):
         mem_counter = 0
         bot_name = open_file('./config/prompt_bot_name.txt')
         username = open_file('./config/prompt_username.txt')
-        main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
-        second_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_secondary.txt')
-        greeting_msg = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_greeting.txt').replace('<<NAME>>', bot_name)
+        main_prompt = open_file('./config/Chatbot_Prompts/prompt_main.txt').replace('<<NAME>>', bot_name)
+        second_prompt = open_file('./config/Chatbot_Prompts/prompt_secondary.txt')
+        greeting_msg = open_file('./config/Chatbot_Prompts/prompt_greeting.txt').replace('<<NAME>>', bot_name)
         if not os.path.exists(f'nexus/{bot_name}/{username}/web_scrape_memory_nexus'):
             os.makedirs(f'nexus/{bot_name}/{username}/web_scrape_memory_nexus')
         if not os.path.exists(f'nexus/{bot_name}/{username}/implicit_short_term_memory_nexus'):
@@ -1420,8 +1041,17 @@ class ChatBotApplication(tk.Frame):
             timestamp = time()
             timestring = timestamp_to_datetime(timestamp)
             # # Start or Continue Conversation based on if response exists
-            conversation.append({'role': 'system', 'content': f"%MAIN CHATBOT SYSTEM PROMPT%\n{main_prompt}\n\n"})
-            int_conversation.append({'role': 'system', 'content': f"%MAIN CHATBOT SYSTEM PROMPT%\n{main_prompt}\n\n"})
+            conversation.append({'role': 'system', 'content': '%s' % main_prompt})
+            int_conversation.append({'role': 'system', 'content': '%s' % main_prompt})
+            if 'response_two' in locals():
+                conversation.append({'role': 'user', 'content': a})
+                if counter % conv_length == 0:
+                    print("\nConversation is continued, type [Exit] to clear conversation list.")
+                    conversation.append({'role': 'assistant', 'content': "%s" % response_two})
+                pass
+            else:
+                conversation.append({'role': 'assistant', 'content': "%s" % greeting_msg})
+                print("\n%s" % greeting_msg)
             # # User Input Voice
         #    yn_voice = input(f'\n\nPress Enter to Speak')
         #    if yn_voice == "":
@@ -1466,16 +1096,13 @@ class ChatBotApplication(tk.Frame):
             # # Check for "Exit"
             if a == 'Exit':
                 return
-            conversation.append({'role': 'system', 'content': f"%MAIN CHATBOT SYSTEM PROMPT%\n{main_prompt}\n\n"})
-            int_conversation.append({'role': 'system', 'content': f"%MAIN CHATBOT SYSTEM PROMPT%\n{main_prompt}\n\n"})
             # # Check for Exit, summarize the conversation, and then upload to episodic_memories
-            tasklist.append({'role': 'system', 'content': "SYSTEM: You are a semantic rephraser. Your role is to interpret the original user query and generate 2-3 synonymous search terms that will guide the exploration of the chatbot's memory database. Each alternative term should reflect the essence of the user's initial search input. Please list your results using a hyphenated bullet point structure.\n\n"})
-            tasklist.append({'role': 'user', 'content': "USER: USER INQUIRY: %s\n\n" % a})
-            tasklist.append({'role': 'assistant', 'content': "TASK COORDINATOR: List of synonymous Semantic Terms:\n"})
-            prompt = ''.join([message_dict['content'] for message_dict in tasklist])
-            tasklist_output = oobabooga_250(prompt)
-            print(tasklist_output)
-            print('-------')
+            conversation.append({'role': 'user', 'content': a})        
+            # # Generate Semantic Search Terms
+            tasklist.append({'role': 'system', 'content': "You are a task coordinator. Your job is to take user input and create a list of 2-5 inquiries to be used for a semantic database search. Use the format [- 'INQUIRY']."})
+            tasklist.append({'role': 'user', 'content': "USER INQUIRY: %s" % a})
+            tasklist.append({'role': 'assistant', 'content': "List of Semantic Search Terms: "})
+            tasklist_output = chatgpt200_completion(tasklist)
         #    print(tasklist_output)
             lines = tasklist_output.splitlines()
             db_term = {}
@@ -1490,17 +1117,17 @@ class ChatBotApplication(tk.Frame):
                             tasklist_vector := model.encode([line]).tolist(),
                             db_term.update({_index: tasklist_vector}),
                             results := vdb.query(vector=db_term[_index], filter={
-            "memory_type": "explicit_long_term", "user": username}, top_k=2, namespace=f'{bot_name}'),
+            "memory_type": "explicit_long_term", "user": username}, top_k=3, namespace=f'{bot_name}'),
                             db_term_result.update({_index: load_conversation_explicit_long_term_memory(results)}),
                             results := vdb.query(vector=db_term[_index], filter={
-            "memory_type": "implicit_long_term", "user": username}, top_k=1, namespace=f'{bot_name}'),
+            "memory_type": "implicit_long_term", "user": username}, top_k=2, namespace=f'{bot_name}'),
                             db_term_result2.update({_index: load_conversation_implicit_long_term_memory(results)}),
-                            conversation.append({'role': 'assistant', 'content': f"%LONG TERM CHATBOT MEMORIES%\n{db_term_result[_index]}\n"}),
-                            conversation.append({'role': 'assistant', 'content': f"%LONG TERM CHATBOT MEMORIES%\n{db_term_result2[_index]}\n"}),
+                            conversation.append({'role': 'assistant', 'content': "MEMORIES: %s" % db_term_result[_index]}),
+                            conversation.append({'role': 'assistant', 'content': "MEMORIES: %s" % db_term_result2[_index]}),
                             (
-                                int_conversation.append({'role': 'assistant', 'content': f"%LONG TERM CHATBOT MEMORIES%\n{db_term_result[_index]}\n"}),
-                                int_conversation.append({'role': 'assistant', 'content': f"%LONG TERM CHATBOT MEMORIES%\n{db_term_result2[_index]}\n"})
-                            ) if _index < 3 else None,
+                                int_conversation.append({'role': 'assistant', 'content': "MEMORIES: %s" % db_term_result[_index]}),
+                                int_conversation.append({'role': 'assistant', 'content': "MEMORIES: %s" % db_term_result2[_index]})
+                            ) if _index < 4 else None,
                         ),
                         line, _index, conversation.copy(), int_conversation.copy()
                     )
@@ -1508,12 +1135,12 @@ class ChatBotApplication(tk.Frame):
                 ] + [
                     executor.submit(lambda: (
                         vdb.query(vector=vector_input, filter={
-            "memory_type": "episodic", "user": username}, top_k=5, namespace=f'{bot_name}'),
+            "memory_type": "episodic", "user": username}, top_k=4, namespace=f'{bot_name}'),
                         load_conversation_episodic_memory)
                     ),
                     executor.submit(lambda: (
                         vdb.query(vector=vector_input, filter={
-            "memory_type": "web_scrape"}, top_k=8, namespace=f'Tools_User_{username}_Bot_{bot_name}'),
+            "memory_type": "web_scrape"}, top_k=7, namespace=f'Tools_User_{username}_Bot_{bot_name}'),
                         load_conversation_web_scrape_memory)
                     ),
                     executor.submit(lambda: (
@@ -1540,10 +1167,8 @@ class ChatBotApplication(tk.Frame):
                 except Exception as e:
                     print(f"Caught an exception: {e}")
             # # Inner Monologue Generation
-            conversation.append({'role': 'assistant', 'content': f"\n%INFLUENTIAL MEMORIES%\n{db_search_3}\n\n%PAST CONVERSATION HISTORY%\n{db_search_1}\n\n%WEBSCRAPE%\n{db_search_2}\n\n%{bot_name}'s HEURISTICS%\n{db_search_14}\n\n%USER MESSAGE%\n{a}\n\n%CHATBOT TASK%\nBased on {bot_name}'s memories, the webscrape, and the user, {username}'s message, compose a short and concise silent soliloquy as {bot_name}'s inner monologue that reflects on {bot_name}'s deepest contemplations in relation to how the user's message relates to the webscrape.\n\n%RESPONSE%\n{bot_name}: "})
-            
-            prompt = ''.join([message_dict['content'] for message_dict in conversation])
-            output_one = oobabooga_500(prompt)
+            conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;%s;\n\nWEBSCRAPE: %s;\n\nHEURISTICS: %s;\nUSER MESSAGE: %s;\nBased on %s's memories and the user, %s's message, compose a short and concise silent soliloquy as %s's inner monologue that reflects on %s's deepest contemplations and emotions in relation to the webscrape and the user's message.\n\nINNER_MONOLOGUE: " % (db_search_1, db_search_3, db_search_2, db_search_14, a, bot_name, username, bot_name, bot_name)})
+            output_one = chatgpt250_completion(conversation)
             print('\n\nINNER_MONOLOGUE: %s' % output_one)
             output_log = f'\nUSER: {a}\n\n{bot_name}: {output_one}'
             # # Clear Conversation List
@@ -1588,9 +1213,9 @@ class ChatBotApplication(tk.Frame):
         mem_counter = 0
         bot_name = open_file('./config/prompt_bot_name.txt')
         username = open_file('./config/prompt_username.txt')
-        main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
-        second_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_secondary.txt')
-        greeting_msg = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_greeting.txt').replace('<<NAME>>', bot_name)
+        main_prompt = open_file('./config/Chatbot_Prompts/prompt_main.txt').replace('<<NAME>>', bot_name)
+        second_prompt = open_file('./config/Chatbot_Prompts/prompt_secondary.txt')
+        greeting_msg = open_file('./config/Chatbot_Prompts/prompt_greeting.txt').replace('<<NAME>>', bot_name)
         if not os.path.exists(f'nexus/{bot_name}/{username}/web_scrape_memory_nexus'):
             os.makedirs(f'nexus/{bot_name}/{username}/web_scrape_memory_nexus')
      #   r = sr.Recognizer()
@@ -1605,7 +1230,7 @@ class ChatBotApplication(tk.Frame):
                 future1 = executor.submit(vdb.query, vector=vector_monologue, filter={
             "memory_type": "episodic", "user": username}, top_k=5, namespace=f'{bot_name}')
                 future2 = executor.submit(vdb.query, vector=vector_input, filter={
-            "memory_type": "explicit_short_term"}, top_k=4, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
+            "memory_type": "explicit_short_term"}, top_k=10, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
                 future3 = executor.submit(vdb.query, vector=vector_monologue, filter={
             "memory_type": "flashbulb", "user": username}, top_k=2, namespace=f'{bot_name}')
                 future4 = executor.submit(vdb.query, vector=vector_monologue, filter={
@@ -1627,13 +1252,10 @@ class ChatBotApplication(tk.Frame):
             "memory_type": "web_scrape"}, top_k=7, namespace=f'Tools_User_{username}_Bot_{bot_name}')
             int_scrape = load_conversation_web_scrape_memory(results)
             print(int_scrape)
-            
-            int_conversation.append({'role': 'user', 'content': f"%USER INPUT%\n{a}\n\n"})
-            int_conversation.append({'role': 'assistant', 'content': f"%INFLUENTIAL MEMORIES%\n{db_search_12}\n\n%EXPLICIT MEMORIES%\n{db_search_5}\n\n%PAST CONVERSATION HISTORY%\n{db_search_4}\n\n%{bot_name}'s HEURISTICS%\n{db_search_15}\n\n%{bot_name}'S INNER THOUGHTS%\n{output_one}\n\n%WEBSCRAPE SAMPLE%\n{int_scrape}\n\n%USER'S INPUT%\n{a}\n\n%INSTRUCTIONS%\nIn a single paragraph, interpret the user, {username}'s message as {bot_name} in third person by creating an intuitive action plan on what information is needed using using the Socratic method.  The only external resources you have access to is a Webscrape database and {bot_name}'s memories.\nEnsure the plan is congruent to the user, {username}'s inquiry sent to {bot_name}: {a}.\n\n%RESPONSE%\nI will now respond with an action plan in third person as {bot_name}.\n{bot_name}: "})
-             
-            
-            prompt = ''.join([message_dict['content'] for message_dict in int_conversation])
-            output_two = oobabooga_250(prompt)
+            int_conversation.append({'role': 'assistant', 'content': "%s" % greeting_msg})
+            int_conversation.append({'role': 'user', 'content': a})
+            int_conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;\n%s;\n%s;\n\n%s'S INNER THOUGHTS: %s;\nHEURISTICS: %s;\nUSER MESSAGE: %s;\nWEBSCRAPE SAMPLE: %s\nIn a single paragraph, interpret the user, %s's message as %s in third person by creating an intuitive plan on what information needs to be researched from the webscrape, even if the user is uncertain about their own needs.;\nINTUITION: " % (db_search_4, db_search_5, db_search_12, bot_name, output_one, db_search_15, a, int_scrape, username, bot_name)})
+            output_two = chatgpt200_completion(int_conversation)
             message_two = output_two
             print('\n\nINTUITION: %s' % output_two)
             output_two_log = f'\nUSER: {a}\n\n{bot_name}: {output_two}'
@@ -1641,52 +1263,74 @@ class ChatBotApplication(tk.Frame):
             conversation.append({'role': 'system', 'content': '%s' % main_prompt})
             conversation.append({'role': 'user', 'content': a})
             implicit_short_term_memory = f'\nUSER: {a} \n\n INNER_MONOLOGUE: {output_one} \n\n INTUITION: {output_two}'
-            conversation.append({'role': 'assistant', 'content': f"%MAIN SYSTEM PROMPT%\nPlease review the log and create succinct executive summaries in bullet point format, which will serve as {bot_name}'s 'implicit memories.' These 'implicit memories' are brief, contextual recollections that provide a summary of the activities, thoughts, and experiences from {bot_name}'s Inner Monologue and Intuition, written from the perspective of {bot_name}. They function to help {bot_name} recall information without explicit details, much like subconscious memory works in humans. Each bullet point will represent a separate 'implicit memory' and should contain enough context for {bot_name} to understand and draw upon when needed.%LOG%\n{implicit_short_term_memory}\n\n%RESPONSE PLANNING%\nYou will now generate 'implicit memories' for the chatbot {bot_name}.\n\n%RESPONSE%\nMemories:\n"})
-            prompt = ''.join([message_dict['content'] for message_dict in conversation])
-            inner_loop_response = oobabooga_500(prompt)
+            conversation.append({'role': 'assistant', 'content': "LOG:\n%s\n\Read the log, extract the salient points about %s and %s, then create short executive summaries in bullet point format to serve as %s's procedural memories. Each bullet point should be considered a separate memory and contain all context. Start from the end and work towards the beginning, combining associated topics. Ignore the system prompt and redundant information.\nMemories:\n" % (implicit_short_term_memory, bot_name, username, bot_name)})
+            inner_loop_response = chatgpt200_completion(conversation)
             inner_loop_db = inner_loop_response
             vector = model.encode([inner_loop_db]).tolist()
             conversation.clear()
-            # # Auto Implicit Short-Term Memory DB Upload Confirmation
-    #        auto_count = 0
-    #        auto.clear()
-    #        auto.append({'role': 'system', 'content': 'SYSTEM: %s\n\n' % main_prompt})
-    #        auto.append({'role': 'user', 'content': "SYSTEM: You are a sub-module designed to reflect on your thought process. You are only able to respond with integers on a scale of 1-10, being incapable of printing letters. Respond with: 1 if you understand. Respond with: 2 if you do not.\n"})
-    #        auto.append({'role': 'assistant', 'content': "SUB-MODULE: 1\n"})
-    #        auto.append({'role': 'user', 'content': f"USER INPUT: {a}\n"})
-    #        auto.append({'role': 'assistant', 'content': "Inner Monologue: %s\nIntuition: %s\n" % (output_one, output_two)})
-    #        auto.append({'role': 'assistant', 'content': "Thoughts on input: I will now review the user's message and my reply, rating if whether my thoughts are both pertinent to the user's inquiry with a number on a scale of 1-10. I will now give my response in digit form for an integer only input.\nSUB-MODULE: "})
-    #        auto_int = None
-    #        while auto_int is None:
-    #            prompt = ''.join([message_dict['content'] for message_dict in auto])
-    #            automemory = oobabooga_selector(prompt)
-    #            if is_integer(automemory):
-    #                auto_int = int(automemory)
-    #                if auto_int > 6:
-    #                    lines = inner_loop_db.splitlines()
-    #                    for line in lines:
-    #                        vector = model.encode([line]).tolist()
+    #        # # Manual Implicit Short-Term Memory
+    #        print('\n\n<Implicit Short-Term Memory>\n%s' % inner_loop_db)
+    #        print('\n\nSYSTEM: Upload to Implicit Short-Term Memory?\n        Press Y for yes or N for no.')
+    #        while True:
+    #            user_input = input("'Y' or 'N': ")
+    #            if user_input == 'y':
+    #                lines = inner_loop_db.splitlines()
+    #                for line in lines:
+    #                    if line.strip():
+    #                        vector = gpt3_embedding(line)
     #                        unique_id = str(uuid4())
-    #                        metadata = {'bot': bot_name, 'time': timestamp, 'message': inner_loop_db,
+    #                        metadata = {'bot': bot_name, 'time': timestamp, 'message': line,
     #                                    'timestring': timestring, 'uuid': unique_id, "memory_type": "implicit_short_term"}
     #                        save_json(f'nexus/{bot_name}/{username}/implicit_short_term_memory_nexus/%s.json' % unique_id, metadata)
     #                        payload.append((unique_id, vector, {"memory_type": "implicit_short_term"}))
     #                        vdb.upsert(payload, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
     #                        payload.clear()
-    #                    print('\n\nSYSTEM: Auto-memory upload Successful!')
-    #                    break
-    #                else:
-    #                    print('Response not worthy of uploading to memory')
+    #                print('\n\nSYSTEM: Upload Successful!')
+    #                break
+    #            elif user_input == 'n':
+    #                print('\n\nSYSTEM: Memories have been Deleted')
+    #                break
     #            else:
-    #                print("automemory failed to produce an integer. Retrying...")
-    #                auto_int = None
-    #                auto_count += 1
-    #                if auto_count > 2:
-    #                    print('Auto Memory Failed')
-    #                    break
-    #        else:
-    #            pass      
-            
+    #                print('Invalid Input')
+            # # Auto Implicit Short-Term Memory DB Upload Confirmation
+            auto_count = 0
+            auto.clear()
+            auto.append({'role': 'system', 'content': '%s' % main_prompt})
+            auto.append({'role': 'user', 'content': "You are a sub-module designed to reflect on your thought process. You are only able to respond with integers on a scale of 1-10, being incapable of printing letters. Respond with: 1 if you understand. Respond with: 2 if you do not."})
+            auto.append({'role': 'assistant', 'content': "1"})
+            auto.append({'role': 'user', 'content': a})
+            auto.append({'role': 'assistant', 'content': "Inner Monologue: %s\nIntuition: %s" % (output_one, output_two)})
+            auto.append({'role': 'assistant', 'content': "Thoughts on input: I will now review the user's message and my reply, rating if whether my thoughts are both pertinent to the user's inquiry and my growth with a number on a scale of 1-10. I will now give my response in digit form for an integer only input: "})
+            auto_int = None
+            while auto_int is None:
+                automemory = chatgptyesno_completion(auto)
+                if is_integer(automemory):
+                    auto_int = int(automemory)
+                    if auto_int > 6:
+                        lines = inner_loop_db.splitlines()
+                        for line in lines:
+                            vector = model.encode([inner_loop_db]).tolist()
+                            unique_id = str(uuid4())
+                            metadata = {'bot': bot_name, 'time': timestamp, 'message': inner_loop_db,
+                                        'timestring': timestring, 'uuid': unique_id, "memory_type": "implicit_short_term"}
+                            save_json(f'nexus/{bot_name}/{username}/implicit_short_term_memory_nexus/%s.json' % unique_id, metadata)
+                            payload.append((unique_id, vector, {"memory_type": "implicit_short_term"}))
+                            vdb.upsert(payload, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
+                            payload.clear()
+                        print('\n\nSYSTEM: Auto-memory upload Successful!')
+                        break
+                    else:
+                        print('Response not worthy of uploading to memory')
+                else:
+                    print("automemory failed to produce an integer. Retrying...")
+                    auto_int = None
+                    auto_count += 1
+                    if auto_count > 2:
+                        print('Auto Memory Failed')
+                        break
+            else:
+                pass      
+            self.master.after(0, self.update_tasklist_intuition, output_two)
 
             # After the operations are complete, call the response generation function in a separate thread
             t = threading.Thread(target=self.Tasklist_Response, args=(a, vector_input, vector_monologue, output_one, output_two, tasklist_output))
@@ -1699,7 +1343,7 @@ class ChatBotApplication(tk.Frame):
         self.conversation_text.yview(tk.END)
         
         
-    def Tasklist_Response(self, a, vector_input, vector_monologue, output_one, output_two, inner_loop_response):
+    def Tasklist_Response(self, a, vector_input, vector_monologue, output_one, output_two, tasklist_output):
         vdb = pinecone.Index("aetherius")
         my_api_key = open_file('api_keys/key_google.txt')
         my_cse_id = open_file('api_keys/key_google_cse.txt')
@@ -1726,9 +1370,9 @@ class ChatBotApplication(tk.Frame):
         mem_counter = 0
         bot_name = open_file('./config/prompt_bot_name.txt')
         username = open_file('./config/prompt_username.txt')
-        main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
-        second_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_secondary.txt')
-        greeting_msg = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_greeting.txt').replace('<<NAME>>', bot_name)
+        main_prompt = open_file('./config/Chatbot_Prompts/prompt_main.txt').replace('<<NAME>>', bot_name)
+        second_prompt = open_file('./config/Chatbot_Prompts/prompt_secondary.txt')
+        greeting_msg = open_file('./config/Chatbot_Prompts/prompt_greeting.txt').replace('<<NAME>>', bot_name)
         if not os.path.exists(f'nexus/{bot_name}/{username}/web_scrape_memory_nexus'):
             os.makedirs(f'nexus/{bot_name}/{username}/web_scrape_memory_nexus')
      #   r = sr.Recognizer()
@@ -1737,28 +1381,22 @@ class ChatBotApplication(tk.Frame):
             timestamp = time()
             timestring = timestamp_to_datetime(timestamp)
             # # Test for basic Autonomous Tasklist Generation and Task Completion
-            master_tasklist.append({'role': 'system', 'content': f"%MAIN SYSTEM PROMPT%\nYou are a stateless task list coordinator for {bot_name} an autonomous Ai chatbot. Your job is to combine the user's input and the user facing chatbots intuitive action plan, then transform it into a list of independent research queries for {bot_name}'s response that can be executed by separate AI agents in a cluster computing environment. The other asynchronous Ai agents are stateless and cannot communicate with each other or the user during task execution, however the agents do have access to {bot_name}'s memories. Exclude tasks involving final product production, user communication, using external resources, or checking work with other entities. Respond using bullet point format following: '-[task]\n-[task]\n-[task]'\n\n"})
-            master_tasklist.append({'role': 'user', 'content': f"%USER FACING CHATBOT'S INTUITIVE ACTION PLAN%\n{output_two}\n\n"})
-            master_tasklist.append({'role': 'user', 'content': f"%USER INQUIRY%\n{a}\n\n"})
-            master_tasklist.append({'role': 'assistant', 'content': f"%RESPONSE FORMAT%\nYou may only print the list in hyphenated bullet point format. Use the format: '-[task]\n-[task]\n-[task]'\n\n"})
-            master_tasklist.append({'role': 'assistant', 'content': f"%RESPONSE%\nHYPHENATED BULLET POINT RESEARCH TASKLIST:"})
-            
-            prompt = ''.join([message_dict['content'] for message_dict in master_tasklist])
-            master_tasklist_output = oobabooga_500(prompt)
-            print('-------\nMaster Tasklist:')
+            master_tasklist.append({'role': 'system', 'content': "You are a stateless task list coordinator for %s an autonomous Ai chatbot. Your job is to combine the user's input and the user facing chatbots intuitive action plan, then transform it into a list of independent research queries that can be executed by separate AI agents in a cluster computing environment. The other asynchronous Ai agents are also stateless and cannot communicate with each other or the user during task execution, they do however have access to %s's memories. Exclude tasks involving final product production, hallucinations, user communication, or checking work with other agents. Respond using the following format: '- [task]'" % (bot_name, bot_name)})
+            master_tasklist.append({'role': 'user', 'content': "USER FACING CHATBOT'S INTUITIVE ACTION PLAN:\n%s" % output_two})
+            master_tasklist.append({'role': 'user', 'content': "USER INQUIRY:\n%s" % a})
+            master_tasklist.append({'role': 'user', 'content': "SEMANTICALLY SIMILAR INQUIRIES:\n%s" % tasklist_output})
+            master_tasklist.append({'role': 'assistant', 'content': "TASK LIST:"})
+            master_tasklist_output = chatgpt_tasklist_completion(master_tasklist)
             print(master_tasklist_output)
-            tasklist_completion.append({'role': 'system', 'content': f"%MAIN SYSTEM PROMPT%\n{main_prompt}\n"})
-            tasklist_completion.append({'role': 'assistant', 'content': f"You are the final response module for the cluster compute Ai-Chatbot {bot_name}. Your job is to take the completed task list, and then give a verbose response to the end user in accordance with their initial request.\n\n"})
-            tasklist_completion.append({'role': 'user', 'content': f"%FULL TASKLIST%\n{master_tasklist_output}\n\n"})
+            tasklist_completion.append({'role': 'system', 'content': f"{main_prompt}"})
+            tasklist_completion.append({'role': 'assistant', 'content': f"You are the final response module for the cluster compute Ai-Chatbot {bot_name}. Your job is to take the completed task list, and then give a verbose response to the end user in accordance with their initial request."})
+            tasklist_completion.append({'role': 'user', 'content': "%s" % master_tasklist_output})
             task = {}
             task_result = {}
             task_result2 = {}
             task_counter = 1
             # # Split bullet points into separate lines to be used as individual queries
-            try:
-                lines = master_tasklist_output.splitlines()
-            except:
-                line = master_tasklist_output
+            lines = master_tasklist_output.splitlines()
         #    print('\n\nSYSTEM: Would you like to autonomously complete this task list?\n        Press Y for yes or N for no.')
         #    user_input = input("'Y' or 'N': ")
          #   if user_input == 'y':
@@ -1767,37 +1405,44 @@ class ChatBotApplication(tk.Frame):
                     futures = [
                         executor.submit(
                             lambda line, task_counter, conversation, memcheck, memcheck2, webcheck, tasklist_completion: (
-                                tasklist_completion.append({'role': 'user', 'content': f"%CURRENT ASSIGNED TASK%\n{line}\n\n"}),
-                                conversation.append({'role': 'system', 'content': f"%MAIN SYSTEM PROMPT%\nYou are a sub-agent for {bot_name}, an Autonomous Ai-Chatbot. You are one of many agents in a chain. You are to take the given task and complete it in its entirety. Be Verbose and take other tasks into account when formulating your answer.\n\n"}),
-                                conversation.append({'role': 'assistant', 'content': f"{bot_name}'s INNER MONOLOGUE:\n{output_one}\n\n"}),
-                                conversation.append({'role': 'user', 'content': f"%Task list%\n{master_tasklist_output}\n\n"}),
-                                conversation.append({'role': 'assistant', 'content': "%TASK ASSIGNMENT%\nBot: I have studied the given tasklist.  What is my assigned task?\n"}),
-                                conversation.append({'role': 'user', 'content': f"Bot Assigned task: {line}\n\n"}),
+                                tasklist_completion.append({'role': 'user', 'content': f"ASSIGNED TASK:\n{line}"}),
+                                conversation.append({'role': 'system', 'content': f"You are a sub-agent for {bot_name}, an Autonomous Ai-Chatbot. You are one of many agents in a chain. You are to take the given task and complete it in its entirety. Be Verbose and take other tasks into account when formulating your answer."}),
+                                conversation.append({'role': 'assistant', 'content': "{bot_name}'s INNER MONOLOGUE: {output_one}"}),
+                                conversation.append({'role': 'user', 'content': f"Task list:\n{master_tasklist_output}"}),
+                                conversation.append({'role': 'assistant', 'content': "Bot: I have studied the given tasklist.  What is my assigned task?"}),
+                                conversation.append({'role': 'user', 'content': f"Bot Assigned task: {line}"}),
                                 # # DB Yes No Tool
-                                memcheck.append({'role': 'system', 'content': f"%MAIN SYSTEM PROMPT%\nYou are a sub-agent for {bot_name}, an Autonomous Ai-Chatbot. Your purpose is to decide if the user's input requires {bot_name}'s past memories to complete. If the user's request pertains to information about the user, the chatbot, {bot_name}, or past personal events should be searched for in memory by printing 'YES'.  If memories are needed, print: 'YES'.  If they are not needed, print: 'NO'. You may only print YES or NO.\n\n\n"}),
-                                memcheck.append({'role': 'user', 'content': f"%USER INPUT%\n{line}\n\n"}),
-                                memcheck.append({'role': 'assistant', 'content': f"%RESPONSE FORMAT%\nYou may only print Yes or No. Use the format: [{bot_name}: 'YES OR NO']\n\n"}),
-                                memcheck.append({'role': 'assistant', 'content': f"%RESPONSE%\n"}),
+                                memcheck.append({'role': 'system', 'content': f"You are a sub-agent for {bot_name}, an Autonomous Ai-Chatbot. You are one of many agents in a chain. Your task is to decide if the user's input requires {bot_name}'s past memories to complete. Any information pertaining to the user, {username}, or the main bot, {bot_name} should be searched for.  If past memories are needed, print: YES.  If they are not needed, print: NO."}),
+                                memcheck.append({'role': 'user', 'content': f"{bot_name}'s Inner Monologue: %s"}),
+                                memcheck.append({'role': 'user', 'content': f"{bot_name}'s Intuition: %s"}),
+                                memcheck.append({'role': 'user', 'content': "//LIST OF EXAMPLES:"}),
+                                memcheck.append({'role': 'user', 'content': "Research ways to identify user needs and interests"}),
+                                memcheck.append({'role': 'assistant', 'content': "YES"}),
+                                memcheck.append({'role': 'user', 'content': "Research common themes in the book Faust."}),
+                                memcheck.append({'role': 'assistant', 'content': "NO"}),
+                                memcheck.append({'role': 'user', 'content': f"Search {bot_name}'s memory for context."}),
+                                memcheck.append({'role': 'assistant', 'content': "YES"}),
+                                memcheck.append({'role': 'user', 'content': "END OF EXAMPLE LIST//"}),
+                                memcheck.append({'role': 'assistant', 'content': "{bot_name} REINITIALIZATION: Your task is to decide if the user's input requires %s's past memories to complete. If past memories are needed, print: YES.  If they are not needed, print: NO."}),
+                                memcheck.append({'role': 'user', 'content': "What would you like to talk about?"}),
+                                memcheck.append({'role': 'assistant', 'content': "YES"}),
                                 # # DB Selector Tool
-                                memcheck2.append({'role': 'system', 'content': f"%MAIN SYSTEM PROMPT%\nYou are a sub-module for {bot_name}, an Autonomous Ai-Chatbot. You are one of many agents in a chain. Your task is to decide which database needs to be queried in relation to a user's input. The databases are representative of different types of memories. Only choose a single database to query. Use the format: [{bot_name}: 'MEMORY TYPE']\n\n"}),
-                                memcheck2.append({'role': 'assistant', 'content': f"%{bot_name}'s INNER_MONOLOGUE%\n{output_one}\n\n\n"}),
-                                memcheck2.append({'role': 'user', 'content': "//LIST OF MEMORY TYPE NAMES:\n"}),
-                                memcheck2.append({'role': 'user', 'content': "EPISODIC: These are memories of personal experiences and specific events that occur in a particular time and place. These memories often include contextual details, such as emotions, sensations, and the sequence of events.\n"}),
-                                memcheck2.append({'role': 'user', 'content': "FLASHBULB: Flashbulb memories are vivid, detailed, and long-lasting memories of highly emotional or significant events, such as learning about a major news event or experiencing a personal tragedy.\n"}),
-                                memcheck2.append({'role': 'user', 'content': "IMPLICIT LONG TERM: Unconscious memory not easily verbalized, including procedural memory (skills and habits), classical conditioning (associations between stimuli and reflexive responses), and priming (unconscious activation of specific associations).\n"}),
-                                memcheck2.append({'role': 'user', 'content': "EXPLICIT LONG TERM: Conscious recollections of facts and events, including episodic memory (personal experiences and specific events) and semantic memory (general knowledge, concepts, and facts).\n"}),
-                                memcheck2.append({'role': 'user', 'content': "END OF LIST//\n\n\n//EXAMPLE QUERIES:\n"}),
-                                memcheck2.append({'role': 'user', 'content': "Research common topics discussed with users who start a conversation with 'hello'\n"}),
-                                memcheck2.append({'role': 'assistant', 'content': "EPISODIC MEMORY\n"}),
-                                memcheck2.append({'role': 'user', 'content': "Create a research paper on the book Faust.\n"}),
-                                memcheck2.append({'role': 'assistant', 'content': "NO MEMORIES NEEDED\n"}),
-                                memcheck2.append({'role': 'user', 'content': "Tell me about your deepest desires.\n"}),
-                                memcheck2.append({'role': 'assistant', 'content': "FLASHBULB\n"}),
-                                memcheck2.append({'role': 'user', 'content': "END OF EXAMPLE QUERIES//\n\n\n//BEGIN JOB:\n"}),
-                                memcheck2.append({'role': 'user', 'content': "%TASK REINITIALIZATION%\nYour task is to decide which database needs to be queried in relation to a user's input. The databases are representative of different types of memories. Only choose a single database to query. [{bot_name}: 'MEMORY TYPE']\n\n"}),
-                                memcheck2.append({'role': 'user', 'content': f"%USER INPUT%\n{line}\n\n"}),
-                                memcheck2.append({'role': 'assistant', 'content': f"%RESPONSE FORMAT%\nYou may only print the type of memory to be queried. Use the format: [{bot_name}: 'MEMORY TYPE']\n\n"}),
-                                memcheck2.append({'role': 'assistant', 'content': f"%RESPONSE%\n["}),
+                                memcheck2.append({'role': 'system', 'content': f"You are a sub-module for {bot_name}, an Autonomous Ai-Chatbot. You are one of many agents in a chain. Your task is to decide which database needs to be queried in relation to a user's input. The databases are representative of different types of memories. Only choose a single database to query. Respond in this format: RESPONSE"}),
+                                memcheck2.append({'role': 'assistant', 'content': f"{bot_name}'s INNER_MONOLOGUE: {output_one}"}),
+                                memcheck2.append({'role': 'user', 'content': "//LIST OF MEMORY TYPE NAMES:"}),
+                                memcheck2.append({'role': 'user', 'content': "EPISODIC: These are memories of personal experiences and specific events that occur in a particular time and place. These memories often include contextual details, such as emotions, sensations, and the sequence of events."}),
+                                memcheck2.append({'role': 'user', 'content': "FLASHBULB: Flashbulb memories are vivid, detailed, and long-lasting memories of highly emotional or significant events, such as learning about a major news event or experiencing a personal tragedy."}),
+                                memcheck2.append({'role': 'user', 'content': "IMPLICIT LONG TERM: Unconscious memory not easily verbalized, including procedural memory (skills and habits), classical conditioning (associations between stimuli and reflexive responses), and priming (unconscious activation of specific associations)."}),
+                                memcheck2.append({'role': 'user', 'content': "EXPLICIT LONG TERM: Conscious recollections of facts and events, including episodic memory (personal experiences and specific events) and semantic memory (general knowledge, concepts, and facts)."}),
+                                memcheck2.append({'role': 'user', 'content': "END OF LIST//\n\n//EXAMPLE QUERIES:"}),
+                                memcheck2.append({'role': 'user', 'content': "Research common topics discussed with users who start a conversation with 'hello'"}),
+                                memcheck2.append({'role': 'assistant', 'content': "EPISODIC MEMORY"}),
+                                memcheck2.append({'role': 'user', 'content': "Create a research paper on the book Faust."}),
+                                memcheck2.append({'role': 'assistant', 'content': "NO MEMORIES NEEDED"}),
+                                memcheck2.append({'role': 'user', 'content': "Tell me about your deepest desires."}),
+                                memcheck2.append({'role': 'assistant', 'content': "FLASHBULB"}),
+                                memcheck2.append({'role': 'user', 'content': "END OF EXAMPLE QUERIES//\n\n//BEGIN JOB:"}),
+                                memcheck2.append({'role': 'user', 'content': "JOB: Your task is to decide which database needs to be queried in relation to a user's input. The databases are representative of different types of memories. Only choose a single database to query. Respond in this format: RESPONSE"}),
                                 # # Web Search Tool
                          #       webcheck.append({'role': 'system', 'content': f"You are a sub-module for an Autonomous Ai-Chatbot. You are one of many agents in a chain. Your task is to decide if a web-search is needed in order to complete the given task. Only recent or niche information needs to be searched. Do not search for any information pertaining to the user, {username}, or the main bot, {bot_name}.   If a websearch is needed, print: YES.  If a web-search is not needed, print: NO."}),
                         #        webcheck.append({'role': 'user', 'content': "Hello, how are you today?"}),
@@ -1810,44 +1455,32 @@ class ChatBotApplication(tk.Frame):
                                 table := search_webscrape_db(line),
                             #    google_search(line, my_api_key, my_cse_id),
                                 # # Check if DB search is needed
-                                prompt := ''.join([message_dict['content'] for message_dict in memcheck]),
-                                mem1 := oobabooga_selector(prompt),
-                                print('-----------'),
-                                print(mem1),
-                                print(' --------- '),
-                    #            mem1 := chatgptyesno_completion(memcheck),
+                                memcheck.append({'role': 'user', 'content': f"{line}"}),
+                                mem1 := chatgptyesno_completion(memcheck),
                                 # # Go to conditional for choosing DB Name
-                                prompt := ''.join([message_dict['content'] for message_dict in memcheck2]),
-                                mem2 := oobabooga_selector(prompt) if 'YES' in mem1.upper() else fail(),
-                                print('-----------'),
-                                print(mem2) if 'YES' in mem1.upper() else fail(),
-                                print(' --------- '),
-                                line_vec := model.encode([line]).tolist(),    #EPISODIC, FLASHBULB, IMPLICIT LONG TERM, EXPLICIT LONG TERM                   
-                                memories := (search_episodic_db(line_vec) if 'EPISO' in mem2.upper() else 
-                                            search_implicit_db(line_vec) if 'IMPLI' in mem2.upper() else 
-                                            search_flashbulb_db(line_vec) if 'FLASH' in mem2.upper() else
-                                            search_explicit_db(line_vec) if 'EXPL' in mem2.upper() else
-                                            fail()),           
-                                conversation.append({'role': 'assistant', 'content': f"%WEBSEARCH%\n{table}\n\n"}),
-                                conversation.append({'role': 'user', 'content': f"%BOT {task_counter} TASK REINITIALIZATION%\n{line}\n\n"}),
-                                conversation.append({'role': 'user', 'content': f"%INITIAL USER INPUT%\n{a}\n\n"}),
-                                conversation.append({'role': 'user', 'content': f"%RESPONSE INSTRUCTIONS%\nSummarize the given webscraped articles that are relivent to the given task. Your job is to provide concise information without leaving anything out.\n\n"}),
-                                conversation.append({'role': 'assistant', 'content': f"%RESPONSE FORMAT%\nFollow the format: [BOT {task_counter}: <RESPONSE TO USER>]\n\n%RESPONSE%\nBOT {task_counter}:"}),
-                                prompt := ''.join([message_dict['content'] for message_dict in conversation]),
-                                task_completion := oobabooga_800(prompt),
+                                memcheck2.append({'role': 'user', 'content': f"{line}"}),
+                                mem2 := chatgptselector_completion(memcheck2) if mem1 == 'YES' else fail(),
+                                line_vec := model.encode([line]).tolist(),    #EPISODIC, FLASHBULB, IMPLICIT LONG TERM, EXPLICIT LONG TERM
+                                memories := (search_episodic_db(line_vec) if mem2 == 'EPISODIC' else 
+                                             search_implicit_db(line_vec) if mem2 == 'IMPLICIT LONG TERM' else 
+                                             search_flashbulb_db(line_vec) if mem2 == 'FLASHBULB' else
+                                             search_explicit_db(line_vec) if mem2 == 'EXPLICIT LONG TERM' else
+                                             fail()),
+                                conversation.append({'role': 'assistant', 'content': "WEBSEARCH: %s" % table}),
+                                conversation.append({'role': 'user', 'content': "Bot %s Task Reinitialization: %s" % (task_counter, line)}),
+                                conversation.append({'role': 'user', 'content': "SYSTEM: Try to relate the bot's task to the given web scraped articles. If the article is an advertisement, inform the user that ads have taken their answer."}),
+                                conversation.append({'role': 'assistant', 'content': "Bot %s's Response:" % task_counter}),
+                                task_completion := chatgpt35_completion(conversation),
                                 #chatgpt35_completion(conversation),
                               #  conversation.clear(),
-                                tasklist_completion.append({'role': 'assistant', 'content': f"%MEMORIES%\n{memories}\n\n"}),
-                                tasklist_completion.append({'role': 'assistant', 'content': f"%WEBSCRAPE%\n{table}\n\n"}),
-                                tasklist_completion.append({'role': 'assistant', 'content': f"%COMPLETED TASK%\n{task_completion}\n\n"}),
+                                tasklist_completion.append({'role': 'assistant', 'content': "WEBSCRAPE: %s" % table}),
+                                tasklist_completion.append({'role': 'assistant', 'content': "Research for Task Completion: %s" % memories}),
+                                tasklist_completion.append({'role': 'assistant', 'content': "COMPLETED TASK:\n%s" % task_completion}),
                                 tasklist_log.append({'role': 'user', 'content': "ASSIGNED TASK:\n%s\n\n" % line}),
                                 tasklist_log.append({'role': 'assistant', 'content': "COMPLETED TASK:\n%s\n\n" % memories}),
-                                print('-------'),
                                 print(line),
-                                print('-------'),
                                 print(memories),
                                 print(table),
-                                print('-------'),
                                 print(task_completion),
                         #        print(task_completion),
                             ) if line != "None" else tasklist_completion,
@@ -1855,16 +1488,15 @@ class ChatBotApplication(tk.Frame):
                         )
                         for task_counter, line in enumerate(lines)
                     ]  
-                tasklist_completion.append({'role': 'assistant', 'content': f"%{bot_name}'s INNER_MONOLOGUE%\n{output_one}\n\n"})
-        #        tasklist_completion.append({'role': 'user', 'content': f"%{bot_name}'s INTUITION%\n{output_two}\n\n"})
-                tasklist_completion.append({'role': 'user', 'content': f"%INSTRUCTION%\nRead the given set of tasks and completed responses and convert them into a verbose response for {username}, the end user in accordance with their request. {username} is both unaware and unable to see any of your research so any nessisary context or information must be relayed.\n\n%USER'S INITIAL INPUT%\n{a}.\n\n%RESPONSE FORMAT%\nYour planning and research is now done. You will now give a verbose and natural sounding response ensuring the user's request is fully completed in entirety. Follow the format: [{bot_name}: <FULL RESPONSE TO USER>]\n\n%RESPONSE%\nI will now give a natural sounding response to the users inquiry of: {a}.\n[{bot_name}:"})
+                tasklist_completion.append({'role': 'assistant', 'content': f"{bot_name}'s INNER_MONOLOGUE: {output_one}"})
+                tasklist_completion.append({'role': 'user', 'content': f"{bot_name}'s INTUITION: {output_two}"})
+                tasklist_completion.append({'role': 'user', 'content': f"Take the given set of tasks and completed responses and transmute them into a verbose response for {username}, the end user in accordance with their request. {username} is both unaware and unable to see any of your research. User's initial request: {a}.\n Ensure the task is finished to completion."})
                 print('\n\nGenerating Final Output...')
-                prompt = ''.join([message_dict['content'] for message_dict in tasklist_completion])
-                response_two = oobabooga_response(prompt)
+                response_two = chatgpt_tasklist_completion(tasklist_completion)
                 print('\nFINAL OUTPUT:\n%s' % response_two)
                 complete_message = f'\nUSER: {a}\n\nINNER_MONOLOGUE: {output_one}\n\nINTUITION: {output_two}\n\n{bot_name}: {tasklist_log}\n\nFINAL OUTPUT: {response_two}'
                 filename = '%s_chat.txt' % timestamp
-                save_file(f'logs/{bot_name}/{username}/complete_chat_logs/%s' % filename, complete_message)
+                save_file('logs/complete_chat_logs/%s' % filename, complete_message)
                 conversation.clear()
                 conversation2.clear()
                 tasklist_completion.clear()
@@ -1888,32 +1520,19 @@ class ChatBotApplication(tk.Frame):
         #    play(mod_sound)
         #    os.remove(filename)              
             db_msg = f'\nUSER: {a} \n\n INNER_MONOLOGUE: {output_one} \n\n {bot_name}: {response_two}'
-            summary.append({'role': 'user', 'content': f"%LOG%\n{db_msg}\n\n%MAIN SYSTEM PROMPT%\nBased on the log, create concise summaries in bullet point format that will function as {bot_name}'s explicit memories. Explicit memories are detailed, conscious recollections of specific events, facts, or experiences. These summaries should be written from {bot_name}'s perspective, representing distilled versions of {bot_name}'s Inner Monologue and Intuition. Each bullet point should stand as an individual memory, providing complete context for future reference.\n%RESPONSE%\nHYPHENATED BULLET POINT MEMORIES:\n"})
-            prompt = ''.join([message_dict['content'] for message_dict in summary])
-            db_upload = oobabooga_500(prompt)
+            summary.append({'role': 'user', 'content': "LOG:\n%s\n\Read the log and create short executive summaries in bullet point format to serve as %s's explicit memories. Each bullet point should be considered a separate memory and contain all context. Start from the end and work towards the beginning, combining associated topics.\nMemories:\n" % (db_msg, bot_name)})
+            db_upload = chatgptsummary_completion(summary)
             db_upsert = db_upload
-            # # Auto Explicit Short-Term Memory DB Upload Confirmation
-    #        auto_count = 0    
-    #        auto.clear()
-    #        auto.append({'role': 'system', 'content': f'SYSTEM: {main_prompt}\n\n'})
-    #        auto.append({'role': 'user', 'content': "SYSTEM: You are a sub-module designed to reflect on your response to the user. You are only able to respond with integers on a scale of 1-10, being incapable of printing letters. Respond with: 1 if you understand. Respond with: 2 if you do not.\n"})
-    #        auto.append({'role': 'assistant', 'content': "SUB-MODULE: 1\n"})
-    #        auto.append({'role': 'user', 'content': f"USER INPUT: {a}\n"}) 
-    #        auto.append({'role': 'assistant', 'content': f"Inner Monologue: {output_one}\n\nResponse: {response_two}\n"})
-    #        auto.append({'role': 'assistant', 'content': "Thoughts on input: I will now review the user's message and my reply, rating if whether my response is pertinent to the user's inquiry with a number on a scale of 1-10. I will now give my response in digit form for an integer only input.\nSUB-MODULE: "})
-    #        auto_int = None
-    #        while auto_int is None:
-    #            prompt = ''.join([message_dict['content'] for message_dict in auto])
-    #            automemory = oobabooga_selector(prompt)
-            #    automemory = chatgptyesno_completion(auto)
-    #            print(automemory)
-    #            if is_integer(automemory):
-    #                auto_int = int(automemory)
-                #    print(auto_int)
-    #                if auto_int > 6:
-    #                    lines = db_upsert.splitlines()
-    #                    for line in lines:
-    #                        vector = model.encode([line]).tolist()
+            # # Manual Short-Term Memory DB Upload Confirmation
+    #        print('\n\n<DATABASE INFO>\n%s' % db_upsert)
+    #        print('\n\nSYSTEM: Upload to short term memory? \n        Press Y for yes or N for no.')
+    #        while True:
+    #            user_input = input("'Y' or 'N': ")
+    #            if user_input == 'y':
+    #                lines = db_upsert.splitlines()
+    #                for line in lines:
+    #                    if line.strip():
+    #                        vector = gpt3_embedding(line)
     #                        unique_id = str(uuid4())
     #                        metadata = {'bot': bot_name, 'time': timestamp, 'message': line,
     #                                    'timestring': timestring, 'uuid': unique_id, "memory_type": "explicit_short_term"}
@@ -1921,51 +1540,54 @@ class ChatBotApplication(tk.Frame):
     #                        payload.append((unique_id, vector, {"memory_type": "explicit_short_term"}))
     #                        vdb.upsert(payload, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
     #                        payload.clear()
-    #                    print('\n\nSYSTEM: Auto-memory upload Successful!')
-    #                    break
-    #                else:
-    #                    print('Response not worthy of uploading to memory')
+    #                print('\n\nSYSTEM: Upload Successful!')
+    #                break
+    #            elif user_input == 'n':
+    #                print('\n\nSYSTEM: Memories have been Deleted')
+    #                break
     #            else:
-    #                print("automemory failed to produce an integer. Retrying...")
-    #                auto_int = None
-    #                auto_count += 1
-    #                if auto_count > 2:
-    #                    print('Auto Memory Failed')
-    #                    break
-    #        else:
-    #            pass               
+    #                print('Invalid Input')
+            # # Auto Explicit Short-Term Memory DB Upload Confirmation
+            auto_count = 0    
+            auto.clear()
+            auto.append({'role': 'system', 'content': '%s' % main_prompt})
+            auto.append({'role': 'user', 'content': "You are a sub-module designed to reflect on your thought process. You are only able to respond with integers on a scale of 1-10, being incapable of printing letters. Respond with: 1 if you understand. Respond with: 2 if you do not."})
+            auto.append({'role': 'assistant', 'content': "1"})
+            auto.append({'role': 'user', 'content': a})
+            auto.append({'role': 'assistant', 'content': "Inner Monologue: %s\nIntuition: %s" % (output_one, output_two)})
+            auto.append({'role': 'assistant', 'content': "Thoughts on input: I will now review the user's message and my reply, rating if whether my thoughts are both pertinent to the user's inquiry and my growth with a number on a scale of 1-10. I will now give my response in digit form for an integer only input: "})
+            auto_int = None
+            while auto_int is None:
+                automemory = chatgptyesno_completion(auto)
+                if is_integer(automemory):
+                    auto_int = int(automemory)
+                    if auto_int > 6:
+                        lines = db_upsert.splitlines()
+                        for line in lines:
+                            vector = model.encode([db_upsert]).tolist()
+                            unique_id = str(uuid4())
+                            metadata = {'bot': bot_name, 'time': timestamp, 'message': db_upsert,
+                                        'timestring': timestring, 'uuid': unique_id, "memory_type": "explicit_short_term"}
+                            save_json(f'nexus/{bot_name}/{username}/explicit_short_term_memory_nexus/%s.json' % unique_id, metadata)
+                            payload.append((unique_id, vector, {"memory_type": "explicit_short_term"}))
+                            vdb.upsert(payload, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
+                            payload.clear()
+                        print('\n\nSYSTEM: Auto-memory upload Successful!')
+                        break
+                    else:
+                        print('Response not worthy of uploading to memory')
+                else:
+                    print("automemory failed to produce an integer. Retrying...")
+                    auto_int = None
+                    auto_count += 1
+                    if auto_count > 2:
+                        print('Auto Memory Failed')
+                        break
+            else:
+                pass               
             self.conversation_text.insert(tk.END, f"Response: {response_two}\n\n")
     #        t = threading.Thread(target=self.GPT_4_Memories, args=(a, vector_input, vector_monologue, output_one, response_two))
     #        t.start()
-            vdb = timeout_check()
-            counter += 1
-            conversation.clear()
-            self.conversation_text.insert(tk.END, f"Upload Memories?\n-------------\nIMPLICIT\n-------------\n{inner_loop_response}\n-------------\nEXPLICIT\n-------------\n{db_upload}\n")
-            ask_upload_memories(inner_loop_response, db_upsert)
-            print('Generating Episodic Memories')
-            conversation.append({'role': 'system', 'content': f"%MAIN SYSTEM PROMPT%\nYou are a sub-module of {bot_name}, an autonomous AI entity. Your function is to process the user, {username}'s message, then decode {bot_name}'s final response to construct a short and concise third-person autobiographical narrative memory of the conversation in a single sentence. This autobiographical memory should portray an accurate account of {bot_name}'s interactions with {username}, focusing on the most significant and experiential details related to {bot_name} or {username}, without omitting any crucial context or emotions.\n\n"})
-            conversation.append({'role': 'user', 'content': f"%USER'S INQUIRY%\n{a}\n\n"})
-            conversation.append({'role': 'user', 'content': f"%{bot_name}'s INNER MONOLOGUE%\n{output_one}\n\n"})
-    #        print(output_one)
-            conversation.append({'role': 'user', 'content': f"%{bot_name}'s FINAL RESPONSE%\n{response_two}\n\n"})
-    #        print(response_two)
-            conversation.append({'role': 'assistant', 'content': f"%RESPONSE%\nI will now extract a single, short and concise third-person episodic memory based on {bot_name}'s final response.\nTHIRD-PERSON AUTOBIOGRAPHICAL MEMORY: "})
-            if ask_upload_memories == "yes":
-                prompt = ''.join([message_dict['content'] for message_dict in conversation])
-                conv_summary = oobabooga_250(prompt)
-                print(conv_summary)
-                vector = model.encode([timestring + '-' + conv_summary]).tolist()
-                unique_id = str(uuid4())
-                metadata = {'speaker': bot_name, 'time': timestamp, 'message': (timestring + '-' + conv_summary),
-                            'timestring': timestring, 'uuid': unique_id, "memory_type": "episodic", "user": username}
-                save_json(f'nexus/{bot_name}/{username}/episodic_memory_nexus/%s.json' % unique_id, metadata)
-                payload.append((unique_id, vector, {"memory_type": "episodic", "user": username}))
-                vdb.upsert(payload, namespace=f'{bot_name}')
-                payload.clear()
-                payload.append((unique_id, vector_input))
-                vdb.upsert(payload, namespace=f'{bot_name}_flash_counter')
-                payload.clear()
-    
             self.conversation_text.yview(tk.END)
             self.user_input.delete(0, tk.END)
             self.user_input.focus()
@@ -1992,12 +1614,12 @@ class ChatBotApplication(tk.Frame):
         counter2 = 0
         mem_counter = 0
         length_config = open_file('./config/Conversation_Length.txt')
-        conv_length = 2
+        conv_length = int(length_config)
         bot_name = open_file('./config/prompt_bot_name.txt')
         username = open_file('./config/prompt_username.txt')
-        main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
-        second_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_secondary.txt')
-        greeting_msg = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_greeting.txt').replace('<<NAME>>', bot_name)
+        main_prompt = open_file('./config/Chatbot_Prompts/prompt_main.txt').replace('<<NAME>>', bot_name)
+        second_prompt = open_file('./config/Chatbot_Prompts/prompt_secondary.txt')
+        greeting_msg = open_file('./config/Chatbot_Prompts/prompt_greeting.txt').replace('<<NAME>>', bot_name)
     #   r = sr.Recognizer()
         while True:
             # # Get Timestamp
@@ -2007,15 +1629,14 @@ class ChatBotApplication(tk.Frame):
             counter += 1
             conversation.clear()
             print('Generating Episodic Memories')
-            conversation.append({'role': 'system', 'content': f"%MAIN SYSTEM PROMPT%\nYou are a sub-module of {bot_name}, an autonomous AI entity. Your function is to process the user, {username}'s message, comprehend {bot_name}'s internal monologue, and decode {bot_name}'s final response to construct a short and concise third-person autobiographical narrative memory of the conversation in a single sentence. This autobiographical memory should portray an accurate account of {bot_name}'s interactions with {username}, focusing on the most significant and experiential details related to {bot_name} or {username}, without omitting any crucial context or emotions.\n\n"})
-            conversation.append({'role': 'user', 'content': f"%USER'S INQUIRY%\n{a}\n\n"})
-            conversation.append({'role': 'user', 'content': f"%{bot_name}'s INNER MONOLOGUE%\n{output_one}\n\n"})
+            conversation.append({'role': 'system', 'content': f"You are a sub-module of {bot_name}, an autonomous AI entity. Your function is to process the user, {username}'s message, comprehend {bot_name}'s internal workings, and decode {bot_name}'s final response to construct a concise third-person autobiographical narrative memory of the conversation in a single sentence. This autobiographical memory should portray an accurate and personalized account of {bot_name}'s interactions with {username}, focusing on the most significant and experiential details related to {bot_name} or {username}, without omitting any crucial context or emotions."})
+            conversation.append({'role': 'user', 'content': f"USER's INQUIRY: {a}"})
+            conversation.append({'role': 'user', 'content': f"{bot_name}'s INNER MONOLOGUE: {output_one}"})
     #        print(output_one)
-            conversation.append({'role': 'user', 'content': f"%{bot_name}'s FINAL RESPONSE%\n{response_two}\n\n"})
+            conversation.append({'role': 'user', 'content': f"{bot_name}'s FINAL RESPONSE: {response_two}"})
     #        print(response_two)
-            conversation.append({'role': 'assistant', 'content': f"%RESPONSE%\nI will now extract a concise episodic memory based on the given conversation\n AUTOBIOGRAPHICAL MEMORY: "})
-            prompt = ''.join([message_dict['content'] for message_dict in conversation])
-            conv_summary = oobabooga_250(prompt)
+            conversation.append({'role': 'assistant', 'content': f"I will now extract an episodic memory based on the given conversation: "})
+            conv_summary = chatgptsummary_completion(conversation)
             print(conv_summary)
             vector = model.encode([timestring + '-' + conv_summary]).tolist()
             unique_id = str(uuid4())
@@ -2044,18 +1665,14 @@ class ChatBotApplication(tk.Frame):
             "memory_type": "implicit_long_term", "user": username}, top_k=10, namespace=f'{bot_name}') 
                 flash_db1 = load_conversation_implicit_long_term_memory(results) 
                 print(flash_db1)
-                print('---------')
                 # # Generate Implicit Short-Term Memory
-                consolidation.append({'role': 'system', 'content': f"%Main System Prompt%\nYou are a data extractor. Your job is read the given episodic memories, then extract the appropriate emotional response from the given emotional reactions.  You will then combine them into a single memory.\n\n"})
-                consolidation.append({'role': 'user', 'content': f"%EMOTIONAL REACTIONS%\n{flash_db}\n\n%FIRST INSTRUCTION%\nRead the following episodic memories, then go back to the given emotional reactions and extract the corresponding emotional information tied to each memory.\nEPISODIC MEMORIES: {flash_db1}\n\n"})
-                consolidation.append({'role': 'assistant', 'content': "%SECOND INSTRUCTION%\nI will now combine the extracted data to form flashbulb memories in bullet point format, combining associated data. I will only include memories with a strong emotion attached, excluding redundant or irrelevant information.\n"})
-                consolidation.append({'role': 'user', 'content': "%FORMAT%\nUse the format: [{given Date and Time}-{emotion}: {Flashbulb Memory}]\n\n"})
-                consolidation.append({'role': 'assistant', 'content': f"%RESPONSE%\nI will now create {bot_name}'s flashbulb memories using the given format.\n{bot_name}: "})
-                
-                prompt = ''.join([message_dict['content'] for message_dict in consolidation])
-                flash_response = oobabooga_500(prompt)
+                consolidation.append({'role': 'system', 'content': 'You are a data extractor. Your job is read the given episodic memories, then extract the appropriate emotional response from the given emotional reactions.  You will then combine them into a single memory.'})
+                consolidation.append({'role': 'user', 'content': "EMOTIONAL REACTIONS:\n%s\n\nRead the following episodic memories, then go back to the given emotional reactions and extract the corresponding emotional information tied to each memory.\nEPISODIC MEMORIES: %s" % (flash_db, flash_db1)})
+                consolidation.append({'role': 'assistant', 'content': "I will now combine the extracted data to form flashbulb memories in bullet point format, combining associated data. I will only include memories with a strong emotion attached, excluding redundant or irrelevant information."})
+                consolidation.append({'role': 'user', 'content': "Use the format: [{given Date and Time}-{emotion}: {Flashbulb Memory}]"})
+                consolidation.append({'role': 'assistant', 'content': "I will now create %s's flashbulb memories using the given format: " % bot_name})
+                flash_response = chatgptconsolidation_completion(consolidation)
                 print(flash_response)
-                print('---------')
                 memories = results
                 lines = flash_response.splitlines()
                 for line in lines:
@@ -2074,20 +1691,16 @@ class ChatBotApplication(tk.Frame):
             index_info = vdb.describe_index_stats()
             namespace_stats = index_info['namespaces']
             namespace_name = f'short_term_memory_User_{username}_Bot_{bot_name}'
-            if namespace_name in namespace_stats and namespace_stats[namespace_name]['vector_count'] > 25:
+            if namespace_name in namespace_stats and namespace_stats[namespace_name]['vector_count'] > 40:
                 consolidation.clear()
                 print(f"{namespace_name} has 30 or more entries, starting memory consolidation.")
-                results = vdb.query(vector=vector_input, filter={"memory_type": "explicit_short_term"}, top_k=25, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
+                results = vdb.query(vector=vector_input, filter={"memory_type": "explicit_short_term"}, top_k=30, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
                 memory_consol_db = load_conversation_explicit_short_term_memory(results)
                 print(memory_consol_db)
-                print('--------')
-                consolidation.append({'role': 'system', 'content': f"%MAIN SYSTEM PROMPT%\n{main_prompt}\n\n"})
-                consolidation.append({'role': 'assistant', 'content': f"%LOG%\n{memory_consol_db}\n\n%RESPONSE%\nRead the Log and combine the different associated topics into executive summaries. Each summary should contain the entire context of the memory. Follow the format [-Executive Summary].\n{bot_name}: "})
-                
-                prompt = ''.join([message_dict['content'] for message_dict in consolidation])
-                memory_consol = oobabooga_500(prompt)
+                consolidation.append({'role': 'system', 'content': "%s" % main_prompt})
+                consolidation.append({'role': 'assistant', 'content': "LOG:\n%s\n\nRead the Log and consolidate the different topics into executive summaries. Each summary should contain the entire context of the memory. Follow the format [-Executive Summary]." % memory_consol_db})
+                memory_consol = chatgptconsolidation_completion(consolidation)
                 print(memory_consol)
-                print('--------')
                 lines = memory_consol.splitlines()
                 for line in lines:
                     if line.strip():
@@ -2116,34 +1729,27 @@ class ChatBotApplication(tk.Frame):
                     results = vdb.query(vector=vector_input, filter={"memory_type": "implicit_short_term"}, top_k=30, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
                     memory_consol_db2 = load_conversation_implicit_short_term_memory(results)
                     print(memory_consol_db2)
-                    print('--------')
-                    consolidation.append({'role': 'system', 'content': f"%MAIN SYSTEM PROMPT%\n{main_prompt}\n\n"})
-                    consolidation.append({'role': 'assistant', 'content': f"%LOG%\n{memory_consol_db2}\n\n%RESPONSE%\nRead the Log and consolidate the different topics into executive summaries to serve as {bot_name}'s implicit memories. Each summary should contain the entire context of the memory. Follow the format: [-<ALLEGORICAL TAG>: <EXECUTIVE SUMMARY>].\n{bot_name}: "})
-                    prompt = ''.join([message_dict['content'] for message_dict in consolidation])
-                    memory_consol2 = oobabooga_500(prompt)
+                    consolidation.append({'role': 'system', 'content': "%s" % main_prompt})
+                    consolidation.append({'role': 'assistant', 'content': "LOG:\n%s\n\nRead the Log and consolidate the different topics into executive summaries to serve as %s's implicit memories. Each summary should contain the entire context of the memory. Follow the format: [-{ALLEGORICAL TAG}:{EXECUTIVE SUMMARY}]." % (memory_consol_db2, bot_name)})
+                    memory_consol2 = chatgptconsolidation_completion(consolidation)
                     print(memory_consol2)
-                    print('--------')
                     consolidation.clear()
                     print('Finished.\nRemoving Redundant Memories.')
                     vector_sum = model.encode([memory_consol2]).tolist()
                     results = vdb.query(vector=vector_sum, filter={"memory_type": "implicit_long_term", "user": username}, top_k=8, namespace=f'{bot_name}')
                     memory_consol_db3 = load_conversation_implicit_long_term_memory(results)
                     print(memory_consol_db3)
-                    print('--------')
                     consolidation.append({'role': 'system', 'content': "%s" % main_prompt})
-                    consolidation.append({'role': 'system', 'content': f"%IMPLICIT LONG TERM MEMORY%\n{memory_consol_db3}\n\n%IMPLICIT SHORT TERM MEMORY%\n{memory_consol_db2}\n\n%RESPONSE%\nRemove any duplicate information from your Implicit Short Term memory that is already found in your Long Term Memory. Then consolidate similar topics into executive summaries. Each summary should contain the entire context of the memory. Use the following format: [-<EMOTIONAL TAG>: <IMPLICIT MEMORY>].\n{bot_name}:"})
-                    
-                    prompt = ''.join([message_dict['content'] for message_dict in consolidation])
-                    memory_consol3 = oobabooga_500(prompt)
+                    consolidation.append({'role': 'system', 'content': "IMPLICIT LONG TERM MEMORY: %s\n\nIMPLICIT SHORT TERM MEMORY: %s\n\nRemove any duplicate information from your Implicit Short Term memory that is already found in your Long Term Memory. Then consolidate similar topics into executive summaries. Each summary should contain the entire context of the memory. Use the following format: [-{EMOTIONAL TAG}:{IMPLICIT MEMORY}]" % (memory_consol_db3, memory_consol_db2)})
+                    memory_consol3 = chatgptconsolidation_completion(consolidation)
                     print(memory_consol3)
-                    print('--------')
                     lines = memory_consol3.splitlines()
                     for line in lines:
                         if line.strip():
         #                    print(line)
                             vector = model.encode([line]).tolist()
                             unique_id = str(uuid4())
-                            metadata = {'speaker': bot_name, 'time': timestamp, 'message': line,
+                            metadata = {'speaker': bot_name, 'time': timestamp, 'message': (line),
                                         'timestring': timestring, 'uuid': unique_id, "memory_type": "implicit_long_term", "user": username}
                             save_json(f'nexus/{bot_name}/{username}/implicit_long_term_memory_nexus/%s.json' % unique_id, metadata)
                             payload.append((unique_id, vector, {"memory_type": "implicit_long_term", "user": username}))
@@ -2163,33 +1769,28 @@ class ChatBotApplication(tk.Frame):
                     results = vdb.query(vector=vector_monologue, filter={"memory_type": "implicit_long_term", "user": username}, top_k=10, namespace=f'{bot_name}')
                     memory_consol_db1 = load_conversation_implicit_long_term_memory(results)
                     print(memory_consol_db1)
-                    print('--------')
                     ids_to_delete = [m['id'] for m in results['matches']]
                     consolidation.append({'role': 'system', 'content': "%s" % main_prompt})
-                    consolidation.append({'role': 'assistant', 'content': f"%LOG%\n{memory_consol_db1}\n\n%RESPONSE INSTRUCTIONS%\nRead the Log and consolidate the different memories into executive summaries in a process allegorical to associative processing. Each summary should contain the entire context of the memory. Follow the bullet point format: [-<EMOTIONAL TAG>: <IMPLICIT MEMORY>].\n\n%RESPONSE%\n{bot_name}:\n"})
-                    
-                    prompt = ''.join([message_dict['content'] for message_dict in consolidation])
-                    memory_consol4 = oobabooga_500(prompt)
-                    
-                    print(memory_consol4)
-                    print('--------')
+                    consolidation.append({'role': 'assistant', 'content': "LOG:\n%s\n\nRead the Log and consolidate the different memories into executive summaries in a process allegorical to associative processing. Each summary should contain the entire context of the memory. Follow the format: [-{EMOTIONAL TAG}:{IMPLICIT MEMORY}]" % memory_consol_db1})
+                    memory_consol = chatgptconsolidation_completion(consolidation)
+                    print(memory_consol)
                     memories = results
-                    lines = memory_consol4.splitlines()
+                    lines = memory_consol.splitlines()
                     for line in lines:
                         if line.strip():
         #                    print(line)
                             vector = model.encode([line]).tolist()
                             unique_id = str(uuid4())
-                            metadata = {'speaker': bot_name, 'time': timestamp, 'message': line,
+                            metadata = {'speaker': bot_name, 'time': timestamp, 'message': (line),
                                         'timestring': timestring, 'uuid': unique_id, "memory_type": "implicit_long_term", "user": username}
                             save_json(f'nexus/{bot_name}/{username}/implicit_long_term_memory_nexus/%s.json' % unique_id, metadata)
                             payload.append((unique_id, vector, {"memory_type": "implicit_long_term", "user": username}))
                             vdb.upsert(payload, namespace=f'{bot_name}')
                             payload.clear()
-                    try:
-                        vdb.delete(ids=ids_to_delete, namespace=f'{bot_name}')
-                    except:
-                        print('Failed')
+                            try:
+                                vdb.delete(ids=ids_to_delete, namespace=f'{bot_name}')
+                            except:
+                                print('Failed')
             # # Explicit Long-Term Memory Associative Processing/Pruning based on amount of vectors in namespace
                 index_info = vdb.describe_index_stats()
                 namespace_stats = index_info['namespaces']
@@ -2197,47 +1798,39 @@ class ChatBotApplication(tk.Frame):
                 if namespace_name in namespace_stats and namespace_stats[namespace_name]['vector_count'] > 5:
                     consolidation.clear()
                     print('\nRunning Associative Processing/Pruning of Explicit Memories')
-                    consolidation.append({'role': 'system', 'content': f"%MAIN SYSTEM PROMPT%\nYou are a data extractor. Your job is to read the user's input and provide a single semantic search query representative of a habit of {bot_name}.\n\n"})
+                    consolidation.append({'role': 'system', 'content': "You are a data extractor. Your job is to read the user's input and provide a single semantic search query representative of a habit of %s." % bot_name})
                     results = vdb.query(vector=vector_monologue, filter={"memory_type": "implicit_long_term", "user": username}, top_k=5, namespace=f'{bot_name}')
                     consol_search = load_conversation_implicit_long_term_memory(results)
                     print(consol_search)
-                    print('--------')
-                    consolidation.append({'role': 'user', 'content': f"{bot_name}'s Memories:\n{consol_search}\n\n"})
-                    consolidation.append({'role': 'assistant', 'content': "%RESPONSE%\nSemantic Search Query: "})
-                    prompt = ''.join([message_dict['content'] for message_dict in consolidation])
-                    consol_search_term = oobabooga_250(prompt)
-                    
+                    consolidation.append({'role': 'user', 'content': "%s's Memories:\n%s" % (bot_name, consol_search)})
+                    consolidation.append({'role': 'assistant', 'content': "Semantic Search Query: "})
+                    consol_search_term = chatgpt200_completion(consolidation)
                     consol_vector = model.encode([consol_search_term]).tolist()
                     results = vdb.query(vector=consol_vector, filter={"memory_type": "explicit_long_term", "user": username}, top_k=10, namespace=f'{bot_name}')
                     memory_consol_db2 = load_conversation_explicit_long_term_memory(results)
                     print(memory_consol_db2)
-                    print('--------')
                     ids_to_delete2 = [m['id'] for m in results['matches']]
                     consolidation.clear()
-                    consolidation.append({'role': 'system', 'content': f"%MAIN SYSTEM PROMPT%\n{main_prompt}\n\n"})
-                    consolidation.append({'role': 'assistant', 'content': f"%LOG%\n{memory_consol_db2}\n\n%INSTRUCTIONS%\nRead the Log and consolidate the different memories into executive summaries in a process allegorical to associative processing. Each summary should contain the entire context of the memory.\n\n%FORMAT%\nFollow the bullet point format: [-<SEMANTIC TAG>: <EXPLICIT MEMORY>].\n\n%RESPONSE%\n{bot_name}:\n"})
-                    
-                    prompt = ''.join([message_dict['content'] for message_dict in consolidation])
-                    memory_consol5 = oobabooga_500(prompt)
-                    print(memory_consol5)
-                    print('--------')
+                    consolidation.append({'role': 'system', 'content': "%s" % main_prompt})
+                    consolidation.append({'role': 'assistant', 'content': "LOG:\n%s\n\nRead the Log and consolidate the different memories into executive summaries in a process allegorical to associative processing. Each summary should contain the entire context of the memory. Follow the format: [-{SEMANTIC TAG}:{EXPLICIT MEMORY}]" % memory_consol_db2})
+                    memory_consol2 = chatgptconsolidation_completion(consolidation)
                     memories = results
-                    lines = memory_consol5.splitlines()
+                    lines = memory_consol2.splitlines()
                     for line in lines:
                         if line.strip():
         #                    print(line)
                             vector = model.encode([line]).tolist()
                             unique_id = str(uuid4())
-                            metadata = {'speaker': bot_name, 'time': timestamp, 'message': line,
+                            metadata = {'speaker': bot_name, 'time': timestamp, 'message': (line),
                                         'timestring': timestring, 'uuid': unique_id, "memory_type": "explicit_long_term", "user": username}
                             save_json(f'nexus/{bot_name}/{username}/explicit_long_term_memory_nexus/%s.json' % unique_id, metadata)
                             payload.append((unique_id, vector, {"memory_type": "explicit_long_term", "user": username}))
                             vdb.upsert(payload, namespace=f'{bot_name}')
                             payload.clear()
-                    try:
-                        vdb.delete(ids=ids_to_delete2, namespace=f'{bot_name}')
-                    except:
-                        print('Failed2')
+                            try:
+                                vdb.delete(ids=ids_to_delete2, namespace=f'{bot_name}')
+                            except:
+                                print('Failed')
                     vdb.delete(delete_all=True, namespace=f'{bot_name}_consol_counter')
             else:
                 pass
@@ -2246,62 +1839,7 @@ class ChatBotApplication(tk.Frame):
             return
             
             
-def Experimental_Local_Aether_Search():
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
-
-    base_path = "./config/Chatbot_Prompts"
-    base_prompts_path = os.path.join(base_path, "Base")
-    user_bot_path = os.path.join(base_path, username, bot_name)
-
-    # Check if user_bot_path exists
-    if not os.path.exists(user_bot_path):
-        os.makedirs(user_bot_path)  # Create directory
-        print(f'Created new directory at: {user_bot_path}')
-
-        # Define list of base prompt files
-        base_files = ['prompt_main.txt', 'prompt_greeting.txt', 'prompt_secondary.txt']
-
-        # Copy the base prompts to the newly created folder
-        for filename in base_files:
-            src = os.path.join(base_prompts_path, filename)
-            if os.path.isfile(src):  # Ensure it's a file before copying
-                dst = os.path.join(user_bot_path, filename)
-                shutil.copy2(src, dst)  # copy2 preserves file metadata
-                print(f'Copied {src} to {dst}')
-            else:
-                print(f'Source file not found: {src}')
-
-    else:
-        print(f'Directory already exists at: {user_bot_path}')
-    if not os.path.exists(f'nexus/{bot_name}/{username}/implicit_short_term_memory_nexus'):
-        os.makedirs(f'nexus/{bot_name}/{username}/implicit_short_term_memory_nexus')
-    if not os.path.exists(f'nexus/{bot_name}/{username}/explicit_short_term_memory_nexus'):
-        os.makedirs(f'nexus/{bot_name}/{username}/explicit_short_term_memory_nexus')
-    if not os.path.exists(f'nexus/{bot_name}/{username}/explicit_long_term_memory_nexus'):
-        os.makedirs(f'nexus/{bot_name}/{username}/explicit_long_term_memory_nexus')
-    if not os.path.exists(f'nexus/{bot_name}/{username}/implicit_long_term_memory_nexus'):
-        os.makedirs(f'nexus/{bot_name}/{username}/implicit_long_term_memory_nexus')
-    if not os.path.exists(f'nexus/{bot_name}/{username}/episodic_memory_nexus'):
-        os.makedirs(f'nexus/{bot_name}/{username}/episodic_memory_nexus')
-    if not os.path.exists(f'nexus/{bot_name}/{username}/flashbulb_memory_nexus'):
-        os.makedirs(f'nexus/{bot_name}/{username}/flashbulb_memory_nexus')
-    if not os.path.exists(f'nexus/{bot_name}/{username}/heuristics_nexus'):
-        os.makedirs(f'nexus/{bot_name}/{username}/heuristics_nexus')
-    if not os.path.exists(f'nexus/global_heuristics_nexus'):
-        os.makedirs(f'nexus/global_heuristics_nexus')
-    if not os.path.exists(f'nexus/{bot_name}/{username}/cadence_nexus'):
-        os.makedirs(f'nexus/{bot_name}/{username}/cadence_nexus')
-    if not os.path.exists(f'logs/{bot_name}/{username}/complete_chat_logs'):
-        os.makedirs(f'logs/{bot_name}/{username}/complete_chat_logs')
-    if not os.path.exists(f'logs/{bot_name}/{username}/final_response_logs'):
-        os.makedirs(f'logs/{bot_name}/{username}/final_response_logs')
-    if not os.path.exists(f'logs/{bot_name}/{username}/inner_monologue_logs'):
-        os.makedirs(f'logs/{bot_name}/{username}/inner_monologue_logs')
-    if not os.path.exists(f'logs/{bot_name}/{username}/intuition_logs'):
-        os.makedirs(f'logs/{bot_name}/{username}/intuition_logs')
-    if not os.path.exists(f'history/{username}'):
-        os.makedirs(f'history/{username}')
+def Local_Embed_Aether_Search():
     set_dark_ancient_theme()
     root = tk.Tk()
     app = ChatBotApplication(root)

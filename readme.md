@@ -5,7 +5,7 @@ Version .042a of Aetherius Personal Assistant by LibraryofCelsus.com
 
 **Experimental Folder Changelog**
 
--Added Alpaca instruct version using the Oobabooga API
+-Added Alpaca instruct version using the Oobabooga API.  Tested with TheBloke/Nous-Hermes-13B-SuperHOT-8K-GPTQ.
 
 -Changed prompts to be bot based instead of single prompt files.
 

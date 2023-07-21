@@ -5,6 +5,8 @@ Version .042a of Aetherius Personal Assistant by LibraryofCelsus.com
 
 **Experimental Folder Changelog**
 
+-Added Llama v2 chat version using the Oobabooga API.  Tested with TheBloke/Llama-2-13B-chat-GPTQ.  Still needs more work before it will function well with the 7B version.  I load with ExLlama with a max_seq_len of 4096, leaving the other options at 1.
+
 -Added Alpaca instruct version using the Oobabooga API.  Tested with TheBloke/Nous-Hermes-13B-SuperHOT-8K-GPTQ.
 
 -Changed prompts to be bot based instead of single prompt files.

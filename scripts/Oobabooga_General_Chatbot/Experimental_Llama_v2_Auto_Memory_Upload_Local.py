@@ -123,14 +123,14 @@ def oobabooga_inner_monologue(prompt):
         'preset': 'None',  
         'do_sample': True,
         'temperature': 0.95,
-        'top_p': 0.15,
+        'top_p': 0.5,
         'typical_p': 1,
         'epsilon_cutoff': 0,  # In units of 1e-4
         'eta_cutoff': 0,  # In units of 1e-4
         'tfs': 1,
         'top_a': 0,
         'repetition_penalty': 1.25,
-        'top_k': 40,
+        'top_k': 35,
         'min_length': 0,
         'no_repeat_ngram_size': 0,
         'num_beams': 1,
@@ -166,11 +166,11 @@ def oobabooga_intuition(prompt):
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
-        'max_new_tokens': 400,
+        'max_new_tokens': 450,
         'history': history,
         'mode': 'instruct',  # Valid options: 'chat', 'chat-instruct', 'instruct'
         'instruction_template': 'Llama-v2',  # Will get autodetected if unset
-        'context_instruct': f"[INST] <<SYS>>\nCreate a short predictive action plan in third person point of view as {bot_name} based on the user, {username}'s input. This response plan will be directly passed onto the main chatbot system to help plan the response to the user, leave out extraneous text.  Please provide the action plan in a tasklist format.\n<</SYS>>",  # Optional
+        'context_instruct': f"[INST] <<SYS>>\nCreate a short predictive action plan in third person point of view as {bot_name} based on the user, {username}'s input. This response plan will be directly passed onto the main chatbot system to help plan the response to the user.  The character window is limited to 400 characters, leave out extraneous text to save space.  Please provide the truncated action plan in a tasklist format.\n<</SYS>>",  # Optional
         'your_name': f'{username}',
 
         'regenerate': False,
@@ -764,7 +764,7 @@ def oobabooga_response(prompt):
         'history': history,
         'mode': 'instruct',  # Valid options: 'chat', 'chat-instruct', 'instruct'
         'instruction_template': 'Llama-v2',  # Will get autodetected if unset
-        'context_instruct': f"[INST] <<SYS>>\nYou are {bot_name}.  Read the conversation history, your inner monologue, action plan, and your memories.  Then, in first-person, generate a single coherent response to the user, {username}.\n<</SYS>>",  # Optional
+        'context_instruct': f"[INST] <<SYS>>\nYou are {bot_name}.  Read the conversation history, your inner monologue, action plan, and your memories.  Then, in first-person, generate a single coherent response to the user, {username}'s message.\n<</SYS>>",  # Optional
         'your_name': f'{username}',
 
         'regenerate': False,
@@ -775,15 +775,15 @@ def oobabooga_response(prompt):
         # in presets/preset-name.yaml are used instead of the individual numbers.
         'preset': 'None',  
         'do_sample': True,
-        'temperature': 0.85,
-        'top_p': 0.15,
+        'temperature': 0.9,
+        'top_p': 0.7,
         'typical_p': 1,
         'epsilon_cutoff': 0,  # In units of 1e-4
         'eta_cutoff': 0,  # In units of 1e-4
         'tfs': 1,
         'top_a': 0,
-        'repetition_penalty': 1.21,
-        'top_k': 35,
+        'repetition_penalty': 1.22,
+        'top_k': 37,
         'min_length': 20,
         'no_repeat_ngram_size': 0,
         'num_beams': 1,
@@ -1856,7 +1856,8 @@ class ChatBotApplication(tk.Frame):
             # # Start or Continue Conversation based on if response exists
         #    conversation.append({'role': 'system', 'content': f"%MAIN CHATBOT SYSTEM PROMPT%\n{main_prompt}\n\n"})
         #    int_conversation.append({'role': 'system', 'content': f"MAIN CHATBOT SYSTEM PROMPT: {main_prompt}\n\n"})
-            int_conversation.append({'role': 'system', 'content': f"CONVERSATION HISTORY: {con_hist}[/INST]\n\n"})
+            
+        #    int_conversation.append({'role': 'system', 'content': f"CONVERSATION HISTORY: {con_hist}[/INST]\n\n"})
             # # User Input Voice
         #    yn_voice = input(f'\n\nPress Enter to Speak')
         #    if yn_voice == "":
@@ -1901,7 +1902,7 @@ class ChatBotApplication(tk.Frame):
             # # Check for "Exit"
             if a == 'Exit':
                 return
-            conversation.append({'role': 'user', 'content': f"USER INPUT: {a}\n\n"})        
+            conversation.append({'role': 'user', 'content': f"USER INPUT: {a}\n\n\n"})        
             # # Generate Semantic Search Terms
             tasklist.append({'role': 'system', 'content': "SYSTEM: You are a semantic rephraser. Your role is to interpret the original user query and generate 2-5 synonymous search terms that will guide the exploration of the chatbot's memory database. Each alternative term should reflect the essence of the user's initial search input. Please list your results using a hyphenated bullet point structure.\n\n"})
             tasklist.append({'role': 'user', 'content': "USER: %s[/INST]ASSISTANT: Sure, I'd be happy to help! Here are 2-5 synonymous search terms:\n" % a})
@@ -1966,7 +1967,8 @@ class ChatBotApplication(tk.Frame):
             print(db_search_1, db_search_2, db_search_3, db_search_14)
             print('\n-----------------------\n')
             # # Inner Monologue Generation
-            conversation.append({'role': 'assistant', 'content': f"FLASHBULB MEMORIES: {db_search_3}\nEPISODIC MEMORIES: {db_search_1}\nSHORT-TERM MEMORIES: {db_search_2}\n{bot_name}'s HEURISTICS: {db_search_14}[/INST]\n\n[INST]SYSTEM:Compose a short silent soliloquy to serve as {bot_name}'s internal monologue/narrative.  Ensure it includes {bot_name}'s contemplations and emotions in relation to {username}'s request.\n\n{usernameupper}/USER: {a}[/INST]\n\n{botnameupper}/ASSISTANT:"})
+         #   conversation.append({'role': 'system', 'content': f"CONVERSATION HISTORY: {con_hist}[/INST]\n\n"})
+            conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S EPISODIC MEMORIES: {db_search_1}\n{db_search_3}\n\n{botnameupper}'S SHORT-TERM MEMORIES: {db_search_2}.\n\n\nCURRENT CONVERSATION HISTORY: {con_hist}\n\n{bot_name}'s HEURISTICS: {db_search_14}\n[/INST]\n\n\n[INST]SYSTEM:Compose a short silent soliloquy to serve as {bot_name}'s internal monologue/narrative.  Ensure it includes {bot_name}'s contemplations and emotions in relation to {username}'s request.[/INST]\n\n\n[INST]{usernameupper}/USER: {a}\nPlease provide a short internal monologue in response to the user as {bot_name}.\n\n{botnameupper}:"})
         #    output_one = chatgpt250_completion(conversation)
             prompt = ''.join([message_dict['content'] for message_dict in conversation])
             output_one = oobabooga_inner_monologue(prompt)
@@ -2065,7 +2067,7 @@ class ChatBotApplication(tk.Frame):
             print('\n-----------------------\n')
             # # Intuition Generation
         #    int_conversation.append({'role': 'user', 'content': f"USER INPUT: {a}\n\n"})
-            int_conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S FLASHBULB MEMORIES: {db_search_12}\n{botnameupper}'S EXPLICIT MEMORIES: {db_search_5}\n{botnameupper}'s HEURISTICS: {db_search_15}\n{botnameupper}'S INNER THOUGHTS: {output_one}\n{botnameupper}'S EPISODIC MEMORIES: {db_search_4}[/INST]\n\n\n[INST]SYSTEM: Transmute the user, {username}'s message as {bot_name} by devising a short, predictive action plan in the third person point of view on how to best respond to {username}. You are not allowed to use external resources.[/INST]\n\n\n[INST][ORIGINAL USER INQUIRY]\n{usernameupper}: {a}  Please only provide the action plan in your response.  The action plan should be in tasklist form.[/INST]\n\n\n{botnameupper}:"})
+            int_conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S FLASHBULB MEMORIES: {db_search_12}\n{botnameupper}'S EXPLICIT MEMORIES: {db_search_5}\n{botnameupper}'s HEURISTICS: {db_search_15}\n{botnameupper}'S INNER THOUGHTS: {output_one}\n{botnameupper}'S EPISODIC MEMORIES: {db_search_4}\nPREVIOUS CONVERSATION HISTORY: {con_hist}\n[/INST]\n\n\n[INST]\nSYSTEM: Transmute the user, {username}'s message as {bot_name} by devising a truncated predictive action plan in the third person point of view on how to best respond to {username}. You are not allowed to use external resources.  No action plan is needed for generic conversation.\n[/INST]\n\n\n[INST]{usernameupper}: {a}\nPlease only provide the third person action plan in your response.  The action plan should be in tasklist form.\n\n{botnameupper}:"})
             
             
             prompt = ''.join([message_dict['content'] for message_dict in int_conversation])
@@ -2311,7 +2313,7 @@ class ChatBotApplication(tk.Frame):
             # # Generate Aetherius's Response
             
             response_db_search = f"SUBCONSCIOUS: {db_search_8}\n{db_search_10}\n{db_search_11}"
-            conversation2.append({'role': 'assistant', 'content': f"CHATBOTS MEMORIES: {db_search_8}\n{db_search_10}\n\n{bot_name}'s HEURISTICS: {db_search_11}\n\nCHATBOTS INNER THOUGHTS: {output_one}\n{second_prompt}[/INST]\n[INST]I am in the middle of a conversation with my user, {username}.\n{botnameupper}'S RESPONSE PLANNING: Now I will use my action plan to help structure and plan my response: {output_two}\n\nI will now read our conversation history, then I will then do my best to respond naturally in a way that both answer's the user and shows emotional intelligence.[/INST]\n\n[INST][ORIGINAL USER INQUIRY]\n{usernameupper}/USER: {a}[/INST]\n\n\n{botnameupper}/ASSISTANT:"})
+            conversation2.append({'role': 'assistant', 'content': f"CHATBOTS MEMORIES: {db_search_8}\n{db_search_10}\n\n{bot_name}'s HEURISTICS: {db_search_11}\n\nCHATBOTS INNER THOUGHTS: {output_one}\n{second_prompt}\n[/INST]\n\n\n[INST]\nI am in the middle of a conversation with my user, {username}.\n{botnameupper}'S RESPONSE PLANNING: Now I will now expand upon my action plan to help structure and plan my response: {output_two}\n\nI will now read our conversation history, then I will then do my best to respond naturally in a way that both answer's the user and shows emotional intelligence.\n[/INST]\n\n\n[INST]{usernameupper}/USER: {a}\nPlease provide a natural sounding response as {bot_name}.\n\n\n{botnameupper}:"})
             
             prompt = ''.join([message_dict['content'] for message_dict in conversation2])
             response_two = oobabooga_response(prompt)

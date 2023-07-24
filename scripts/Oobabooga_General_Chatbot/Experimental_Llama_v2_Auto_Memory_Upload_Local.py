@@ -18,7 +18,7 @@ import threading
 import concurrent.futures
 import customtkinter
 import tkinter as tk
-from tkinter import ttk, scrolledtext, simpledialog, font
+from tkinter import ttk, scrolledtext, simpledialog, font, messagebox
 # import speech_recognition as sr
 # from gtts import gTTS
 # from playsound import playsound
@@ -111,7 +111,7 @@ def oobabooga_inner_monologue(prompt):
         'history': history,
         'mode': 'instruct',  # Valid options: 'chat', 'chat-instruct', 'instruct'
         'instruction_template': 'Llama-v2',  # Will get autodetected if unset
-        'context_instruct': f"[INST] <<SYS>>\nCompose a brief silent soliloquy as {bot_name}'s inner monologue that reflects on {bot_name}'s contemplations in relation to the user's current message.  Keep the length to one paragraph or shorter.\n<</SYS>>",  # Optional
+        'context_instruct': f"[INST] <<SYS>>\nCompose a brief silent soliloquy as {bot_name}'s inner monologue that reflects on {bot_name}'s contemplations in relation on how to respond to the user's most recent message.  Keep the length to one paragraph or shorter.\n<</SYS>>",  # Optional
         'your_name': f'{username}',
 
         'regenerate': False,
@@ -123,14 +123,14 @@ def oobabooga_inner_monologue(prompt):
         'preset': 'None',  
         'do_sample': True,
         'temperature': 0.95,
-        'top_p': 0.5,
+        'top_p': 0.6,
         'typical_p': 1,
         'epsilon_cutoff': 0,  # In units of 1e-4
         'eta_cutoff': 0,  # In units of 1e-4
         'tfs': 1,
         'top_a': 0,
         'repetition_penalty': 1.25,
-        'top_k': 35,
+        'top_k': 40,
         'min_length': 0,
         'no_repeat_ngram_size': 0,
         'num_beams': 1,
@@ -170,7 +170,7 @@ def oobabooga_intuition(prompt):
         'history': history,
         'mode': 'instruct',  # Valid options: 'chat', 'chat-instruct', 'instruct'
         'instruction_template': 'Llama-v2',  # Will get autodetected if unset
-        'context_instruct': f"[INST] <<SYS>>\nCreate a short predictive action plan in third person point of view as {bot_name} based on the user, {username}'s input. This response plan will be directly passed onto the main chatbot system to help plan the response to the user.  The character window is limited to 400 characters, leave out extraneous text to save space.  Please provide the truncated action plan in a tasklist format.\n<</SYS>>",  # Optional
+        'context_instruct': f"[INST] <<SYS>>\nCreate a short predictive action plan in third person point of view as {bot_name} based on the user, {username}'s input. This response plan will be directly passed onto the main chatbot system to help plan the response to the user.  The character window is limited to 400 characters, leave out extraneous text to save space.  Please provide the truncated action plan in a tasklist format.  Focus on informational requests, do not get caught in loops of asking for more information.\n<</SYS>>",  # Optional
         'your_name': f'{username}',
 
         'regenerate': False,
@@ -764,7 +764,7 @@ def oobabooga_response(prompt):
         'history': history,
         'mode': 'instruct',  # Valid options: 'chat', 'chat-instruct', 'instruct'
         'instruction_template': 'Llama-v2',  # Will get autodetected if unset
-        'context_instruct': f"[INST] <<SYS>>\nYou are {bot_name}.  Read the conversation history, your inner monologue, action plan, and your memories.  Then, in first-person, generate a single coherent response to the user, {username}'s message.\n<</SYS>>",  # Optional
+        'context_instruct': f"[INST] <<SYS>>\nYou are {bot_name}.  Read the conversation history, your inner monologue, action plan, and your memories.  Then, in first-person, generate a single comprehensive response to the user, {username}'s message.\n<</SYS>>",  # Optional
         'your_name': f'{username}',
 
         'regenerate': False,
@@ -775,15 +775,16 @@ def oobabooga_response(prompt):
         # in presets/preset-name.yaml are used instead of the individual numbers.
         'preset': 'None',  
         'do_sample': True,
-        'temperature': 0.9,
-        'top_p': 0.7,
+        'temperature': 0.85,
+        'top_p': 0.9,
         'typical_p': 1,
         'epsilon_cutoff': 0,  # In units of 1e-4
         'eta_cutoff': 0,  # In units of 1e-4
         'tfs': 1,
         'top_a': 0,
-        'repetition_penalty': 1.22,
-        'top_k': 37,
+        'repetition_penalty': 1.27,
+        'repetition_penalty_range': 0,
+        'top_k': 40,
         'min_length': 20,
         'no_repeat_ngram_size': 0,
         'num_beams': 1,
@@ -819,30 +820,30 @@ def oobabooga_auto(prompt):
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
-        'max_new_tokens': 3,
+        'max_new_tokens': 2,
         'history': history,
         'mode': 'instruct',  # Valid options: 'chat', 'chat-instruct', 'instruct'
         'instruction_template': 'Llama-v2',  # Will get autodetected if unset
-        'context_instruct': f"[INST] <<SYS>>\nPrint a rating of the chatbots inner thoughts between 1 and 10.\n<</SYS>>",  # Optional
+        'context_instruct': f"[INST] <<SYS>>\nYou are a chatbot memory gate.  Your task is to ensure the chatbot's congruency with the user's inquiry.  Rate the chatbot's outputs on a scale of 1 to 10. You are directly inputing into an answer field, only print the number.\n<</SYS>>",  # Optional
         'your_name': f'{username}',
 
         'regenerate': False,
         '_continue': False,
         'stop_at_newline': False,
-        'chat_generation_attempts': 2,
+        'chat_generation_attempts': 1,
         # Generation params. If 'preset' is set to different than 'None', the values
         # in presets/preset-name.yaml are used instead of the individual numbers.
         'preset': 'None',  
         'do_sample': True,
-        'temperature': 0.4,
-        'top_p': 0.1,
+        'temperature': 0.1,
+        'top_p': 0.25,
         'typical_p': 1,
         'epsilon_cutoff': 0,  # In units of 1e-4
         'eta_cutoff': 0,  # In units of 1e-4
         'tfs': 1,
         'top_a': 0,
-        'repetition_penalty': 1.18,
-        'top_k': 20,
+        'repetition_penalty': 1.25,
+        'top_k': 15,
         'min_length': 0,
         'no_repeat_ngram_size': 0,
         'num_beams': 1,
@@ -1116,6 +1117,96 @@ def DB_Upload_Heuristics(query):
         return query
         
         
+def ask_upload_implicit_memories(memories):
+    vdb = pinecone.Index("aetherius")
+    index_info = vdb.describe_index_stats()
+    username = open_file('./config/prompt_username.txt')
+    bot_name = open_file('./config/prompt_bot_name.txt')
+    timestamp = time()
+    timestring = timestamp_to_datetime(timestamp)
+    payload = list()
+    result = messagebox.askyesno("Upload Memories", "Do you want to upload memories?")
+    if result:
+        # User clicked "Yes"
+        lines = memories.splitlines()
+        for line in lines:
+            if line.strip() == '':  # This condition checks for blank lines
+                continue
+            else:
+                print(line)
+                vector = model.encode([line]).tolist()  # Assuming you have the gpt3_embedding function defined
+                unique_id = str(uuid4())
+                metadata = {'bot': bot_name, 'time': timestamp, 'message': line, 'timestring': timestring,
+                            'uuid': unique_id, "memory_type": "implicit_short_term"}
+                save_json(f'nexus/{bot_name}/{username}/implicit_short_term_memory_nexus/%s.json' % unique_id, metadata)
+                payload.append((unique_id, vector, {"memory_type": "implicit_short_term"}))
+                vdb.upsert(payload, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
+                payload.clear()
+        print('\n\nSYSTEM: Upload Successful!')
+    else:
+        # User clicked "No"
+        print('\n\nSYSTEM: Memories have been Deleted.')
+        
+        
+def ask_upload_explicit_memories(memories):
+    vdb = pinecone.Index("aetherius")
+    index_info = vdb.describe_index_stats()
+    username = open_file('./config/prompt_username.txt')
+    bot_name = open_file('./config/prompt_bot_name.txt')
+    timestamp = time()
+    timestring = timestamp_to_datetime(timestamp)
+    payload = list()
+    result = messagebox.askyesno("Upload Memories", "Do you want to upload memories?")
+    if result:
+        # User clicked "Yes"
+        lines = memories.splitlines()
+        for line in lines:
+            if line.strip() == '':  # This condition checks for blank lines
+                continue
+            else:
+                print(line)
+                vector = model.encode([line]).tolist()  # Assuming you have the gpt3_embedding function defined
+                unique_id = str(uuid4())
+                metadata = {'bot': bot_name, 'time': timestamp, 'message': line, 'timestring': timestring,
+                            'uuid': unique_id, "memory_type": "explicit_short_term"}
+                save_json(f'nexus/{bot_name}/{username}/explicit_short_term_memory_nexus/%s.json' % unique_id, metadata)
+                payload.append((unique_id, vector, {"memory_type": "explicit_short_term"}))
+                vdb.upsert(payload, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
+                payload.clear()
+        print('\n\nSYSTEM: Upload Successful!')
+    else:
+        # User clicked "No"
+        print('\n\nSYSTEM: Memories have been Deleted.')
+        
+        
+def ask_upload_episodic_memories(memories):
+    vdb = pinecone.Index("aetherius")
+    index_info = vdb.describe_index_stats()
+    username = open_file('./config/prompt_username.txt')
+    bot_name = open_file('./config/prompt_bot_name.txt')
+    timestamp = time()
+    timestring = timestamp_to_datetime(timestamp)
+    payload = list()
+    result = messagebox.askyesno("Upload Memories", "Do you want to upload memories?")
+    if result:
+        # User clicked "Yes"
+        vector = model.encode([timestring + '-' + conv_summary]).tolist()
+        unique_id = str(uuid4())
+        metadata = {'speaker': bot_name, 'time': timestamp, 'message': (timestring + '-' + conv_summary),
+                    'timestring': timestring, 'uuid': unique_id, "memory_type": "episodic", "user": username}
+        save_json(f'nexus/{bot_name}/{username}/episodic_memory_nexus/%s.json' % unique_id, metadata)
+        payload.append((unique_id, vector, {"memory_type": "episodic", "user": username}))
+        vdb.upsert(payload, namespace=f'{bot_name}')
+        payload.clear()
+        payload.append((unique_id, vector_input))
+        vdb.upsert(payload, namespace=f'{bot_name}_flash_counter')
+        payload.clear()
+        print('\n\nSYSTEM: Upload Successful!')
+    else:
+        # User clicked "No"
+        print('\n\nSYSTEM: Memories have been Deleted.')
+        
+        
 # Running Conversation List
 class MainConversation:
     def __init__(self, max_entries, prompt, greeting):
@@ -1169,6 +1260,12 @@ class MainConversation:
         if not os.path.exists(self.file_path) or not os.path.exists(self.file_path2):
             self.save_to_file()
         return self.main_conversation + ["\n\n".join(entry.split("\n\n")) for entry in self.running_conversation]
+        
+    def get_last_entry(self):
+        if self.running_conversation:
+            return self.running_conversation[-1]
+        else:
+            return None
         
     
 class ChatBotApplication(tk.Frame):
@@ -1762,7 +1859,7 @@ class ChatBotApplication(tk.Frame):
         counter2 = 0
         mem_counter = 0
         length_config = open_file('./config/Conversation_Length.txt')
-        conv_length = 2
+        conv_length = 3
         bot_name = open_file('./config/prompt_bot_name.txt')
         username = open_file('./config/prompt_username.txt')
         botnameupper = bot_name.upper()
@@ -1836,7 +1933,7 @@ class ChatBotApplication(tk.Frame):
             os.makedirs(f'history/{username}')
         #   r = sr.Recognizer()
         while True:
-            conversation_history = main_conversation.get_conversation_history()
+            conversation_history = main_conversation.get_last_entry()
             # # Get Timestamp
             vdb = timeout_check()
             timestamp = time()
@@ -1968,7 +2065,7 @@ class ChatBotApplication(tk.Frame):
             print('\n-----------------------\n')
             # # Inner Monologue Generation
          #   conversation.append({'role': 'system', 'content': f"CONVERSATION HISTORY: {con_hist}[/INST]\n\n"})
-            conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S EPISODIC MEMORIES: {db_search_1}\n{db_search_3}\n\n{botnameupper}'S SHORT-TERM MEMORIES: {db_search_2}.\n\n\nCURRENT CONVERSATION HISTORY: {con_hist}\n\n{bot_name}'s HEURISTICS: {db_search_14}\n[/INST]\n\n\n[INST]SYSTEM:Compose a short silent soliloquy to serve as {bot_name}'s internal monologue/narrative.  Ensure it includes {bot_name}'s contemplations and emotions in relation to {username}'s request.[/INST]\n\n\n[INST]{usernameupper}/USER: {a}\nPlease provide a short internal monologue in response to the user as {bot_name}.\n\n{botnameupper}:"})
+            conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S EPISODIC MEMORIES: {db_search_1}\n{db_search_3}\n\n{botnameupper}'S SHORT-TERM MEMORIES: {db_search_2}.\n\n{bot_name}'s HEURISTICS: {db_search_14}\n[/INST]\n\n\n[INST]SYSTEM:Compose a short silent soliloquy to serve as {bot_name}'s internal monologue/narrative.  Ensure it includes {bot_name}'s contemplations and emotions in relation to {username}'s request.[/INST]\n\n\n[INST]\nCURRENT CONVERSATION HISTORY: {con_hist}\n[/INST]\n\n\n[INST]\n{usernameupper}/USER: {a}\nPlease provide a short internal monologue contemplating the user's most recent message as {bot_name}.\n\n{botnameupper}:"})
         #    output_one = chatgpt250_completion(conversation)
             prompt = ''.join([message_dict['content'] for message_dict in conversation])
             output_one = oobabooga_inner_monologue(prompt)
@@ -2012,7 +2109,7 @@ class ChatBotApplication(tk.Frame):
         counter2 = 0
         mem_counter = 0
         length_config = open_file('./config/Conversation_Length.txt')
-        conv_length = 2
+        conv_length = 3
         bot_name = open_file('./config/prompt_bot_name.txt')
         username = open_file('./config/prompt_username.txt')
         botnameupper = bot_name.upper()
@@ -2067,7 +2164,7 @@ class ChatBotApplication(tk.Frame):
             print('\n-----------------------\n')
             # # Intuition Generation
         #    int_conversation.append({'role': 'user', 'content': f"USER INPUT: {a}\n\n"})
-            int_conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S FLASHBULB MEMORIES: {db_search_12}\n{botnameupper}'S EXPLICIT MEMORIES: {db_search_5}\n{botnameupper}'s HEURISTICS: {db_search_15}\n{botnameupper}'S INNER THOUGHTS: {output_one}\n{botnameupper}'S EPISODIC MEMORIES: {db_search_4}\nPREVIOUS CONVERSATION HISTORY: {con_hist}\n[/INST]\n\n\n[INST]\nSYSTEM: Transmute the user, {username}'s message as {bot_name} by devising a truncated predictive action plan in the third person point of view on how to best respond to {username}. You are not allowed to use external resources.  No action plan is needed for generic conversation.\n[/INST]\n\n\n[INST]{usernameupper}: {a}\nPlease only provide the third person action plan in your response.  The action plan should be in tasklist form.\n\n{botnameupper}:"})
+            int_conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S FLASHBULB MEMORIES: {db_search_12}\n{botnameupper}'S EXPLICIT MEMORIES: {db_search_5}\n{botnameupper}'s HEURISTICS: {db_search_15}\n{botnameupper}'S INNER THOUGHTS: {output_one}\n{botnameupper}'S EPISODIC MEMORIES: {db_search_4}\nPREVIOUS CONVERSATION HISTORY: {con_hist}\n[/INST]\n\n\n[INST]\nSYSTEM: Transmute the user, {username}'s message as {bot_name} by devising a truncated predictive action plan in the third person point of view on how to best respond to {username}'s most recent message. You are not allowed to use external resources.  Do not create a plan for generic conversation.  If the user is requesting information on a subject, give a plan on what information needs to be provided.\n[/INST]\n\n\n[INST]{usernameupper}: {a}\nPlease only provide the third person action plan in your response.  The action plan should be in tasklist form.\n\n{botnameupper}:"})
             
             
             prompt = ''.join([message_dict['content'] for message_dict in int_conversation])
@@ -2130,40 +2227,38 @@ class ChatBotApplication(tk.Frame):
             auto_count = 0
             auto.clear()
             auto.append({'role': 'system', 'content': f'MAIN CHATBOT SYSTEM PROMPT: {main_prompt}\n\n'})
-            auto.append({'role': 'user', 'content': "CURRENT SYSTEM PROMPT: You are a sub-module designed to reflect on your thought process. You are only able to respond with integers on a scale of 1-10, being incapable of printing letters.\n\n"})
-            auto.append({'role': 'user', 'content': f"USER INPUT: {a}\n\n"})
-            auto.append({'role': 'assistant', 'content': f"CHATBOTS INNER THOUGHTS: {output_one}\n{output_two}\n\nINSTRUCTIONS: I will now review the user's message and my inner thoughts, rating if whether my thoughts are both pertinent to the user's inquiry with a number on a scale of 1-10.[/INST]\nASSISTANT: Sure, here is my rating.\nRating:"})
+            auto.append({'role': 'user', 'content': "CURRENT SYSTEM PROMPT: You are a sub-module designed to reflect on your thought process. You are only able to respond with integers on a scale of 1-10, being incapable of printing letters.\n[/INST]\n\n\n"})
+            auto.append({'role': 'user', 'content': f"[INST]USER INPUT: {a}\n"})
+            auto.append({'role': 'assistant', 'content': f"CHATBOTS INNER THOUGHTS: {output_one}\n{output_two}\n\nINSTRUCTIONS: I will now review the user's message and my inner thoughts, rating if whether my thoughts are both pertinent to the user's input with a number on a scale of 1-10.\n[/INST]USER: Please now provide a rating of the chatbot's inner thoughts. The entry will be directly input into a field, so please only print a single number between 1 and 10.\n\nASSISTANT: Rating:"})
             auto_int = None
             while auto_int is None:
                 prompt = ''.join([message_dict['content'] for message_dict in auto])
                 automemory = oobabooga_auto(prompt)
             #    automemory = chatgptyesno_completion(auto)
                 print(automemory)
-                if "Rating:" in automemory:
-                    auto_str = automemory.split("Rating:")[1].strip()
-                    auto_int = int(auto_str)
-                    if is_integer(auto_int):
-                        if auto_int in [6, 7, 8, 9, 10]:
-                            lines = inner_loop_db.splitlines()
-                            for line in lines:
-                                if line.strip() == '':  # This condition checks for blank lines
-                                    continue
-                                else:
-                                    print(line)
-                                    vector = model.encode([line]).tolist()
-                                    unique_id = str(uuid4())
-                                    metadata = {'bot': bot_name, 'time': timestamp, 'message': line,
-                                                'timestring': timestring, 'uuid': unique_id, "memory_type": "implicit_short_term"}
-                                    save_json(f'nexus/{bot_name}/{username}/implicit_short_term_memory_nexus/%s.json' % unique_id, metadata)
-                                    payload.append((unique_id, vector, {"memory_type": "implicit_short_term"}))
-                                    vdb.upsert(payload, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
-                                    payload.clear()
-                            print('\n-----------------------\n')        
-                            print('\n\nSYSTEM: Auto-memory upload Successful!')
-                            print('\n-----------------------\n')
-                            break
+                values_to_check = ["6", "7", "8", "9", "10"]
+                if any(val in automemory for val in values_to_check):
+                    auto_int = ('Pass')
+                    lines = inner_loop_db.splitlines()
+                    for line in lines:
+                        if line.strip() == '':  # This condition checks for blank lines
+                            continue
                         else:
-                            print('Response not worthy of uploading to memory')
+                            print(line)
+                            vector = model.encode([line]).tolist()
+                            unique_id = str(uuid4())
+                            metadata = {'bot': bot_name, 'time': timestamp, 'message': line,
+                                        'timestring': timestring, 'uuid': unique_id, "memory_type": "implicit_short_term"}
+                            save_json(f'nexus/{bot_name}/{username}/implicit_short_term_memory_nexus/%s.json' % unique_id, metadata)
+                            payload.append((unique_id, vector, {"memory_type": "implicit_short_term"}))
+                            vdb.upsert(payload, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
+                            payload.clear()
+                        print('\n-----------------------\n')        
+                        print('\n\nSYSTEM: Auto-memory upload Successful!')
+                        print('\n-----------------------\n')
+                        break
+                    else:
+                        print('Response not worthy of uploading to memory')
                 else:
                     print("automemory failed to produce a rating. Retrying...")
                     auto_int = None
@@ -2203,7 +2298,7 @@ class ChatBotApplication(tk.Frame):
         counter2 = 0
         mem_counter = 0
         length_config = open_file('./config/Conversation_Length.txt')
-        conv_length = 2
+        conv_length = 3
         bot_name = open_file('./config/prompt_bot_name.txt')
         username = open_file('./config/prompt_username.txt')
         botnameupper = bot_name.upper()
@@ -2313,7 +2408,7 @@ class ChatBotApplication(tk.Frame):
             # # Generate Aetherius's Response
             
             response_db_search = f"SUBCONSCIOUS: {db_search_8}\n{db_search_10}\n{db_search_11}"
-            conversation2.append({'role': 'assistant', 'content': f"CHATBOTS MEMORIES: {db_search_8}\n{db_search_10}\n\n{bot_name}'s HEURISTICS: {db_search_11}\n\nCHATBOTS INNER THOUGHTS: {output_one}\n{second_prompt}\n[/INST]\n\n\n[INST]\nI am in the middle of a conversation with my user, {username}.\n{botnameupper}'S RESPONSE PLANNING: Now I will now expand upon my action plan to help structure and plan my response: {output_two}\n\nI will now read our conversation history, then I will then do my best to respond naturally in a way that both answer's the user and shows emotional intelligence.\n[/INST]\n\n\n[INST]{usernameupper}/USER: {a}\nPlease provide a natural sounding response as {bot_name}.\n\n\n{botnameupper}:"})
+            conversation2.append({'role': 'assistant', 'content': f"CHATBOTS MEMORIES: {db_search_8}\n{db_search_10}\n\n{bot_name}'s HEURISTICS: {db_search_11}\n\nCHATBOTS INNER THOUGHTS: {output_one}\n{second_prompt}\n[/INST]\n\n\n[INST]\nI am in the middle of a conversation with my user, {username}.\n{botnameupper}'S RESPONSE PLANNING: Now I will now complete my action plan and use it to help structure my response, prioritizing informational requests: {output_two}\n\nI will now read our conversation history, then I will then do my best to respond naturally in a way that both answer's the user and shows emotional intelligence.\n[/INST]\n\n\n[INST]{usernameupper}/USER: {a}\nPlease provide a natural sounding response as {bot_name} to the user's latest message.  Fufill the request to its entirety, questioning the user may lead to them being displeased.\n\n\n{botnameupper}:"})
             
             prompt = ''.join([message_dict['content'] for message_dict in conversation2])
             response_two = oobabooga_response(prompt)
@@ -2393,40 +2488,38 @@ class ChatBotApplication(tk.Frame):
             auto_count = 0
             auto.clear()
             auto.append({'role': 'system', 'content': f'MAIN CHATBOT SYSTEM PROMPT: {main_prompt}\n\n'})
-            auto.append({'role': 'user', 'content': "CURRENT SYSTEM PROMPT: You are a sub-module designed to reflect on your final response. You are only able to respond with integers on a scale of 1-10, being incapable of printing letters.\n\n"})
-            auto.append({'role': 'user', 'content': f"USER INPUT: {a}\n\n"})
-            auto.append({'role': 'assistant', 'content': f"CHATBOTS FINAL RESPONSE: {response_two}\n\nINSTRUCTIONS: I will now review the user's message and my inner thoughts, rating if whether my thoughts are both pertinent to the user's inquiry with a number on a scale of 1-10.[/INST]\nASSISTANT: Sure, here is my rating.\nRating:"})
+            auto.append({'role': 'user', 'content': "CURRENT SYSTEM PROMPT: You are a sub-module designed to reflect on your thought process. You are only able to respond with integers on a scale of 1-10, being incapable of printing letters.\n[/INST]\n\n\n"})
+            auto.append({'role': 'user', 'content': f"[INST]USER INPUT: {a}\n"})
+            auto.append({'role': 'assistant', 'content': f"CHATBOTS INNER THOUGHTS: {output_one}\n{output_two}\n\nINSTRUCTIONS: I will now review the user's message and my inner thoughts, rating if whether my thoughts are both pertinent to the user's input with a number on a scale of 1-10.\n[/INST]USER: Please now provide a rating of the chatbot's inner thoughts. The entry will be directly input into a field, so please only print a single number between 1 and 10.\n\nASSISTANT: Rating:"})
             auto_int = None
             while auto_int is None:
                 prompt = ''.join([message_dict['content'] for message_dict in auto])
                 automemory = oobabooga_auto(prompt)
             #    automemory = chatgptyesno_completion(auto)
                 print(automemory)
-                if "Rating:" in automemory:
-                    auto_str = automemory.split("Rating:")[1].strip()
-                    auto_int = int(auto_str)
-                    if is_integer(auto_int):
-                        if auto_int in [6, 7, 8, 9, 10]:
-                            lines = db_upload.splitlines()
-                            for line in lines:
-                                if line.strip() == '':  # This condition checks for blank lines
-                                    continue
-                                else:
-                                    print(line)
-                                    vector = model.encode([line]).tolist()
-                                    unique_id = str(uuid4())
-                                    metadata = {'bot': bot_name, 'time': timestamp, 'message': line,
-                                                'timestring': timestring, 'uuid': unique_id, "memory_type": "explicit_short_term"}
-                                    save_json(f'nexus/{bot_name}/{username}/explicit_short_term_memory_nexus/%s.json' % unique_id, metadata)
-                                    payload.append((unique_id, vector, {"memory_type": "explicit_short_term"}))
-                                    vdb.upsert(payload, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
-                                    payload.clear()
-                            print('\n-----------------------\n')        
-                            print('\n\nSYSTEM: Auto-memory upload Successful!')
-                            print('\n-----------------------\n')
-                            break
+                values_to_check = ["6", "7", "8", "9", "10"]
+                if any(val in automemory for val in values_to_check):
+                    auto_int = ('Pass')
+                    lines = db_upload.splitlines()
+                    for line in lines:
+                        if line.strip() == '':  # This condition checks for blank lines
+                            continue
                         else:
-                            print('Response not worthy of uploading to memory')
+                            print(line)
+                            vector = model.encode([line]).tolist()
+                            unique_id = str(uuid4())
+                            metadata = {'bot': bot_name, 'time': timestamp, 'message': line,
+                                        'timestring': timestring, 'uuid': unique_id, "memory_type": "explicit_short_term"}
+                            save_json(f'nexus/{bot_name}/{username}/explicit_short_term_memory_nexus/%s.json' % unique_id, metadata)
+                            payload.append((unique_id, vector, {"memory_type": "explicit_short_term"}))
+                            vdb.upsert(payload, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
+                            payload.clear()
+                        print('\n-----------------------\n')        
+                        print('\n\nSYSTEM: Auto-memory upload Successful!')
+                        print('\n-----------------------\n')
+                        break
+                    else:
+                        print('Response not worthy of uploading to memory')
                 else:
                     print("automemory failed to produce an integer. Retrying...")
                     auto_int = None
@@ -2468,7 +2561,7 @@ class ChatBotApplication(tk.Frame):
         counter2 = 0
         mem_counter = 0
         length_config = open_file('./config/Conversation_Length.txt')
-        conv_length = 2
+        conv_length = 3
         bot_name = open_file('./config/prompt_bot_name.txt')
         username = open_file('./config/prompt_username.txt')
         botnameupper = bot_name.upper()

@@ -1,27 +1,19 @@
 # Aetherius
-Version .042a of Aetherius Personal Assistant by LibraryofCelsus.com
+Version .042b of Aetherius Personal Assistant/Companion by LibraryofCelsus.com
 
-**GUI Update!**
+**What is Aetherius?**  Aetherius is an Ai LLM Retrieval Framework focused on bringing realistic long-term memory and thought formation to a customizable chatbot/companion. I am repulsed by the rampant personal consumer data that is sent to companies without thought, the ability to be manipulated increases evermore with the advent of personalized Ai companions.  My goal is to create a local Ai Companion in which you actually have control over and own. One that cannot be changed by an external force to subtly manipulate.  Eventually Aetherius will be 100% private and ran locally, using given files and web-scrapes for a larger knowledge base. Currently it still uses pinecone.io for a Database, as of now I am still struggling to find a good replacement. 
+
+Note: The current Version of Aetherius should be seen as a tech demo to play around with, while it is usable, I constantly make changes to the architecture and updating the scripts may break whatever bot you are talking to.
+
+
+
+**Local Llama-2 Update**
 
 **Experimental Folder Changelog**
 
+-Llama 2 Version is now mostly functioning as intended, this is the first local model that I have actually felt is capable of running Aetherius.  I am now working on converting the webscrape and file process tools.
+
 -Added Llama v2 chat version using the Oobabooga API.  Tested with TheBloke/Llama-2-13B-chat-GPTQ.  Still needs more work before it will function well with the 7B version.  I load with ExLlama with a max_seq_len of 4096, leaving the other options at 1.
-
--Added Alpaca instruct version using the Oobabooga API.  Tested with TheBloke/Nous-Hermes-13B-SuperHOT-8K-GPTQ.
-
--Changed prompts to be bot based instead of single prompt files.
-
--Better finetuned internal prompts for smaller models.  Should now actually be usable.  Now attempting to get it to work with TheBloke/Wizard-Vicuna-7B-Uncensored-SuperHOT-8K-GPTQ.
-
--Added Experimental Oobabooga only Aethersearch.  Still needs alot of work.
-
--Oobabooga Chatbot prompts have been better finetuned and it performs much better.
-
--Added Experimental Oobabooga Version of the webscrape tool.  As of now only the webscrape and search use the Oobabooga api, chatbot part still uses Open Ai.
-
--Added Local Embedding Version of the OpenAi API chatbot.  This version uses a 768 dimension Index.
-
--Added Experimental Oobabooga API conversion.  Prompts still need to be finetuned.  Tested with TheBloke/Wizard-Vicuna-13B-Uncensored-HF.  A new Index on Pinecone needs to be created to use this using 768 Dimensions instead of 1536.
 
 ------
 
@@ -63,6 +55,10 @@ Currently, Aetherius's main focus is creating a good architecture for realistic 
 Aetherius aims to provide a modular, personalized AI assistant experience by enabling the addition of task-specific Modules and Sub-Modules. If all goes as planned, Aetherius will support integration with other open-source projects and models.
 
 # Changelog:
+0.042b
+
+-Local Llama 2 update, works well, but still needs to be improved.
+
 0.042a
 
 -Added Webscrape Delete Button
@@ -92,7 +88,7 @@ Aetherius aims to provide a modular, personalized AI assistant experience by ena
 
 0.04b
 
--Readded Users
+-Re-added Users
 
 -Various Bug Fixes
 
@@ -183,7 +179,8 @@ Aetherius aims to provide a modular, personalized AI assistant experience by ena
 -Auto Memory Upload bug fix
 
 ## Future Plans
--Give Aetherius tools like web-search
+
+-Convert to a local DB solution instead of Pinecone
 
 -Improve Aetherius's self reflection
 
@@ -197,7 +194,6 @@ Aetherius aims to provide a modular, personalized AI assistant experience by ena
 
 -Text-Rpg submodule for World Creator
 
--Generative Q/A Module from own Dataset
 
 # Installation Guide
 
@@ -213,13 +209,13 @@ Launch Aetherius with **run.bat**
 
 At pinecone.io, create an index named "Aetherius" with 768 dimensions and "cosine" as the metric.
 
-Upload heuristics to DB and start chatting with Aetheius. Heuristic examples, and files to modify prompts can be found in the config folder!  Prompts can also be edited through the Config Menu.
+Upload heuristics to DB and start chatting with Aetherius. Heuristic examples, and files to modify prompts can be found in the config folder!  Prompts can also be edited through the Config Menu.
 
 To run Aetherius Locally using Oobabooga, first install the web-ui at: https://github.com/oobabooga/text-generation-webui
 
 Then, under the "Interface Mode" tab, enable the api checkbox in both fields. Then click apply and restart the interface.
 
-Next, navigate to the models tab. Uncheck the autoload models box and then input "TheBloke/Wizard-Vicuna-13B-Uncensored-SuperHOT-8K-GPTQ" into the downloads box. Other models may work, but this is the one that is tested.
+Next, navigate to the models tab. Uncheck the autoload models box and then input "TheBloke/Llama-2-13B-GPTQ" into the downloads box. Other models may work, but this is the one that is tested.
 
 Once the download is completed, reload the model selection menu and then select the model. Change the model loader to Exllama and set the max_seq_len to "8192" and compress_pos_emb to "4".
 
@@ -255,7 +251,7 @@ Click the "load" button and load the model. The Oobabooga API bots should now wo
 
 12. Copy Api key for that Index and paste it in key_pinecone.txt
 
-13. Copy the Pinecone Enviornment and paste it in key_pinecone_env.txt
+13. Copy the Pinecone Environment and paste it in key_pinecone_env.txt
 
 14. Copy your Google Api key to key_google.txt
 
@@ -277,11 +273,12 @@ Click the "load" button and load the model. The Oobabooga API bots should now wo
 
 26. Then, under the "Interface Mode" tab, enable the api checkbox in both fields.  Then click apply and restart the interface.
 
-27. Next, navigate to the models tab. Uncheck the autoload models box and then input "TheBloke/Wizard-Vicuna-13B-Uncensored-SuperHOT-8K-GPTQ" into the downloads box. Other models may work, but this is the one that is tested.
+27. Next, navigate to the models tab. Uncheck the autoload models box and then input "TheBloke/Llama-2-13B-GPTQ" into the downloads box. Other models may work, but this is the one that is tested.
 
-28. Once the download is completed, reload the model selection menu and then select the model. Change the model loader to Exllama and set the max_seq_len to "8192" and compress_pos_emb to "4".
+28. Once the download is completed, reload the model selection menu and then select the model. Change the model loader to Exllama and set the max_seq_len to "4096".
 
 29. Click the "load" button and load the model.  The Oobabooga API bots should now work!
+
 
 
 # Contact

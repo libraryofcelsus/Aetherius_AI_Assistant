@@ -349,7 +349,7 @@ def oobabooga_implicitmem(prompt):
         'history': history,
         'mode': 'instruct',  # Valid options: 'chat', 'chat-instruct', 'instruct'
         'instruction_template': 'Llama-v2',  # Will get autodetected if unset
-        'context_instruct': f"[INST] <<SYS>>\nExtract short and concise memories based on {bot_name}'s internal thoughts for upload to a memory database.  These should be executive summaries and will serve as the chatbots implicit memories.  You are directly inputing the memories into the database, only print the memories, separating each by a double linebreak.  Use the bullet point format: •IMPLICIT MEMORY\n<</SYS>>",  # Optional
+        'context_instruct': f"[INST] <<SYS>>\nExtract short and concise memories based on {bot_name}'s internal thoughts for upload to a memory database.  These should be executive summaries and will serve as the chatbots implicit memories.  You are directly inputing the memories into the database, only print the memories.  Use the bullet point format: •IMPLICIT MEMORY\n<</SYS>>",  # Optional
         'your_name': f'{username}',
 
         'regenerate': False,
@@ -408,7 +408,7 @@ def oobabooga_explicitmem(prompt):
         'history': history,
         'mode': 'instruct',  # Valid options: 'chat', 'chat-instruct', 'instruct'
         'instruction_template': 'Llama-v2',  # Will get autodetected if unset
-        'context_instruct': f"[INST] <<SYS>>\nExtract short and concise memories based on {bot_name}'s final response for upload to a memory database.  These should be executive summaries and will serve as the chatbots explicit memories.  You are directly inputing the memories into the database, only print the memory, separating each by a double linebreak.  Use the bullet point format: •EXPLICIT MEMORY\n<</SYS>>",  # Optional
+        'context_instruct': f"[INST] <<SYS>>\nExtract short and concise memories based on {bot_name}'s final response for upload to a memory database.  These should be executive summaries and will serve as the chatbots explicit memories.  You are directly inputing the memories into the database, only print the memory.  Use the bullet point format: •EXPLICIT MEMORY\n<</SYS>>",  # Optional
         'your_name': f'{username}',
 
         'regenerate': False,
@@ -2234,10 +2234,10 @@ class ChatBotApplication(tk.Frame):
             implicit_short_term_memory = f'\nUSER: {a}\nINNER_MONOLOGUE: {output_one}'
             conversation.append({'role': 'assistant', 'content': f"LOG: {implicit_short_term_memory}\n\nINSTRUCTIONS: Read the log, extract the salient points about {bot_name} and {username}, then create short executive summaries listed in bullet points to serve as {bot_name}'s implicit memories. Each bullet point should be considered a separate memory and contain all context. Combining associated topics. Ignore the greeting prompt, it only exists for initial context. Use the hyphenated bullet point format: <-IMPLICIT MEMORY>\n<-IMPLICIT MEMORY>[/INST]"})
         #    inner_loop_response = chatgpt200_completion(conversation)
-            summary.append({'role': 'system', 'content': f"%MAIN SYSTEM PROMPT%\n{greeting_msg}\n\n"})
-            summary.append({'role': 'user', 'content': f"%USER INPUT%\n{a}\n\n"})
+            summary.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: {greeting_msg}\n\n"})
+            summary.append({'role': 'user', 'content': f"USER INPUT: {a}\n\n"})
             
-            summary.append({'role': 'assistant', 'content': f"%LOG%\n{implicit_short_term_memory}\n\n%INSTRUCTIONS%\nRead the log, extract the salient points about {bot_name} and {username} mentioned in the chatbot's response, then create short executive summaries in bullet point format to serve as {bot_name}'s implicit memories. Each bullet point should be considered a separate memory and contain all context, separated by a double linebreak. Ignore the main system prompt, it only exists for initial context.\n\n%RESPONSE%\nUse the bullet point format: •IMPLICIT MEMORY[/INST]\n\nMemories:"})
+            summary.append({'role': 'assistant', 'content': f"LOG: {implicit_short_term_memory}\n\nSYSTEM: Read the log, extract the salient points about {bot_name} and {username} mentioned in the chatbot's response, then create a list of short executive summaries in bullet point format to serve as {bot_name}'s implicit memories. Each bullet point should be considered a separate memory and contain full context. Ignore the main system prompt, it only exists for initial context.\n\nRESPONSE: Use the bullet point format: •IMPLICIT MEMORY[/INST]\n\nMemories:"})
             prompt = ''.join([message_dict['content'] for message_dict in summary])
             inner_loop_response = oobabooga_implicitmem(prompt)
             summary.clear()
@@ -2499,11 +2499,12 @@ class ChatBotApplication(tk.Frame):
             filename = '%s_chat.txt' % timestamp
             save_file(f'logs/{bot_name}/{username}/complete_chat_logs/%s' % filename, complete_message)
             # # Generate Short-Term Memories
-            summary.append({'role': 'system', 'content': f"%MAIN SYSTEM PROMPT%\n{greeting_msg}\n\n"})
-            summary.append({'role': 'user', 'content': f"%USER INPUT%\n{a}\n\n"})
+            summary.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: {greeting_msg}\n\n"})
+            summary.append({'role': 'user', 'content': f"USER INPUT: {a}\n\n"})
             
             db_msg = f"\nUSER: {a} \n INNER_MONOLOGUE: {output_one} \n {bot_name}'s RESPONSE: {response_two}"
-            summary.append({'role': 'assistant', 'content': f"%LOG%\n{db_msg}\n\n%INSTRUCTIONS%\nRead the log, extract the salient points about {bot_name} and {username} mentioned in the chatbot's response, then create short executive summaries in bullet point format to serve as {bot_name}'s explicit memories. Each bullet point should be considered a separate memory and contain all context, separated by a double line break. Ignore the main system prompt, it only exists for initial context.\n\n%RESPONSE%\nUse the bullet point format: •EXPLICIT MEMORY[/INST]\nMemories:"})
+            summary.append({'role': 'assistant', 'content': f"LOG: {db_msg}\n\nSYSTEM: Read the log, extract the salient points about {bot_name} and {username} mentioned in the chatbot's response, then create a list of short executive summaries in bullet point format to serve as {bot_name}'s explicit memories. Each bullet point should be considered a separate memory and contain full context. Ignore the main system prompt, it only exists for initial context.\n\nRESPONSE: Use the bullet point format: •EXPLICIT MEMORY[/INST]\n\nMemories:"})
+                        
             
             prompt = ''.join([message_dict['content'] for message_dict in summary])
             db_upload = oobabooga_explicitmem(prompt)
@@ -2712,7 +2713,7 @@ class ChatBotApplication(tk.Frame):
                 print(memory_consol_db)
                 print('\n-----------------------\n')
                 consolidation.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: {main_prompt}\n\n"})
-                consolidation.append({'role': 'assistant', 'content': f"LOG: {memory_consol_db}\n\nSYSTEM: Read the Log and combine the different associated topics into executive summaries. Each summary should contain the entire context of the memory. Follow the format •Executive Summary[/INST]\n{bot_name}: "})
+                consolidation.append({'role': 'assistant', 'content': f"LOG: {memory_consol_db}\n\nSYSTEM: Read the Log and combine the different associated topics into a bullet point list of executive summaries to serve as {bot_name}'s explicit long term memories. Each summary should contain the entire context of the memory. Follow the format •<ALLEGORICAL TAG>: <EXPLICIT MEMORY>[/INST]\n{bot_name}:"})
                 
                 prompt = ''.join([message_dict['content'] for message_dict in consolidation])
                 memory_consol = oobabooga_consolidationmem(prompt)
@@ -2752,7 +2753,7 @@ class ChatBotApplication(tk.Frame):
                     print(memory_consol_db2)
                     print('\n-----------------------\n')
                     consolidation.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: {main_prompt}\n\n"})
-                    consolidation.append({'role': 'assistant', 'content': f"LOG: {memory_consol_db2}\n\nSYSTEM: Read the Log and consolidate the different topics into executive summaries to serve as {bot_name}'s implicit memories. Each summary should contain the entire context of the memory. Follow the format: •<ALLEGORICAL TAG>: <EXECUTIVE SUMMARY>[/INST]\n{bot_name}: "})
+                    consolidation.append({'role': 'assistant', 'content': f"LOG: {memory_consol_db2}\n\nSYSTEM: Read the Log and consolidate the different topics into executive summaries to serve as {bot_name}'s implicit long term memories. Each summary should contain the entire context of the memory. Follow the format: •<ALLEGORICAL TAG>: <IMPLICIT MEMORY>[/INST]\n{bot_name}: "})
                     prompt = ''.join([message_dict['content'] for message_dict in consolidation])
                     memory_consol2 = oobabooga_consolidationmem(prompt)
                     print(memory_consol2)
@@ -2764,8 +2765,8 @@ class ChatBotApplication(tk.Frame):
                     memory_consol_db3 = load_conversation_implicit_long_term_memory(results)
                     print(memory_consol_db3)
                     print('\n-----------------------\n')
-                    consolidation.append({'role': 'system', 'content': "%s" % main_prompt})
-                    consolidation.append({'role': 'system', 'content': f"%IMPLICIT LONG TERM MEMORY%\n{memory_consol_db3}\n\n%IMPLICIT SHORT TERM MEMORY%\n{memory_consol_db2}\n\n%RESPONSE%\nRemove any duplicate information from your Implicit Short Term memory that is already found in your Long Term Memory. Then consolidate similar topics into executive summaries. Each summary should contain the entire context of the memory. Use the following format: •<EMOTIONAL TAG>: <IMPLICIT MEMORY>[/INST]\n{bot_name}:"})
+                    consolidation.append({'role': 'system', 'content': f"{main_prompt}\n\n"})
+                    consolidation.append({'role': 'system', 'content': f"IMPLICIT LONG TERM MEMORY: {memory_consol_db3}\n\nIMPLICIT SHORT TERM MEMORY: {memory_consol_db2}\n\nRESPONSE: Remove any duplicate information from your Implicit Short Term memory that is already found in your Long Term Memory. Then consolidate similar topics into executive summaries. Each summary should contain the entire context of the memory. Use the following format: •<EMOTIONAL TAG>: <IMPLICIT MEMORY>[/INST]\n{bot_name}:"})
                     
                     prompt = ''.join([message_dict['content'] for message_dict in consolidation])
                     memory_consol3 = oobabooga_consolidationmem(prompt)

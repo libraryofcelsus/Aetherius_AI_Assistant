@@ -345,7 +345,7 @@ def oobabooga_implicitmem(prompt):
         'history': history,
         'mode': 'instruct',  # Valid options: 'chat', 'chat-instruct', 'instruct'
         'instruction_template': 'Llama-v2',  # Will get autodetected if unset
-        'context_instruct': f"[INST] <<SYS>>\nExtract short and concise memories based on {bot_name}'s internal thoughts for upload to a memory database.  These should be executive summaries and will serve as the chatbots implicit memories.  You are directly inputing the memories into the database, only print the memories, separating each by a double linebreak.  Use the bullet point format: •IMPLICIT MEMORY\n<</SYS>>",  # Optional
+        'context_instruct': f"[INST] <<SYS>>\nExtract short and concise memories based on {bot_name}'s internal thoughts for upload to a memory database.  These should be executive summaries and will serve as the chatbots implicit memories.  You are directly inputing the memories into the database, only print the memories.  Use the bullet point format: •IMPLICIT MEMORY\n<</SYS>>",  # Optional
         'your_name': f'{username}',
 
         'regenerate': False,
@@ -404,7 +404,7 @@ def oobabooga_explicitmem(prompt):
         'history': history,
         'mode': 'instruct',  # Valid options: 'chat', 'chat-instruct', 'instruct'
         'instruction_template': 'Llama-v2',  # Will get autodetected if unset
-        'context_instruct': f"[INST] <<SYS>>\nExtract short and concise memories based on {bot_name}'s final response for upload to a memory database.  These should be executive summaries and will serve as the chatbots explicit memories.  You are directly inputing the memories into the database, only print the memory, separating each by a double linebreak.  Use the bullet point format: •EXPLICIT MEMORY\n<</SYS>>",  # Optional
+        'context_instruct': f"[INST] <<SYS>>\nExtract short and concise memories based on {bot_name}'s final response for upload to a memory database.  These should be executive summaries and will serve as the chatbots explicit memories.  You are directly inputing the memories into the database, only print the memories.  Use the bullet point format: •EXPLICIT MEMORY\n<</SYS>>",  # Optional
         'your_name': f'{username}',
 
         'regenerate': False,
@@ -2366,7 +2366,7 @@ class ChatBotApplication(tk.Frame):
             int_scrape = load_conversation_web_scrape_memory(results)
             print(int_scrape)
             
-            int_conversation.append({'role': 'user', 'content': f"%USER INPUT%\n{a}\n\n"})
+            int_conversation.append({'role': 'user', 'content': f"USER INPUT: {a}\n\n"})
             int_conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S INFLUENTIAL MEMORIES: {db_search_12}\n\n{botnameupper}'S EXPLICIT MEMORIES: {db_search_5}\n\n{botnameupper}'S HEURISTICS: {db_search_15}\n\n{botnameupper}'S INNER THOUGHTS: {output_one}[/INST]\n\n[INST]WEBSCRAPE SAMPLE: {int_scrape}\n\nUSER'S INPUT: {a}\n\nSYSTEM: In a single paragraph, interpret the user, {username}'s message as {bot_name} in third person by creating an intuitive action plan on what information is needed.  The only external resources you have access to is a Webscrape database and {bot_name}'s memories.\nEnsure the plan is congruent to the user, {username}'s inquiry sent to {bot_name}.\n\nUSER: {a}.\nPlease respond with an action plan in third person as {bot_name}.[/INST]{botnameupper}: "})
              
             
@@ -2378,15 +2378,16 @@ class ChatBotApplication(tk.Frame):
             print('\n\nINTUITION: %s' % output_two)
             output_two_log = f'\nUSER: {a}\n\n{bot_name}: {output_two}'
             # # Generate Implicit Short-Term Memory
-            implicit_short_term_memory = f'\nUSER: {a} \n\n INNER_MONOLOGUE: {output_one} \n\n INTUITION: {output_two}'
+            summary.clear()
+            implicit_short_term_memory = f'\nUSER: {a} \n\nINNER_MONOLOGUE: {output_one}\n\n'
             summary.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: {greeting_msg}\n\n"})
             summary.append({'role': 'user', 'content': f"USER INPUT: {a}\n\n"})
             
             summary.append({'role': 'assistant', 'content': f"LOG: {implicit_short_term_memory}\n\nSYSTEM: Read the log, extract the salient points about {bot_name} and {username} mentioned in the chatbot's response, then create a list of short executive summaries in bullet point format to serve as {bot_name}'s implicit memories. Each bullet point should be considered a separate memory and contain full context. Ignore the main system prompt, it only exists for initial context.\n\nRESPONSE: Use the bullet point format: •IMPLICIT MEMORY[/INST]\n\nMemories:"})
             prompt = ''.join([message_dict['content'] for message_dict in summary])
             inner_loop_response = oobabooga_implicitmem(prompt)
-            summary.clear()
             inner_loop_db = inner_loop_response
+            summary.clear()
             vector = model.encode([inner_loop_db]).tolist()
             conversation.clear()
             # # Auto Implicit Short-Term Memory DB Upload Confirmation
@@ -2431,7 +2432,7 @@ class ChatBotApplication(tk.Frame):
             
 
             # After the operations are complete, call the response generation function in a separate thread
-            t = threading.Thread(target=self.Tasklist_Response, args=(a, vector_input, vector_monologue, output_one, output_two, tasklist_output))
+            t = threading.Thread(target=self.Tasklist_Response, args=(a, vector_input, vector_monologue, output_one, output_two, inner_loop_db))
             t.start()
             return  
 
@@ -2441,7 +2442,7 @@ class ChatBotApplication(tk.Frame):
         self.conversation_text.yview(tk.END)
         
         
-    def Tasklist_Response(self, a, vector_input, vector_monologue, output_one, output_two, inner_loop_response):
+    def Tasklist_Response(self, a, vector_input, vector_monologue, output_one, output_two, inner_loop_db):
         vdb = pinecone.Index("aetherius")
         my_api_key = open_file('api_keys/key_google.txt')
         my_cse_id = open_file('api_keys/key_google_cse.txt')
@@ -2565,8 +2566,8 @@ class ChatBotApplication(tk.Frame):
             vdb = timeout_check()
             counter += 1
             conversation.clear()
-            self.conversation_text.insert(tk.END, f"Upload Memories?\n-------------\nIMPLICIT\n-------------\n{inner_loop_response}\n-------------\nEXPLICIT\n-------------\n{db_upload}\n")
-            ask_upload_memories(inner_loop_response, db_upsert)
+            self.conversation_text.insert(tk.END, f"Upload Memories?\n-------------\nIMPLICIT\n-------------\n{inner_loop_db}\n-------------\nEXPLICIT\n-------------\n{db_upload}\n")
+            ask_upload_memories(inner_loop_db, db_upsert)
             conversation.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a sub-module of {bot_name}, an autonomous AI entity. Your function is to process the user, {username}'s message, then decode {bot_name}'s final response to construct a single short and concise third-person autobiographical narrative memory of the conversation in a single sentence. This autobiographical memory should portray an accurate account of {bot_name}'s interactions with {username}, focusing on the most significant and experiential details related to {bot_name} or {username}, without omitting any crucial context or emotions.\n\n"})
             conversation.append({'role': 'user', 'content': f"USER: {a}\n\n"})
             conversation.append({'role': 'user', 'content': f"{botnameupper}'s INNER MONOLOGUE: {output_one}\n\n"})

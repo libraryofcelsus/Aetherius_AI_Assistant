@@ -215,7 +215,7 @@ To run Aetherius Locally using Oobabooga, first install the web-ui at: https://g
 
 Then, under the "Interface Mode" tab, enable the api checkbox in both fields. Then click apply and restart the interface.
 
-Next, navigate to the models tab. Uncheck the autoload models box and then input "TheBloke/Llama-2-13B-GPTQ" into the downloads box. Other models may work, but this is the one that is tested.
+Next, navigate to the models tab. Uncheck the autoload models box and then input "TheBloke/Llama-2-13B-chat-GPTQ" into the downloads box. Other models may work, but this is the one that is tested.
 
 Once the download is completed, reload the model selection menu and then select the model. Change the model loader to Exllama and set the max_seq_len to "4096".
 
@@ -273,7 +273,7 @@ Click the "load" button and load the model. The Oobabooga API bots should now wo
 
 26. Then, under the "Interface Mode" tab, enable the api checkbox in both fields.  Then click apply and restart the interface.
 
-27. Next, navigate to the models tab. Uncheck the autoload models box and then input "TheBloke/Llama-2-13B-GPTQ" into the downloads box. Other models may work, but this is the one that is tested.
+27. Next, navigate to the models tab. Uncheck the autoload models box and then input "TheBloke/Llama-2-13B-chat-GPTQ" into the downloads box. Other models may work, but this is the one that is tested.
 
 28. Once the download is completed, reload the model selection menu and then select the model. Change the model loader to Exllama and set the max_seq_len to "4096".
 

@@ -2227,7 +2227,7 @@ class ChatBotApplication(tk.Frame):
             db_term_result = {}
             db_term_result2 = {}
             tasklist_counter = 0
-            # # Split bullet points into separate lines to be used as individual queries during a parallel db search
+            # # Split bullet points into separate lines to be used as individual queries during a parallel db search     
             with concurrent.futures.ThreadPoolExecutor() as executor:
                 futures = [
                     executor.submit(
@@ -2242,48 +2242,40 @@ class ChatBotApplication(tk.Frame):
                             db_term_result2.update({_index: load_conversation_implicit_long_term_memory(results)}),
                             conversation.append({'role': 'assistant', 'content': f"LONG TERM CHATBOT MEMORIES: {db_term_result[_index]}\n"}),
                             conversation.append({'role': 'assistant', 'content': f"LONG TERM CHATBOT MEMORIES: {db_term_result2[_index]}\n"}),
+                            print(f'{db_term_result[_index]}\n{db_term_result2[_index]}')
                             (
                                 int_conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S LONG TERM MEMORIES: {db_term_result[_index]}\n"}),
-                                int_conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S LONG TERM MEMORIES: {db_term_result2[_index]}\n"})
+                                int_conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S LONG TERM MEMORIES: {db_term_result2[_index]}\n"}),
                             ) if _index < 3 else None,
                         ),
                         line, _index, conversation.copy(), int_conversation.copy()
                     )
                     for _index, line in enumerate(lines) if line.strip()
-                ] + [
-                    executor.submit(lambda: (
-                        vdb.query(vector=vector_input, filter={
-            "memory_type": "episodic", "user": username}, top_k=5, namespace=f'{bot_name}'),
-                        load_conversation_episodic_memory)
-                    ),
-                    executor.submit(lambda: (
-                        vdb.query(vector=vector_input, filter={
-            "memory_type": "web_scrape"}, top_k=8, namespace=f'Tools_User_{username}_Bot_{bot_name}'),
-                        load_conversation_web_scrape_memory)
-                    ),
-                    executor.submit(lambda: (
-                        vdb.query(vector=vector_input, filter={
-            "memory_type": "flashbulb", "user": username}, top_k=2, namespace=f'{bot_name}'),
-                        load_conversation_flashbulb_memory)
-                    ),
-                    executor.submit(lambda: (
-                        vdb.query(vector=vector_input, filter={
-            "memory_type": "heuristics", "user": username}, top_k=5, namespace=f'{bot_name}'),
-                        load_conversation_heuristics)
-                    ),
                 ]
-                db_search_1, db_search_2, db_search_3, db_search_14 = None, None, None, None
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                future1 = executor.submit(vdb.query, vector=vector_input, filter={
+            "memory_type": "episodic", "user": username}, top_k=5, namespace=f'{bot_name}')
+                future2 = executor.submit(vdb.query, vector=vector_input, filter={
+            "memory_type": "web_scrape"}, top_k=8, namespace=f'Tools_User_{username}_Bot_{bot_name}')
+                future3 = executor.submit(vdb.query, vector=vector_input, filter={
+            "memory_type": "flashbulb", "user": username}, top_k=2, namespace=f'{bot_name}')
+                future4 = executor.submit(vdb.query, vector=vector_input, filter={
+            "memory_type": "heuristics", "user": username}, top_k=5, namespace=f'{bot_name}')
+                db_search_4, db_search_5, db_search_12, db_search_15 = None, None, None, None
                 try:
-                    db_search_1 = futures[len(lines)].result()[1](futures[len(lines)].result()[0])
-                    db_search_2 = futures[len(lines) + 1].result()[1](futures[len(lines) + 1].result()[0])
-                    db_search_3 = futures[len(lines) + 2].result()[1](futures[len(lines) + 2].result()[0])
-                    db_search_14 = futures[len(lines) + 3].result()[1](futures[len(lines) + 3].result()[0])
+                    db_search_1 = load_conversation_episodic_memory(future1.result())
+                    db_search_2 = load_conversation_explicit_short_term_memory(future2.result())
+                    db_search_3 = load_conversation_flashbulb_memory(future3.result())
+                    db_search_14 = load_conversation_heuristics(future4.result())
                 except IndexError as e:
                     print(f"Caught an IndexError: {e}")
                     print(f"Length of futures: {len(futures)}")
                     print(f"Length of lines: {len(lines)}")
                 except Exception as e:
                     print(f"Caught an exception: {e}")
+            print(db_search_1, db_search_2, db_search_3, db_search_14)
+            print('\n-----------------------\n')
+                         
             # # Inner Monologue Generation
             conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S EPISODIC MEMORIES: {db_search_1}\n{db_search_3}\n\n{bot_name}'s HEURISTICS: {db_search_14}\n[/INST]\n\n\n[INST]SYSTEM:Compose a short silent soliloquy to serve as {bot_name}'s internal monologue/narrative.  Ensure it includes {bot_name}'s contemplations and emotions in relation to {username}'s request as it pertains to the given webscrape.[/INST]\n\n\n[INST]\n\nWEBSCRAPE: {db_search_2}[/INST]\n\n\n[INST]\n{usernameupper}/USER: {a}\nPlease provide a short internal monologue contemplating how the user's most recent message relates to the webscrape.[/INST]\n\n{botnameupper}:"})
             

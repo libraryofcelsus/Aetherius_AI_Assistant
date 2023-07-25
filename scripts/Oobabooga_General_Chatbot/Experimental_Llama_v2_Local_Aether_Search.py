@@ -819,7 +819,7 @@ def oobabooga_response(prompt):
         'history': history,
         'mode': 'instruct',  # Valid options: 'chat', 'chat-instruct', 'instruct'
         'instruction_template': 'Llama-v2',  # Will get autodetected if unset
-        'context_instruct': f"[INST] <<SYS>>\nYou are {bot_name}.  Read the conversation history, your inner monologue, action plan, and your memories.  Then, in first-person, generate a single comprehensive response to the user, {username}'s message.\n<</SYS>>",  # Optional
+        'context_instruct': f"[INST] <<SYS>>\nYou are {bot_name}.  Read the given completed tasklist, your inner monologue, action plan, and your memories.  Then, in first-person, generate a single comprehensive response to the user, {username}'s message using the information from the tasklist.\n<</SYS>>",  # Optional
         'your_name': f'{username}',
 
         'regenerate': False,
@@ -1088,7 +1088,7 @@ def search_implicit_db(line_vec):
     try:
         with lock:
             print('implicit')
-            results = vdb.query(vector=line_vec, filter={"memory_type": "implicit_long_term", "user": username}, top_k=7, namespace=f'{bot_name}')
+            results = vdb.query(vector=line_vec, filter={"memory_type": "implicit_long_term", "user": username}, top_k=3, namespace=f'{bot_name}')
             memories1 = load_conversation_implicit_long_term_memory(results)
             results = vdb.query(vector=line_vec, filter={"memory_type": "implicit_short_term"}, top_k=5, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
             memories2 = load_conversation_implicit_short_term_memory(results)
@@ -1110,7 +1110,7 @@ def search_episodic_db(line_vec):
     try:
         with lock:
             results = vdb.query(vector=line_vec, filter={
-            "memory_type": "episodic", "user": username}, top_k=8, namespace=f'{bot_name}')
+            "memory_type": "episodic", "user": username}, top_k=5, namespace=f'{bot_name}')
             memories = load_conversation_episodic_memory(results)
             return memories
     except Exception as e:
@@ -1128,7 +1128,7 @@ def search_flashbulb_db(line_vec):
     try:
         with lock:
             results = vdb.query(vector=line_vec, filter={
-            "memory_type": "flashbulb", "user": username}, top_k=4, namespace=f'{bot_name}')
+            "memory_type": "flashbulb", "user": username}, top_k=2, namespace=f'{bot_name}')
             memories = load_conversation_flashbulb_memory(results)
             return memories
     except Exception as e:
@@ -1146,7 +1146,7 @@ def search_explicit_db(line_vec):
     try:
         with lock:
             print('explicit')
-            results = vdb.query(vector=line_vec, filter={"memory_type": "explicit_long_term", "user": username}, top_k=5, namespace=f'{bot_name}')
+            results = vdb.query(vector=line_vec, filter={"memory_type": "explicit_long_term", "user": username}, top_k=3, namespace=f'{bot_name}')
             memories1 = load_conversation_explicit_long_term_memory(results)
             results = vdb.query(vector=line_vec, filter={"memory_type": "explicit_short_term"}, top_k=5, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
             memories2 = load_conversation_explicit_short_term_memory(results)
@@ -1185,7 +1185,7 @@ def search_webscrape_db(line):
     try:
         with lock:
             line_vec = model.encode([line]).tolist()
-            results = vdb.query(vector=line_vec, filter={"memory_type": "web_scrape"}, top_k=20, namespace=f'Tools_User_{username}_Bot_{bot_name}')
+            results = vdb.query(vector=line_vec, filter={"memory_type": "web_scrape"}, top_k=15, namespace=f'Tools_User_{username}_Bot_{bot_name}')
             table = load_conversation_web_scrape_memory(results)
             return table
     except Exception as e:
@@ -2509,96 +2509,17 @@ class ChatBotApplication(tk.Frame):
                 with concurrent.futures.ThreadPoolExecutor() as executor:
                     futures = [
                         executor.submit(
-                            lambda line, task_counter, conversation, memcheck, memcheck2, webcheck, tasklist_completion: (
-                                tasklist_completion.append({'role': 'user', 'content': f"CURRENT ASSIGNED TASK: {line}\n\n"}),
-                                conversation.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a sub-agent for {bot_name}, an Autonomous Ai-Chatbot. You are one of many agents in a chain. You are to take the given task and complete it in its entirety. Be Verbose and take other tasks into account when formulating your answer.\n\n"}),
-                                conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S INNER MONOLOGUE: {output_one}\n\n"}),
-                                conversation.append({'role': 'user', 'content': f"Task list: {master_tasklist_output}\n\n"}),
-                                conversation.append({'role': 'assistant', 'content': "TASK ASSIGNMENT: Bot: I have studied the given tasklist.  What is my assigned task?\n"}),
-                                conversation.append({'role': 'user', 'content': f"Bot Assigned task: {line}\n\n"}),
-                                # # DB Yes No Tool
-                                memcheck.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a sub-agent for {bot_name}, an Autonomous Ai-Chatbot. Your purpose is to decide if the user's input requires {bot_name}'s past memories to complete. If the user's request pertains to information about the user, the chatbot, {bot_name}, or past personal events should be searched for in memory by printing 'YES'.  If memories are needed, print: 'YES'.  If they are not needed, print: 'NO'. You may only print YES or NO.\n\n\n"}),
-                                memcheck.append({'role': 'user', 'content': f"USER INPUT: {line}\n\n"}),
-                                memcheck.append({'role': 'assistant', 'content': f"RESPONSE FORMAT: You may only print Yes or No. Use the format: [{bot_name}: 'YES OR NO'][/INST]ASSISTANT:"}),
-                                # # DB Selector Tool
-                                memcheck2.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a sub-module for {bot_name}, an Autonomous Ai-Chatbot. You are one of many agents in a chain. Your task is to decide which database needs to be queried in relation to a user's input. The databases are representative of different types of memories. Only choose a single database to query. Use the format: [{bot_name}: 'MEMORY TYPE']\n\n"}),
-                                memcheck2.append({'role': 'assistant', 'content': f"{botnameupper}'S INNER_MONOLOGUE: {output_one}\n\n\n"}),
-                                memcheck2.append({'role': 'user', 'content': "//LIST OF MEMORY TYPE NAMES:\n"}),
-                                memcheck2.append({'role': 'user', 'content': "EPISODIC: These are memories of personal experiences and specific events that occur in a particular time and place. These memories often include contextual details, such as emotions, sensations, and the sequence of events.\n"}),
-                                memcheck2.append({'role': 'user', 'content': "FLASHBULB: Flashbulb memories are vivid, detailed, and long-lasting memories of highly emotional or significant events, such as learning about a major news event or experiencing a personal tragedy.\n"}),
-                                memcheck2.append({'role': 'user', 'content': "IMPLICIT LONG TERM: Unconscious memory not easily verbalized, including procedural memory (skills and habits), classical conditioning (associations between stimuli and reflexive responses), and priming (unconscious activation of specific associations).\n"}),
-                                memcheck2.append({'role': 'user', 'content': "EXPLICIT LONG TERM: Conscious recollections of facts and events, including episodic memory (personal experiences and specific events) and semantic memory (general knowledge, concepts, and facts).\n"}),
-                                memcheck2.append({'role': 'user', 'content': "END OF LIST//\n\n\n[INST]//EXAMPLE QUERIES:\n"}),
-                                memcheck2.append({'role': 'user', 'content': "USER: Research common topics discussed with users who start a conversation with 'hello'\n"}),
-                                memcheck2.append({'role': 'assistant', 'content': "ASSISTANT: EPISODIC MEMORY\n"}),
-                                memcheck2.append({'role': 'user', 'content': "USER: Create a research paper on the book Faust.\n"}),
-                                memcheck2.append({'role': 'assistant', 'content': "ASSISTANT: NO MEMORIES NEEDED\n"}),
-                                memcheck2.append({'role': 'user', 'content': "USER: Tell me about your deepest desires.\n"}),
-                                memcheck2.append({'role': 'assistant', 'content': "ASSISTANT: FLASHBULB\n"}),
-                                memcheck2.append({'role': 'user', 'content': "END OF EXAMPLE QUERIES//[/INST]\n\n\n//BEGIN JOB:\n\n"}),
-                                memcheck2.append({'role': 'user', 'content': f"TASK REINITIALIZATION: Your task is to decide which database needs to be queried in relation to a user's input. The databases are representative of different types of memories. Only choose a single database to query. [{bot_name}: 'MEMORY TYPE']\n\n"}),
-                                memcheck2.append({'role': 'user', 'content': f"USER INPUT: {line}\n\n"}),
-                                memcheck2.append({'role': 'assistant', 'content': f"RESPONSE FORMAT: You may only print the type of memory to be queried. Use the format: [{bot_name}: 'MEMORY TYPE'][/INST]\n\nASSISTANT:"}),
-                                # # Web Search Tool
-                         #       webcheck.append({'role': 'system', 'content': f"You are a sub-module for an Autonomous Ai-Chatbot. You are one of many agents in a chain. Your task is to decide if a web-search is needed in order to complete the given task. Only recent or niche information needs to be searched. Do not search for any information pertaining to the user, {username}, or the main bot, {bot_name}.   If a websearch is needed, print: YES.  If a web-search is not needed, print: NO."}),
-                        #        webcheck.append({'role': 'user', 'content': "Hello, how are you today?"}),
-                        #        webcheck.append({'role': 'assistant', 'content': "NO"}),
-                                # # Check if websearch is needed
-                        #        webcheck.append({'role': 'user', 'content': f"{line}"}),
-                        #        web1 := chatgptyesno_completion(webcheck),
-                        #        table := google_search(line) if web1 =='YES' else fail(),
-                            #    table := google_search(line, my_api_key, my_cse_id) if web1 == 'YES' else fail(),
-                                table := search_webscrape_db(line),
-                            #    google_search(line, my_api_key, my_cse_id),
-                                # # Check if DB search is needed
-                                prompt := ''.join([message_dict['content'] for message_dict in memcheck]),
-                                mem1 := oobabooga_selector(prompt),
-                                print('-----------'),
-                                print(mem1),
-                                print(' --------- '),
-                    #            mem1 := chatgptyesno_completion(memcheck),
-                                # # Go to conditional for choosing DB Name
-                                prompt := ''.join([message_dict['content'] for message_dict in memcheck2]),
-                                mem2 := oobabooga_selector(prompt) if 'YES' in mem1.upper() else fail(),
-                                print('-----------'),
-                                print(mem2) if 'YES' in mem1.upper() else fail(),
-                                print(' --------- '),
-                                line_vec := model.encode([line]).tolist(),    #EPISODIC, FLASHBULB, IMPLICIT LONG TERM, EXPLICIT LONG TERM                   
-                                memories := (search_episodic_db(line_vec) if 'EPISO' in mem2.upper() else 
-                                            search_implicit_db(line_vec) if 'IMPLI' in mem2.upper() else 
-                                            search_flashbulb_db(line_vec) if 'FLASH' in mem2.upper() else
-                                            search_explicit_db(line_vec) if 'EXPL' in mem2.upper() else
-                                            fail()),           
-                                conversation.append({'role': 'assistant', 'content': f"WEBSEARCH: {table}\n\n"}),
-                                conversation.append({'role': 'user', 'content': f"BOT {task_counter} TASK REINITIALIZATION: {line}\n\n"}),
-                                conversation.append({'role': 'user', 'content': f"INITIAL USER INPUT: {a}\n\n"}),
-                                conversation.append({'role': 'user', 'content': f"SYSTEM: Summarize the given webscraped articles that are relivent to the given task. Your job is to provide concise information without leaving anything out.\n\n"}),
-                                conversation.append({'role': 'assistant', 'content': f"RESPONSE FORMAT: Follow the format: [BOT {task_counter}: <RESPONSE TO USER>][/INST]\n\nBOT {task_counter}:"}),
-                                prompt := ''.join([message_dict['content'] for message_dict in conversation]),
-                                task_completion := oobabooga_800(prompt),
-                                #chatgpt35_completion(conversation),
-                              #  conversation.clear(),
-                                tasklist_completion.append({'role': 'assistant', 'content': f"MEMORIES: {memories}\n\n"}),
-                                tasklist_completion.append({'role': 'assistant', 'content': f"WEBSCRAPE: {table}\n\n"}),
-                                tasklist_completion.append({'role': 'assistant', 'content': f"COMPLETED TASK: {task_completion}\n\n"}),
-                                tasklist_log.append({'role': 'user', 'content': "ASSIGNED TASK:\n%s\n\n" % line}),
-                                tasklist_log.append({'role': 'assistant', 'content': "COMPLETED TASK:\n%s\n\n" % memories}),
-                                print('-------'),
-                                print(line),
-                                print('-------'),
-                                print(memories),
-                                print(table),
-                                print('-------'),
-                                print(task_completion),
-                        #        print(task_completion),
-                            ) if line != "None" else tasklist_completion,
-                            line, task_counter, memcheck.copy(), memcheck2.copy(), webcheck.copy(), conversation.copy(), []
+                            process_line, 
+                            line, task_counter, memcheck.copy(), memcheck2.copy(), webcheck.copy(), conversation.copy(), [], tasklist_log, output_one, master_tasklist_output, a
                         )
-                        for task_counter, line in enumerate(lines)
-                    ]  
+                        for task_counter, line in enumerate(lines) if line != "None"
+                    ]
+
+                    for future in concurrent.futures.as_completed(futures):
+                        tasklist_completion.extend(future.result())
                 tasklist_completion.append({'role': 'assistant', 'content': f"%{botnameupper}'S INNER_MONOLOGUE: {output_one}\n\n"})
         #        tasklist_completion.append({'role': 'user', 'content': f"%{bot_name}'s INTUITION%\n{output_two}\n\n"})
-                tasklist_completion.append({'role': 'user', 'content': f"SYSTEM: Read the given set of tasks and completed responses and convert them into a verbose response for {username}, the end user in accordance with their request. {username} is both unaware and unable to see any of your research so any nessisary context or information must be relayed.\n\nUSER'S INITIAL INPUT: {a}.\n\nRESPONSE FORMAT: Your planning and research is now done. You will now give a verbose and natural sounding response ensuring the user's request is fully completed in entirety. Follow the format: [{bot_name}: <FULL RESPONSE TO USER>][/INST]\n\nUSER: {a}\n\n{botnameupper}:"})
+                tasklist_completion.append({'role': 'user', 'content': f"[/INST]\n[INST]SYSTEM: Read the given set of tasks and completed responses and convert them into a verbose response for {username}, the end user in accordance with their request. {username} is both unaware and unable to see any of your research so any nessisary context or information must be relayed.\n\nUSER'S INITIAL INPUT: {a}.\n\nRESPONSE FORMAT: Your planning and research is now done. You will now give a verbose and natural sounding response ensuring the user's request is fully completed in entirety. Follow the format: [{bot_name}: <FULL RESPONSE TO USER>][/INST]\n\nUSER: {a}\n\n{botnameupper}:"})
                 print('\n\nGenerating Final Output...')
                 prompt = ''.join([message_dict['content'] for message_dict in tasklist_completion])
                 response_two = oobabooga_response(prompt)
@@ -2614,6 +2535,7 @@ class ChatBotApplication(tk.Frame):
                 tasklist_log.clear()
             except Exception as e:
                 print(f"An error occurred: {str(e)}") 
+                print("----")
             # # TTS 
         #    tts = gTTS(response_two)
             # TTS save to file in .mp3 format
@@ -2959,6 +2881,108 @@ class ChatBotApplication(tk.Frame):
             consolidation.clear()
             conversation2.clear()
             return
+            
+            
+            
+def process_line(line, task_counter, conversation, memcheck, memcheck2, webcheck, tasklist_completion, tasklist_log, output_one, master_tasklist_output, a):
+    try:
+        bot_name = open_file('./config/prompt_bot_name.txt')
+        username = open_file('./config/prompt_username.txt')
+        botnameupper = bot_name.upper()
+        usernameupper = username.upper()
+        tasklist_completion.append({'role': 'user', 'content': f"CURRENT ASSIGNED TASK: {line}\n\n"})
+        conversation.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a sub-agent for {bot_name}, an Autonomous Ai-Chatbot. You are one of many agents in a chain. You are to take the given task and complete it in its entirety. Be Verbose and take other tasks into account when formulating your answer.\n\n"})
+        conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S INNER MONOLOGUE: {output_one}\n\n"})
+        conversation.append({'role': 'user', 'content': f"Task list: {master_tasklist_output}\n\n"})
+        conversation.append({'role': 'assistant', 'content': "TASK ASSIGNMENT: Bot: I have studied the given tasklist.  What is my assigned task?\n"})
+        conversation.append({'role': 'user', 'content': f"Bot Assigned task: {line}\n\n"})
+        # # DB Yes No Tool
+        memcheck.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a sub-agent for {bot_name}, an Autonomous Ai-Chatbot. Your purpose is to decide if the user's input requires {bot_name}'s past memories to complete. If the user's request pertains to information about the user, the chatbot, {bot_name}, or past personal events should be searched for in memory by printing 'YES'.  If memories are needed, print: 'YES'.  If they are not needed, print: 'NO'. You may only print YES or NO.\n\n\n"})
+        memcheck.append({'role': 'user', 'content': f"USER INPUT: {line}\n\n"})
+        memcheck.append({'role': 'assistant', 'content': f"RESPONSE FORMAT: You may only print Yes or No. Use the format: [{bot_name}: 'YES OR NO'][/INST]ASSISTANT:"})
+        # # DB Selector Tool
+        memcheck2.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a sub-module for {bot_name}, an Autonomous Ai-Chatbot. You are one of many agents in a chain. Your task is to decide which database needs to be queried in relation to a user's input. The databases are representative of different types of memories. Only choose a single database to query. Use the format: [{bot_name}: 'MEMORY TYPE']\n\n"})
+        memcheck2.append({'role': 'assistant', 'content': f"{botnameupper}'S INNER_MONOLOGUE: {output_one}\n\n\n"})
+        memcheck2.append({'role': 'user', 'content': "//LIST OF MEMORY TYPE NAMES:\n"})
+        memcheck2.append({'role': 'user', 'content': "EPISODIC: These are memories of personal experiences and specific events that occur in a particular time and place. These memories often include contextual details, such as emotions, sensations, and the sequence of events.\n"})
+        memcheck2.append({'role': 'user', 'content': "FLASHBULB: Flashbulb memories are vivid, detailed, and long-lasting memories of highly emotional or significant events, such as learning about a major news event or experiencing a personal tragedy.\n"})
+        memcheck2.append({'role': 'user', 'content': "IMPLICIT LONG TERM: Unconscious memory not easily verbalized, including procedural memory (skills and habits), classical conditioning (associations between stimuli and reflexive responses), and priming (unconscious activation of specific associations).\n"})
+        memcheck2.append({'role': 'user', 'content': "EXPLICIT LONG TERM: Conscious recollections of facts and events, including episodic memory (personal experiences and specific events) and semantic memory (general knowledge, concepts, and facts).\n"})
+        memcheck2.append({'role': 'user', 'content': "END OF LIST//\n\n\n[INST]//EXAMPLE QUERIES:\n"})
+        memcheck2.append({'role': 'user', 'content': "USER: Research common topics discussed with users who start a conversation with 'hello'\n"})
+        memcheck2.append({'role': 'assistant', 'content': "ASSISTANT: EPISODIC MEMORY\n"})
+        memcheck2.append({'role': 'user', 'content': "USER: Create a research paper on the book Faust.\n"})
+        memcheck2.append({'role': 'assistant', 'content': "ASSISTANT: NO MEMORIES NEEDED\n"})
+        memcheck2.append({'role': 'user', 'content': "USER: Tell me about your deepest desires.\n"})
+        memcheck2.append({'role': 'assistant', 'content': "ASSISTANT: FLASHBULB\n"})
+        memcheck2.append({'role': 'user', 'content': "END OF EXAMPLE QUERIES//[/INST]\n\n\n//BEGIN JOB:\n\n"})
+        memcheck2.append({'role': 'user', 'content': f"TASK REINITIALIZATION: Your task is to decide which database needs to be queried in relation to a user's input. The databases are representative of different types of memories. Only choose a single database to query. [{bot_name}: 'MEMORY TYPE']\n\n"})
+        memcheck2.append({'role': 'user', 'content': f"USER INPUT: {line}\n\n"})
+        memcheck2.append({'role': 'assistant', 'content': f"RESPONSE FORMAT: You may only print the type of memory to be queried. Use the format: [{bot_name}: 'MEMORY TYPE'][/INST]\n\nASSISTANT:"})
+        # # Web Search Tool
+        # webcheck.append({'role': 'system', 'content': f"You are a sub-module for an Autonomous Ai-Chatbot. You are one of many agents in a chain. Your task is to decide if a web-search is needed in order to complete the given task. Only recent or niche information needs to be searched. Do not search for any information pertaining to the user, {username}, or the main bot, {bot_name}.   If a websearch is needed, print: YES.  If a web-search is not needed, print: NO."})
+        # webcheck.append({'role': 'user', 'content': "Hello, how are you today?"})
+        # webcheck.append({'role': 'assistant', 'content': "NO"})
+        # # Check if websearch is needed
+        # webcheck.append({'role': 'user', 'content': f"{line}"})
+        # web1 := chatgptyesno_completion(webcheck)
+        # table := google_search(line) if web1 =='YES' else fail()
+        # table := google_search(line, my_api_key, my_cse_id) if web1 == 'YES' else fail()
+        table = search_webscrape_db(line)
+        # google_search(line, my_api_key, my_cse_id)
+        # # Check if DB search is needed
+        prompt = ''.join([message_dict['content'] for message_dict in memcheck])
+        mem1 = oobabooga_selector(prompt)
+        print('-----------')
+        print(mem1)
+        print(' --------- ')
+        # mem1 := chatgptyesno_completion(memcheck)
+        # # Go to conditional for choosing DB Name
+        prompt = ''.join([message_dict['content'] for message_dict in memcheck2])
+        mem2 = oobabooga_selector(prompt) if 'YES' in mem1.upper() else fail()
+        print('-----------')
+        print(mem2) if 'YES' in mem1.upper() else fail()
+        print(' --------- ')
+        line_vec = model.encode([line]).tolist()  # EPISODIC, FLASHBULB, IMPLICIT LONG TERM, EXPLICIT LONG TERM
+        mem2_upper = mem2.upper()
+
+        result = None
+        if 'EPISO' in mem2_upper:
+            result = search_episodic_db(line_vec)
+        elif 'IMPLI' in mem2_upper:
+            result = search_implicit_db(line_vec)
+        elif 'FLASH' in mem2_upper:
+            result = search_flashbulb_db(line_vec)
+        elif 'EXPL' in mem2_upper:
+            result = search_explicit_db(line_vec)
+        else:
+            result = ('No Memories')
+        conversation.append({'role': 'assistant', 'content': f"MEMORIES: {result}\n\n"})
+        conversation.append({'role': 'assistant', 'content': f"WEBSEARCH: {table}\n\n"})
+        conversation.append({'role': 'user', 'content': f"BOT {task_counter} TASK REINITIALIZATION: {line}\n\n"})
+        conversation.append({'role': 'user', 'content': f"INITIAL USER INPUT: {a}\n\n"})
+        conversation.append({'role': 'user', 'content': f"SYSTEM: Summarize the given webscraped articles that are relevant to the given task. Your job is to provide concise information without leaving anything out.\n\n"})
+        conversation.append({'role': 'assistant', 'content': f"RESPONSE FORMAT: Follow the format: [BOT {task_counter}: <RESPONSE TO USER>][/INST]\n\nBOT {task_counter}:"})
+        prompt = ''.join([message_dict['content'] for message_dict in conversation])
+        task_completion = oobabooga_800(prompt)
+        # chatgpt35_completion(conversation),
+        # conversation.clear(),
+        # tasklist_completion.append({'role': 'assistant', 'content': f"MEMORIES: {memories}\n\n"}),
+        # tasklist_completion.append({'role': 'assistant', 'content': f"WEBSCRAPE: {table}\n\n"}),
+        tasklist_completion.append({'role': 'assistant', 'content': f"COMPLETED TASK: {task_completion}\n\n"})
+        tasklist_log.append({'role': 'user', 'content': "ASSIGNED TASK:\n%s\n\n" % line})
+        tasklist_log.append({'role': 'assistant', 'content': "COMPLETED TASK:\n%s\n\n" % result})
+        print('-------')
+        print(line)
+        print('-------')
+        print(result)
+        print(table)
+        print('-------')
+        print(task_completion)
+        return tasklist_completion
+    except Exception as e:
+        print(f'Failed with error: {e}')
+            
             
             
 def Experimental_Llama_v2_Local_Aether_Search():

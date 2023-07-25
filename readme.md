@@ -1,7 +1,7 @@
 # Aetherius
 Version .042b of Aetherius Personal Assistant/Companion by LibraryofCelsus.com
 
-**What is Aetherius?**  Aetherius is an Ai LLM Retrieval Framework focused on bringing realistic long-term memory and thought formation to a customizable chatbot/companion. I am repulsed by the rampant personal consumer data that is sent to companies without thought, the ability to be manipulated increases evermore with the advent of personalized Ai companions.  My goal is to create a local Ai Companion in which you actually have control over and own. One that cannot be changed by an external force to subtly manipulate.  Eventually Aetherius will be 100% private and ran locally, using given files and web-scrapes for a larger knowledge base. Currently it still uses pinecone.io for a Database, as of now I am still struggling to find a good replacement. 
+**What is Aetherius?**  Aetherius is an Ai LLM Retrieval Framework focused on bringing realistic long-term memory and thought formation to a customizable chatbot/companion. I am repulsed by the rampant personal consumer data that is sent to companies without thought, the ability to be manipulated increases evermore with the advent of personalized Ai companions.  My goal is to create a local Ai Companion in which you actually have control over and own. One that cannot be changed by an external force to subtly manipulate.  Eventually Aetherius will be 100% private and ran locally, using given files and web-scrapes for a larger knowledge base. Currently it still uses pinecone.io for its Database, as of now I am still struggling to find a good replacement. 
 
 Note: The current Version of Aetherius should be seen as a tech demo to play around with, while it is usable, I constantly make changes to the architecture and updating the scripts may break whatever bot you are talking to.
 
@@ -217,7 +217,7 @@ Then, under the "Interface Mode" tab, enable the api checkbox in both fields. Th
 
 Next, navigate to the models tab. Uncheck the autoload models box and then input "TheBloke/Llama-2-13B-GPTQ" into the downloads box. Other models may work, but this is the one that is tested.
 
-Once the download is completed, reload the model selection menu and then select the model. Change the model loader to Exllama and set the max_seq_len to "8192" and compress_pos_emb to "4".
+Once the download is completed, reload the model selection menu and then select the model. Change the model loader to Exllama and set the max_seq_len to "4096".
 
 Click the "load" button and load the model. The Oobabooga API bots should now work!
 

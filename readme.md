@@ -11,6 +11,8 @@ Note: The current Version of Aetherius should be seen as a tech demo to play aro
 
 **Experimental Folder Changelog**
 
+-Added Experimental Version of the webscrape tool using Llama 2
+
 -Llama 2 Version is now mostly functioning as intended, this is the first local model that I have actually felt is capable of running Aetherius.  I am now working on converting the webscrape and file process tools.
 
 -Added Llama v2 chat version using the Oobabooga API.  Tested with TheBloke/Llama-2-13B-chat-GPTQ.  Still needs more work before it will function well with the 7B version.  I load with ExLlama with a max_seq_len of 4096, leaving the other options at 1.

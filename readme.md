@@ -6,7 +6,6 @@ Version .042b of Aetherius Personal Assistant/Companion by LibraryofCelsus.com
 Note: The current Version of Aetherius should be seen as a tech demo to play around with, while it is usable, I constantly make changes to the architecture and updating the scripts may break whatever bot you are talking to.
 
 
-
 **Local Llama-2 Update**
 
 **Experimental Folder Changelog**
@@ -16,6 +15,8 @@ Note: The current Version of Aetherius should be seen as a tech demo to play aro
 -Llama 2 Version is now mostly functioning as intended, this is the first local model that I have actually felt is capable of running Aetherius.  I am now working on converting the webscrape and file process tools.
 
 -Added Llama v2 chat version using the Oobabooga API.  Tested with TheBloke/Llama-2-13B-chat-GPTQ.  Still needs more work before it will function well with the 7B version.  I load with ExLlama with a max_seq_len of 4096, leaving the other options at 1.
+
+<a href="https://www.buymeacoffee.com/libraryofcelsus" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
 
 ------
 

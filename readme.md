@@ -5,10 +5,13 @@ Version .042b of Aetherius Personal Assistant/Companion by LibraryofCelsus.com
 
 Note: The current Version of Aetherius should be seen as a tech demo to play around with, while it is usable, I constantly make changes to the architecture and updating the scripts may break whatever bot you are talking to.
 
+I also still need to convert Aetherius to work with Pinecone's new free tier, they have recently removed namespaces.  Old Indexes were grandfathered in so previous users can ignore this.
 
 **Local Llama-2 Update**
 
 **Experimental Folder Changelog**
+
+-Added Experimental Version of the file scrape tool using Llama 2
 
 -Added Experimental Version of the webscrape tool using Llama 2
 
@@ -28,8 +31,6 @@ Photo OCR (jpg, jpeg, png) requires tesseract: https://github.com/UB-Mannheim/te
 
 More output examples can be found at https://github.com/libraryofcelsus/Aetherius_Ai_Assistant_Outputs
 
-Latest Untested Version/Best Script for Code Viewing can be found at /scripts/resources/Base_Aetherius_Script_For_Analysis.py (This version has undergone very little testing and will most likely have bugs. Copy the script to the OpenAi_General_Chatbot folder to use.)
-
 Discord Server: https://discord.gg/pb5zcNa7zE
 
 Join the Discord for help or to get more in-depth information!
@@ -38,13 +39,13 @@ Made by: https://github.com/libraryofcelsus
 
 Inspired by https://github.com/daveshap/
 
-![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/06/Aetherius-Example-1.png)
+## Llama 2 Examples
 
-## Aether Scrape/Search
+![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/07/Aetherius-Example.png)
 
-![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/06/Aetherius-Example-2.png)
+## Aether Scrape/Search Example
 
-![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/06/Aetherius-Example-3.png)
+![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/07/Aetherscrape-example.jpg)
 
 ## Autonomous Architecture
 
@@ -202,11 +203,13 @@ Aetherius aims to provide a modular, personalized AI assistant experience by ena
 
 ## Installer bat
 
-https://github.com/libraryofcelsus/Aetherius_AI_Assistant/blob/main/scripts/resources/install.bat
+Run the Installer Bat, it is located at: https://github.com/libraryofcelsus/Aetherius_AI_Assistant/blob/main/scripts/resources/install.bat
 
 ![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/05/Capture11111111.png)
 
 Copy your OpenAi and Pinecone API keys to api_key folder inside of the created Aetherius_Ai_Assistant folder
+
+If you get an error, you may need to do steps 5, 8, and 9 from the manual installation.
 
 Launch Aetherius with **run.bat**
 
@@ -238,7 +241,7 @@ Click the "load" button and load the model. The Oobabooga API bots should now wo
 
 4. Run git clone: **git clone https://github.com/libraryofcelsus/Aetherius_AI_Assistant.git**
 
-5. Open CMD as Admin
+5. Open CMD as Admin (Command Panel)
 
 6. Navigate to Project folder: **cd PATH_TO_AETHERIUS_INSTALL**
 
@@ -256,11 +259,11 @@ Click the "load" button and load the model. The Oobabooga API bots should now wo
 
 13. Copy the Pinecone Environment and paste it in key_pinecone_env.txt
 
-14. Copy your Google Api key to key_google.txt
+14. Copy your Google Api key to key_google.txt  (Google Keys only needed if using AetherSearch's websearch.)
 
 15. Copy your Google CSE ID to key_google_cse.txt
 
-17. Run main.py with **python main.py** in cmd to start Aetherius.
+17. Run main.py by typing **python main.py** in cmd or **run.bat** as admin to start Aetherius. (Using run.bat will let you skip opening CMD and activating the enviornment.)
 
 18. Select DB Upload Heuristics from the DB Management menu to upload Heuristics for the bot, this DB can also function as a Personality DB. An example of how to do this can be found in "personality_db_input_examples.txt" in the config folder.
 

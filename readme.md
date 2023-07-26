@@ -31,6 +31,8 @@ Photo OCR (jpg, jpeg, png) requires tesseract: https://github.com/UB-Mannheim/te
 
 More output examples can be found at https://github.com/libraryofcelsus/Aetherius_Ai_Assistant_Outputs
 
+------
+
 Discord Server: https://discord.gg/pb5zcNa7zE
 
 Join the Discord for help or to get more in-depth information!
@@ -231,7 +233,7 @@ Click the "load" button and load the model. The Oobabooga API bots should now wo
 
 **Guide with Photos can be found at [https://www.libraryofcelsus.com/aetherius-setup-guide/]**
 
-**Guide Out of Date**
+**Photo Guide Out of Date**
 
 1. Install Git: **https://git-scm.com/** (Git can be skipped by downloading the repo as a zip file under the green code button)
 

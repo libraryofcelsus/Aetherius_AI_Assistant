@@ -5,7 +5,7 @@ Version .042b of Aetherius Personal Assistant/Companion by LibraryofCelsus.com
 
 Note: The current Version of Aetherius should be seen as a tech demo to play around with, while it is usable, I constantly make changes to the architecture and updating the scripts may break whatever bot you are talking to.
 
-I also still need to convert Aetherius to work with Pinecone's new free tier, they have recently removed namespaces.  Old Indexes were grandfathered in so previous users can ignore this.
+I also still need to convert Aetherius to work with Pinecone's new free tier.  Old Indexes were grandfathered in so previous users can ignore this. (I am unsure if this is possible, they both removed namespaces and the ability to delete by metadata.  I may just move to another solution.  If anyone has suggestions for a Vector DB with similar functionality, please let me know.)
 
 **Local Llama-2 Update**
 

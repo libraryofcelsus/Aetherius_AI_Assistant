@@ -11,7 +11,7 @@ Pinecone has recently changed their free tier.  They both removed namespaces and
 
 **Experimental Changelog**
 
--Added Qdrant Version of Llama 2 Version of Aetherius.  If a local Qdrant server is running it will use that, otherwise it will connect to the cloud.  To use the cloud, place the Qdrant Api Key and Url in the corresponding .txt files in the /api_keys folder.  
+-Added Qdrant Version of Llama 2 Version of Aetherius.  If a local Qdrant server is running it will use that, otherwise it will connect to the cloud.  To use the cloud, place the Qdrant Api Key and Url in the corresponding .txt files in the /api_keys folder.  Collection not existing errors will disapear once something has been entered into the collection.
 Qdrant Cloud: https://qdrant.to/cloud     
 To install the local Qdrant server, first install Docker: https://www.docker.com/, then see: https://github.com/qdrant/qdrant/blob/master/QUICK_START.md
 
@@ -215,7 +215,11 @@ Run the Installer Bat, it is located at: https://github.com/libraryofcelsus/Aeth
 
 Copy your OpenAi and Pinecone API keys to api_key folder inside of the created Aetherius_Ai_Assistant folder
 
-If using Qdrant copy their Api key and Url instead of Pinecone.
+If using Qdrant Cloud copy their Api key and Url instead of Pinecone.  Qdrant Cloud: https://qdrant.to/cloud
+
+To use a local Qdrant server, first install Docker: https://www.docker.com/, then see: https://github.com/qdrant/qdrant/blob/master/QUICK_START.md
+
+Once the local Qdrant server is running, it should be auto detected by Aetherius.
 
 If you get an error, you may need to do steps 5, 8, and 9 from the manual installation.
 
@@ -259,39 +263,49 @@ Click the "load" button and load the model. The Oobabooga API bots should now wo
 
 9. Install the required packages: **pip install -r requirements.txt**
 
-10. Copy your OpenAI api key to key_openai.txt
+10. Copy your OpenAI api key to key_openai.txt (If using Oobabooga, you may skip this.)
+
+(If using Qdrant skip to step 14.)
 
 11. Create a Index on pinecone.io titled: "aetherius" with 768 dimensions and cosine as the metric. I usually do a P1 instance. (Use 1536 dimensions for Open Ai embeddings.)
 
-12. Copy Api key for that Index and paste it in key_pinecone.txt  (If using Qdrant copy their Api key and Url instead of Pinecone.)
+12. Copy Api key for that Index and paste it in key_pinecone.txt 
 
 13. Copy the Pinecone Environment and paste it in key_pinecone_env.txt
 
-14. Copy your Google Api key to key_google.txt  (Google Keys only needed if using AetherSearch's websearch.)
+14. If using Qdrant Cloud copy their Api key and Url instead of Pinecone.  Qdrant Cloud: https://qdrant.to/cloud
 
-15. Copy your Google CSE ID to key_google_cse.txt
+15. To use a local Qdrant server, first install Docker: https://www.docker.com/
 
-17. Run main.py by typing **python main.py** in cmd or **run.bat** as admin to start Aetherius. (Using run.bat will let you skip opening CMD and activating the enviornment.)
+16. Now follow the steps in Qdrants Quick Start guide: https://github.com/qdrant/qdrant/blob/master/QUICK_START.md
 
-18. Select DB Upload Heuristics from the DB Management menu to upload Heuristics for the bot, this DB can also function as a Personality DB. An example of how to do this can be found in "personality_db_input_examples.txt" in the config folder.
+17. Once the local Qdrant server is running, it should be auto detected by Aetherius.
 
-21. Edit the chatbot's prompts with the Config Menu. This will let you change the main, secondary, and greeting prompts.  You can also change things like the font style and size.
+18. Copy your Google Api key to key_google.txt  (Google Keys only needed if using AetherSearch's websearch.)
 
-22. You can change the botname and the username in the login menu.  Changing either of these will create a new chatbot.
+19. Copy your Google CSE ID to key_google_cse.txt
 
-23. Once the chatbot has adopted a desired personality, I recommend creating a backup of the "nexus" folder and then create a collection of the "aetherius" index on pinecone.io.  This will let you revert back to a base state if issues arise later.
+20. Run main.py by typing **python main.py** in cmd or **run.bat** as admin to start Aetherius. (Using run.bat will let you skip opening CMD and activating the enviornment.)
 
-24. Once you have made a backup, you can start using the "Auto" mode, this mode has Aetherius decide for itself whether or not it should upload to its memories.
+21. Select DB Upload Heuristics from the DB Management menu to upload Heuristics for the bot, this DB can also function as a Personality DB. An example of how to do this can be found in "personality_db_input_examples.txt" in the config folder.
 
-25. To run Aetherius Locally using Oobabooga, first install the web-ui at: https://github.com/oobabooga/text-generation-webui
+22. Edit the chatbot's prompts with the Config Menu. This will let you change the main, secondary, and greeting prompts.  You can also change things like the font style and size.
 
-26. Then, under the "Interface Mode" tab, enable the api checkbox in both fields.  Then click apply and restart the interface.
+23. You can change the botname and the username in the login menu.  Changing either of these will create a new chatbot.
 
-27. Next, navigate to the models tab. Uncheck the autoload models box and then input "TheBloke/Llama-2-13B-chat-GPTQ" into the downloads box. Other models may work, but this is the one that is tested.
+24. Once the chatbot has adopted a desired personality, I recommend creating a backup of the "nexus" folder and then create a collection of the "aetherius" index on pinecone.io.  This will let you revert back to a base state if issues arise later.
 
-28. Once the download is completed, reload the model selection menu and then select the model. Change the model loader to Exllama and set the max_seq_len to "4096".
+25. Once you have made a backup, you can start using the "Auto" mode, this mode has Aetherius decide for itself whether or not it should upload to its memories.
 
-29. Click the "load" button and load the model.  The Oobabooga API bots should now work!
+26. To run Aetherius Locally using Oobabooga, first install the web-ui at: https://github.com/oobabooga/text-generation-webui
+
+27. Then, under the "Interface Mode" tab, enable the api checkbox in both fields.  Then click apply and restart the interface.
+
+28. Next, navigate to the models tab. Uncheck the autoload models box and then input "TheBloke/Llama-2-13B-chat-GPTQ" into the downloads box. Other models may work, but this is the one that is tested.
+
+29. Once the download is completed, reload the model selection menu and then select the model. Change the model loader to Exllama and set the max_seq_len to "4096".
+
+30. Click the "load" button and load the model.  The Oobabooga API bots should now work!
 
 
 

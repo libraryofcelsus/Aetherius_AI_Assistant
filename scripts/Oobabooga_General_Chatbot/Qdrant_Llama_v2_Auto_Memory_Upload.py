@@ -33,22 +33,40 @@ from qdrant_client.models import Distance, VectorParams, PointStruct, Filter, Fi
 from qdrant_client.http.models import Batch
 
 
-# For local streaming, the websockets are hosted without ssl - http://
-HOST = 'localhost:5000'
-URI = f'http://{HOST}/api/v1/chat'
-
-# For reverse-proxied streaming, the remote will likely host with ssl - https://
-# URI = 'https://your-uri-here.trycloudflare.com/api/v1/generate'
 
 
-model = SentenceTransformer('all-mpnet-base-v2')
+def check_local_server_running():
+    try:
+        response = requests.get("http://localhost:6333/dashboard/")
+        return response.status_code == 200
+    except requests.ConnectionError:
+        return False
 
-encode = SentenceTransformer('all-mpnet-base-v2')
+def open_file(file_path):
+    with open(file_path, "r") as file:
+        return file.read().strip()
 
-client = QdrantClient(
-url=open_file('./api_keys/qdrant_url.txt'),
-api_key=open_file('./api_keys/qdrant_api_key.txt'),
-)
+# Check if local server is running
+if check_local_server_running():
+    client = QdrantClient(url="http://localhost:6333")
+    print("Connected to local Qdrant server.")
+else:
+    url = open_file('./api_keys/qdrant_url.txt')
+    api_key = open_file('./api_keys/qdrant_api_key.txt')
+    client = QdrantClient(url=url, api_key=api_key)
+    print("Connected to cloud Qdrant server.")
+
+
+
+
+# # # Comment out this and uncomment a choice below to run Aetherius Locally.
+
+# client = QdrantClient(
+# url=open_file('./api_keys/qdrant_url.txt'),
+# api_key=open_file('./api_keys/qdrant_api_key.txt'),
+# )
+
+
 
 # Comment out Cloud Qdrant client code and uncomment this for local server
 # client = QdrantClient(host="localhost", port=6333)
@@ -61,6 +79,20 @@ api_key=open_file('./api_keys/qdrant_api_key.txt'),
 
 # Comment out Cloud Qdrant client code and uncomment this for local disk
 # client = QdrantClient(path="./nexus/qdrant")
+
+
+
+# For local streaming, the websockets are hosted without ssl - http://
+HOST = 'localhost:5000'
+URI = f'http://{HOST}/api/v1/chat'
+
+# For reverse-proxied streaming, the remote will likely host with ssl - https://
+# URI = 'https://your-uri-here.trycloudflare.com/api/v1/generate'
+
+
+model = SentenceTransformer('all-mpnet-base-v2')
+
+encode = SentenceTransformer('all-mpnet-base-v2')
 
 
 def oobabooga_terms(prompt):
@@ -1138,6 +1170,7 @@ def DB_Upload_Heuristics(query):
                 vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
             )
         vector1 = model.encode([query])[0].tolist()
+    #    embedding = model.encode(query)
         unique_id = str(uuid4())
         point_id = unique_id + str(int(timestamp))
         metadata = {
@@ -1849,7 +1882,10 @@ class ChatBotApplication(tk.Frame):
                 client.delete_collection(collection_name=f"Implicit_Long_Term_Memory_Bot_{bot_name}_User_{username}")
                 client.delete_collection(collection_name=f"Heuristics_Bot_{bot_name}_User_{username}")
                 client.delete_collection(collection_name=f"Cadence_Bot_{bot_name}_User_{username}")
+                client.delete_collection(collection_name=f"Flash_Counter_Bot_{bot_name}_User_{username}")
+                client.delete_collection(collection_name=f"Consol_Counter_Bot_{bot_name}_User_{username}")
                 client.delete_collection(collection_name=f"Flashbulb_Memory_Bot_{bot_name}_User_{username}")
+                
           
                 
 

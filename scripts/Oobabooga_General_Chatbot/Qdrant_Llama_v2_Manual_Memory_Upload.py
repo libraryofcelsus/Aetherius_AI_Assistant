@@ -33,6 +33,55 @@ from qdrant_client.models import Distance, VectorParams, PointStruct, Filter, Fi
 from qdrant_client.http.models import Batch
 
 
+
+
+def check_local_server_running():
+    try:
+        response = requests.get("http://localhost:6333/dashboard/")
+        return response.status_code == 200
+    except requests.ConnectionError:
+        return False
+
+def open_file(file_path):
+    with open(file_path, "r") as file:
+        return file.read().strip()
+
+# Check if local server is running
+if check_local_server_running():
+    client = QdrantClient(url="http://localhost:6333")
+    print("Connected to local Qdrant server.")
+else:
+    url = open_file('./api_keys/qdrant_url.txt')
+    api_key = open_file('./api_keys/qdrant_api_key.txt')
+    client = QdrantClient(url=url, api_key=api_key)
+    print("Connected to cloud Qdrant server.")
+
+
+
+
+# # # Comment out this and uncomment a choice below to run Aetherius Locally.
+
+# client = QdrantClient(
+# url=open_file('./api_keys/qdrant_url.txt'),
+# api_key=open_file('./api_keys/qdrant_api_key.txt'),
+# )
+
+
+
+# Comment out Cloud Qdrant client code and uncomment this for local server
+# client = QdrantClient(host="localhost", port=6333)
+
+
+# # # Comments below are untested
+
+# Comment out Cloud Qdrant client code and uncomment this for temporary bot that is deleted on shutdown.
+# client = QdrantClient(":memory:")
+
+# Comment out Cloud Qdrant client code and uncomment this for local disk
+# client = QdrantClient(path="./nexus/qdrant")
+
+
+
 # For local streaming, the websockets are hosted without ssl - http://
 HOST = 'localhost:5000'
 URI = f'http://{HOST}/api/v1/chat'
@@ -1040,10 +1089,6 @@ def DB_Upload_Cadence(query):
         # Create Qdrant client
     #    client = QdrantClient(":memory:")
     #    client = QdrantClient("./nexus/qdrant/{username}")
-        client = QdrantClient(
-        url=open_file('./api_keys/qdrant_url.txt'),
-        api_key=open_file('./api_keys/qdrant_api_key.txt'),
-        )
         # Define the collection name
         collection_name = f"Cadence_Bot_{bot_name}_User_{username}"
         # Create the collection only if it doesn't exist
@@ -1113,10 +1158,6 @@ def DB_Upload_Heuristics(query):
         # Create Qdrant client
     #    client = QdrantClient(":memory:")
     #    client = QdrantClient("./nexus/qdrant/{username}")
-        client = QdrantClient(
-        url=open_file('./api_keys/qdrant_url.txt'),
-        api_key=open_file('./api_keys/qdrant_api_key.txt'),
-        )
         # Define the collection name
         collection_name = f"Heuristics_Bot_{bot_name}_User_{username}"
         # Create the collection only if it doesn't exist
@@ -1129,6 +1170,7 @@ def DB_Upload_Heuristics(query):
                 vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
             )
         vector1 = model.encode([query])[0].tolist()
+    #    embedding = model.encode(query)
         unique_id = str(uuid4())
         point_id = unique_id + str(int(timestamp))
         metadata = {
@@ -1176,10 +1218,6 @@ def ask_upload_implicit_memories(memories):
                 print(line)
                 payload = list()
             #    a = input(f'\n\nUSER: ')        
-                client = QdrantClient(
-                url=open_file('./api_keys/qdrant_url.txt'),
-                api_key=open_file('./api_keys/qdrant_api_key.txt'),
-                )
                 # Define the collection name
                 collection_name = f"Implicit_Short_Term_Memory_Bot_{bot_name}_User_{username}"
                 # Create the collection only if it doesn't exist
@@ -1229,10 +1267,6 @@ def ask_upload_explicit_memories(memories):
                 print(line)
                 payload = list()
             #    a = input(f'\n\nUSER: ')        
-                client = QdrantClient(
-                url=open_file('./api_keys/qdrant_url.txt'),
-                api_key=open_file('./api_keys/qdrant_api_key.txt'),
-                )
                 # Define the collection name
                 collection_name = f"Explicit_Short_Term_Memory_Bot_{bot_name}_User_{username}"
                 # Create the collection only if it doesn't exist
@@ -1277,10 +1311,6 @@ def ask_upload_episodic_memories(memories):
         # Create Qdrant client
     #    client = QdrantClient(":memory:")
     #    client = QdrantClient("./nexus/qdrant/{username}")
-        client = QdrantClient(
-        url=open_file('./api_keys/qdrant_url.txt'),
-        api_key=open_file('./api_keys/qdrant_api_key.txt'),
-        )
         # Define the collection name
         collection_name = f"Episodic_Memory_Bot_{bot_name}_User_{username}"
         # Create the collection only if it doesn't exist
@@ -1813,7 +1843,7 @@ class ChatBotApplication(tk.Frame):
             # You may need to adjust 'vdb' based on how your database is initialized.
             confirm = messagebox.askyesno("Confirmation", "Are you sure you want to delete heuristics?")
             if confirm:
-           #     vdb.delete(filter={"memory_type": "heuristics", "user": username}, namespace=f'{bot_name}')
+                client.delete_collection(collection_name=f"Heuristics_Bot_{bot_name}_User_{username}")
                 # Clear the results_text widget after deleting heuristics (optional)
                 results_text.delete("1.0", tk.END)  
 
@@ -1837,8 +1867,7 @@ class ChatBotApplication(tk.Frame):
                 # You may need to adjust 'vdb' based on how your database is initialized.
             confirm = messagebox.askyesno("Confirmation", "Are you sure you want to delete heuristics?")
             if confirm:
-                pass
-            #    vdb.delete(filter={"memory_type": "heuristics", "user": username}, namespace=f'{bot_name}')
+                client.delete_collection(collection_name=f"Heuristics_Bot_{bot_name}_User_{username}")
                 
                 
         def delete_bot():
@@ -1846,10 +1875,18 @@ class ChatBotApplication(tk.Frame):
                 # You may need to adjust 'vdb' based on how your database is initialized.
             confirm = messagebox.askyesno("Confirmation", f"Are you sure you want to delete {bot_name}?")
             if confirm:
-                pass
-            #    vdb.delete(delete_all=True, namespace=f'{bot_name}')
-            #    vdb.delete(delete_all=True, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
-            #    vdb.delete(delete_all=True, namespace=f'Tools_User_{username}_Bot_{bot_name}')
+                client.delete_collection(collection_name=f"Implicit_Short_Term_Memory_Bot_{bot_name}_User_{username}")
+                client.delete_collection(collection_name=f"Explicit_Short_Term_Memory_Bot_{bot_name}_User_{username}")
+                client.delete_collection(collection_name=f"Episodic_Memory_Bot_{bot_name}_User_{username}")
+                client.delete_collection(collection_name=f"Explicit_Long_Term_Memory_Bot_{bot_name}_User_{username}")
+                client.delete_collection(collection_name=f"Implicit_Long_Term_Memory_Bot_{bot_name}_User_{username}")
+                client.delete_collection(collection_name=f"Heuristics_Bot_{bot_name}_User_{username}")
+                client.delete_collection(collection_name=f"Cadence_Bot_{bot_name}_User_{username}")
+                client.delete_collection(collection_name=f"Flash_Counter_Bot_{bot_name}_User_{username}")
+                client.delete_collection(collection_name=f"Consol_Counter_Bot_{bot_name}_User_{username}")
+                client.delete_collection(collection_name=f"Flashbulb_Memory_Bot_{bot_name}_User_{username}")
+                
+          
                 
 
         delete_heuristics_button = tk.Button(deletion_window, text="Delete Heuristics", command=delete_heuristics)
@@ -1999,10 +2036,6 @@ class ChatBotApplication(tk.Frame):
         
         
     def GPT_Inner_Monologue(self, a):
-        client = QdrantClient(
-        url=open_file('./api_keys/qdrant_url.txt'),
-        api_key=open_file('./api_keys/qdrant_api_key.txt'),
-        )
         # # Number of Messages before conversation is summarized, higher number, higher api cost. Change to 3 when using GPT 3.5 due to token usage.
         m = multiprocessing.Manager()
         lock = m.Lock()
@@ -2257,10 +2290,6 @@ class ChatBotApplication(tk.Frame):
 
             
     def GPT_Intuition(self, a, vector_input, output_one, int_conversation):
-        client = QdrantClient(
-        url=open_file('./api_keys/qdrant_url.txt'),
-        api_key=open_file('./api_keys/qdrant_api_key.txt'),
-        )
         # # Number of Messages before conversation is summarized, higher number, higher api cost. Change to 3 when using GPT 3.5 due to token usage.
         m = multiprocessing.Manager()
         lock = m.Lock()
@@ -2386,7 +2415,7 @@ class ChatBotApplication(tk.Frame):
             paragraph = inner_loop_db
             vector = model.encode([paragraph])[0].tolist()
         #    vector = gpt3_embedding(inner_loop_db)
-            conversation.clear()
+            conversation.clear() 
             int_conversation.clear()
         #    self.master.after(0, self.update_intuition, output_two)
             self.conversation_text.insert(tk.END, f"Upload Memories?\n{inner_loop_response}\n\n")
@@ -2403,10 +2432,6 @@ class ChatBotApplication(tk.Frame):
                 
                 
     def GPT_Response(self, a, output_one, output_two):
-        client = QdrantClient(
-        url=open_file('./api_keys/qdrant_url.txt'),
-        api_key=open_file('./api_keys/qdrant_api_key.txt'),
-        )
         # # Number of Messages before conversation is summarized, higher number, higher api cost. Change to 3 when using GPT 3.5 due to token usage.
         m = multiprocessing.Manager()
         lock = m.Lock()
@@ -2608,10 +2633,6 @@ class ChatBotApplication(tk.Frame):
             
             
     def GPT_Memories(self, a, vector_input, vector_monologue, output_one, response_two):
-        client = QdrantClient(
-        url=open_file('./api_keys/qdrant_url.txt'),
-        api_key=open_file('./api_keys/qdrant_api_key.txt'),
-        )
         # # Number of Messages before conversation is summarized, higher number, higher api cost. Change to 3 when using GPT 3.5 due to token usage.
         m = multiprocessing.Manager()
         lock = m.Lock()
@@ -2654,10 +2675,6 @@ class ChatBotApplication(tk.Frame):
             print('\n-----------------------\n')
         #    self.conversation_text.insert(tk.END, f"Upload Memories?\n{conv_summary}\n\n")
         #    ask_upload_episodic_memories(conv_summary)
-            client = QdrantClient(
-            url=open_file('./api_keys/qdrant_url.txt'),
-            api_key=open_file('./api_keys/qdrant_api_key.txt'),
-            )
             # Define the collection name
             collection_name = f"Episodic_Memory_Bot_{bot_name}_User_{username}"
             # Create the collection only if it doesn't exist
@@ -2754,10 +2771,6 @@ class ChatBotApplication(tk.Frame):
                     if line.strip() == '':  # This condition checks for blank lines
                         continue
                     else:
-                        client = QdrantClient(
-                        url=open_file('./api_keys/qdrant_url.txt'),
-                        api_key=open_file('./api_keys/qdrant_api_key.txt'),
-                        )
                         # Define the collection name
                         collection_name = f"Flashbulb_Memory_Bot_{bot_name}_User_{username}"
                         # Create the collection only if it doesn't exist
@@ -2814,10 +2827,6 @@ class ChatBotApplication(tk.Frame):
                         continue
                     else:
                         print(line)
-                        client = QdrantClient(
-                        url=open_file('./api_keys/qdrant_url.txt'),
-                        api_key=open_file('./api_keys/qdrant_api_key.txt'),
-                        )
                         # Define the collection name
                         collection_name = f"Explicit_Long_Term_Memory_Bot_{bot_name}_User_{username}"
                         # Create the collection only if it doesn't exist
@@ -2928,10 +2937,6 @@ class ChatBotApplication(tk.Frame):
                             continue
                         else:
                             print(line)
-                            client = QdrantClient(
-                            url=open_file('./api_keys/qdrant_url.txt'),
-                            api_key=open_file('./api_keys/qdrant_api_key.txt'),
-                            )
                             # Define the collection name
                             collection_name = f"Implicit_Long_Term_Memory_Bot_{bot_name}_User_{username}"
                             # Create the collection only if it doesn't exist
@@ -2997,10 +3002,6 @@ class ChatBotApplication(tk.Frame):
                             continue
                         else:
                             print(line)
-                            client = QdrantClient(
-                            url=open_file('./api_keys/qdrant_url.txt'),
-                            api_key=open_file('./api_keys/qdrant_api_key.txt'),
-                            )
                             # Define the collection name
                             collection_name = f"Implicit_Long_Term_Memory_Bot_{bot_name}_User_{username}"
                             # Create the collection only if it doesn't exist
@@ -3094,10 +3095,6 @@ class ChatBotApplication(tk.Frame):
                             continue
                         else: 
                             print(line)
-                            client = QdrantClient(
-                            url=open_file('./api_keys/qdrant_url.txt'),
-                            api_key=open_file('./api_keys/qdrant_api_key.txt'),
-                            )
                             # Define the collection name
                             collection_name = f"Explicit_Long_Term_Memory_Bot_{bot_name}_User_{username}"
                             # Create the collection only if it doesn't exist

@@ -45,16 +45,16 @@ model = SentenceTransformer('all-mpnet-base-v2')
 
 encode = SentenceTransformer('all-mpnet-base-v2')
 
-# client = QdrantClient(
-# url=open_file('./api_keys/qdrant_url.txt'),
-# api_key=open_file('./api_keys/qdrant_api_key.txt'),
-# )
+client = QdrantClient(
+url=open_file('./api_keys/qdrant_url.txt'),
+api_key=open_file('./api_keys/qdrant_api_key.txt'),
+)
+
+# Comment out Cloud Qdrant client code and uncomment this for local server
+# client = QdrantClient(host="localhost", port=6333)
 
 
 # # # Comments below are untested
-
-# Comment out Cloud Qdrant client code and uncomment this for local server
-client = QdrantClient(host="localhost", port=6333)
 
 # Comment out Cloud Qdrant client code and uncomment this for temporary bot that is deleted on shutdown.
 # client = QdrantClient(":memory:")
@@ -1810,7 +1810,7 @@ class ChatBotApplication(tk.Frame):
             # You may need to adjust 'vdb' based on how your database is initialized.
             confirm = messagebox.askyesno("Confirmation", "Are you sure you want to delete heuristics?")
             if confirm:
-           #     vdb.delete(filter={"memory_type": "heuristics", "user": username}, namespace=f'{bot_name}')
+                client.delete_collection(collection_name=f"Heuristics_Bot_{bot_name}_User_{username}")
                 # Clear the results_text widget after deleting heuristics (optional)
                 results_text.delete("1.0", tk.END)  
 
@@ -1834,8 +1834,7 @@ class ChatBotApplication(tk.Frame):
                 # You may need to adjust 'vdb' based on how your database is initialized.
             confirm = messagebox.askyesno("Confirmation", "Are you sure you want to delete heuristics?")
             if confirm:
-                pass
-            #    vdb.delete(filter={"memory_type": "heuristics", "user": username}, namespace=f'{bot_name}')
+                client.delete_collection(collection_name=f"Heuristics_Bot_{bot_name}_User_{username}")
                 
                 
         def delete_bot():
@@ -1843,10 +1842,15 @@ class ChatBotApplication(tk.Frame):
                 # You may need to adjust 'vdb' based on how your database is initialized.
             confirm = messagebox.askyesno("Confirmation", f"Are you sure you want to delete {bot_name}?")
             if confirm:
-                pass
-            #    vdb.delete(delete_all=True, namespace=f'{bot_name}')
-            #    vdb.delete(delete_all=True, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
-            #    vdb.delete(delete_all=True, namespace=f'Tools_User_{username}_Bot_{bot_name}')
+                client.delete_collection(collection_name=f"Implicit_Short_Term_Memory_Bot_{bot_name}_User_{username}")
+                client.delete_collection(collection_name=f"Explicit_Short_Term_Memory_Bot_{bot_name}_User_{username}")
+                client.delete_collection(collection_name=f"Episodic_Memory_Bot_{bot_name}_User_{username}")
+                client.delete_collection(collection_name=f"Explicit_Long_Term_Memory_Bot_{bot_name}_User_{username}")
+                client.delete_collection(collection_name=f"Implicit_Long_Term_Memory_Bot_{bot_name}_User_{username}")
+                client.delete_collection(collection_name=f"Heuristics_Bot_{bot_name}_User_{username}")
+                client.delete_collection(collection_name=f"Cadence_Bot_{bot_name}_User_{username}")
+                client.delete_collection(collection_name=f"Flashbulb_Memory_Bot_{bot_name}_User_{username}")
+          
                 
 
         delete_heuristics_button = tk.Button(deletion_window, text="Delete Heuristics", command=delete_heuristics)

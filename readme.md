@@ -5,13 +5,13 @@ Version .042b of Aetherius Personal Assistant/Companion by LibraryofCelsus.com
 
 Note: The current Version of Aetherius should be seen as a tech demo to play around with, while it is usable, I constantly make changes to the architecture and updating the scripts may break whatever bot you are talking to.
 
-Pinecone has recently changed their free tier.  They both removed namespaces and deleting by metadata, and as such it is no longer useable for new users.  New users must either the Qdrant version.
+Pinecone has recently changed their free tier.  They both removed namespaces and deleting by metadata, and as such it is no longer useable for new users.  New users must use the Qdrant version.
 
 **Local Llama-2 Update**
 
 **Experimental Folder Changelog**
 
--Added Qdrant Version of Llama 2 Version of Aetherius, this version uses their cloud service.  I will be uploading a version using the local docker soon.  Qdrant Cloud: https://qdrant.to/cloud
+-Added Qdrant Version of Llama 2 Version of Aetherius, this version uses their cloud service.  I will be uploading a version using the local docker soon.  Place the Qdrant Api Key and Url in the corresponding .txt files in the /api_keys folder.  Qdrant Cloud: https://qdrant.to/cloud
 
 -Added Experimental Version of the file scrape tool using Llama 2
 
@@ -213,6 +213,8 @@ Run the Installer Bat, it is located at: https://github.com/libraryofcelsus/Aeth
 
 Copy your OpenAi and Pinecone API keys to api_key folder inside of the created Aetherius_Ai_Assistant folder
 
+If using Qdrant copy their Api key and Url instead of Pinecone.
+
 If you get an error, you may need to do steps 5, 8, and 9 from the manual installation.
 
 Launch Aetherius with **run.bat**
@@ -259,7 +261,7 @@ Click the "load" button and load the model. The Oobabooga API bots should now wo
 
 11. Create a Index on pinecone.io titled: "aetherius" with 768 dimensions and cosine as the metric. I usually do a P1 instance. (Use 1536 dimensions for Open Ai embeddings.)
 
-12. Copy Api key for that Index and paste it in key_pinecone.txt
+12. Copy Api key for that Index and paste it in key_pinecone.txt  (If using Qdrant copy their Api key and Url instead of Pinecone.)
 
 13. Copy the Pinecone Environment and paste it in key_pinecone_env.txt
 

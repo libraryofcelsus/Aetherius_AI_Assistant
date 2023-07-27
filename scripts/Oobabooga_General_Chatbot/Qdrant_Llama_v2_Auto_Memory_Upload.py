@@ -1352,7 +1352,7 @@ class MainConversation:
 
         # Load existing conversation from file
         if os.path.exists(self.file_path):
-            with open(self.file_path, 'r') as f:
+            with open(self.file_path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
                 self.running_conversation = data.get('running_conversation', [])
         else:
@@ -1498,7 +1498,7 @@ class ChatBotApplication(tk.Frame):
         username = open_file('./config/prompt_username.txt')
         file_path = f"./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt"
 
-        with open(file_path, 'r') as file:
+        with open(file_path, 'r', encoding='utf-8') as file:
             prompt_contents = file.read()
 
         top = tk.Toplevel(self)
@@ -1526,7 +1526,7 @@ class ChatBotApplication(tk.Frame):
         username = open_file('./config/prompt_username.txt')
         file_path = f"./config/Chatbot_Prompts/{username}/{bot_name}/prompt_secondary.txt"
         
-        with open(file_path, 'r') as file:
+        with open(file_path, 'r', encoding='utf-8') as file:
             prompt_contents = file.read()
         
         top = tk.Toplevel(self)
@@ -1551,7 +1551,7 @@ class ChatBotApplication(tk.Frame):
     def Edit_Font(self):
         file_path = "./config/font.txt"
 
-        with open(file_path, 'r') as file:
+        with open(file_path, 'r', encoding='utf-8') as file:
             font_value = file.read()
 
         fonts = font.families()
@@ -1587,7 +1587,7 @@ class ChatBotApplication(tk.Frame):
     def Edit_Font_Size(self):
         file_path = "./config/font_size.txt"
 
-        with open(file_path, 'r') as file:
+        with open(file_path, 'r', encoding='utf-8') as file:
             font_size_value = file.read()
 
         top = tk.Toplevel(self)
@@ -1634,7 +1634,7 @@ class ChatBotApplication(tk.Frame):
         username = open_file('./config/prompt_username.txt')
         file_path = f"./config/Chatbot_Prompts/{username}/{bot_name}/prompt_greeting.txt"
         
-        with open(file_path, 'r') as file:
+        with open(file_path, 'r', encoding='utf-8') as file:
             prompt_contents = file.read()
         
         top = tk.Toplevel(self)
@@ -1661,7 +1661,7 @@ class ChatBotApplication(tk.Frame):
         username = open_file('./config/prompt_username.txt')
         file_path = f"./history/{username}/{bot_name}_main_conversation_history.json"
 
-        with open(file_path, 'r') as file:
+        with open(file_path, 'r', encoding='utf-8') as file:
             conversation_data = json.load(file)
 
         running_conversation = conversation_data.get("running_conversation", [])
@@ -1733,7 +1733,7 @@ class ChatBotApplication(tk.Frame):
     def Model_Selection(self):
         file_path = "./config/model.txt"
         
-        with open(file_path, 'r') as file:
+        with open(file_path, 'r', encoding='utf-8') as file:
             prompt_contents = file.read()
         
         top = tk.Toplevel(self)

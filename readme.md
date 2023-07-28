@@ -14,6 +14,8 @@ Pinecone has recently changed their free tier.  They both removed namespaces and
 
 **Experimental Changelog**
 
+-Added Qdrant Version of basic OpenAi Chatbot, still the same bot as from a month ago, just uses Qdrant as the Vector DB.
+
 -Added Qdrant Version of Llama 2 Version of Aetherius.  If a local Qdrant server is running it will use that, otherwise it will connect to the cloud.  To use the cloud, place the Qdrant Api Key and Url in the corresponding .txt files in the /api_keys folder.  Collection not existing errors will disapear once something has been entered into the collection.       
 Qdrant Cloud: https://qdrant.to/cloud                 
 To install the local Qdrant server, first install Docker: https://www.docker.com/, then see: https://github.com/qdrant/qdrant/blob/master/QUICK_START.md

@@ -798,14 +798,14 @@ def oobabooga_scrape(prompt):
         # in presets/preset-name.yaml are used instead of the individual numbers.
         'preset': 'None',  
         'do_sample': True,
-        'temperature': 0.85,
-        'top_p': 0.2,
+        'temperature': 0.7,
+        'top_p': 0.3,
         'typical_p': 1,
         'epsilon_cutoff': 0,  # In units of 1e-4
         'eta_cutoff': 0,  # In units of 1e-4
         'tfs': 1,
         'top_a': 0,
-        'repetition_penalty': 1.10,
+        'repetition_penalty': 1.08,
         'top_k': 40,
         'min_length': 100,
         'no_repeat_ngram_size': 0,

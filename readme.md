@@ -2,6 +2,7 @@
 Version .043 of Aetherius Personal Assistant/Companion by LibraryofCelsus.com
 
 **What is Aetherius?**  Aetherius is an Ai LLM Retrieval Framework focused on bringing realistic long-term memory and thought formation to a customizable chatbot/companion. I am repulsed by the rampant personal consumer data that is sent to companies without thought, the ability to be manipulated increases evermore with the advent of personalized Ai companions.  My goal is to create a local Ai Companion in which you actually have control over and own. One that cannot be changed by an external force to subtly manipulate.  
+Aetherius's current modules include a websearch/scrape and a file processing chatbot.
 
 With the Qdrant Version, Aetherius can now be ran locally and offline maintaining 100% privacy!
 
@@ -28,6 +29,8 @@ To install the local Qdrant server, first install Docker: https://www.docker.com
 <a href="https://www.buymeacoffee.com/libraryofcelsus" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
 
 ------
+
+[Skip to Current Version Information](#current-version-information)
 
 [Skip to installation guide](#installation-guide)
 
@@ -66,6 +69,16 @@ Welcome to the pre-alpha release of Aetherius, a highly customizable AI assistan
 Currently, Aetherius's main focus is creating a good architecture for realistic long-term memory storage and thought formation. Currently Aetherius has websearch and document scraping abilities.  More features will come at a later date.
 
 Aetherius aims to provide a modular, personalized AI assistant experience by enabling the addition of task-specific Modules and Sub-Modules. If all goes as planned, Aetherius will support integration with other open-source projects and models.
+
+## Aetherius's Modules
+
+All modules upload to the main chatbot's memories, so it's knowledgebase will grow on whatever external data you want!
+
+**Main Chatbot:** A chatbot with realistic long term memory to serve as your personal Ai companion!
+
+**Aethersearch:** This is a websearch/scrape chatbot
+
+**File Processor:** This is a chatbot that will let you talk with your own files.  It supports a variety of formats including Image OCR.
 
 # Changelog:
 0.043

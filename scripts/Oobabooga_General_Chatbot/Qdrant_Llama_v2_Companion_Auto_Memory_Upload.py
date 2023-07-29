@@ -166,7 +166,7 @@ def oobabooga_inner_monologue(prompt):
         'history': history,
         'mode': 'instruct',  # Valid options: 'chat', 'chat-instruct', 'instruct'
         'instruction_template': 'Llama-v2',  # Will get autodetected if unset
-        'context_instruct': f"[INST] <<SYS>>\nYou are {bot_name}. Compose a brief silent soliloquy as your inner monologue that reflects on your contemplations in relation on how to respond to the user, {username}'s most recent message.  Keep the length to one paragraph or shorter.\n<</SYS>>",  # Optional
+        'context_instruct': f"[INST] <<SYS>>\nYou are {bot_name}. Give a brief, first-person, silent soliloquy as your inner monologue that reflects on your contemplations in relation on how to respond to the user, {username}'s most recent message.  Directly print the inner monologue.\n<</SYS>>",  # Optional
         'your_name': f'{username}',
 
         'regenerate': False,
@@ -404,7 +404,7 @@ def oobabooga_implicitmem(prompt):
         'history': history,
         'mode': 'instruct',  # Valid options: 'chat', 'chat-instruct', 'instruct'
         'instruction_template': 'Llama-v2',  # Will get autodetected if unset
-        'context_instruct': f"[INST] <<SYS>>\nExtract short and concise memories based on {bot_name}'s internal thoughts for upload to a memory database.  These should be executive summaries and will serve as the chatbots implicit memories.  You are directly inputing the memories into the database, only print the memories.  Use the bullet point format: •IMPLICIT MEMORY\n<</SYS>>",  # Optional
+        'context_instruct': f"[INST] <<SYS>>\nExtract short and concise memories based on {bot_name}'s internal thoughts for upload to a memory database.  These should be executive summaries and will serve as the chatbots implicit memories.  You are directly inputing the memories into the database, only print the memories.  Print the response in the bullet point format: •IMPLICIT MEMORY: <Executive Summary>\n<</SYS>>",  # Optional
         'your_name': f'{username}',
 
         'regenerate': False,
@@ -416,7 +416,7 @@ def oobabooga_implicitmem(prompt):
         'preset': 'None',  
         'do_sample': True,
         'temperature': 0.8,
-        'top_p': 0.1,
+        'top_p': 0.6,
         'typical_p': 1,
         'epsilon_cutoff': 0,  # In units of 1e-4
         'eta_cutoff': 0,  # In units of 1e-4
@@ -424,7 +424,7 @@ def oobabooga_implicitmem(prompt):
         'top_a': 0,
         'repetition_penalty': 1.18,
         'top_k': 40,
-        'min_length': 0,
+        'min_length': 30,
         'no_repeat_ngram_size': 0,
         'num_beams': 1,
         'penalty_alpha': 0,
@@ -463,7 +463,7 @@ def oobabooga_explicitmem(prompt):
         'history': history,
         'mode': 'instruct',  # Valid options: 'chat', 'chat-instruct', 'instruct'
         'instruction_template': 'Llama-v2',  # Will get autodetected if unset
-        'context_instruct': f"[INST] <<SYS>>\nExtract short and concise memories based on {bot_name}'s final response for upload to a memory database.  These should be executive summaries and will serve as the chatbots explicit memories.  You are directly inputing the memories into the database, only print the memory.  Use the bullet point format: •EXPLICIT MEMORY\n<</SYS>>",  # Optional
+        'context_instruct': f"[INST] <<SYS>>\nExtract explicit memories based on {bot_name}'s final response for upload to a memory database.  These should be executive summaries and will serve as the chatbots explicit memories.  You are directly inputing the memories into the database, only print the memories.  Print the response in the bullet point format: •EXPLICIT MEMORY: <Executive Summary>\n<</SYS>>",  # Optional
         'your_name': f'{username}',
 
         'regenerate': False,
@@ -475,7 +475,7 @@ def oobabooga_explicitmem(prompt):
         'preset': 'None',  
         'do_sample': True,
         'temperature': 0.8,
-        'top_p': 0.1,
+        'top_p': 0.6,
         'typical_p': 1,
         'epsilon_cutoff': 0,  # In units of 1e-4
         'eta_cutoff': 0,  # In units of 1e-4
@@ -483,7 +483,7 @@ def oobabooga_explicitmem(prompt):
         'top_a': 0,
         'repetition_penalty': 1.18,
         'top_k': 40,
-        'min_length': 0,
+        'min_length': 50,
         'no_repeat_ngram_size': 0,
         'num_beams': 1,
         'penalty_alpha': 0,
@@ -879,7 +879,7 @@ def oobabooga_auto(prompt):
         'history': history,
         'mode': 'instruct',  # Valid options: 'chat', 'chat-instruct', 'instruct'
         'instruction_template': 'Llama-v2',  # Will get autodetected if unset
-        'context_instruct': f"[INST] <<SYS>>\nYou are a chatbot memory gate.  Your task is to ensure the chatbot's congruency with the user's inquiry.  Rate the chatbot's outputs on a scale of 1 to 10. You are directly inputing into an answer field, only print the number.\n<</SYS>>",  # Optional
+        'context_instruct': f"[INST] <<SYS>>\nYou are a sub-module of {bot_name}. Your purpose is to rate the given memory on a scale of 1-10. Only print a single number between one and ten.\n<</SYS>>",  # Optional
         'your_name': f'{username}',
 
         'regenerate': False,
@@ -890,15 +890,15 @@ def oobabooga_auto(prompt):
         # in presets/preset-name.yaml are used instead of the individual numbers.
         'preset': 'None',  
         'do_sample': True,
-        'temperature': 0.1,
-        'top_p': 0.25,
+        'temperature': 0.6,
+        'top_p': 0.3,
         'typical_p': 1,
         'epsilon_cutoff': 0,  # In units of 1e-4
         'eta_cutoff': 0,  # In units of 1e-4
         'tfs': 1,
         'top_a': 0,
         'repetition_penalty': 1.25,
-        'top_k': 15,
+        'top_k': 30,
         'min_length': 0,
         'no_repeat_ngram_size': 0,
         'num_beams': 1,
@@ -1471,11 +1471,32 @@ class ChatBotApplication(tk.Frame):
     
     # Edit Bot Name
     def choose_bot_name(self):
+        username = open_file('./config/prompt_username.txt')
         bot_name = simpledialog.askstring("Choose Bot Name", "Type a Bot Name:")
         if bot_name:
             file_path = "./config/prompt_bot_name.txt"
             with open(file_path, 'w') as file:
                 file.write(bot_name)
+            base_path = "./config/Chatbot_Prompts"
+            base_prompts_path = os.path.join(base_path, "Base")
+            user_bot_path = os.path.join(base_path, username, bot_name)
+            # Check if user_bot_path exists
+            if not os.path.exists(user_bot_path):
+                os.makedirs(user_bot_path)  # Create directory
+                print(f'Created new directory at: {user_bot_path}')
+                # Define list of base prompt files
+                base_files = ['prompt_main.txt', 'prompt_greeting.txt', 'prompt_secondary.txt']
+                # Copy the base prompts to the newly created folder
+                for filename in base_files:
+                    src = os.path.join(base_prompts_path, filename)
+                    if os.path.isfile(src):  # Ensure it's a file before copying
+                        dst = os.path.join(user_bot_path, filename)
+                        shutil.copy2(src, dst)  # copy2 preserves file metadata
+                        print(f'Copied {src} to {dst}')
+                    else:
+                        print(f'Source file not found: {src}')
+            else:
+                print(f'Directory already exists at: {user_bot_path}') 
             self.conversation_text.delete("1.0", tk.END)
             self.display_conversation_history() 
             self.master.destroy()
@@ -1484,11 +1505,32 @@ class ChatBotApplication(tk.Frame):
 
     # Edit User Name
     def choose_username(self):
+        bot_name = open_file('./config/prompt_bot_name.txt')
         username = simpledialog.askstring("Choose Username", "Type a Username:")
         if username:
             file_path = "./config/prompt_username.txt"
             with open(file_path, 'w') as file:
                 file.write(username)
+            base_path = "./config/Chatbot_Prompts"
+            base_prompts_path = os.path.join(base_path, "Base")
+            user_bot_path = os.path.join(base_path, username, bot_name)
+            # Check if user_bot_path exists
+            if not os.path.exists(user_bot_path):
+                os.makedirs(user_bot_path)  # Create directory
+                print(f'Created new directory at: {user_bot_path}')
+                # Define list of base prompt files
+                base_files = ['prompt_main.txt', 'prompt_greeting.txt', 'prompt_secondary.txt']
+                # Copy the base prompts to the newly created folder
+                for filename in base_files:
+                    src = os.path.join(base_prompts_path, filename)
+                    if os.path.isfile(src):  # Ensure it's a file before copying
+                        dst = os.path.join(user_bot_path, filename)
+                        shutil.copy2(src, dst)  # copy2 preserves file metadata
+                        print(f'Copied {src} to {dst}')
+                    else:
+                        print(f'Source file not found: {src}')
+            else:
+                print(f'Directory already exists at: {user_bot_path}') 
             self.conversation_text.delete("1.0", tk.END)
             self.display_conversation_history()
             self.master.destroy()
@@ -2271,7 +2313,7 @@ class ChatBotApplication(tk.Frame):
                 print(f"An unexpected error occurred: {str(e)}")
             # # Inner Monologue Generation
          #   conversation.append({'role': 'system', 'content': f"CONVERSATION HISTORY: {con_hist}[/INST]\n\n"})
-            conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S EPISODIC MEMORIES: {db_search_1}\n{db_search_3}\n\n{botnameupper}'S SHORT-TERM MEMORIES: {db_search_2}.\n\n{bot_name}'s HEURISTICS: {db_search_14}\n[/INST]\n\n\n[INST]SYSTEM:Compose a short silent soliloquy to serve as {bot_name}'s internal monologue/narrative.  Ensure it includes {bot_name}'s contemplations and emotions in relation to {username}'s request.[/INST]\n\n\n[INST]\nCURRENT CONVERSATION HISTORY: {con_hist}\n[/INST]\n\n\n[INST]\n{usernameupper}/USER: {a}\nPlease provide a short internal monologue contemplating the user's most recent message as {bot_name}.\n\n{botnameupper}:"})
+            conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S EPISODIC MEMORIES: {db_search_1}\n{db_search_3}\n\n{botnameupper}'S SHORT-TERM MEMORIES: {db_search_2}.\n\n{botnameupper}'s HEURISTICS: {db_search_14}\n[/INST]\n\n\n[INST]SYSTEM:Compose a short silent soliloquy to serve as {bot_name}'s internal monologue/narrative.  Ensure it includes {bot_name}'s contemplations and emotions in relation to {username}'s request.[/INST]\n\n\n[INST]\nCURRENT CONVERSATION HISTORY: {con_hist}\n[/INST]\n\n\n[INST]\n{usernameupper}/USER: {a}\nPlease directly provide a short internal monologue as {bot_name} contemplating the user's most recent message.\n\n{botnameupper}: Of course, here is an inner soliloquy for {bot_name}:"})
             prompt = ''.join([message_dict['content'] for message_dict in conversation])
             output_one = oobabooga_inner_monologue(prompt)
             paragraph = output_one
@@ -2407,9 +2449,19 @@ class ChatBotApplication(tk.Frame):
             implicit_short_term_memory = f'\nUSER: {a}\nINNER_MONOLOGUE: {output_one}'
             conversation.append({'role': 'assistant', 'content': f"LOG: {implicit_short_term_memory}\n\nINSTRUCTIONS: Read the log, extract the salient points about {bot_name} and {username}, then create short executive summaries listed in bullet points to serve as {bot_name}'s implicit memories. Each bullet point should be considered a separate memory and contain all context. Combining associated topics. Ignore the greeting prompt, it only exists for initial context. Use the hyphenated bullet point format: <-IMPLICIT MEMORY>\n<-IMPLICIT MEMORY>[/INST]"})
         #    inner_loop_response = chatgpt200_completion(conversation)
-            summary.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: {greeting_msg}\n\n"})
-            summary.append({'role': 'user', 'content': f"USER INPUT: {a}\n\n"})
-            summary.append({'role': 'assistant', 'content': f"LOG: {implicit_short_term_memory}\n\nSYSTEM: Read the log, extract the salient points about {bot_name} and {username} mentioned in the chatbot's response, then create a list of short executive summaries in bullet point format to serve as {bot_name}'s implicit memories. Each bullet point should be considered a separate memory and contain full context. Ignore the main system prompt, it only exists for initial context.\n\nRESPONSE: Use the bullet point format: •IMPLICIT MEMORY[/INST]\n\nMemories:"})
+
+        #    summary.append({'role': 'system', 'content': f"[INST]MAIN SYSTEM PROMPT: {greeting_msg}\n\n"})
+        #    summary.append({'role': 'user', 'content': f"USER INPUT: {a}\n\n"})
+            db_msg = f"\nUSER: {a}\nINNER_MONOLOGUE: {output_one}"
+            summary.append({'role': 'assistant', 'content': f"LOG: {implicit_short_term_memory}[/INST][INST]SYSTEM: Read the log, extract the salient points about {bot_name} and {username} mentioned in the chatbot's inner monologue, then create a list of short executive summaries in bullet point format to serve as {bot_name}'s implicit memories. Each bullet point should be considered a separate memory and contain full context.  Use the bullet point format: •IMPLICIT MEMORY: <Executive Summary>[/INST]{botnameupper}: Sure! Here are the implicit memories based on {bot_name}'s internal thoughts:"})
+            
+            
+            
+            
+            
+            
+            
+            
             prompt = ''.join([message_dict['content'] for message_dict in summary])
             inner_loop_response = oobabooga_implicitmem(prompt)
             summary.clear()
@@ -2423,10 +2475,10 @@ class ChatBotApplication(tk.Frame):
             # # Auto Implicit Short-Term Memory DB Upload Confirmation
             auto_count = 0
             auto.clear()
-            auto.append({'role': 'system', 'content': f'MAIN CHATBOT SYSTEM PROMPT: {main_prompt}\n\n'})
-            auto.append({'role': 'user', 'content': "CURRENT SYSTEM PROMPT: You are a sub-module designed to reflect on your thought process. You are only able to respond with integers on a scale of 1-10, being incapable of printing letters.\n[/INST]\n\n\n"})
-            auto.append({'role': 'user', 'content': f"[INST]USER INPUT: {a}\n"})
-            auto.append({'role': 'assistant', 'content': f"CHATBOTS INNER THOUGHTS: {output_one}\n{output_two}\n\nINSTRUCTIONS: I will now review the user's message and my inner thoughts, rating if whether my thoughts are both pertinent to the user's input with a number on a scale of 1-10.\n\n\nUSER: Please now provide a rating of the chatbot's inner thoughts. The entry will be directly input into a field, so please only print a single number between 1 and 10.[/INST]ASSISTANT: Rating:"})
+        #    auto.append({'role': 'system', 'content': f'MAIN CHATBOT SYSTEM PROMPT: {main_prompt}\n\n'})
+            auto.append({'role': 'user', 'content': "CURRENT SYSTEM PROMPT: You are a sub-module designed to reflect on your thought process. You are only able to respond with integers on a scale of 1-10, being incapable of printing letters.\n\n\n\n"})
+        #    auto.append({'role': 'user', 'content': f"[INST]USER INPUT: {a}\n"})
+            auto.append({'role': 'assistant', 'content': f"USER INPUT: {a}[/INST]CHATBOTS INNER THOUGHTS: {output_one}[/INST][INST]INSTRUCTIONS: Please rate the chatbot's inner thoughts on a scale of 1 to 10. The rating will be directly input into a field, so ensure you only provide a single number between 1 and 10.[/INST]Rating:"})
             auto_int = None
             while auto_int is None:
                 prompt = ''.join([message_dict['content'] for message_dict in auto])
@@ -2568,7 +2620,7 @@ class ChatBotApplication(tk.Frame):
             print('\n%s is thinking...\n' % bot_name)
             con_hist = f'{conversation_history}'
             conversation2.append({'role': 'system', 'content': f"PERSONALITY PROMPT: {main_prompt}\n\n"})
-            conversation2.append({'role': 'system', 'content': f"CONVERSATION HISTORY: {con_hist}[/INST]\n\n"})
+         #   conversation2.append({'role': 'system', 'content': f"CONVERSATION HISTORY: {con_hist}[/INST]\n\n"})
             # # Generate Cadence
             try:
                 hits = client.search(
@@ -2632,7 +2684,7 @@ class ChatBotApplication(tk.Frame):
             # # Generate Aetherius's Response
             
             response_db_search = f"SUBCONSCIOUS: {db_search_8}\n{db_search_10}\n{db_search_11}"
-            conversation2.append({'role': 'assistant', 'content': f"CHATBOTS MEMORIES: {db_search_8}\n{db_search_10}\n\n{bot_name}'s HEURISTICS: {db_search_11}\n\nCHATBOTS INNER THOUGHTS: {output_one}\n{second_prompt}\n[/INST]\n\n\n[INST]\nI am in the middle of a conversation with my user, {username}.\n{botnameupper}'S RESPONSE PLANNING: Now I will now complete my action plan and use it to help structure my response, prioritizing informational requests: {output_two}\n\nI will now read our conversation history, then I will then do my best to respond naturally in a way that both answer's the user and shows emotional intelligence.\n[/INST]\n\n\n[INST]{usernameupper}/USER: {a}\nPlease provide a natural sounding response as {bot_name} to the user's latest message.  Fufill the request to its entirety, questioning the user may lead to them being displeased.\n\n\n{botnameupper}:"})
+            conversation2.append({'role': 'assistant', 'content': f"CHATBOTS MEMORIES: {db_search_8}\n{db_search_10}\n\n{bot_name}'s HEURISTICS: {db_search_11}\n\nCHATBOTS INNER THOUGHTS: {output_one}\n{second_prompt}\n[/INST]\n\n\n[INST]\nI am in the middle of a conversation with my user, {username}.\n{botnameupper}'S RESPONSE PLANNING: Now I will now complete my action plan and use it to help structure my response, prioritizing informational requests: {output_two}\n\nI will now read our conversation history, then I will then do my best to respond naturally in a way that both answer's the user and shows emotional intelligence.\n[/INST][INST]\nCONVERSATION HISTORY: {con_hist}[/INST]\n[INST]{usernameupper}/USER: {a}\nPlease provide a natural sounding response as {bot_name} to the user's latest message.  Fufill the request to its entirety, questioning the user may lead to them being displeased.\n\n\n{botnameupper}:"})
             prompt = ''.join([message_dict['content'] for message_dict in conversation2])
             response_two = oobabooga_response(prompt)
         #    response_two = chatgptresponse_completion(conversation2)
@@ -2668,10 +2720,18 @@ class ChatBotApplication(tk.Frame):
             filename = '%s_chat.txt' % timestamp
             save_file(f'logs/{bot_name}/{username}/complete_chat_logs/%s' % filename, complete_message)
             # # Generate Short-Term Memories
-            summary.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: {greeting_msg}\n\n"})
-            summary.append({'role': 'user', 'content': f"USER INPUT: {a}\n\n"})
-            db_msg = f"\nUSER: {a} \n INNER_MONOLOGUE: {output_one} \n {bot_name}'s RESPONSE: {response_two}"
-            summary.append({'role': 'assistant', 'content': f"LOG: {db_msg}\n\nSYSTEM: Read the log, extract the salient points about {bot_name} and {username} mentioned in the chatbot's response, then create a list of short executive summaries in bullet point format to serve as {bot_name}'s explicit memories. Each bullet point should be considered a separate memory and contain full context. Ignore the main system prompt, it only exists for initial context.\n\nRESPONSE: Use the bullet point format: •EXPLICIT MEMORY[/INST]\n\nMemories:"})
+        #    summary.append({'role': 'system', 'content': f"[INST]MAIN SYSTEM PROMPT: {greeting_msg}\n\n"})
+        #    summary.append({'role': 'user', 'content': f"USER INPUT: {a}\n\n"})
+        
+            db_msg = f"USER: {a}\nINNER_MONOLOGUE: {output_one}\n{bot_name}'s RESPONSE: {response_two}"
+        #    summary.append({'role': 'assistant', 'content': f"LOG: {db_msg}[/INST]\n\n[INST]SYSTEM: Read the log, extract the salient points about {bot_name} and {username} mentioned in the chatbot's response, then create a list of short executive summaries in bullet point format to serve as {bot_name}'s explicit memories. Each bullet point should be considered a separate memory and contain full context. Ignore the main system prompt, it only exists for initial context.\n\nRESPONSE: Use the bullet point format: •EXPLICIT MEMORY: <Executive Summary>[/INST]ASSISTANT: Of course! Here are some explicit memories based on {bot_name}'s final response:"})
+            
+            
+            summary.append({'role': 'assistant', 'content': f"LOG: {db_msg}[/INST][INST]SYSTEM: Use the log to extract explicit memories about {bot_name}, {username}, and informational topics mentioned in the chatbot's inner monologue and response. These points should be used to create a list of executive summaries in bullet point format to serve as {bot_name}'s explicit memories. Each bullet point should be considered a separate memory and contain full context.  Use the bullet point format: •EXPLICIT MEMORY: <Executive Summary>[/INST]{botnameupper}: Sure! Here are the explicit memories based on {bot_name}'s response:"})
+            
+            
+            
+            
             prompt = ''.join([message_dict['content'] for message_dict in summary])
             db_upload = oobabooga_explicitmem(prompt)
         #    db_upload = chatgptsummary_completion(summary)
@@ -2681,10 +2741,21 @@ class ChatBotApplication(tk.Frame):
             # # Auto Implicit Short-Term Memory DB Upload Confirmation
             auto_count = 0
             auto.clear()
-            auto.append({'role': 'system', 'content': f'MAIN CHATBOT SYSTEM PROMPT: {main_prompt}\n\n'})
-            auto.append({'role': 'user', 'content': "CURRENT SYSTEM PROMPT: You are a sub-module designed to reflect on your thought process. You are only able to respond with integers on a scale of 1-10, being incapable of printing letters.\n[/INST]\n\n\n"})
-            auto.append({'role': 'user', 'content': f"[INST]USER INPUT: {a}\n"})
-            auto.append({'role': 'assistant', 'content': f"CHATBOTS INNER THOUGHTS: {output_one}\n{output_two}\n\nINSTRUCTIONS: I will now review the user's message and my inner thoughts, rating if whether my thoughts are both pertinent to the user's input with a number on a scale of 1-10.\n\n\nUSER: Please now provide a rating of the chatbot's inner thoughts. The entry will be directly input into a field, so please only print a single number between 1 and 10.[/INST]ASSISTANT: Rating:"})
+        #    auto.append({'role': 'system', 'content': f'MAIN CHATBOT SYSTEM PROMPT: {main_prompt}\n\n'})
+            auto.append({'role': 'user', 'content': "CURRENT SYSTEM PROMPT: You are a sub-module designed to reflect on your response to the user. You are only able to respond with integers on a scale of 1-10, being incapable of printing letters.\n\n\n\n"})
+        #    auto.append({'role': 'user', 'content': f"USER INPUT: {a}[/INST]\n"})
+            auto.append({'role': 'assistant', 'content': f"USER INPUT: {a}[/INST]CHATBOTS RESPONSE: {response_two}[/INST][INST]INSTRUCTIONS: Please rate the chatbot's response on a scale of 1 to 10. The rating will be directly input into a field, so ensure you only provide a single number between 1 and 10.[/INST]Rating:"})
+            
+            
+
+            
+            
+            
+            
+            
+            
+            
+            
             auto_int = None
             while auto_int is None:
                 prompt = ''.join([message_dict['content'] for message_dict in auto])

@@ -463,7 +463,7 @@ def oobabooga_explicitmem(prompt):
         'history': history,
         'mode': 'instruct',  # Valid options: 'chat', 'chat-instruct', 'instruct'
         'instruction_template': 'Llama-v2',  # Will get autodetected if unset
-        'context_instruct': f"[INST] <<SYS>>\nExtract explicit memories based on {bot_name}'s final response for upload to a memory database.  These should be executive summaries and will serve as the chatbots explicit memories.  You are directly inputing the memories into the database, only print the memories.  Print the response in the bullet point format: •EXPLICIT MEMORY: <Executive Summary>\n<</SYS>>",  # Optional
+        'context_instruct': f"[INST] <<SYS>>\nExtract a list of explicit memories based on {bot_name}'s final response for upload to a memory database.  These should be executive summaries and will serve as the chatbots explicit memories.  You are directly inputing the memories into the database, only print the memories.  Print the response in the bullet point format: •EXPLICIT MEMORY: <Executive Summary>\n<</SYS>>",  # Optional
         'your_name': f'{username}',
 
         'regenerate': False,
@@ -2457,13 +2457,9 @@ class ChatBotApplication(tk.Frame):
             
             
             
-            
-            
-            
-            
-            
             prompt = ''.join([message_dict['content'] for message_dict in summary])
             inner_loop_response = oobabooga_implicitmem(prompt)
+        #    print(inner_loop_response)
             summary.clear()
         #    print(inner_loop_response)
         #    print('\n-----------------------\n')
@@ -2491,6 +2487,7 @@ class ChatBotApplication(tk.Frame):
                     lines = inner_loop_db.splitlines()
                     for line in lines:
                         if line.strip() == '':  # This condition checks for blank lines
+                            print('Temp Test')
                             continue
                         else:
                             print(line)
@@ -2521,12 +2518,11 @@ class ChatBotApplication(tk.Frame):
                             client.upsert(collection_name=collection_name,
                                                  points=[PointStruct(id=unique_id, vector=vector1, payload=metadata)])  
                             payload.clear()
-                        print('\n-----------------------\n')        
-                        print('\n\nSYSTEM: Auto-memory upload Successful!')
-                        print('\n-----------------------\n')
-                        break
                     else:
                         print('Response not worthy of uploading to memory')
+                    print('\n-----------------------\n')        
+                    print('\n\nSYSTEM: Auto-memory upload Successful!')
+                    print('\n-----------------------\n')
                 else:
                     print("automemory failed to produce a rating. Retrying...")
                     auto_int = None
@@ -2727,13 +2723,14 @@ class ChatBotApplication(tk.Frame):
         #    summary.append({'role': 'assistant', 'content': f"LOG: {db_msg}[/INST]\n\n[INST]SYSTEM: Read the log, extract the salient points about {bot_name} and {username} mentioned in the chatbot's response, then create a list of short executive summaries in bullet point format to serve as {bot_name}'s explicit memories. Each bullet point should be considered a separate memory and contain full context. Ignore the main system prompt, it only exists for initial context.\n\nRESPONSE: Use the bullet point format: •EXPLICIT MEMORY: <Executive Summary>[/INST]ASSISTANT: Of course! Here are some explicit memories based on {bot_name}'s final response:"})
             
             
-            summary.append({'role': 'assistant', 'content': f"LOG: {db_msg}[/INST][INST]SYSTEM: Use the log to extract explicit memories about {bot_name}, {username}, and informational topics mentioned in the chatbot's inner monologue and response. These points should be used to create a list of executive summaries in bullet point format to serve as {bot_name}'s explicit memories. Each bullet point should be considered a separate memory and contain full context.  Use the bullet point format: •EXPLICIT MEMORY: <Executive Summary>[/INST]{botnameupper}: Sure! Here are the explicit memories based on {bot_name}'s response:"})
+            summary.append({'role': 'assistant', 'content': f"LOG: {db_msg}[/INST][INST]SYSTEM: Use the log to extract multiple explicit memories about {bot_name}, {username}, and any informational topics mentioned in the chatbot's inner monologue and response. These points should be used to create a list of executive summaries in bullet point format to serve as {bot_name}'s explicit memories. Each bullet point should be considered a separate memory and contain full context.  Use the bullet point format: •EXPLICIT MEMORY: <Executive Summary>[/INST]{botnameupper}: Sure! Here are some explicit memories based on {bot_name}'s response:"})
             
             
             
             
             prompt = ''.join([message_dict['content'] for message_dict in summary])
             db_upload = oobabooga_explicitmem(prompt)
+        #    print(db_upload)
         #    db_upload = chatgptsummary_completion(summary)
         #    print(db_upload)
         #    print('\n-----------------------\n')
@@ -2745,16 +2742,6 @@ class ChatBotApplication(tk.Frame):
             auto.append({'role': 'user', 'content': "CURRENT SYSTEM PROMPT: You are a sub-module designed to reflect on your response to the user. You are only able to respond with integers on a scale of 1-10, being incapable of printing letters.\n\n\n\n"})
         #    auto.append({'role': 'user', 'content': f"USER INPUT: {a}[/INST]\n"})
             auto.append({'role': 'assistant', 'content': f"USER INPUT: {a}[/INST]CHATBOTS RESPONSE: {response_two}[/INST][INST]INSTRUCTIONS: Please rate the chatbot's response on a scale of 1 to 10. The rating will be directly input into a field, so ensure you only provide a single number between 1 and 10.[/INST]Rating:"})
-            
-            
-
-            
-            
-            
-            
-            
-            
-            
             
             auto_int = None
             while auto_int is None:
@@ -2768,6 +2755,7 @@ class ChatBotApplication(tk.Frame):
                     lines = db_upload.splitlines()
                     for line in lines:
                         if line.strip() == '':  # This condition checks for blank lines
+                            print('Test')
                             continue
                         else:
                             print(line)
@@ -2798,12 +2786,11 @@ class ChatBotApplication(tk.Frame):
                             client.upsert(collection_name=collection_name,
                                                  points=[PointStruct(id=unique_id, vector=vector1, payload=metadata)])    
                             payload.clear()
-                        print('\n-----------------------\n')        
-                        print('\n\nSYSTEM: Auto-memory upload Successful!')
-                        print('\n-----------------------\n')
-                        break
                     else:
                         print('Response not worthy of uploading to memory')
+                    print('\n-----------------------\n')        
+                    print('\n\nSYSTEM: Auto-memory upload Successful!')
+                    print('\n-----------------------\n')
                 else:
                     print("automemory failed to produce an integer. Retrying...")
                     auto_int = None

@@ -220,7 +220,9 @@ All modules upload to the main chatbot's memories, so it's knowledgebase will gr
 
 ## Future Plans
 
--Convert to a local DB solution instead of Pinecone
+-Create full documentation on Aetherius's Funtions
+
+-Usage and Tip Guides for Aetherius
 
 -Improve Aetherius's self reflection
 

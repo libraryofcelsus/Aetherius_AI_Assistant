@@ -1,5 +1,5 @@
 # Aetherius
-Version .043 of Aetherius Personal Assistant/Companion by LibraryofCelsus.com
+Version .043a of Aetherius Personal Assistant/Companion by LibraryofCelsus.com
 
 **What is Aetherius?**  Aetherius is an Ai LLM Retrieval Framework focused on bringing realistic long-term memory and thought formation to a customizable chatbot/companion. I am repulsed by the rampant personal consumer data that is sent to companies without thought, the ability to be manipulated increases evermore with the advent of personalized Ai companions.  My goal is to create a local Ai Companion in which you actually have control over and own. One that cannot be changed by an external force to subtly manipulate.  
 Aetherius's current modules include a websearch/scrape and a file processing chatbot.
@@ -14,7 +14,7 @@ Pinecone has recently changed their free tier.  They both removed namespaces and
 
 **Experimental Changelog**
 
--Added Qdrant Version of basic OpenAi Chatbot, still the same bot as from a month ago, just uses Qdrant as the Vector DB.
+-Added Qdrant Version of basic OpenAi Chatbot, still the same bot as from a month ago, just uses Qdrant as the Vector DB.  Due to them updating the model, the scripts no longer function as intended.  They still work, but it will get confused on what it is supposed to talk about if no topic is mentioned.
 
 -Added Qdrant Version of Llama 2 Version of Aetherius.  If a local Qdrant server is running it will use that, otherwise it will connect to the cloud.  To use the cloud, place the Qdrant Api Key and Url in the corresponding .txt files in the /api_keys folder.  Collection not existing errors will disapear once something has been entered into the collection.       
 Qdrant Cloud: https://qdrant.to/cloud                 
@@ -83,6 +83,14 @@ All modules upload to the main chatbot's memories, so it's knowledgebase will gr
 **File Processor:** This is a chatbot that will let you talk with your own files.  It supports a variety of formats including Image OCR.
 
 # Changelog:
+0.043a
+
+-Fixed Bug where only one Implicit and Explicit Memory were uploaded
+
+-Improved Memory Prompts, works alot better with the 7B model of Llama 2 now.  Still wouldn't recommend using the 7B model though.
+
+-Improved Auto Memory Upload.
+
 0.043
 
 -Added Qdrant Version.  Aetherius can now be ran 100% locally!

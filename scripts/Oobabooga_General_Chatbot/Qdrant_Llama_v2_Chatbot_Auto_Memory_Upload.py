@@ -998,7 +998,7 @@ def oobabooga_selector(prompt):
         'history': history,
         'mode': 'instruct',  # Valid options: 'chat', 'chat-instruct', 'instruct'
         'instruction_template': 'Llama-v2',  # Will get autodetected if unset
-        'context_instruct': f"[INST] <<SYS>>\n{main_prompt}\n<</SYS>>",  # Optional
+        'context_instruct': f"{main_prompt}",  # Optional
         'your_name': f'{username}',
 
         'regenerate': False,
@@ -1128,15 +1128,10 @@ def DB_Upload_Cadence(query):
     #            print(hit.payload['message'])
     #        print('done')
     #    except Exception as e:
-    #        print(f"An unexpected error occurred: {str(e)}")
+    #        print(f"Error:{str(e)}\nCollection not found errors will disapear when collection has an entry.")
         print('\n\nSYSTEM: Upload Successful!')
         return query
-        
-        
-        
-        
-        
-        
+ 
         
 # Function for Uploading Heuristics, called in the create widgets function.
 def DB_Upload_Heuristics(query):
@@ -1200,9 +1195,83 @@ def DB_Upload_Heuristics(query):
                 print(hit)
             print('done')
         except Exception as e:
-            print(f"An unexpected error occurred: {str(e)}")
+            print(f"Error:{str(e)}\nCollection not found errors will disapear when collection has an entry.")
         print('\n\nSYSTEM: Upload Successful!')
         return query
+        
+        
+        
+        
+def upload_implicit_long_term_memories(query):
+    username = open_file('./config/prompt_username.txt')
+    bot_name = open_file('./config/prompt_bot_name.txt')
+    timestamp = time()
+    timestring = timestamp_to_datetime(timestamp)
+    payload = list()
+    payload = list()    
+                # Define the collection name
+    collection_name = f"Implicit_Long_Term_Memory_Bot_{bot_name}_User_{username}"
+                # Create the collection only if it doesn't exist
+    try:
+        collection_info = client.get_collection(collection_name=collection_name)
+    except:
+        client.create_collection(
+            collection_name=collection_name,
+            vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
+        )
+    vector1 = model.encode([query])[0].tolist()
+    unique_id = str(uuid4())
+    point_id = unique_id + str(int(timestamp))
+    metadata = {
+        'bot': bot_name,
+        'time': timestamp,
+        'message': query,
+        'timestring': timestring,
+        'uuid': unique_id,
+        'user': username,
+        'memory_type': 'Implicit_Long_Term',
+    }
+    client.upsert(collection_name=collection_name,
+                         points=[PointStruct(id=unique_id, vector=vector1, payload=metadata)])    
+                # Search the collection
+    print('\n\nSYSTEM: Upload Successful!')
+    return query
+        
+        
+def upload_explicit_long_term_memories(query):
+    username = open_file('./config/prompt_username.txt')
+    bot_name = open_file('./config/prompt_bot_name.txt')
+    timestamp = time()
+    timestring = timestamp_to_datetime(timestamp)
+    payload = list()
+    payload = list()    
+                # Define the collection name
+    collection_name = f"Explicit_Long_Term_Memory_Bot_{bot_name}_User_{username}"
+                # Create the collection only if it doesn't exist
+    try:
+        collection_info = client.get_collection(collection_name=collection_name)
+    except:
+        client.create_collection(
+            collection_name=collection_name,
+            vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
+        )
+    vector1 = model.encode([query])[0].tolist()
+    unique_id = str(uuid4())
+    point_id = unique_id + str(int(timestamp))
+    metadata = {
+        'bot': bot_name,
+        'time': timestamp,
+        'message': query,
+        'timestring': timestring,
+        'uuid': unique_id,
+        'user': username,
+        'memory_type': 'Explicit_Long_Term',
+    }
+    client.upsert(collection_name=collection_name,
+                         points=[PointStruct(id=unique_id, vector=vector1, payload=metadata)])    
+                # Search the collection
+    print('\n\nSYSTEM: Upload Successful!')
+    return query
         
         
 def ask_upload_implicit_memories(memories):
@@ -1342,6 +1411,94 @@ def ask_upload_episodic_memories(memories):
     else:
         # User clicked "No"
         print('\n\nSYSTEM: Memories have been Deleted.')
+        
+        
+def ask_upload_memories(memories, memories2):
+    username = open_file('./config/prompt_username.txt')
+    bot_name = open_file('./config/prompt_bot_name.txt')
+    timestamp = time()
+    timestring = timestamp_to_datetime(timestamp)
+    payload = list()
+    print(f'\nIMPLICIT MEMORIES\n-------------')
+    print(memories)
+    print(f'\nEXPLICIT MEMORIES\n-------------')
+    print(memories2)
+    result = messagebox.askyesno("Upload Memories", "Do you want to upload memories?")
+    if result:
+        # User clicked "Yes"
+        lines = memories.splitlines()
+        for line in lines:
+            if line.strip():
+                continue
+            else:
+                print(line)
+                payload = list()
+            #    a = input(f'\n\nUSER: ')        
+                # Define the collection name
+                collection_name = f"Implicit_Short_Term_Memory_Bot_{bot_name}_User_{username}"
+                # Create the collection only if it doesn't exist
+                try:
+                    collection_info = client.get_collection(collection_name=collection_name)
+                except:
+                    client.create_collection(
+                        collection_name=collection_name,
+                        vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
+                    )
+                vector1 = model.encode([line])[0].tolist()
+                unique_id = str(uuid4())
+                point_id = unique_id + str(int(timestamp))
+                metadata = {
+                    'bot': bot_name,
+                    'time': timestamp,
+                    'message': line,
+                    'timestring': timestring,
+                    'uuid': unique_id,
+                    'user': username,
+                    'memory_type': 'Implicit_Short_Term',
+                }
+                client.upsert(collection_name=collection_name,
+                                     points=[PointStruct(id=unique_id, vector=vector1, payload=metadata)])    
+                # Search the collection
+                payload.clear()
+        lines = memories2.splitlines()
+        for line in lines:
+            if line.strip():
+                continue
+            else:
+                print(line)
+                payload = list()
+            #    a = input(f'\n\nUSER: ')        
+                # Define the collection name
+                collection_name = f"Explicit_Short_Term_Memory_Bot_{bot_name}_User_{username}"
+                # Create the collection only if it doesn't exist
+                try:
+                    collection_info = client.get_collection(collection_name=collection_name)
+                except:
+                    client.create_collection(
+                        collection_name=collection_name,
+                        vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
+                    )
+                vector1 = model.encode([line])[0].tolist()
+                unique_id = str(uuid4())
+                point_id = unique_id + str(int(timestamp))
+                metadata = {
+                    'bot': bot_name,
+                    'time': timestamp,
+                    'message': line,
+                    'timestring': timestring,
+                    'uuid': unique_id,
+                    'user': username,
+                    'memory_type': 'Explicit_Short_Term',
+                }
+                client.upsert(collection_name=collection_name,
+                                     points=[PointStruct(id=unique_id, vector=vector1, payload=metadata)])   
+                payload.clear()
+        print('\n\nSYSTEM: Upload Successful!')     
+        return 'yes'
+    else:
+        # User clicked "No"
+        print('\n\nSYSTEM: Memories have been Deleted.')
+        return 'no'
         
         
 # Running Conversation List
@@ -1731,6 +1888,9 @@ class ChatBotApplication(tk.Frame):
 
         entry_number_label = tk.Label(top, text=f"Entry {entry_index + 1}/{len(running_conversation)}")
         entry_number_label.pack()
+        
+        button_frame = tk.Frame(top)
+        button_frame.pack()
 
         update_entry()
 
@@ -1754,7 +1914,7 @@ class ChatBotApplication(tk.Frame):
 
         def save_conversation():
             for i, entry_text in enumerate(entry_texts):
-                entry_lines = entry_text.get("1.0", tk.END).strip()  # Remove leading/trailing whitespace
+                entry_lines = entry_text.get("1.0", tk.END).strip()
                 running_conversation[entry_index + i] = entry_lines
 
             conversation_data["running_conversation"] = running_conversation
@@ -1767,8 +1927,35 @@ class ChatBotApplication(tk.Frame):
             self.display_conversation_history()
             update_entry()  # Update the displayed entry in the cycling menu
 
-        save_button = tk.Button(top, text="Save", command=save_conversation)
-        save_button.pack()
+            # Update the entry number label after saving the changes
+            entry_number_label.config(text=f"Entry {entry_index + 1}/{len(running_conversation)}")
+        
+        def delete_entry():
+            nonlocal entry_index
+            if len(running_conversation) == 1:
+                # If this is the last entry, simply clear the entry_text
+                entry_text.delete("1.0", tk.END)
+                running_conversation.clear()
+            else:
+                # Delete the current entry from the running conversation list
+                del running_conversation[entry_index]
+
+                # Adjust the entry_index if it exceeds the valid range
+                if entry_index >= len(running_conversation):
+                    entry_index = len(running_conversation) - 1
+
+                # Update the displayed entry
+                update_entry()
+                entry_number_label.config(text=f"Entry {entry_index + 1}/{len(running_conversation)}")
+
+            # Save the conversation after deleting an entry
+            save_conversation()
+
+        save_button = tk.Button(button_frame, text="Save", command=save_conversation)
+        save_button.pack(side=tk.LEFT, padx=5, pady=5)
+
+        delete_button = tk.Button(button_frame, text="Delete", command=delete_entry)
+        delete_button.pack(side=tk.LEFT, padx=5, pady=5)
 
         # Configure the top level window to scale with the content
         top.pack_propagate(False)
@@ -1814,16 +2001,16 @@ class ChatBotApplication(tk.Frame):
         cadence_window.title("Cadence DB Upload")
 
         query_label = tk.Label(cadence_window, text="Enter Cadence Example:")
-        query_label.pack()
+        query_label.grid(row=0, column=0, padx=5, pady=5)
 
         query_entry = tk.Entry(cadence_window)
-        query_entry.pack()
+        query_entry.grid(row=1, column=0, padx=5, pady=5)
 
         results_label = tk.Label(cadence_window, text="Scrape results: ")
-        results_label.pack()
+        results_label.grid(row=2, column=0, padx=5, pady=5)
 
         results_text = tk.Text(cadence_window)
-        results_text.pack()
+        results_text.grid(row=3, column=0, padx=5, pady=5)
 
         def perform_search():
             query = query_entry.get()
@@ -1841,8 +2028,22 @@ class ChatBotApplication(tk.Frame):
             t = threading.Thread(target=search_task)
             t.start()
 
+        def delete_cadence():
+            # Replace 'username' and 'bot_name' with appropriate variables if available.
+            # You may need to adjust 'vdb' based on how your database is initialized.
+            confirm = messagebox.askyesno("Confirmation", "Are you sure you want to delete heuristics?")
+            if confirm:
+                client.delete_collection(collection_name=f"Cadence_Bot_{bot_name}_User_{username}")
+                # Clear the results_text widget after deleting heuristics (optional)
+                results_text.delete("1.0", tk.END)  
+
         search_button = tk.Button(cadence_window, text="Upload", command=perform_search)
-        search_button.pack()
+        search_button.grid(row=4, column=0, padx=5, pady=5)
+
+        # Use `side=tk.LEFT` for the delete button to position it at the top-left corner
+        delete_button = tk.Button(cadence_window, text="Delete Cadence", command=delete_cadence)
+        delete_button.grid(row=5, column=0, padx=5, pady=5)
+        
         
         
         
@@ -1901,12 +2102,89 @@ class ChatBotApplication(tk.Frame):
         delete_button.grid(row=5, column=0, padx=5, pady=5)
         
         
+    def open_long_term_window(self):
+        bot_name = open_file('./config/prompt_bot_name.txt')
+        username = open_file('./config/prompt_username.txt')
+        long_term_window = tk.Toplevel(self)
+        long_term_window.title("Long Term Memory DB Upload")
+
+
+        query_label = tk.Label(long_term_window, text="Enter Memory:")
+        query_label.grid(row=0, column=0, padx=5, pady=5)
+
+        query_entry = tk.Entry(long_term_window)
+        query_entry.grid(row=1, column=0, padx=5, pady=5)
+
+        results_label = tk.Label(long_term_window, text="Entered Memories: ")
+        results_label.grid(row=2, column=0, padx=5, pady=5)
+
+        results_text = tk.Text(long_term_window)
+        results_text.grid(row=3, column=0, padx=5, pady=5)
+
+        def perform_implicit_upload():
+            query = query_entry.get()
+
+            def update_results(query):
+                # Update the GUI with the new paragraph
+                results_text.insert(tk.END, f"{query}\n\n")
+                results_text.yview(tk.END)
+                query_entry.delete(0, tk.END)
+
+            def search_task():
+                # Call the modified GPT_3_5_Tasklist_Web_Search function with the callback
+                search_results = upload_implicit_long_term_memories(query)
+
+                # Use the `after` method to schedule the `update_results` function on the main Tkinter thread
+                long_term_window.after(0, update_results, search_results)
+                   
+            t = threading.Thread(target=search_task)
+            t.start()
+            
+            
+        def perform_explicit_upload():
+            query = query_entry.get()
+
+            def update_results(query):
+                # Update the GUI with the new paragraph
+                results_text.insert(tk.END, f"{query}\n\n")
+                results_text.yview(tk.END)
+                query_entry.delete(0, tk.END)
+
+            def search_task():
+                # Call the modified GPT_3_5_Tasklist_Web_Search function with the callback
+                search_results = upload_explicit_long_term_memories(query)
+
+                # Use the `after` method to schedule the `update_results` function on the main Tkinter thread
+                long_term_window.after(0, update_results, search_results)
+                   
+            t = threading.Thread(target=search_task)
+            t.start()
+
+
+        implicit_search_button = tk.Button(long_term_window, text="Implicit Upload", command=perform_implicit_upload)
+        implicit_search_button.grid(row=4, column=0, padx=5, pady=5, columnspan=1)  # Set columnspan to 1
+
+        explicit_search_button = tk.Button(long_term_window, text="Explicit Upload", command=perform_explicit_upload)
+        explicit_search_button.grid(row=5, column=0, padx=5, pady=5, columnspan=1) 
+        
+
+        
+        
     def open_deletion_window(self):
     #    vdb = pinecone.Index("aetherius")
         bot_name = open_file('./config/prompt_bot_name.txt')
         username = open_file('./config/prompt_username.txt')
         deletion_window = tk.Toplevel(self)
         deletion_window.title("DB Deletion Menu")
+        
+        
+        def delete_cadence():
+                # Replace 'username' and 'bot_name' with appropriate variables if available.
+                # You may need to adjust 'vdb' based on how your database is initialized.
+            confirm = messagebox.askyesno("Confirmation", "Are you sure you want to delete saved cadence?")
+            if confirm:
+                client.delete_collection(collection_name=f"Cadence_Bot_{bot_name}_User_{username}")
+        
     
         def delete_heuristics():
                 # Replace 'username' and 'bot_name' with appropriate variables if available.
@@ -1916,10 +2194,19 @@ class ChatBotApplication(tk.Frame):
                 client.delete_collection(collection_name=f"Heuristics_Bot_{bot_name}_User_{username}")
                 
                 
+        def delete_counters():
+                # Replace 'username' and 'bot_name' with appropriate variables if available.
+                # You may need to adjust 'vdb' based on how your database is initialized.
+            confirm = messagebox.askyesno("Confirmation", "Are you sure you want to delete memory consolidation counters?")
+            if confirm:
+                client.delete_collection(collection_name=f"Flash_Counter_Bot_{bot_name}_User_{username}")
+                client.delete_collection(collection_name=f"Consol_Counter_Bot_{bot_name}_User_{username}")
+                
+                
         def delete_bot():
                 # Replace 'username' and 'bot_name' with appropriate variables if available.
                 # You may need to adjust 'vdb' based on how your database is initialized.
-            confirm = messagebox.askyesno("Confirmation", f"Are you sure you want to delete {bot_name}?")
+            confirm = messagebox.askyesno("Confirmation", f"Are you sure you want to delete {bot_name} in their entirety?")
             if confirm:
                 client.delete_collection(collection_name=f"Implicit_Short_Term_Memory_Bot_{bot_name}_User_{username}")
                 client.delete_collection(collection_name=f"Explicit_Short_Term_Memory_Bot_{bot_name}_User_{username}")
@@ -1932,11 +2219,15 @@ class ChatBotApplication(tk.Frame):
                 client.delete_collection(collection_name=f"Consol_Counter_Bot_{bot_name}_User_{username}")
                 client.delete_collection(collection_name=f"Flashbulb_Memory_Bot_{bot_name}_User_{username}")
                 
-          
                 
-
+        delete_cadence_button = tk.Button(deletion_window, text="Delete Cadence", command=delete_cadence)
+        delete_cadence_button.pack()
+                
         delete_heuristics_button = tk.Button(deletion_window, text="Delete Heuristics", command=delete_heuristics)
         delete_heuristics_button.pack()
+        
+        delete_counters_button = tk.Button(deletion_window, text="Delete Memory Consolidation Counters", command=delete_counters)
+        delete_counters_button.pack()
         
         delete_bot_button = tk.Button(deletion_window, text="Delete Entire Chatbot", command=delete_bot)
         delete_bot_button.pack()
@@ -1969,10 +2260,12 @@ class ChatBotApplication(tk.Frame):
             
     def handle_db_menu_selection(self, event):
         selection = self.db_menu.get()
-        if selection == "Cadence DB Upload":
+        if selection == "Cadence DB":
             self.open_cadence_window()
-        elif selection == "Heuristics DB Upload":
+        elif selection == "Heuristics DB":
             self.open_heuristics_window()
+        elif selection == "Long Term Memory DB":
+            self.open_long_term_window()
         elif selection == "DB Deletion":
             self.open_deletion_window()    
 
@@ -2003,7 +2296,7 @@ class ChatBotApplication(tk.Frame):
         self.update_history_button.pack(side=tk.LEFT, padx=5, pady=5, ipadx=10)
         
         # DB Management Dropdown menu
-        self.db_menu = ttk.Combobox(self.top_frame, values=["DB Management", "----------------------------", "Cadence DB Upload", "Heuristics DB Upload", "DB Deletion"], state="readonly")
+        self.db_menu = ttk.Combobox(self.top_frame, values=["DB Management", "----------------------------", "Cadence DB", "Heuristics DB", "Long Term Memory DB", "DB Deletion"], state="readonly")
         self.db_menu.pack(side=tk.LEFT, padx=5, pady=5)
         self.db_menu.current(0)
         self.db_menu.bind("<<ComboboxSelected>>", self.handle_db_menu_selection)
@@ -2208,7 +2501,7 @@ class ChatBotApplication(tk.Frame):
             conversation.append({'role': 'user', 'content': f"USER INPUT: {a}\n\n\n"})        
             # # Generate Semantic Search Terms
             tasklist.append({'role': 'system', 'content': "SYSTEM: You are a semantic rephraser. Your role is to interpret the original user query and generate 2-5 synonymous search terms that will guide the exploration of the chatbot's memory database. Each alternative term should reflect the essence of the user's initial search input. Please list your results using a hyphenated bullet point structure.\n\n"})
-            tasklist.append({'role': 'user', 'content': "USER: %s[/INST]ASSISTANT: Sure, I'd be happy to help! Here are 2-5 synonymous search terms:\n" % a})
+            tasklist.append({'role': 'user', 'content': "USER: %s\n\nASSISTANT: Sure, I'd be happy to help! Here are 2-5 synonymous search terms:\n" % a})
         #    tasklist.append({'role': 'assistant', 'content': "[/INST]"})
             prompt = ''.join([message_dict['content'] for message_dict in tasklist])
             tasklist_output = oobabooga_terms(prompt)
@@ -2238,7 +2531,7 @@ class ChatBotApplication(tk.Frame):
                     print(db_search_16)
                     print('done')
                 except Exception as e:
-                    print(f"An unexpected error occurred: {str(e)}")
+                    print(f"Error:{str(e)}\nCollection not found errors will disapear when collection has an entry.")
                 try:
                     hits = client.search(
                         collection_name=f"Implicit_Long_Term_Memory_Bot_{bot_name}_User_{username}",
@@ -2255,7 +2548,7 @@ class ChatBotApplication(tk.Frame):
                     print(db_search_17)
                     print('done')
                 except Exception as e:
-                    print(f"An unexpected error occurred: {str(e)}")
+                    print(f"Error:{str(e)}\nCollection not found errors will disapear when collection has an entry.")
 
             print('\n-----------------------\n')
             db_search_1, db_search_2, db_search_3, db_search_14 = None, None, None, None
@@ -2271,7 +2564,7 @@ class ChatBotApplication(tk.Frame):
                 print(db_search_1)
                 print('done')
             except Exception as e:
-                print(f"An unexpected error occurred: {str(e)}")
+                print(f"Error:{str(e)}\nCollection not found errors will disapear when collection has an entry.")
             try:
                 hits = client.search(
                     collection_name=f"Explicit_Short_Term_Memory_Bot_{bot_name}_User_{username}",
@@ -2284,7 +2577,7 @@ class ChatBotApplication(tk.Frame):
                 print(db_search_2)
                 print('done')
             except Exception as e:
-                print(f"An unexpected error occurred: {str(e)}")
+                print(f"Error:{str(e)}\nCollection not found errors will disapear when collection has an entry.")
             try:
                 hits = client.search(
                     collection_name=f"Flashbulb_Memory_Bot_{bot_name}_User_{username}",
@@ -2297,7 +2590,7 @@ class ChatBotApplication(tk.Frame):
                 print(db_search_3)
                 print('done')
             except Exception as e:
-                print(f"An unexpected error occurred: {str(e)}")
+                print(f"Error:{str(e)}\nCollection not found errors will disapear when collection has an entry.")
             try:
                 hits = client.search(
                     collection_name=f"Heuristics_Bot_{bot_name}_User_{username}",
@@ -2310,10 +2603,10 @@ class ChatBotApplication(tk.Frame):
                 print(db_search_14)
                 print('done')
             except Exception as e:
-                print(f"An unexpected error occurred: {str(e)}")
+                print(f"Error:{str(e)}\nCollection not found errors will disapear when collection has an entry.")
             # # Inner Monologue Generation
          #   conversation.append({'role': 'system', 'content': f"CONVERSATION HISTORY: {con_hist}[/INST]\n\n"})
-            conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S EPISODIC MEMORIES: {db_search_1}\n{db_search_3}\n\n{botnameupper}'S SHORT-TERM MEMORIES: {db_search_2}.\n\n{botnameupper}'s HEURISTICS: {db_search_14}\n[/INST]\n\n\n[INST]SYSTEM:Compose a short silent soliloquy to serve as {bot_name}'s internal monologue/narrative.  Ensure it includes {bot_name}'s contemplations and emotions in relation to {username}'s request.[/INST]\n\n\n[INST]\nCURRENT CONVERSATION HISTORY: {con_hist}\n[/INST]\n\n\n[INST]\n{usernameupper}/USER: {a}\nPlease directly provide a short internal monologue as {bot_name} contemplating the user's most recent message.\n\n{botnameupper}: Of course, here is an inner soliloquy for {bot_name}:"})
+            conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S EPISODIC MEMORIES: {db_search_1}\n{db_search_3}\n\n{botnameupper}'S SHORT-TERM MEMORIES: {db_search_2}.\n\n{botnameupper}'s HEURISTICS: {db_search_14}\n\n\n\nSYSTEM:Compose a short silent soliloquy to serve as {bot_name}'s internal monologue/narrative.  Ensure it includes {bot_name}'s contemplations and emotions in relation to {username}'s request.\n\n\nCURRENT CONVERSATION HISTORY: {con_hist}\n\n\n{usernameupper}/USER: {a}\nPlease directly provide a short internal monologue as {bot_name} contemplating the user's most recent message.\n\n{botnameupper}: Of course, here is an inner soliloquy for {bot_name}:"})
             prompt = ''.join([message_dict['content'] for message_dict in conversation])
             output_one = oobabooga_inner_monologue(prompt)
             inner_output = (f'{output_one}\n\n')
@@ -2394,7 +2687,7 @@ class ChatBotApplication(tk.Frame):
                 print(db_search_4)
                 print('done')
             except Exception as e:
-                print(f"An unexpected error occurred: {str(e)}")
+                print(f"Error:{str(e)}\nCollection not found errors will disapear when collection has an entry.")
             try:
                 hits = client.search(
                     collection_name=f"Explicit_Short_Term_Memory_Bot_{bot_name}_User_{username}",
@@ -2407,7 +2700,7 @@ class ChatBotApplication(tk.Frame):
                 print(db_search_5)
                 print('done')
             except Exception as e:
-                print(f"An unexpected error occurred: {str(e)}")
+                print(f"Error:{str(e)}\nCollection not found errors will disapear when collection has an entry.")
             try:
                 hits = client.search(
                     collection_name=f"Flashbulb_Memory_Bot_{bot_name}_User_{username}",
@@ -2420,7 +2713,7 @@ class ChatBotApplication(tk.Frame):
                 print(db_search_12)
                 print('done')
             except Exception as e:
-                print(f"An unexpected error occurred: {str(e)}")
+                print(f"Error:{str(e)}\nCollection not found errors will disapear when collection has an entry.")
             try:
                 hits = client.search(
                     collection_name=f"Heuristics_Bot_{bot_name}_User_{username}",
@@ -2433,11 +2726,11 @@ class ChatBotApplication(tk.Frame):
                 print(db_search_15)
                 print('done')
             except Exception as e:
-                print(f"An unexpected error occurred: {str(e)}")
+                print(f"Error:{str(e)}\nCollection not found errors will disapear when collection has an entry.")
             print('\n-----------------------\n')
             # # Intuition Generation
         #    int_conversation.append({'role': 'user', 'content': f"USER INPUT: {a}\n\n"})
-            int_conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S FLASHBULB MEMORIES: {db_search_12}\n{botnameupper}'S EXPLICIT MEMORIES: {db_search_5}\n{botnameupper}'s HEURISTICS: {db_search_15}\n{botnameupper}'S INNER THOUGHTS: {output_one}\n{botnameupper}'S EPISODIC MEMORIES: {db_search_4}\nPREVIOUS CONVERSATION HISTORY: {con_hist}\n[/INST]\n\n\n[INST]\nSYSTEM: Transmute the user, {username}'s message as {bot_name} by devising a truncated predictive action plan in the third person point of view on how to best respond to {username}'s most recent message. You are not allowed to use external resources.  Do not create a plan for generic conversation.  If the user is requesting information on a subject, give a plan on what information needs to be provided.\n[/INST]\n\n\n[INST]{usernameupper}: {a}\nPlease only provide the third person action plan in your response.  The action plan should be in tasklist form.\n\n{botnameupper}:"}) 
+            int_conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S FLASHBULB MEMORIES: {db_search_12}\n{botnameupper}'S EXPLICIT MEMORIES: {db_search_5}\n{botnameupper}'s HEURISTICS: {db_search_15}\n{botnameupper}'S INNER THOUGHTS: {output_one}\n{botnameupper}'S EPISODIC MEMORIES: {db_search_4}\nPREVIOUS CONVERSATION HISTORY: {con_hist}\n\n\n\nSYSTEM: Transmute the user, {username}'s message as {bot_name} by devising a truncated predictive action plan in the third person point of view on how to best respond to {username}'s most recent message. You are not allowed to use external resources.  Do not create a plan for generic conversation.  If the user is requesting information on a subject, give a plan on what information needs to be provided.\n\n\n{usernameupper}: {a}\nPlease only provide the third person action plan in your response.  The action plan should be in tasklist form.\n\n{botnameupper}:"}) 
             prompt = ''.join([message_dict['content'] for message_dict in int_conversation])
             output_two = oobabooga_intuition(prompt)
         #    message = output_one
@@ -2448,13 +2741,13 @@ class ChatBotApplication(tk.Frame):
             # # Generate Implicit Short-Term Memory
             conversation.append({'role': 'user', 'content': f"USER INPUT: {a}\n\n"})
             implicit_short_term_memory = f'\nUSER: {a}\nINNER_MONOLOGUE: {output_one}'
-            conversation.append({'role': 'assistant', 'content': f"LOG: {implicit_short_term_memory}\n\nINSTRUCTIONS: Read the log, extract the salient points about {bot_name} and {username}, then create short executive summaries listed in bullet points to serve as {bot_name}'s implicit memories. Each bullet point should be considered a separate memory and contain all context. Combining associated topics. Ignore the greeting prompt, it only exists for initial context. Use the hyphenated bullet point format: <-IMPLICIT MEMORY>\n<-IMPLICIT MEMORY>[/INST]"})
+            conversation.append({'role': 'assistant', 'content': f"LOG: {implicit_short_term_memory}\n\nINSTRUCTIONS: Read the log, extract the salient points about {bot_name} and {username}, then create short executive summaries listed in bullet points to serve as {bot_name}'s implicit memories. Each bullet point should be considered a separate memory and contain all context. Combining associated topics. Ignore the greeting prompt, it only exists for initial context. Use the hyphenated bullet point format: <-IMPLICIT MEMORY>\n<-IMPLICIT MEMORY>"})
         #    inner_loop_response = chatgpt200_completion(conversation)
 
         #    summary.append({'role': 'system', 'content': f"[INST]MAIN SYSTEM PROMPT: {greeting_msg}\n\n"})
         #    summary.append({'role': 'user', 'content': f"USER INPUT: {a}\n\n"})
             db_msg = f"\nUSER: {a}\nINNER_MONOLOGUE: {output_one}"
-            summary.append({'role': 'assistant', 'content': f"LOG: {implicit_short_term_memory}[/INST][INST]SYSTEM: Read the log, extract the salient points about {bot_name} and {username} mentioned in the chatbot's inner monologue, then create a list of short executive summaries in bullet point format to serve as {bot_name}'s implicit memories. Each bullet point should be considered a separate memory and contain full context.  Use the bullet point format: •IMPLICIT MEMORY: <Executive Summary>[/INST]{botnameupper}: Sure! Here are the implicit memories based on {bot_name}'s internal thoughts:"})
+            summary.append({'role': 'assistant', 'content': f"LOG: {implicit_short_term_memory}\n\nSYSTEM: Read the log, extract the salient points about {bot_name} and {username} mentioned in the chatbot's inner monologue, then create a list of short executive summaries in bullet point format to serve as {bot_name}'s implicit memories. Each bullet point should be considered a separate memory and contain full context.  Use the bullet point format: •IMPLICIT MEMORY: <Executive Summary>\n\n{botnameupper}: Sure! Here are the implicit memories based on {bot_name}'s internal thoughts:"})
             
             
             
@@ -2475,7 +2768,7 @@ class ChatBotApplication(tk.Frame):
         #    auto.append({'role': 'system', 'content': f'MAIN CHATBOT SYSTEM PROMPT: {main_prompt}\n\n'})
             auto.append({'role': 'user', 'content': "CURRENT SYSTEM PROMPT: You are a sub-module designed to reflect on your thought process. You are only able to respond with integers on a scale of 1-10, being incapable of printing letters.\n\n\n\n"})
         #    auto.append({'role': 'user', 'content': f"[INST]USER INPUT: {a}\n"})
-            auto.append({'role': 'assistant', 'content': f"USER INPUT: {a}[/INST]CHATBOTS INNER THOUGHTS: {output_one}[/INST][INST]INSTRUCTIONS: Please rate the chatbot's inner thoughts on a scale of 1 to 10. The rating will be directly input into a field, so ensure you only provide a single number between 1 and 10.[/INST]Rating:"})
+            auto.append({'role': 'assistant', 'content': f"USER INPUT: {a}\n\nCHATBOTS INNER THOUGHTS: {output_one}\n\n\nINSTRUCTIONS: Please rate the chatbot's inner thoughts on a scale of 1 to 10. The rating will be directly input into a field, so ensure you only provide a single number between 1 and 10.\n\nRating:"})
             auto_int = None
             while auto_int is None:
                 prompt = ''.join([message_dict['content'] for message_dict in auto])
@@ -2535,6 +2828,7 @@ class ChatBotApplication(tk.Frame):
                 pass   
             int_conversation.clear()
         #    self.master.after(0, self.update_intuition, output_two)
+        #    print(f"Upload Memories?\n{inner_loop_response}\n\n")
         #    self.conversation_text.insert(tk.END, f"Upload Memories?\n{inner_loop_response}\n\n")
         #    ask_upload_implicit_memories(inner_loop_response)
             # After the operations are complete, call the response generation function in a separate thread
@@ -2635,7 +2929,7 @@ class ChatBotApplication(tk.Frame):
                 print(f"No Cadence Uploaded")
                 print('\n-----------------------\n')
                 
-            conversation2.append({'role': 'user', 'content': f"[/INST][INST]USER INPUT: {a}\n"})  
+            conversation2.append({'role': 'user', 'content': f"USER INPUT: {a}\n"})  
             # # Memory DB Search
             db_search_8, db_search_10, db_search_11 = None, None, None
             try:
@@ -2650,7 +2944,7 @@ class ChatBotApplication(tk.Frame):
                 print(db_search_8)
                 print('done')
             except Exception as e:
-                print(f"An unexpected error occurred: {str(e)}")
+                print(f"Error:{str(e)}\nCollection not found errors will disapear when collection has an entry.")
             try:
                 hits = client.search(
                     collection_name=f"Episodic_Memory_Bot_{bot_name}_User_{username}",
@@ -2663,7 +2957,7 @@ class ChatBotApplication(tk.Frame):
                 print(db_search_10)
                 print('done')
             except Exception as e:
-                print(f"An unexpected error occurred: {str(e)}")
+                print(f"Error:{str(e)}\nCollection not found errors will disapear when collection has an entry.")
             try:
                 hits = client.search(
                     collection_name=f"Heuristics_Bot_{bot_name}_User_{username}",
@@ -2676,12 +2970,12 @@ class ChatBotApplication(tk.Frame):
                 print(db_search_11)
                 print('done')
             except Exception as e:
-                print(f"An unexpected error occurred: {str(e)}")
+                print(f"Error:{str(e)}\nCollection not found errors will disapear when collection has an entry.")
             print('\n-----------------------\n')
             # # Generate Aetherius's Response
             
             response_db_search = f"SUBCONSCIOUS: {db_search_8}\n{db_search_10}\n{db_search_11}"
-            conversation2.append({'role': 'assistant', 'content': f"CHATBOTS MEMORIES: {db_search_8}\n{db_search_10}\n\n{bot_name}'s HEURISTICS: {db_search_11}\n\nCHATBOTS INNER THOUGHTS: {output_one}\n{second_prompt}\n[/INST][INST]\nI am in the middle of a conversation with my user, {username}.\n{botnameupper}'S RESPONSE PLANNING: Now I will now complete my action plan and use it to help structure my response, prioritizing informational requests: {output_two}\n\nI will now read our conversation history, then I will then do my best to respond naturally in a way that both answer's the user and shows emotional intelligence.[/INST][INST]CONVERSATION HISTORY: {con_hist}[/INST][INST]{usernameupper}/USER: {a}\nPlease provide a natural sounding response as {bot_name} to the user's latest message.  Fufill the request to its entirety, questioning the user may lead to them being displeased.[/INST]{botnameupper}:"})
+            conversation2.append({'role': 'assistant', 'content': f"CHATBOTS MEMORIES: {db_search_8}\n{db_search_10}\n\n{bot_name}'s HEURISTICS: {db_search_11}\n\nCHATBOTS INNER THOUGHTS: {output_one}\n{second_prompt}\n\nI am in the middle of a conversation with my user, {username}.\n{botnameupper}'S RESPONSE PLANNING: Now I will now complete my action plan and use it to help structure my response, prioritizing informational requests: {output_two}\n\nI will now read our conversation history, then I will then do my best to respond naturally in a way that both answer's the user and shows emotional intelligence.\n\nCONVERSATION HISTORY: {con_hist}\n\n\n{usernameupper}/USER: {a}\nPlease provide a natural sounding response as {bot_name} to the user's latest message.  Fufill the request to its entirety, questioning the user may lead to them being displeased.\n\n{botnameupper}:"})
             prompt = ''.join([message_dict['content'] for message_dict in conversation2])
             response_two = oobabooga_response(prompt)
         #    response_two = chatgptresponse_completion(conversation2)
@@ -2802,8 +3096,14 @@ class ChatBotApplication(tk.Frame):
             summary.clear()
             self.conversation_text.insert(tk.END, f"Response: {response_two}\n\n")
         #    self.conversation_text.insert(tk.END, f"Upload Memories?\n{db_upload}\n\n")
+        #    print(f"Upload Memories?\n{db_upload}\n\n")
         #    db_upload_yescheck = ask_upload_explicit_memories(db_upsert)
         #    if db_upload_yescheck == 'yes':
+        #        t = threading.Thread(target=self.GPT_Memories, args=(a, vector_input, vector_monologue, output_one, response_two))
+        #        t.start()
+        #    self.conversation_text.insert(tk.END, f"Upload Memories?\n-------------\nIMPLICIT\n-------------\n{inner_loop_response}\n-------------\nEXPLICIT\n-------------\n{db_upload}\n")
+        #    mem_upload_yescheck = ask_upload_memories(inner_loop_response, db_upsert)
+        #    if mem_upload_yescheck == "yes":
         #        t = threading.Thread(target=self.GPT_Memories, args=(a, vector_input, vector_monologue, output_one, response_two))
         #        t.start()
             t = threading.Thread(target=self.GPT_Memories, args=(a, vector_input, vector_monologue, output_one, response_two))
@@ -2926,7 +3226,7 @@ class ChatBotApplication(tk.Frame):
                     flash_db = [hit.payload['message'] for hit in hits]
                     print(flash_db)
                 except Exception as e:
-                    print(f"An unexpected error occurred: {str(e)}")
+                    print(f"Error:{str(e)}\nCollection not found errors will disapear when collection has an entry.")
                     
                 flash_db1 = None
                 try:
@@ -2940,7 +3240,7 @@ class ChatBotApplication(tk.Frame):
                     flash_db1 = [hit.payload['message'] for hit in hits]
                     print(flash_db1)
                 except Exception as e:
-                    print(f"An unexpected error occurred: {str(e)}")
+                    print(f"Error:{str(e)}\nCollection not found errors will disapear when collection has an entry.")
                 print('\n-----------------------\n')
                 # # Generate Implicit Short-Term Memory
                 consolidation.append({'role': 'system', 'content': f"Main System Prompt: You are a data extractor. Your job is read the given episodic memories, then extract the appropriate emotional responses from the given emotional reactions.  You will then combine them into a single combined memory.[/INST]\n\n"})
@@ -3000,7 +3300,7 @@ class ChatBotApplication(tk.Frame):
                     memory_consol_db = [hit.payload['message'] for hit in hits]
                     print(memory_consol_db)
                 except Exception as e:
-                    print(f"An unexpected error occurred: {str(e)}")
+                    print(f"Error:{str(e)}\nCollection not found errors will disapear when collection has an entry.")
                 print('\n-----------------------\n')
                 consolidation.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: {main_prompt}\n\n"})
                 consolidation.append({'role': 'assistant', 'content': f"LOG: {memory_consol_db}\n\nSYSTEM: Read the Log and combine the different associated topics into a bullet point list of executive summaries to serve as {bot_name}'s explicit long term memories. Each summary should contain the entire context of the memory. Follow the format •<ALLEGORICAL TAG>: <EXPLICIT MEMORY>[/INST]\n{bot_name}:"})
@@ -3086,7 +3386,7 @@ class ChatBotApplication(tk.Frame):
                         memory_consol_db2 = [hit.payload['message'] for hit in hits]
                         print(memory_consol_db2)
                     except Exception as e:
-                        print(f"An unexpected error occurred: {str(e)}")
+                        print(f"Error:{str(e)}\nCollection not found errors will disapear when collection has an entry.")
                     print('\n-----------------------\n')
                     consolidation.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: {main_prompt}\n\n"})
                     consolidation.append({'role': 'assistant', 'content': f"LOG: {memory_consol_db2}\n\nSYSTEM: Read the Log and consolidate the different topics into executive summaries to serve as {bot_name}'s implicit long term memories. Each summary should contain the entire context of the memory. Follow the format: •<ALLEGORICAL TAG>: <IMPLICIT MEMORY>[/INST]\n{bot_name}: "})
@@ -3110,7 +3410,7 @@ class ChatBotApplication(tk.Frame):
                         print(memory_consol_db3)
                     except Exception as e:
                         memory_consol_db3 = 'Failed Lookup'
-                        print(f"An unexpected error occurred: {str(e)}")
+                        print(f"Error:{str(e)}\nCollection not found errors will disapear when collection has an entry.")
                     print('\n-----------------------\n')
                     consolidation.append({'role': 'system', 'content': f"{main_prompt}\n\n"})
                     consolidation.append({'role': 'system', 'content': f"IMPLICIT LONG TERM MEMORY: {memory_consol_db3}\n\nIMPLICIT SHORT TERM MEMORY: {memory_consol_db2}\n\nRESPONSE: Remove any duplicate information from your Implicit Short Term memory that is already found in your Long Term Memory. Then consolidate similar topics into executive summaries. Each summary should contain the entire context of the memory. Use the following format: •<EMOTIONAL TAG>: <IMPLICIT MEMORY>[/INST]\n{bot_name}:"})
@@ -3173,7 +3473,7 @@ class ChatBotApplication(tk.Frame):
                         memory_consol_db4 = [hit.payload['message'] for hit in hits]
                         print(memory_consol_db4)
                     except Exception as e:
-                        print(f"An unexpected error occurred: {str(e)}")          
+                        print(f"Error:{str(e)}\nCollection not found errors will disapear when collection has an entry.")          
                     ids_to_delete = [m.id for m in hits]
                     print('\n-----------------------\n')
                     consolidation.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: {main_prompt}\n\n"})
@@ -3243,7 +3543,7 @@ class ChatBotApplication(tk.Frame):
                         consol_search = [hit.payload['message'] for hit in hits]
                         print(consol_search)
                     except Exception as e:
-                        print(f"An unexpected error occurred: {str(e)}")
+                        print(f"Error:{str(e)}\nCollection not found errors will disapear when collection has an entry.")
                     print('\n-----------------------\n')
                     consolidation.append({'role': 'user', 'content': f"{bot_name}'s Memories: {consol_search}[/INST]\n\n"})
                     consolidation.append({'role': 'assistant', 'content': "RESPONSE: Semantic Search Query: "})
@@ -3262,7 +3562,7 @@ class ChatBotApplication(tk.Frame):
                         memory_consol_db2 = [hit.payload['message'] for hit in hits]
                         print(memory_consol_db2)
                     except Exception as e:
-                        print(f"An unexpected error occurred: {str(e)}")
+                        print(f"Error:{str(e)}\nCollection not found errors will disapear when collection has an entry.")
                     #Find solution for this
                     ids_to_delete2 = [m.id for m in hits]
                     print('\n-----------------------\n')

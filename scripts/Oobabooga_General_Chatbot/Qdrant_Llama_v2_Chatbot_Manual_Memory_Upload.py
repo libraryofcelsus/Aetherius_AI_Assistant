@@ -404,7 +404,7 @@ def oobabooga_implicitmem(prompt):
         'history': history,
         'mode': 'instruct',  # Valid options: 'chat', 'chat-instruct', 'instruct'
         'instruction_template': 'Llama-v2',  # Will get autodetected if unset
-        'context_instruct': f"[INST] <<SYS>>\nExtract short and concise memories based on {bot_name}'s internal thoughts for upload to a memory database.  These should be executive summaries and will serve as the chatbots implicit memories.  You are directly inputing the memories into the database, only print the memories.  Print the response in the bullet point format: •IMPLICIT MEMORY: <Executive Summary>\n<</SYS>>",  # Optional
+        'context_instruct': f"[INST] <<SYS>>\nExtract short and concise memories based on {bot_name}'s internal thoughts for upload to a memory database.  These should be executive summaries and will serve as the chatbots implicit memories.  You are directly inputing the memories into the database, only print the memories.  Print the response in the bullet point format: •IMPLICIT MEMORY:<Executive Summary>\n<</SYS>>",  # Optional
         'your_name': f'{username}',
 
         'regenerate': False,
@@ -463,7 +463,7 @@ def oobabooga_explicitmem(prompt):
         'history': history,
         'mode': 'instruct',  # Valid options: 'chat', 'chat-instruct', 'instruct'
         'instruction_template': 'Llama-v2',  # Will get autodetected if unset
-        'context_instruct': f"[INST] <<SYS>>\nExtract a list of explicit memories based on {bot_name}'s final response for upload to a memory database.  These should be executive summaries and will serve as the chatbots explicit memories.  You are directly inputing the memories into the database, only print the memories.  Print the response in the bullet point format: •EXPLICIT MEMORY: <Executive Summary>\n<</SYS>>",  # Optional
+        'context_instruct': f"[INST] <<SYS>>\nExtract a list of explicit memories based on {bot_name}'s final response for upload to a memory database.  These should be executive summaries and will serve as the chatbots explicit memories.  You are directly inputing the memories into the database, only print the memories.  Print the response in the bullet point format: •EXPLICIT MEMORY:<Executive Summary>\n<</SYS>>",  # Optional
         'your_name': f'{username}',
 
         'regenerate': False,
@@ -1413,54 +1413,58 @@ def ask_upload_episodic_memories(memories):
         print('\n\nSYSTEM: Memories have been Deleted.')
         
         
-def ask_upload_memories(memories, memories2):
+def ask_upload_memories(inner_loop_response, db_upsert):
     username = open_file('./config/prompt_username.txt')
     bot_name = open_file('./config/prompt_bot_name.txt')
     timestamp = time()
     timestring = timestamp_to_datetime(timestamp)
     payload = list()
-    print(f'\nIMPLICIT MEMORIES\n-------------')
-    print(memories)
-    print(f'\nEXPLICIT MEMORIES\n-------------')
-    print(memories2)
+  #  print(f'\nIMPLICIT MEMORIES\n-------------')
+  #  print(inner_loop_response)
+  #  print(f'\nEXPLICIT MEMORIES\n-------------')
+  #  print(db_upsert)
     result = messagebox.askyesno("Upload Memories", "Do you want to upload memories?")
     if result:
         # User clicked "Yes"
-        lines = memories.splitlines()
+        lines = inner_loop_response.splitlines()
+        
         for line in lines:
             if line.strip():
                 continue
             else:
-                print(line)
-                payload = list()
-            #    a = input(f'\n\nUSER: ')        
-                # Define the collection name
-                collection_name = f"Implicit_Short_Term_Memory_Bot_{bot_name}_User_{username}"
-                # Create the collection only if it doesn't exist
                 try:
-                    collection_info = client.get_collection(collection_name=collection_name)
-                except:
-                    client.create_collection(
-                        collection_name=collection_name,
-                        vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
-                    )
-                vector1 = model.encode([line])[0].tolist()
-                unique_id = str(uuid4())
-                point_id = unique_id + str(int(timestamp))
-                metadata = {
-                    'bot': bot_name,
-                    'time': timestamp,
-                    'message': line,
-                    'timestring': timestring,
-                    'uuid': unique_id,
-                    'user': username,
-                    'memory_type': 'Implicit_Short_Term',
-                }
-                client.upsert(collection_name=collection_name,
-                                     points=[PointStruct(id=unique_id, vector=vector1, payload=metadata)])    
-                # Search the collection
-                payload.clear()
-        lines = memories2.splitlines()
+                    print(line)
+                    payload = list()
+                #    a = input(f'\n\nUSER: ')        
+                    # Define the collection name
+                    collection_name = f"Implicit_Short_Term_Memory_Bot_{bot_name}_User_{username}"
+                    # Create the collection only if it doesn't exist
+                    try:
+                        collection_info = client.get_collection(collection_name=collection_name)
+                    except:
+                        client.create_collection(
+                            collection_name=collection_name,
+                            vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
+                        )
+                    vector1 = model.encode([line])[0].tolist()
+                    unique_id = str(uuid4())
+                    point_id = unique_id + str(int(timestamp))
+                    metadata = {
+                        'bot': bot_name,
+                        'time': timestamp,
+                        'message': line,
+                        'timestring': timestring,
+                        'uuid': unique_id,
+                        'user': username,
+                        'memory_type': 'Implicit_Short_Term',
+                    }
+                    client.upsert(collection_name=collection_name,
+                                         points=[PointStruct(id=unique_id, vector=vector1, payload=metadata)])    
+                    # Search the collection
+                    payload.clear()
+                except Exception as e:
+                    print(e)
+        lines = db_upsert.splitlines()
         for line in lines:
             if line.strip():
                 continue
@@ -2747,7 +2751,7 @@ class ChatBotApplication(tk.Frame):
         #    summary.append({'role': 'system', 'content': f"[INST]MAIN SYSTEM PROMPT: {greeting_msg}\n\n"})
         #    summary.append({'role': 'user', 'content': f"USER INPUT: {a}\n\n"})
             db_msg = f"\nUSER: {a}\nINNER_MONOLOGUE: {output_one}"
-            summary.append({'role': 'assistant', 'content': f"LOG: {implicit_short_term_memory}\n\nSYSTEM: Read the log, extract the salient points about {bot_name} and {username} mentioned in the chatbot's inner monologue, then create a list of short executive summaries in bullet point format to serve as {bot_name}'s implicit memories. Each bullet point should be considered a separate memory and contain full context.  Use the bullet point format: •IMPLICIT MEMORY: <Executive Summary>\n\n{botnameupper}: Sure! Here are the implicit memories based on {bot_name}'s internal thoughts:"})
+            summary.append({'role': 'assistant', 'content': f"LOG: {implicit_short_term_memory}\n\nSYSTEM: Read the log, extract the salient points about {bot_name} and {username} mentioned in the chatbot's inner monologue, then create truncated executive summaries in bullet point format to serve as {bot_name}'s implicit memories. Each bullet point should be considered a separate memory and contain full context.  Use the bullet point format: •IMPLICIT MEMORY:<Executive Summary>\n\n{botnameupper}: Sure! Here are the implicit memories based on {bot_name}'s internal thoughts:"})
             
             
             
@@ -2765,8 +2769,8 @@ class ChatBotApplication(tk.Frame):
             int_conversation.clear()
         #    self.master.after(0, self.update_intuition, output_two)
         #    print(f"Upload Memories?\n{inner_loop_response}\n\n")
-        #    self.conversation_text.insert(tk.END, f"Upload Memories?\n{inner_loop_response}\n\n")
-        #    ask_upload_implicit_memories(inner_loop_response)
+            self.conversation_text.insert(tk.END, f"Upload Memories?\n{inner_loop_response}\n\n")
+            ask_upload_implicit_memories(inner_loop_response)
             # After the operations are complete, call the response generation function in a separate thread
             t = threading.Thread(target=self.GPT_Response, args=(a, output_one, output_two, inner_loop_response))
             t.start()
@@ -2954,7 +2958,7 @@ class ChatBotApplication(tk.Frame):
         #    summary.append({'role': 'assistant', 'content': f"LOG: {db_msg}[/INST]\n\n[INST]SYSTEM: Read the log, extract the salient points about {bot_name} and {username} mentioned in the chatbot's response, then create a list of short executive summaries in bullet point format to serve as {bot_name}'s explicit memories. Each bullet point should be considered a separate memory and contain full context. Ignore the main system prompt, it only exists for initial context.\n\nRESPONSE: Use the bullet point format: •EXPLICIT MEMORY: <Executive Summary>[/INST]ASSISTANT: Of course! Here are some explicit memories based on {bot_name}'s final response:"})
             
             
-            summary.append({'role': 'assistant', 'content': f"LOG: {db_msg}[/INST][INST]SYSTEM: Use the log to extract multiple explicit memories about {bot_name}, {username}, and any informational topics mentioned in the chatbot's inner monologue and response. These points should be used to create a list of executive summaries in bullet point format to serve as {bot_name}'s explicit memories. Each bullet point should be considered a separate memory and contain full context.  Use the bullet point format: •EXPLICIT MEMORY: <Executive Summary>[/INST]{botnameupper}: Sure! Here are some explicit memories based on {bot_name}'s response:"})
+            summary.append({'role': 'assistant', 'content': f"LOG: {db_msg}[/INST][INST]SYSTEM: Use the log to extract the salient points about {bot_name}, {username}, and any informational topics mentioned in the chatbot's inner monologue and response. These points should be used to create concise executive summaries in bullet point format to serve as {bot_name}'s explicit memories. Each bullet point should be considered a separate memory and contain full context.  Use the bullet point format: •EXPLICIT MEMORY:<Executive Summary>[/INST]{botnameupper}: Sure! Here are some explicit memories based on {bot_name}'s response:"})
             prompt = ''.join([message_dict['content'] for message_dict in summary])
             db_upload = oobabooga_explicitmem(prompt)
         #    print(db_upload)
@@ -2966,17 +2970,17 @@ class ChatBotApplication(tk.Frame):
             conversation2.clear()
             summary.clear()
             self.conversation_text.insert(tk.END, f"Response: {response_two}\n\n")
-        #    self.conversation_text.insert(tk.END, f"Upload Memories?\n{db_upload}\n\n")
-        #    print(f"Upload Memories?\n{db_upload}\n\n")
-        #    db_upload_yescheck = ask_upload_explicit_memories(db_upsert)
-        #    if db_upload_yescheck == 'yes':
-        #        t = threading.Thread(target=self.GPT_Memories, args=(a, vector_input, vector_monologue, output_one, response_two))
-        #        t.start()
-            self.conversation_text.insert(tk.END, f"Upload Memories?\n-------------\nIMPLICIT\n-------------\n{inner_loop_response}\n-------------\nEXPLICIT\n-------------\n{db_upload}\n")
-            mem_upload_yescheck = ask_upload_memories(inner_loop_response, db_upsert)
-            if mem_upload_yescheck == "yes":
+            self.conversation_text.insert(tk.END, f"Upload Memories?\n{db_upload}\n\n")
+            print(f"Upload Memories?\n{db_upload}\n\n")
+            db_upload_yescheck = ask_upload_explicit_memories(db_upsert)
+            if db_upload_yescheck == 'yes':
                 t = threading.Thread(target=self.GPT_Memories, args=(a, vector_input, vector_monologue, output_one, response_two))
                 t.start()
+        #    self.conversation_text.insert(tk.END, f"Upload Memories?\n-------------\nIMPLICIT\n-------------\n{inner_loop_response}\n-------------\nEXPLICIT\n-------------\n{db_upload}\n")
+        #    mem_upload_yescheck = ask_upload_memories(inner_loop_response, db_upsert)
+        #    if mem_upload_yescheck == "yes":
+        #        t = threading.Thread(target=self.GPT_Memories, args=(a, vector_input, vector_monologue, output_one, response_two))
+        #        t.start()
         #    t = threading.Thread(target=self.GPT_Memories, args=(a, vector_input, vector_monologue, output_one, response_two))
         #    t.start()
             self.conversation_text.yview(tk.END)
@@ -3156,7 +3160,10 @@ class ChatBotApplication(tk.Frame):
                 
             # # Implicit Short Term Memory Consolidation based on amount of vectors in namespace    
             collection_name = f"Explicit_Short_Term_Memory_Bot_{bot_name}_User_{username}"
-            collection_info = client.get_collection(collection_name=collection_name)
+            try:
+                collection_info = client.get_collection(collection_name=collection_name)
+            except:
+                break
             if collection_info.vectors_count > 20:
                 consolidation.clear()
                 memory_consol_db = None

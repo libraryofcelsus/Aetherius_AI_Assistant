@@ -1,5 +1,5 @@
 # Aetherius
-Version .043a of Aetherius Personal Assistant/Companion by LibraryofCelsus.com
+Version .043b of Aetherius Personal Assistant/Companion by LibraryofCelsus.com
 
 **What is Aetherius?**  Aetherius is an Ai LLM Retrieval Framework focused on bringing realistic long-term memory and thought formation to a customizable chatbot/companion. I am repulsed by the rampant personal consumer data that is sent to companies without thought, the ability to be manipulated increases evermore with the advent of personalized Ai companions.  My goal is to create a local Ai Companion in which you actually have control over and own. One that cannot be changed by an external force to subtly manipulate.  
 Aetherius's current modules include a websearch/scrape and a file processing chatbot.
@@ -8,13 +8,14 @@ With the Qdrant Version, Aetherius can now be ran locally and offline maintainin
 
 Note: The current Version of Aetherius should be seen as a tech demo to play around with, while it is usable, I constantly make changes to the architecture and updating the scripts may break whatever bot you are talking to.
 
-Pinecone has recently changed their free tier.  They both removed namespaces and deleting by metadata, and as such it is no longer useable for new users.  New users must use the Qdrant version.
+Pinecone has recently changed their free tier.  They both removed namespaces and deleting by metadata, and as such it is no longer useable for new users.  
+New users must use the Qdrant version.
 
 **Local Llama-2 Update**
 
 **Experimental Changelog**
 
--Added Qdrant Version of basic OpenAi Chatbot, still the same bot as from a month ago, just uses Qdrant as the Vector DB.  Due to them updating the model, the scripts no longer function as intended.  They still work, but it will get confused on what it is supposed to talk about if no topic is mentioned.
+-Added Qdrant Version of basic OpenAi Chatbot, still the same bot as from a month ago, just uses Qdrant as the Vector DB.  Due to them updating the model, the scripts no longer function as intended.  They still work, but it will get confused on what it is supposed to talk about if no topic is mentioned.  Most development has moved to the locally ran version.
 
 -Added Qdrant Version of Llama 2 Version of Aetherius.  If a local Qdrant server is running it will use that, otherwise it will connect to the cloud.  To use the cloud, place the Qdrant Api Key and Url in the corresponding .txt files in the /api_keys folder.  Collection not existing errors will disapear once something has been entered into the collection.       
 Qdrant Cloud: https://qdrant.to/cloud                 
@@ -83,6 +84,15 @@ All modules upload to the main chatbot's memories, so it's knowledgebase will gr
 **File Processor:** This is a chatbot that will let you talk with your own files.  It supports a variety of formats including Image OCR.
 
 # Changelog:
+0.043b
+
+-Added Delete Button to Edit Conversation in Llama 2 Chatbot
+
+-Added Long Term Memory Upload in Llama 2 Chatbot
+
+-Updated Delete Menu in DB Management in Llama 2 Chatbot
+
+
 0.043a
 
 -Fixed Bug where only one Implicit and Explicit Memory were uploaded
@@ -220,15 +230,13 @@ All modules upload to the main chatbot's memories, so it's knowledgebase will gr
 
 ## Future Plans
 
--Create full documentation on Aetherius's Funtions
+-Create full documentation on Aetherius's Functions
 
 -Usage and Tip Guides for Aetherius
 
 -Improve Aetherius's self reflection
 
 -Provide more personality examples
-
--Detailed guide on how to initially "train" Aetherius to get a desired personality
 
 -Recreate World Creator with new architecture
 

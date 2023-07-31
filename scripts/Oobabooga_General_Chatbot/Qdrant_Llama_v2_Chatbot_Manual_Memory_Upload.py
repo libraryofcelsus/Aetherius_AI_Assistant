@@ -1283,7 +1283,7 @@ def ask_upload_implicit_memories(memories):
     result = messagebox.askyesno("Upload Memories", "Do you want to upload memories?")
     if result:
         # User clicked "Yes"
-        lines = memories.splitlines()
+        lines = memories.split("•")
         for line in lines:
             if line.strip() == '':  # This condition checks for blank lines
                 continue
@@ -1332,7 +1332,7 @@ def ask_upload_explicit_memories(memories):
     result = messagebox.askyesno("Upload Memories", "Do you want to upload memories?")
     if result:
         # User clicked "Yes"
-        lines = memories.splitlines()
+        lines = memories.split("•")
         for line in lines:
             if line.strip() == '':  # This condition checks for blank lines
                 continue

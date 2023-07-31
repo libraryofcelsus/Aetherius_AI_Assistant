@@ -404,7 +404,7 @@ def oobabooga_implicitmem(prompt):
         'history': history,
         'mode': 'instruct',  # Valid options: 'chat', 'chat-instruct', 'instruct'
         'instruction_template': 'Llama-v2',  # Will get autodetected if unset
-        'context_instruct': f"[INST] <<SYS>>\nExtract short and concise memories based on {bot_name}'s internal thoughts for upload to a memory database.  These should be executive summaries and will serve as the chatbots implicit memories.  You are directly inputing the memories into the database, only print the memories.  Print the response in the bullet point format: •IMPLICIT MEMORY: <Executive Summary>\n<</SYS>>",  # Optional
+        'context_instruct': f"[INST] <<SYS>>\nExtract short and concise memories based on {bot_name}'s internal thoughts for upload to a memory database.  These should be executive summaries and will serve as the chatbots implicit memories.  You are directly inputing the memories into the database, only print the memories.  Print the response in the bullet point format: •IMPLICIT MEMORY:<Executive Summary>\n<</SYS>>",  # Optional
         'your_name': f'{username}',
 
         'regenerate': False,
@@ -463,7 +463,7 @@ def oobabooga_explicitmem(prompt):
         'history': history,
         'mode': 'instruct',  # Valid options: 'chat', 'chat-instruct', 'instruct'
         'instruction_template': 'Llama-v2',  # Will get autodetected if unset
-        'context_instruct': f"[INST] <<SYS>>\nExtract a list of explicit memories based on {bot_name}'s final response for upload to a memory database.  These should be executive summaries and will serve as the chatbots explicit memories.  You are directly inputing the memories into the database, only print the memories.  Print the response in the bullet point format: •EXPLICIT MEMORY: <Executive Summary>\n<</SYS>>",  # Optional
+        'context_instruct': f"[INST] <<SYS>>\nExtract a list of concise explicit memories based on {bot_name}'s final response for upload to a memory database.  These should be executive summaries and will serve as the chatbots explicit memories.  You are directly inputing the memories into the database, only print the memories.  Print the response in the bullet point format: •EXPLICIT MEMORY:<Executive Summary>\n<</SYS>>",  # Optional
         'your_name': f'{username}',
 
         'regenerate': False,
@@ -1283,7 +1283,7 @@ def ask_upload_implicit_memories(memories):
     result = messagebox.askyesno("Upload Memories", "Do you want to upload memories?")
     if result:
         # User clicked "Yes"
-        lines = memories.splitlines()
+        lines = memories.split("•")
         for line in lines:
             if line.strip() == '':  # This condition checks for blank lines
                 continue
@@ -1332,7 +1332,7 @@ def ask_upload_explicit_memories(memories):
     result = messagebox.askyesno("Upload Memories", "Do you want to upload memories?")
     if result:
         # User clicked "Yes"
-        lines = memories.splitlines()
+        lines = memories.split("•")
         for line in lines:
             if line.strip() == '':  # This condition checks for blank lines
                 continue
@@ -2747,7 +2747,7 @@ class ChatBotApplication(tk.Frame):
         #    summary.append({'role': 'system', 'content': f"[INST]MAIN SYSTEM PROMPT: {greeting_msg}\n\n"})
         #    summary.append({'role': 'user', 'content': f"USER INPUT: {a}\n\n"})
             db_msg = f"\nUSER: {a}\nINNER_MONOLOGUE: {output_one}"
-            summary.append({'role': 'assistant', 'content': f"LOG: {implicit_short_term_memory}\n\nSYSTEM: Read the log, extract the salient points about {bot_name} and {username} mentioned in the chatbot's inner monologue, then create a list of short executive summaries in bullet point format to serve as {bot_name}'s implicit memories. Each bullet point should be considered a separate memory and contain full context.  Use the bullet point format: •IMPLICIT MEMORY: <Executive Summary>\n\n{botnameupper}: Sure! Here are the implicit memories based on {bot_name}'s internal thoughts:"})
+            summary.append({'role': 'assistant', 'content': f"LOG: {implicit_short_term_memory}\n\nSYSTEM: Read the log, extract the salient points about {bot_name} and {username} mentioned in the chatbot's inner monologue, then create truncated executive summaries in bullet point format to serve as {bot_name}'s implicit memories. Each bullet point should be considered a separate memory and contain full context.  Use the bullet point format: •IMPLICIT MEMORY:<Executive Summary>\n\n{botnameupper}: Sure! Here are the implicit memories based on {bot_name}'s internal thoughts:"})
             
             
             
@@ -2778,7 +2778,7 @@ class ChatBotApplication(tk.Frame):
                 values_to_check = ["7", "8", "9", "10"]
                 if any(val in automemory for val in values_to_check):
                     auto_int = ('Pass')
-                    lines = inner_loop_db.splitlines()
+                    lines = inner_loop_db.split("•")
                     for line in lines:
                         if line.strip() == '':  # This condition checks for blank lines
                             continue
@@ -3018,7 +3018,7 @@ class ChatBotApplication(tk.Frame):
         #    summary.append({'role': 'assistant', 'content': f"LOG: {db_msg}[/INST]\n\n[INST]SYSTEM: Read the log, extract the salient points about {bot_name} and {username} mentioned in the chatbot's response, then create a list of short executive summaries in bullet point format to serve as {bot_name}'s explicit memories. Each bullet point should be considered a separate memory and contain full context. Ignore the main system prompt, it only exists for initial context.\n\nRESPONSE: Use the bullet point format: •EXPLICIT MEMORY: <Executive Summary>[/INST]ASSISTANT: Of course! Here are some explicit memories based on {bot_name}'s final response:"})
             
             
-            summary.append({'role': 'assistant', 'content': f"LOG: {db_msg}[/INST][INST]SYSTEM: Use the log to extract multiple explicit memories about {bot_name}, {username}, and any informational topics mentioned in the chatbot's inner monologue and response. These points should be used to create a list of executive summaries in bullet point format to serve as {bot_name}'s explicit memories. Each bullet point should be considered a separate memory and contain full context.  Use the bullet point format: •EXPLICIT MEMORY: <Executive Summary>[/INST]{botnameupper}: Sure! Here are some explicit memories based on {bot_name}'s response:"})
+            summary.append({'role': 'assistant', 'content': f"LOG: {db_msg}[/INST][INST]SYSTEM: Use the log to extract the salient points about {bot_name}, {username}, and any informational topics mentioned in the chatbot's inner monologue and response. These points should be used to create concise executive summaries in bullet point format to serve as {bot_name}'s explicit memories. Each bullet point should be considered a separate memory and contain full context.  Use the bullet point format: •EXPLICIT MEMORY:<Executive Summary>[/INST]{botnameupper}: Sure! Here are some explicit memories based on {bot_name}'s response:"})
             prompt = ''.join([message_dict['content'] for message_dict in summary])
             db_upload = oobabooga_explicitmem(prompt)
         #    print(db_upload)
@@ -3043,7 +3043,7 @@ class ChatBotApplication(tk.Frame):
                 values_to_check = ["7", "8", "9", "10"]
                 if any(val in automemory for val in values_to_check):
                     auto_int = ('Pass')
-                    lines = db_upload.splitlines()
+                    lines = db_upload.split("•")
                     for line in lines:
                         if line.strip() == '':  # This condition checks for blank lines
                             continue

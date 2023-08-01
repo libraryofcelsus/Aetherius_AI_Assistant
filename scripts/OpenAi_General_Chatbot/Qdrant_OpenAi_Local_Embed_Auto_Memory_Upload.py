@@ -1281,7 +1281,7 @@ class ChatBotApplication(tk.Frame):
             else:
                 pass   
             int_conversation.clear()
-            self.master.after(0, self.update_intuition, output_two)
+        #    self.master.after(0, self.update_intuition, output_two)
 
             # After the operations are complete, call the response generation function in a separate thread
             t = threading.Thread(target=self.GPT_Response, args=(a, output_one, output_two))
@@ -1932,7 +1932,7 @@ class ChatBotApplication(tk.Frame):
                     ids_to_delete = [m.id for m in hits]
                     print('\n-----------------------\n')
                     consolidation.append({'role': 'system', 'content': "%s" % main_prompt})
-                    consolidation.append({'role': 'assistant', 'content': "LOG:\n%s\n\nRead the Log and consolidate the different memories into executive summaries in a process allegorical to associative processing. Each summary should contain the entire context of the memory. Follow the format: [-{EMOTIONAL TAG}:{IMPLICIT MEMORY}]" % memory_consol_db1})
+                    consolidation.append({'role': 'assistant', 'content': "LOG:\n%s\n\nRead the Log and consolidate the different memories into executive summaries in a process allegorical to associative processing. Each summary should contain the entire context of the memory. Follow the format: [-{EMOTIONAL TAG}:{IMPLICIT MEMORY}]" % memory_consol_db4})
                     memory_consol = chatgptconsolidation_completion(consolidation)
                     print(memory_consol)
                     lines = memory_consol.splitlines()

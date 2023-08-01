@@ -1292,7 +1292,7 @@ class ChatBotApplication(tk.Frame):
             vector = model.encode([inner_loop_db])[0].tolist()
             conversation.clear()
             int_conversation.clear()
-            self.master.after(0, self.update_intuition, output_two)
+        #    self.master.after(0, self.update_intuition, output_two)
             self.conversation_text.insert(tk.END, f"Upload Memories?\n{inner_loop_response}\n\n")
             ask_upload_implicit_memories(inner_loop_response)
             # After the operations are complete, call the response generation function in a separate thread
@@ -1883,7 +1883,7 @@ class ChatBotApplication(tk.Frame):
                     ids_to_delete = [m.id for m in hits]
                     print('\n-----------------------\n')
                     consolidation.append({'role': 'system', 'content': "%s" % main_prompt})
-                    consolidation.append({'role': 'assistant', 'content': "LOG:\n%s\n\nRead the Log and consolidate the different memories into executive summaries in a process allegorical to associative processing. Each summary should contain the entire context of the memory. Follow the format: [-{EMOTIONAL TAG}:{IMPLICIT MEMORY}]" % memory_consol_db1})
+                    consolidation.append({'role': 'assistant', 'content': "LOG:\n%s\n\nRead the Log and consolidate the different memories into executive summaries in a process allegorical to associative processing. Each summary should contain the entire context of the memory. Follow the format: [-{EMOTIONAL TAG}:{IMPLICIT MEMORY}]" % memory_consol_db4})
                     memory_consol = chatgptconsolidation_completion(consolidation)
                     print(memory_consol)
                     lines = memory_consol.splitlines()

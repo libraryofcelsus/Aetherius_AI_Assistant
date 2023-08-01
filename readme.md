@@ -1,5 +1,7 @@
 # Aetherius
-Version .043b of Aetherius Personal Assistant/Companion by LibraryofCelsus.com
+Version .043b of the Aetherius Ai Personal Assistant/Companion by LibraryofCelsus.com
+
+------
 
 **What is Aetherius?**  Aetherius is an Ai LLM Retrieval Framework focused on bringing realistic long-term memory and thought formation to a customizable chatbot/companion. I am repulsed by the rampant personal consumer data that is sent to companies without thought, the ability to be manipulated increases evermore with the advent of personalized Ai companions.  My goal is to create a local Ai Companion in which you actually have control over and own. One that cannot be changed by an external force to subtly manipulate.  
 Aetherius's current modules include a websearch/scrape and a file processing chatbot.
@@ -28,8 +30,6 @@ To install the local Qdrant server, first install Docker: https://www.docker.com
 -Llama 2 Version is now mostly functioning as intended, this is the first local model that I have actually felt is capable of running Aetherius.  I am now working on converting the webscrape and file process tools.
 
 -Added Llama v2 chat version using the Oobabooga API.  Tested with TheBloke/Llama-2-13B-chat-GPTQ.  Still needs more work before it will function well with the 7B version.  I load with ExLlama with a max_seq_len of 4096, leaving the other options at 1.
-
-<a href="https://www.buymeacoffee.com/libraryofcelsus" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
 
 ------
 
@@ -192,41 +192,6 @@ All modules upload to the main chatbot's memories, so it's knowledgebase will gr
 
 -Implemented Implicit Memory Association/Pruning
 
-0.037
-
--Added Reset_Pinecone_Index.py to DB Management. This will allow you to reset Aetherius without having to log into pinecone.io
-
--Added "Clear Memory" command to main chatbot. This will clear the saved short-term memory.
-
--Worked on Improving Memory Auto Upload|
-
--Cleaned up Code and added an Analysis file in the resources folder
-
--Fixed TTS Bug
-
--Added Manual Long-Term memory Consolidation script in DB Management
-
-0.036
-
--Implemented Memory Consolidation
-
--Added Retry loop for Auto Memory
-
--Fixed Intuition Loop context length bug
-
--Various Bug Fixes
-
-0.035
-
--Separated General Memory DB into Implicit and Explicit Memories.
-
--Various Bug Fixes
-
-0.034
-
--Added Voice Assistant Script, only on keypress for now. Always listening will come later.
-
--Auto Memory Upload bug fix
 
 ## Future Plans
 

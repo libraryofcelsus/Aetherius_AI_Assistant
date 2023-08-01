@@ -2142,6 +2142,14 @@ class ChatBotApplication(tk.Frame):
         except:
             print("Fail")
             pass
+            
+            
+    def insert_newline_with_space(self, event):
+        # Check if the Shift key is pressed and the Enter key is pressed.
+        if event.state == 1 and event.keysym == "Return":
+            # Insert a newline followed by a space at the current cursor position.
+            event.widget.insert(tk.INSERT, "\n ")
+            return "break"  # Prevent the default behavior (sending the message). 
         
         
     def create_widgets(self):
@@ -2197,6 +2205,9 @@ class ChatBotApplication(tk.Frame):
         self.user_input = tk.Text(self.input_frame, bg=self.background_color, fg=self.text_color, height=initial_input_height, wrap=tk.WORD, yscrollcommand=True)
         self.user_input.configure(font=(f"{font_config}", 10))
         self.user_input.pack(fill=tk.X, expand=True, side="left")
+        
+        # Bind the new function to handle Shift + Enter event.
+        self.user_input.bind("<Shift-Return>", self.insert_newline_with_space)
 
         # Create a scrollbar for the user input Text widget.
         scrollbar = tk.Scrollbar(self.input_frame, command=self.user_input.yview)

@@ -1,5 +1,5 @@
 # Aetherius
-Version .043b of the Aetherius Ai Personal Assistant/Companion by LibraryofCelsus.com
+Version .043c of the Aetherius Ai Personal Assistant/Companion by LibraryofCelsus.com
 
 ------
 
@@ -84,6 +84,12 @@ All modules upload to the main chatbot's memories, so it's knowledgebase will gr
 **File Processor:** This is a chatbot that will let you talk with your own files.  It supports a variety of formats including Image OCR.
 
 # Changelog:
+0.043c
+
+-Reworked Input Window, now handles larger text strings better.
+
+-Various Bug Fixes
+
 0.043b
 
 -Added Delete Button to Edit Conversation in Llama 2 Chatbot

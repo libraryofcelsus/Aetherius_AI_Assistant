@@ -19,7 +19,7 @@ New users must use the Qdrant version.
 
 -Added Experimental Version for instruct models, not optimized for any specific model yet.
 
--Added Qdrant Version of basic OpenAi Chatbot, still the same bot as from a month ago, just uses Qdrant as the Vector DB.  Due to them updating the model, the scripts no longer function as intended.  They still work, but it will get confused on what it is supposed to talk about if no topic is mentioned.  Most development has moved to the locally ran version.
+-Added Qdrant Version of basic OpenAi Chatbot, updated the scripts and they should now follow the conversation track again.  That being said, most development has now moved to the locally ran version.
 
 -Added Qdrant Version of Llama 2 Version of Aetherius.  If a local Qdrant server is running it will use that, otherwise it will connect to the cloud.  To use the cloud, place the Qdrant Api Key and Url in the corresponding .txt files in the /api_keys folder.  Collection not existing errors will disapear once something has been entered into the collection.       
 Qdrant Cloud: https://qdrant.to/cloud                 
@@ -91,6 +91,8 @@ All modules upload to the main chatbot's memories, so it's knowledgebase will gr
 0.043c
 
 -Reworked Input Window, now handles larger text strings better.
+
+-Updated OpenAi scripts, they should now follow the conversation track better.
 
 -Various Bug Fixes
 

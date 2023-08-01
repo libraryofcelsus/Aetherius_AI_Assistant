@@ -33,6 +33,7 @@ from qdrant_client.models import Distance, VectorParams, PointStruct, Filter, Fi
 #from qdrant_client.http.models import Batch 
 from qdrant_client.http import models
 import numpy as np
+import re
 
 
 
@@ -162,7 +163,7 @@ def oobabooga_inner_monologue(prompt):
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
-        'max_new_tokens': 300,
+        'max_new_tokens': 350,
         'history': history,
         'mode': 'instruct',  # Valid options: 'chat', 'chat-instruct', 'instruct'
         'instruction_template': 'Llama-v2',  # Will get autodetected if unset
@@ -225,7 +226,7 @@ def oobabooga_intuition(prompt):
         'history': history,
         'mode': 'instruct',  # Valid options: 'chat', 'chat-instruct', 'instruct'
         'instruction_template': 'Llama-v2',  # Will get autodetected if unset
-        'context_instruct': f"[INST] <<SYS>>\nCreate a short predictive action plan in third person point of view as {bot_name} based on the user, {username}'s input. This response plan will be directly passed onto the main chatbot system to help plan the response to the user.  The character window is limited to 400 characters, leave out extraneous text to save space.  Please provide the truncated action plan in a tasklist format.  Focus on informational requests, do not get caught in loops of asking for more information.\n<</SYS>>",  # Optional
+        'context_instruct': f"[INST] <<SYS>>\nCreate a short predictive action plan in third person point of view as {bot_name} based on the user, {username}'s input. This response plan will be directly passed onto the main chatbot system to help plan the response to the user.  The character window is limited to 400 characters, leave out extraneous text to save space.  Please provide the truncated action plan in a tasklist format.  Focus on informational planning, do not get caught in loops of asking for more information.\n<</SYS>>",  # Optional
         'your_name': f'{username}',
 
         'regenerate': False,
@@ -819,7 +820,7 @@ def oobabooga_response(prompt):
         'history': history,
         'mode': 'instruct',  # Valid options: 'chat', 'chat-instruct', 'instruct'
         'instruction_template': 'Llama-v2',  # Will get autodetected if unset
-        'context_instruct': f"[INST] <<SYS>>\nYou are {bot_name}.  Read the conversation history, your inner monologue, action plan, and your memories.  Then, in first-person, generate a single comprehensive response to the user, {username}'s message.\n<</SYS>>",  # Optional
+        'context_instruct': f"[INST] <<SYS>>\nYou are {bot_name}.  You are in the middle of a conversation with your user.  Read the conversation history, your inner monologue, action plan, and your memories.  Then, in first-person, generate a single comprehensive and natural sounding response to the user, {username}.\n<</SYS>>",  # Optional
         'your_name': f'{username}',
 
         'regenerate': False,
@@ -837,9 +838,9 @@ def oobabooga_response(prompt):
         'eta_cutoff': 0,  # In units of 1e-4
         'tfs': 1,
         'top_a': 0,
-        'repetition_penalty': 1.23,
+        'repetition_penalty': 1.25,
         'repetition_penalty_range': 0,
-        'top_k': 40,
+        'top_k': 43,
         'min_length': 20,
         'no_repeat_ngram_size': 0,
         'num_beams': 1,
@@ -1283,12 +1284,12 @@ def ask_upload_implicit_memories(memories):
     result = messagebox.askyesno("Upload Memories", "Do you want to upload memories?")
     if result:
         # User clicked "Yes"
-        lines = memories.split("•")
-        for line in lines:
-            if line.strip() == '':  # This condition checks for blank lines
-                continue
+        segments = re.split(r'•|\n\s*\n', memories)
+        for segment in segments:
+            if segment.strip() == '':  # This condition checks for blank segments
+                continue  # This condition checks for blank lines
             else:
-                print(line)
+                print(segment)
                 payload = list()
             #    a = input(f'\n\nUSER: ')        
                 # Define the collection name
@@ -1301,13 +1302,13 @@ def ask_upload_implicit_memories(memories):
                         collection_name=collection_name,
                         vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
                     )
-                vector1 = model.encode([line])[0].tolist()
+                vector1 = model.encode([segment])[0].tolist()
                 unique_id = str(uuid4())
                 point_id = unique_id + str(int(timestamp))
                 metadata = {
                     'bot': bot_name,
                     'time': timestamp,
-                    'message': line,
+                    'message': segment,
                     'timestring': timestring,
                     'uuid': unique_id,
                     'user': username,
@@ -1332,12 +1333,12 @@ def ask_upload_explicit_memories(memories):
     result = messagebox.askyesno("Upload Memories", "Do you want to upload memories?")
     if result:
         # User clicked "Yes"
-        lines = memories.split("•")
-        for line in lines:
-            if line.strip() == '':  # This condition checks for blank lines
-                continue
+        segments = re.split(r'•|\n\s*\n', memories)
+        for segment in segments:
+            if segment.strip() == '':  # This condition checks for blank segments
+                continue  # This condition checks for blank lines
             else:
-                print(line)
+                print(segment)
                 payload = list()
             #    a = input(f'\n\nUSER: ')        
                 # Define the collection name
@@ -1350,13 +1351,13 @@ def ask_upload_explicit_memories(memories):
                         collection_name=collection_name,
                         vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
                     )
-                vector1 = model.encode([line])[0].tolist()
+                vector1 = model.encode([segment])[0].tolist()
                 unique_id = str(uuid4())
                 point_id = unique_id + str(int(timestamp))
                 metadata = {
                     'bot': bot_name,
                     'time': timestamp,
-                    'message': line,
+                    'message': segment,
                     'timestring': timestring,
                     'uuid': unique_id,
                     'user': username,
@@ -1413,6 +1414,76 @@ def ask_upload_episodic_memories(memories):
         print('\n\nSYSTEM: Memories have been Deleted.')
         
         
+def upload_implicit_short_term_memories(query):
+    username = open_file('./config/prompt_username.txt')
+    bot_name = open_file('./config/prompt_bot_name.txt')
+    timestamp = time()
+    timestring = timestamp_to_datetime(timestamp)
+    payload = list()
+    payload = list()    
+                # Define the collection name
+    collection_name = f"Implicit_Short_Term_Memory_Bot_{bot_name}_User_{username}"
+                # Create the collection only if it doesn't exist
+    try:
+        collection_info = client.get_collection(collection_name=collection_name)
+    except:
+        client.create_collection(
+            collection_name=collection_name,
+            vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
+        )
+    vector1 = model.encode([query])[0].tolist()
+    unique_id = str(uuid4())
+    point_id = unique_id + str(int(timestamp))
+    metadata = {
+        'bot': bot_name,
+        'time': timestamp,
+        'message': query,
+        'timestring': timestring,
+        'uuid': unique_id,
+        'user': username,
+        'memory_type': 'Implicit_Short_Term',
+    }
+    client.upsert(collection_name=collection_name,
+                         points=[PointStruct(id=unique_id, vector=vector1, payload=metadata)])    
+                # Search the collection
+    return query
+        
+        
+def upload_explicit_short_term_memories(query):
+    username = open_file('./config/prompt_username.txt')
+    bot_name = open_file('./config/prompt_bot_name.txt')
+    timestamp = time()
+    timestring = timestamp_to_datetime(timestamp)
+    payload = list()
+    payload = list()    
+                # Define the collection name
+    collection_name = f"Explicit_Short_Term_Memory_Bot_{bot_name}_User_{username}"
+                # Create the collection only if it doesn't exist
+    try:
+        collection_info = client.get_collection(collection_name=collection_name)
+    except:
+        client.create_collection(
+            collection_name=collection_name,
+            vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
+        )
+    vector1 = model.encode([query])[0].tolist()
+    unique_id = str(uuid4())
+    point_id = unique_id + str(int(timestamp))
+    metadata = {
+        'bot': bot_name,
+        'time': timestamp,
+        'message': query,
+        'timestring': timestring,
+        'uuid': unique_id,
+        'user': username,
+        'memory_type': 'Explicit_Short_Term',
+    }
+    client.upsert(collection_name=collection_name,
+                         points=[PointStruct(id=unique_id, vector=vector1, payload=metadata)])    
+                # Search the collection
+    return query
+        
+        
 def ask_upload_memories(memories, memories2):
     username = open_file('./config/prompt_username.txt')
     bot_name = open_file('./config/prompt_bot_name.txt')
@@ -1424,76 +1495,7 @@ def ask_upload_memories(memories, memories2):
     print(f'\nEXPLICIT MEMORIES\n-------------')
     print(memories2)
     result = messagebox.askyesno("Upload Memories", "Do you want to upload memories?")
-    if result:
-        # User clicked "Yes"
-        lines = memories.splitlines()
-        for line in lines:
-            if line.strip():
-                continue
-            else:
-                print(line)
-                payload = list()
-            #    a = input(f'\n\nUSER: ')        
-                # Define the collection name
-                collection_name = f"Implicit_Short_Term_Memory_Bot_{bot_name}_User_{username}"
-                # Create the collection only if it doesn't exist
-                try:
-                    collection_info = client.get_collection(collection_name=collection_name)
-                except:
-                    client.create_collection(
-                        collection_name=collection_name,
-                        vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
-                    )
-                vector1 = model.encode([line])[0].tolist()
-                unique_id = str(uuid4())
-                point_id = unique_id + str(int(timestamp))
-                metadata = {
-                    'bot': bot_name,
-                    'time': timestamp,
-                    'message': line,
-                    'timestring': timestring,
-                    'uuid': unique_id,
-                    'user': username,
-                    'memory_type': 'Implicit_Short_Term',
-                }
-                client.upsert(collection_name=collection_name,
-                                     points=[PointStruct(id=unique_id, vector=vector1, payload=metadata)])    
-                # Search the collection
-                payload.clear()
-        lines = memories2.splitlines()
-        for line in lines:
-            if line.strip():
-                continue
-            else:
-                print(line)
-                payload = list()
-            #    a = input(f'\n\nUSER: ')        
-                # Define the collection name
-                collection_name = f"Explicit_Short_Term_Memory_Bot_{bot_name}_User_{username}"
-                # Create the collection only if it doesn't exist
-                try:
-                    collection_info = client.get_collection(collection_name=collection_name)
-                except:
-                    client.create_collection(
-                        collection_name=collection_name,
-                        vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
-                    )
-                vector1 = model.encode([line])[0].tolist()
-                unique_id = str(uuid4())
-                point_id = unique_id + str(int(timestamp))
-                metadata = {
-                    'bot': bot_name,
-                    'time': timestamp,
-                    'message': line,
-                    'timestring': timestring,
-                    'uuid': unique_id,
-                    'user': username,
-                    'memory_type': 'Explicit_Short_Term',
-                }
-                client.upsert(collection_name=collection_name,
-                                     points=[PointStruct(id=unique_id, vector=vector1, payload=metadata)])   
-                payload.clear()
-        print('\n\nSYSTEM: Upload Successful!')     
+    if result: 
         return 'yes'
     else:
         # User clicked "No"
@@ -2315,6 +2317,9 @@ class ChatBotApplication(tk.Frame):
         self.placeholder_label = tk.Label(self.top_frame, bg=self.background_color)
         self.placeholder_label.pack(side=tk.RIGHT, expand=True, fill=tk.X)
 
+
+        
+        
         # Enables wordwrap and disables input when chatbot is thinking.
         self.conversation_text = tk.Text(self, bg=self.background_color, fg=self.text_color, wrap=tk.WORD)
         self.conversation_text.pack(fill=tk.BOTH, expand=True)
@@ -2325,9 +2330,24 @@ class ChatBotApplication(tk.Frame):
         self.input_frame = tk.Frame(self, bg=self.background_color)
         self.input_frame.pack(fill=tk.X, side="bottom")
 
-        self.user_input = tk.Entry(self.input_frame, bg=self.background_color, fg=self.text_color)
+        # Set the initial height for the user input Text widget.
+        initial_input_height = 5  # Adjust this value as needed.
+
+        self.user_input = tk.Text(self.input_frame, bg=self.background_color, fg=self.text_color, height=initial_input_height, wrap=tk.WORD, yscrollcommand=True)
         self.user_input.configure(font=(f"{font_config}", 10))
         self.user_input.pack(fill=tk.X, expand=True, side="left")
+
+        # Create a scrollbar for the user input Text widget.
+        scrollbar = tk.Scrollbar(self.input_frame, command=self.user_input.yview)
+        scrollbar.pack(side="right", fill="y")
+
+        # Attach the scrollbar to the user input Text widget.
+        self.user_input.config(yscrollcommand=scrollbar.set)
+        
+        
+        
+        
+        
         
         self.thinking_label = tk.Label(self.input_frame, text="Thinking...")
 
@@ -2356,13 +2376,13 @@ class ChatBotApplication(tk.Frame):
 
 
     def send_message(self):
-        a = self.user_input.get()
-        self.user_input.delete(0, tk.END)
+        a = self.user_input.get("1.0", tk.END).strip()  # Get all the text from line 1, column 0 to the end.
+        self.user_input.delete("1.0", tk.END)  # Clear all the text in the widget.
         self.user_input.config(state=tk.DISABLED)
         self.send_button.config(state=tk.DISABLED)
         self.user_input.unbind("<Return>")
         # Display "Thinking..." in the input field
-        self.thinking_label.pack()
+        self.thinking_label.pack(side="left")
         t = threading.Thread(target=self.process_message, args=(a,))
         t.start()
 
@@ -2730,7 +2750,7 @@ class ChatBotApplication(tk.Frame):
             print('\n-----------------------\n')
             # # Intuition Generation
         #    int_conversation.append({'role': 'user', 'content': f"USER INPUT: {a}\n\n"})
-            int_conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S FLASHBULB MEMORIES: {db_search_12}\n{botnameupper}'S EXPLICIT MEMORIES: {db_search_5}\n{botnameupper}'s HEURISTICS: {db_search_15}\n{botnameupper}'S INNER THOUGHTS: {output_one}\n{botnameupper}'S EPISODIC MEMORIES: {db_search_4}\nPREVIOUS CONVERSATION HISTORY: {con_hist}\n\n\n\nSYSTEM: Transmute the user, {username}'s message as {bot_name} by devising a truncated predictive action plan in the third person point of view on how to best respond to {username}'s most recent message. You are not allowed to use external resources.  Do not create a plan for generic conversation.  If the user is requesting information on a subject, give a plan on what information needs to be provided.\n\n\n{usernameupper}: {a}\nPlease only provide the third person action plan in your response.  The action plan should be in tasklist form.\n\n{botnameupper}:"}) 
+            int_conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S FLASHBULB MEMORIES: {db_search_12}\n{botnameupper}'S EXPLICIT MEMORIES: {db_search_5}\n{botnameupper}'s HEURISTICS: {db_search_15}\n{botnameupper}'S INNER THOUGHTS: {output_one}\n{botnameupper}'S EPISODIC MEMORIES: {db_search_4}\nPREVIOUS CONVERSATION HISTORY: {con_hist}\n\n\n\nSYSTEM: Transmute the user, {username}'s message as {bot_name} by devising a truncated predictive action plan in the third person point of view on how to best respond to {username}'s most recent message. You are not allowed to use external resources.  Do not create a plan for generic conversation, only on what information is needed to be given.  If the user is requesting information on a subject, give a plan on what information needs to be provided.\n\n\n{usernameupper}: {a}\nPlease only provide the third person action plan in your response.  The action plan should be in tasklist form.\n\n{botnameupper}:"}) 
             prompt = ''.join([message_dict['content'] for message_dict in int_conversation])
             output_two = oobabooga_intuition(prompt)
         #    message = output_one
@@ -2778,12 +2798,12 @@ class ChatBotApplication(tk.Frame):
                 values_to_check = ["7", "8", "9", "10"]
                 if any(val in automemory for val in values_to_check):
                     auto_int = ('Pass')
-                    lines = inner_loop_db.split("•")
-                    for line in lines:
-                        if line.strip() == '':  # This condition checks for blank lines
-                            continue
+                    segments = re.split(r'•|\n\s*\n', inner_loop_response)
+                    for segment in segments:
+                        if segment.strip() == '':  # This condition checks for blank segments
+                            continue  # This condition checks for blank lines
                         else:
-                            print(line)
+                            print(segment)
                             payload = list()
                         #    a = input(f'\n\nUSER: ')        
                             # Define the collection name
@@ -2796,13 +2816,13 @@ class ChatBotApplication(tk.Frame):
                                     collection_name=collection_name,
                                     vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
                                 )
-                            vector1 = model.encode([line])[0].tolist()
+                            vector1 = model.encode([segment])[0].tolist()
                             unique_id = str(uuid4())
                             point_id = unique_id + str(int(timestamp))
                             metadata = {
                                 'bot': bot_name,
                                 'time': timestamp,
-                                'message': line,
+                                'message': segment,
                                 'timestring': timestring,
                                 'uuid': unique_id,
                                 'user': username,
@@ -2975,7 +2995,7 @@ class ChatBotApplication(tk.Frame):
             # # Generate Aetherius's Response
             
             response_db_search = f"SUBCONSCIOUS: {db_search_8}\n{db_search_10}\n{db_search_11}"
-            conversation2.append({'role': 'assistant', 'content': f"CHATBOTS MEMORIES: {db_search_8}\n{db_search_10}\n\n{bot_name}'s HEURISTICS: {db_search_11}\n\nCHATBOTS INNER THOUGHTS: {output_one}\n{second_prompt}\n\nI am in the middle of a conversation with my user, {username}.\n{botnameupper}'S RESPONSE PLANNING: Now I will now complete my action plan and use it to help structure my response, prioritizing informational requests: {output_two}\n\nI will now read our conversation history, then I will then do my best to respond naturally in a way that both answer's the user and shows emotional intelligence.\n\nCONVERSATION HISTORY: {con_hist}\n\n\n{usernameupper}/USER: {a}\nPlease provide a natural sounding response as {bot_name} to the user's latest message.  Fufill the request to its entirety, questioning the user may lead to them being displeased.\n\n{botnameupper}:"})
+            conversation2.append({'role': 'assistant', 'content': f"CHATBOTS MEMORIES: {db_search_8}\n{db_search_10}\n\n{bot_name}'s HEURISTICS: {db_search_11}\n\nCHATBOTS INNER THOUGHTS: {output_one}\n{second_prompt}\n\nI am in the middle of a conversation with my user, {username}.\n{botnameupper}'S RESPONSE PLANNING: Now I will now complete my action plan and use it to help structure my response, prioritizing informational requests: {output_two}\n\nI will now read our conversation history, then I will then do my best to respond naturally in a way that both answer's the user and shows emotional intelligence.\n\nCONVERSATION HISTORY: {con_hist}\n\n\n{usernameupper}/USER: {a}\nPlease provide a natural sounding response as {bot_name} to the user's latest message.  Fufill the user, {username}'s request to its entirety, questioning the user may lead to them being displeased.  You are directly responding to the user.\n\n{botnameupper}:"})
             prompt = ''.join([message_dict['content'] for message_dict in conversation2])
             response_two = oobabooga_response(prompt)
         #    response_two = chatgptresponse_completion(conversation2)
@@ -3043,12 +3063,12 @@ class ChatBotApplication(tk.Frame):
                 values_to_check = ["7", "8", "9", "10"]
                 if any(val in automemory for val in values_to_check):
                     auto_int = ('Pass')
-                    lines = db_upload.split("•")
-                    for line in lines:
-                        if line.strip() == '':  # This condition checks for blank lines
-                            continue
+                    segments = re.split(r'•|\n\s*\n', db_upload)
+                    for segment in segments:
+                        if segment.strip() == '':  # This condition checks for blank segments
+                            continue  # This condition checks for blank lines
                         else:
-                            print(line)
+                            print(segment)
                             payload = list()
                         #    a = input(f'\n\nUSER: ')        
                             # Define the collection name
@@ -3061,13 +3081,13 @@ class ChatBotApplication(tk.Frame):
                                     collection_name=collection_name,
                                     vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
                                 )
-                            vector1 = model.encode([line])[0].tolist()
+                            vector1 = model.encode([segment])[0].tolist()
                             unique_id = str(uuid4())
                             point_id = unique_id + str(int(timestamp))
                             metadata = {
                                 'bot': bot_name,
                                 'time': timestamp,
-                                'message': line,
+                                'message': segment,
                                 'timestring': timestring,
                                 'uuid': unique_id,
                                 'user': username,
@@ -3101,9 +3121,23 @@ class ChatBotApplication(tk.Frame):
         #    if db_upload_yescheck == 'yes':
         #        t = threading.Thread(target=self.GPT_Memories, args=(a, vector_input, vector_monologue, output_one, response_two))
         #        t.start()
+        #
         #    self.conversation_text.insert(tk.END, f"Upload Memories?\n-------------\nIMPLICIT\n-------------\n{inner_loop_response}\n-------------\nEXPLICIT\n-------------\n{db_upload}\n")
         #    mem_upload_yescheck = ask_upload_memories(inner_loop_response, db_upsert)
         #    if mem_upload_yescheck == "yes":
+        #        segments = re.split(r'•|\n\s*\n', inner_loop_response)
+        #        for segment in segments:
+        #            if segment.strip() == '':  # This condition checks for blank segments
+        #                continue  # This condition checks for blank lines
+        #            else:
+        #                upload_implicit_short_term_memories(segment)
+        #        segments = re.split(r'•|\n\s*\n', db_upsert)
+        #        for segment in segments:
+        #            if segment.strip() == '':  # This condition checks for blank segments
+        #                continue  # This condition checks for blank lines
+        #            else:
+        #                upload_explicit_short_term_memories(segment)
+        #        print('\n\nSYSTEM: Upload Successful!')
         #        t = threading.Thread(target=self.GPT_Memories, args=(a, vector_input, vector_monologue, output_one, response_two))
         #        t.start()
             t = threading.Thread(target=self.GPT_Memories, args=(a, vector_input, vector_monologue, output_one, response_two))
@@ -3114,7 +3148,7 @@ class ChatBotApplication(tk.Frame):
             self.user_input.config(state=tk.NORMAL)
             self.send_button.config(state=tk.NORMAL)
             self.thinking_label.pack_forget()
-            self.user_input.delete(0, tk.END)
+        #    self.user_input.delete(0, tk.END)
             self.bind_enter_key()
             return
             

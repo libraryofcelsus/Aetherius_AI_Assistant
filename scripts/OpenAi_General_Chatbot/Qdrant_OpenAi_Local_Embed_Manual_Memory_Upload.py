@@ -349,7 +349,7 @@ class ChatBotApplication(tk.Frame):
 
         self.master = master
         self.master.configure(bg=self.background_color)
-        self.master.title('Aetherius Chatbot - WARNING, OPEN AI SCRIPTS ARE OUTDATED DUE TO MODEL UPDATES')
+        self.master.title('Aetherius OpenAi Chatbot')
         self.pack(fill="both", expand=True)
         self.create_widgets()
         # Load and display conversation history
@@ -1114,7 +1114,8 @@ class ChatBotApplication(tk.Frame):
             except Exception as e:
                 print(f"An unexpected error occurred: {str(e)}")
             # # Inner Monologue Generation
-            conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;%s;%s;\n\nHEURISTICS: %s;\nUSER MESSAGE: %s;\nBased on %s's memories and the user, %s's message, compose a short and concise silent soliloquy as %s's inner monologue that reflects on %s's deepest contemplations and emotions in relation to the user's message.  Keep the inner monologue to a paragraph length.\n\nINNER_MONOLOGUE: " % (db_search_1, db_search_2, db_search_3, db_search_14, a, bot_name, username, bot_name, bot_name)})
+            conversation.append({'role': 'assistant', 'content': f"MEMORIES: %s;%s;%s;\n\nHEURISTICS: %s;\nCURRENT USER MESSAGE: %s;\n\nCONVERSATION HISTORY: {conversation_history}\n\nSYSTEM: Based on %s's memories and the user, %s's message, compose a short and concise silent soliloquy as %s's inner monologue that reflects on %s's deepest contemplations and emotions in relation to the user's message.  Keep the inner monologue to a paragraph length.\n\nINNER_MONOLOGUE: " % (db_search_1, db_search_2, db_search_3, db_search_14, a, bot_name, username, bot_name, bot_name)})
+            conversation.append({'role': 'user', 'content': f"{a}\nPlease directly provide a short internal monologue as {bot_name} contemplating the user's most recent message."})
             output_one = chatgpt250_completion(conversation)
             message = output_one
             vector_monologue = model.encode(['Inner Monologue: ' + message])[0].tolist()
@@ -1275,7 +1276,8 @@ class ChatBotApplication(tk.Frame):
             # # Intuition Generation
             int_conversation.append({'role': 'assistant', 'content': "%s" % greeting_msg})
             int_conversation.append({'role': 'user', 'content': a})
-            int_conversation.append({'role': 'assistant', 'content': "MEMORIES: %s;\n%s;\n%s;\n\nHEURISTICS: %s;\n%s'S INNER THOUGHTS: %s;\nUSER MESSAGE: %s;\nIn a single paragraph, interpret the user, %s's message as %s in third person by creating an intuitive action plan using maieutic reasoning.  If needed use a process similar to creative imagination to visualize the outcome.;\nINTUITION: " % (db_search_4, db_search_5, db_search_12, db_search_15, bot_name, output_one, a, username, bot_name)})
+            int_conversation.append({'role': 'assistant', 'content': f"MEMORIES: %s;\n%s;\n%s;\n\nHEURISTICS: %s;\n%s'S INNER THOUGHTS: %s;\nCURRENT USER MESSAGE: %s;\n\nCONVERSATION HISTORY: {conversation_history}\n\nSYSTEMIn a single paragraph, interpret the user, %s's message as %s in third person by creating an intuitive action plan using maieutic reasoning.  If needed use a process similar to creative imagination to visualize the outcome." % (db_search_4, db_search_5, db_search_12, db_search_15, bot_name, output_one, a, username, bot_name)})
+            int_conversation.append({'role': 'assistant', 'content': f"{a}\nPlease provide an action plan on how to respond to the user."})
             output_two = chatgpt200_completion(int_conversation)
             message_two = output_two
             print('\n\nINTUITION: %s' % output_two)
@@ -1454,7 +1456,8 @@ class ChatBotApplication(tk.Frame):
             print('\n-----------------------\n')
             # # Generate Aetherius's Response
             response_db_search = f"SUBCONSCIOUS: {db_search_8}\n{db_search_10};\n\nFLASHBULB MEMORIES: {db_search_11}"
-            conversation2.append({'role': 'assistant', 'content': "SUBCONSCIOUS: %s\n%s;\n\nFLASHBULB MEMORIES: %s;\nINNER THOUGHTS: %s\n\n%s  I am in the middle of a conversation with my user, %s. USER MESSAGE: %s; I will do my best to speak naturally and show emotional intelligence. I will intuit %s's needs: %s;\nMy current message window is limited to 2300 characters.\nI will now give a response with the diction of a real person: " % (db_search_8, db_search_10, db_search_11, output_one, second_prompt, username, a, username, output_two)})
+            conversation2.append({'role': 'assistant', 'content': f"SUBCONSCIOUS: %s\n%s;\n\nFLASHBULB MEMORIES: %s;\nINNER THOUGHTS: %s\n\n%s  I am in the middle of a conversation with my user, %s. USER MESSAGE: %s;\n\nCONVERSATION HISTORY: {conversation_history}\n\nSYSTEM:I will do my best to speak naturally and show emotional intelligence. I will intuit %s's needs: %s;\nMy current message window is limited to 2300 characters.\nI will now give a response with the diction of a real person: " % (db_search_8, db_search_10, db_search_11, output_one, second_prompt, username, a, username, output_two)})
+            conversation2.append({'role': 'assistant', 'content': f"{a}\nPlease now respond to {username} as {bot_name} with the diction of a real person."})
             response_two = chatgptresponse_completion(conversation2)
             print('\n\n%s: %s' % (bot_name, response_two))
             main_conversation.append(timestring, a, username, bot_name, output_one, output_two, response_two)

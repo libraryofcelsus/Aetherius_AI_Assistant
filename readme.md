@@ -17,6 +17,8 @@ New users must use the Qdrant version.
 
 **Experimental Changelog**
 
+-Add Qdrant Version of OpenAi Aethersearch.  Still needs work, I prefer the Llama 2 one as of now.
+
 -Added Experimental Version for instruct models, not optimized for any specific model yet.
 
 -Added Qdrant Version of basic OpenAi Chatbot, updated the scripts and they should now follow the conversation track again.  That being said, most development has now moved to the locally ran version.

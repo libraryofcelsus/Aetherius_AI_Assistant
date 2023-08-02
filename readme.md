@@ -12,7 +12,9 @@ With the Qdrant Version, Aetherius can now be ran locally and offline maintainin
 
 **Experimental Changelog**
 
--Add Qdrant Version of OpenAi Aethersearch.  Still needs work, I prefer the Llama 2 one as of now.
+-Added Llama 2 Agent script.  This functions similarly to the websearch/file reading chatbot, but instead chooses if it should search external resources for each task.  It also searches both the webscrape and file reading DB's at once.
+
+-Added Qdrant Version of OpenAi Aethersearch.  Still needs work, I prefer the Llama 2 one as of now.
 
 -Added Experimental Version for instruct models, not optimized for any specific model yet.
 
@@ -72,6 +74,8 @@ All modules upload to the main chatbot's memories, so it's knowledgebase will gr
 **Aethersearch:** This is a websearch/scrape chatbot.
 
 **File Processor:** This is a chatbot that will let you talk with your own files.  It supports a variety of formats including Image OCR.
+
+**Aethersearch:** This is a chatbot that follows the Autonomous Architecture.  As of now its only tools are DB searches.  It will decide if it needs its memories, external resources, or both.  If it needs external resources it will search the web and file scrape DB's from the Aethersearch and File Processor chatbots.
 
 # Changelog:
 0.043c

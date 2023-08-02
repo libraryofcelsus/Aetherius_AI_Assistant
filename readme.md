@@ -3,17 +3,12 @@ Version .043c of the Aetherius Ai Personal Assistant/Companion by LibraryofCelsu
 
 ------
 
-**What is Aetherius?**  Aetherius is an Ai LLM Retrieval Framework focused on bringing realistic long-term memory and thought formation to a customizable chatbot/companion. I am repulsed by the rampant personal consumer data that is sent to companies without thought, the ability to be manipulated increases evermore with the advent of personalized Ai companions.  My goal is to create a local Ai Companion in which you actually have control over and own. One that cannot be changed by an external force to subtly manipulate.  
+**What is Aetherius?**  Aetherius is an Ai LLM Retrieval Framework focused on bringing realistic long-term memory and thought formation to a customizable chatbot/companion.  In a world where the indiscriminate sharing of personal consumer data with corporations is prevalent, the risk of manipulation through personalized AI companions grows evermore apparent.  My goal is to create a local Ai Companion in which you actually have control over and own. One that cannot be changed by an external force to subtly manipulate.  
 Aetherius's current modules include a websearch/scrape and a file processing chatbot.
 
 With the Qdrant Version, Aetherius can now be ran locally and offline maintaining 100% privacy!
 
-Note: The current Version of Aetherius should be seen as a tech demo to play around with, while it is usable, I constantly make changes to the architecture and updating the scripts may break whatever bot you are talking to.
-
-Pinecone has recently changed their free tier.  They both removed namespaces and deleting by metadata, and as such it is no longer useable for new users.  
-New users must use the Qdrant version.
-
-**Local Llama-2 Update**
+------
 
 **Experimental Changelog**
 
@@ -27,14 +22,6 @@ New users must use the Qdrant version.
 Qdrant Cloud: https://qdrant.to/cloud                 
 To install the local Qdrant server, first install Docker: https://www.docker.com/, then see: https://github.com/qdrant/qdrant/blob/master/QUICK_START.md
 
--Added Experimental Version of the file scrape tool using Llama 2
-
--Added Experimental Version of the webscrape tool using Llama 2
-
--Llama 2 Version is now mostly functioning as intended, this is the first local model that I have actually felt is capable of running Aetherius.  I am now working on converting the webscrape and file process tools.
-
--Added Llama v2 chat version using the Oobabooga API.  Tested with TheBloke/Llama-2-13B-chat-GPTQ.  Still needs more work before it will function well with the 7B version.  I load with ExLlama with a max_seq_len of 4096, leaving the other options at 1.
-
 <a href='https://ko-fi.com/R6R2NRB0S' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi3.png?v=3' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
 
 ------
@@ -44,9 +31,6 @@ To install the local Qdrant server, first install Docker: https://www.docker.com
 [Skip to installation guide](#installation-guide)
 
 [Skip to Changelog](#changelog)
-
-Photo OCR (jpg, jpeg, png) requires tesseract: https://github.com/UB-Mannheim/tesseract/wiki   
-Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aetherius_Ai_Assistant" Folder.
 
 More output examples can be found at https://github.com/libraryofcelsus/Aetherius_Ai_Assistant_Outputs
 
@@ -85,7 +69,7 @@ All modules upload to the main chatbot's memories, so it's knowledgebase will gr
 
 **Main Chatbot:** A chatbot with realistic long term memory to serve as your personal Ai companion!
 
-**Aethersearch:** This is a websearch/scrape chatbot
+**Aethersearch:** This is a websearch/scrape chatbot.
 
 **File Processor:** This is a chatbot that will let you talk with your own files.  It supports a variety of formats including Image OCR.
 
@@ -246,6 +230,9 @@ Launch Aetherius with **run.bat**
 
 At pinecone.io, create an index named "Aetherius" with 768 dimensions and "cosine" as the metric.
 
+Photo OCR (jpg, jpeg, png) requires tesseract: https://github.com/UB-Mannheim/tesseract/wiki   
+Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aetherius_Ai_Assistant" Folder.
+
 Upload heuristics to DB and start chatting with Aetherius. Heuristic examples, and files to modify prompts can be found in the config folder!  Prompts can also be edited through the Config Menu.
 
 To run Aetherius Locally using Oobabooga, first install the web-ui at: https://github.com/oobabooga/text-generation-webui
@@ -281,15 +268,16 @@ Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aethe
 
 7. Create a virtual environment: **python -m venv venv**
 
-8. Activate the environment: **.\venv\scripts\activate**   (This must be done before running Aetherius each time, using an IDE like PyCharm can let you skip this. The run.bat will also automatically do this.)
+8. Activate the environment: **.\venv\scripts\activate**   (This must be done before running Aetherius each time. The run.bat will also automatically do this.)
 
 9. Install the required packages: **pip install -r requirements.txt**
 
 10. Copy your OpenAI api key to key_openai.txt (If using Oobabooga, you may skip this.)
 
-(If using Qdrant skip to step 14.)
+    (If using Qdrant skip to step 14.)
 
-11. Create a Index on pinecone.io titled: "aetherius" with 768 dimensions and cosine as the metric. I usually do a P1 instance. (Use 1536 dimensions for Open Ai embeddings.)
+11. Create a Index on pinecone.io titled: "aetherius" with 768 dimensions and cosine as the metric. I usually do a P1 instance. (Use 1536 dimensions for Open Ai 
+    embeddings.)
 
 12. Copy Api key for that Index and paste it in key_pinecone.txt 
 
@@ -308,17 +296,21 @@ Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aethe
 19. Copy your Google CSE ID to key_google_cse.txt
 
 20. If you plan on using Photo OCR (jpg, jpeg, png Text Recognition), it requires tesseract: https://github.com/UB-Mannheim/tesseract/wiki
-Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aetherius_Ai_Assistant" Folder.  Photos must be placed in the ./Upload/SCANS folder.
+    Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aetherius_Ai_Assistant" Folder.  Photos must be placed in the ./Upload/SCANS folder.
 
-21. Run main.py by typing **python main.py** in cmd or **run.bat** as admin to start Aetherius. (Using run.bat will let you skip opening CMD and activating the enviornment.)
+21. Run main.py by typing **python main.py** in cmd or **run.bat** as admin to start Aetherius. (Using run.bat will let you skip opening CMD and activating the 
+    enviornment.)
 
-22. Select DB Upload Heuristics from the DB Management menu to upload Heuristics for the bot, this DB can also function as a Personality DB. An example of how to do this can be found in "personality_db_input_examples.txt" in the config folder.
+22. Select DB Upload Heuristics from the DB Management menu to upload Heuristics for the bot, this DB can also function as a Personality DB. An example of how to do 
+    this can be found in "personality_db_input_examples.txt" in the config folder.
 
-23. Edit the chatbot's prompts with the Config Menu. This will let you change the main, secondary, and greeting prompts.  You can also change things like the font style and size.
+23. Edit the chatbot's prompts with the Config Menu. This will let you change the main, secondary, and greeting prompts.  You can also change things like the font style 
+    and size.
 
 24. You can change the botname and the username in the login menu.  Changing either of these will create a new chatbot.
 
-25. Once the chatbot has adopted a desired personality, I recommend creating a backup of the "nexus" folder and then create a collection of the "aetherius" index on pinecone.io.  This will let you revert back to a base state if issues arise later.
+25. Once the chatbot has adopted a desired personality, I recommend creating a backup of the "nexus" folder and then create a collection of the "aetherius" index on 
+    pinecone.io.  This will let you revert back to a base state if issues arise later.
 
 26. Once you have made a backup, you can start using the "Auto" mode, this mode has Aetherius decide for itself whether or not it should upload to its memories.
 
@@ -326,7 +318,8 @@ Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aethe
 
 28. Then, under the "Interface Mode" tab, enable the api checkbox in both fields.  Then click apply and restart the interface.
 
-29. Next, navigate to the models tab. Uncheck the autoload models box and then input "TheBloke/Llama-2-13B-chat-GPTQ" into the downloads box. Other models may work, but this is the one that is tested.
+29. Next, navigate to the models tab. Uncheck the autoload models box and then input "TheBloke/Llama-2-13B-chat-GPTQ" into the downloads box. Other models may work, but 
+    this is the one that is tested.
 
 30. Once the download is completed, reload the model selection menu and then select the model. Change the model loader to Exllama and set the max_seq_len to "4096".
 

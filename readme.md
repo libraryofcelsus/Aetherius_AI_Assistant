@@ -3,7 +3,7 @@ Version .043c of the Aetherius Ai Personal Assistant/Companion by LibraryofCelsu
 
 ------
 
-**What is Aetherius?**  Aetherius is an Ai LLM Retrieval Framework focused on bringing realistic long-term memory and thought formation to a customizable chatbot/companion.  In a world where the indiscriminate sharing of personal consumer data with corporations is prevalent, the risk of manipulation through personalized AI companions grows evermore apparent.  My goal is to create a local Ai Companion in which you actually have control over and own. One that cannot be changed by an external force to subtly manipulate.  
+**What is Aetherius?**  Aetherius is an Ai LLM Retrieval Framework focused on bringing realistic long-term memory and thought formation to a customizable chatbot/companion.  In a world where the indiscriminate sharing of personal consumer data with corporations is prevalent, the ability to be manipulated increases evermore with the advent of personalized Ai companions.  My goal is to create a local Ai Companion in which you actually have control over and own. One that cannot be changed by an external force to subtly manipulate.  
 Aetherius's current modules include a websearch/scrape and a file processing chatbot.
 
 With the Qdrant Version, Aetherius can now be ran locally and offline maintaining 100% privacy!

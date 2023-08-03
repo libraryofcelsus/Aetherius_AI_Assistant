@@ -28,6 +28,8 @@ To install the local Qdrant server, first install Docker: https://www.docker.com
 
 ------
 
+[Aetherius Usage Guide](https://www.libraryofcelsus.com/research/aetherius-usage-guide/)
+
 [Skip to Current Version Information](#current-version-information)
 
 [Skip to installation guide](#installation-guide)
@@ -252,6 +254,8 @@ Click the "load" button and load the model. The Oobabooga API bots should now wo
 Photo OCR (jpg, jpeg, png) requires tesseract: https://github.com/UB-Mannheim/tesseract/wiki
 Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aetherius_Ai_Assistant" Folder.
 
+[Aetherius Usage Guide](https://www.libraryofcelsus.com/research/aetherius-usage-guide/)
+
 ## Windows Installation
 
 **Guide with Photos can be found at [https://www.libraryofcelsus.com/aetherius-setup-guide/]**
@@ -329,7 +333,7 @@ Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aethe
 
 31. Click the "load" button and load the model.  The Oobabooga API bots should now work!
 
-
+[Aetherius Usage Guide](https://www.libraryofcelsus.com/research/aetherius-usage-guide/)
 
 # Contact
 Discord: libraryofcelsus      -> Old Username Style: Celsus#0262

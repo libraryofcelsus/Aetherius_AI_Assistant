@@ -1,12 +1,5 @@
 # Aetherius
-Version .043c of the Aetherius Ai Personal Assistant/Companion by LibraryofCelsus.com
-
-------
-
-**What is Aetherius?**  Aetherius is an Ai LLM Retrieval Framework focused on bringing realistic long-term memory and thought formation to a customizable chatbot/companion.  In a world where the indiscriminate sharing of personal consumer data with corporations is prevalent, the ability to be manipulated increases evermore with the advent of personalized Ai companions.  My goal is to create a local Ai Companion in which you actually have control over and own. One that cannot be changed by an external force to subtly manipulate.  
-Aetherius's current modules include a websearch/scrape and a file processing chatbot.
-
-With the Qdrant Version, Aetherius can now be ran locally and offline maintaining 100% privacy!
+Version .043c of the Aetherius Ai Personal Assistant/Agent/Companion by LibraryofCelsus.com
 
 ------
 
@@ -30,7 +23,7 @@ To install the local Qdrant server, first install Docker: https://www.docker.com
 
 [Aetherius Usage Guide](https://www.libraryofcelsus.com/research/aetherius-usage-guide/)
 
-[Skip to Current Version Information](#current-version-information)
+[Skip to Aetherius General Information](#current-version-information)
 
 [Skip to installation guide](#installation-guide)
 
@@ -61,11 +54,15 @@ Inspired by https://github.com/daveshap/
 ![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/07/AetheriusArch.png)
 
 # Current Version Information
-Welcome to the pre-alpha release of Aetherius, a highly customizable AI assistant designed to adapt to your specific needs.  I prefer a more "anthropomorphized" personal Ai as talking to something like base GPT feels off-putting.  The end goal of Aetherius is to both provide a realistic Ai companion and a cognitive framework that can be added on top of other Ai tools.
 
-Currently, Aetherius's main focus is creating a good architecture for realistic long-term memory storage and thought formation. Currently Aetherius has websearch and document scraping abilities.  More features will come at a later date.
+**What is Aetherius?**  Aetherius is an Ai LLM Retrieval Framework focused on bringing realistic long-term memory and thought formation to a customizable chatbot/companion. 
+My goal is to create a locally ran Ai Assistant that you actually have control over and own. One that cannot be changed by an external force without concent.
+
+Currently, Aetherius's main focus is creating a good architecture for realistic long-term memory storage and thought formation. Currently Aetherius has websearch and file reading abilities.  More features will come at a later date.
 
 Aetherius aims to provide a modular, personalized AI assistant experience by enabling the addition of task-specific Modules and Sub-Modules. If all goes as planned, Aetherius will support integration with other open-source projects and models.
+
+Aetherius can now be ran locally and offline maintaining 100% privacy!
 
 ## Aetherius's Modules
 
@@ -73,11 +70,13 @@ All modules upload to the main chatbot's memories, so it's knowledgebase will gr
 
 **Main Chatbot:** A chatbot with realistic long term memory to serve as your personal Ai companion!
 
+**External Resource Modules (Aethersearch, File Processor, Agent):** These modules enable Aetherius to connect with external data. Owing to the constraints of smaller models, it is recommended to scrape the Wikipedia page of your desired subject prior to initiating a conversation. The memories created from these tools are shared across all chatbots, allowing Aetherius’s knowledge base to expand over time.
+
 **Aethersearch:** This is a websearch/scrape chatbot.
 
 **File Processor:** This is a chatbot that will let you talk with your own files.  It supports a variety of formats including Image OCR.
 
-**Aethersearch:** This is a chatbot that follows the Autonomous Architecture.  As of now its only tools are DB searches.  It will decide if it needs its memories, external resources, or both.  If it needs external resources it will search the web and file scrape DB's from the Aethersearch and File Processor chatbots.
+**Agent:** This is a chatbot that follows the Autonomous Architecture.  As of now its only tools are DB searches.  It will decide if it needs its memories, external resources, or both.  If it needs external resources it will search the web and file scrape DB's from the Aethersearch and File Processor chatbots.
 
 # Changelog:
 0.043c

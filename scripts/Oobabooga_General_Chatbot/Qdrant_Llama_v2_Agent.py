@@ -1174,8 +1174,8 @@ def search_implicit_db(line_vec):
     bot_name = open_file('./config/prompt_bot_name.txt')
     try:
         with lock:
-            memories1 = None
-            memories2  = None
+            memories1 = 'No Memories'
+            memories2 = 'No Memories'
             try:
                 hits = client.search(
                     collection_name=f"Implicit_Long_Term_Memory_Bot_{bot_name}_User_{username}",
@@ -1262,6 +1262,8 @@ def search_explicit_db(line_vec):
     bot_name = open_file('./config/prompt_bot_name.txt')
     try:
         with lock:
+            memories1 = 'No Memories'
+            memories2 = 'No Memories'
             try:
                 hits = client.search(
                     collection_name=f"Explicit_Long_Term_Memory_Bot_{bot_name}_User_{username}",
@@ -1397,7 +1399,7 @@ def search_external_resources(line):
                 hits1 = client.search(
                     collection_name=f"Webscrape_Tool_Bot_{bot_name}_User_{username}",
                     query_vector=line_vec,
-                    limit=15
+                    limit=25
                 )
             except Exception as e:
                 hits1 = []
@@ -1407,7 +1409,7 @@ def search_external_resources(line):
                 hits2 = client.search(
                     collection_name=f"Filescrape_Tool_Bot_{bot_name}_User_{username}",
                     query_vector=line_vec,
-                    limit=15
+                    limit=25
                 )
             except Exception as e:
                 hits2 = []
@@ -1425,6 +1427,7 @@ def search_external_resources(line):
                 table = [entry.payload['message'] for entry in sorted_results[:10]]
                 print(table)
             else:
+                table = ("No results found.")
                 print("No results found.")
             print(table)
             return table
@@ -3465,6 +3468,7 @@ class ChatBotApplication(tk.Frame):
             
             int_conversation.append({'role': 'user', 'content': f"USER INPUT: {a}\n\n"})
             int_conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S INFLUENTIAL MEMORIES: {db_search_12}\n\n{botnameupper}'S EXPLICIT MEMORIES: {db_search_5}\n\n{botnameupper}'S HEURISTICS: {db_search_15}\n\n{botnameupper}'S INNER THOUGHTS: {output_one}[/INST]\n\n[INST]EXTERNAL RESOURCES: {int_scrape}\n\nUSER'S INPUT: {a}\nPREVIOUS CONVERSATION HISTORY: {con_hist}\n\n\n\nSYSTEM: Transmute the user, {username}'s message as {bot_name} by devising a truncated predictive action plan in the third person point of view on how to best respond to {username}'s most recent message. Only plan on what information is needed to be given.  If the user is requesting information on a subject, give a plan on what information needs to be provided, you have access to external knowledge sources if you need it.\n\n\n{usernameupper}: {a}\nPlease only provide the third person action plan in your response.  The action plan should be in tasklist form.\n\n{botnameupper}:"}) 
+            
 
             prompt = ''.join([message_dict['content'] for message_dict in int_conversation])
             output_two = oobabooga_intuition(prompt)
@@ -3574,7 +3578,7 @@ class ChatBotApplication(tk.Frame):
             timestamp = time()
             timestring = timestamp_to_datetime(timestamp)
             # # Test for basic Autonomous Tasklist Generation and Task Completion
-            master_tasklist.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a stateless task list coordinator for {bot_name} an autonomous Ai chatbot. Your job is to combine the user's input and the user facing chatbots intuitive action plan, then transform it into a list of independent research queries for {bot_name}'s response that can be executed by separate AI agents in a cluster computing environment. The other asynchronous Ai agents are stateless and cannot communicate with each other or the user during task execution, however the agents do have access to {bot_name}'s memories. Exclude tasks involving final product production, user communication, using external resources, or checking work with other entities. Respond using bullet point format following: '-[task]\n-[task]\n-[task]'\n\n"})
+            master_tasklist.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a stateless task list coordinator for {bot_name} an autonomous Ai chatbot. Your job is to combine the user's input and the user facing chatbots intuitive action plan, then transform it into a list of independent research queries for {bot_name}'s response that can be executed by separate AI agents in a cluster computing environment. The other asynchronous Ai agents are stateless and cannot communicate with each other or the user during task execution, however the agents do have access to {bot_name}'s memories and an information Database. Exclude tasks involving final product production, user communication, using external resources, or checking work with other entities. Respond using bullet point format following: '-[task]\n-[task]\n-[task]'\n\n"})
             master_tasklist.append({'role': 'user', 'content': f"USER FACING CHATBOT'S INTUITIVE ACTION PLAN: {output_two}\n\n"})
             master_tasklist.append({'role': 'user', 'content': f"USER INQUIRY: {a}\n\n"})
             master_tasklist.append({'role': 'assistant', 'content': f"RESPONSE FORMAT: You may only print the list in hyphenated bullet point format. Use the format: '-[task]\n-[task]\n-[task]'[/INST]\n\nASSISTANT:"})
@@ -3612,7 +3616,7 @@ class ChatBotApplication(tk.Frame):
                         tasklist_completion.extend(future.result())
                 tasklist_completion.append({'role': 'assistant', 'content': f"%{botnameupper}'S INNER_MONOLOGUE: {output_one}\n\n"})
         #        tasklist_completion.append({'role': 'user', 'content': f"%{bot_name}'s INTUITION%\n{output_two}\n\n"})
-                tasklist_completion.append({'role': 'user', 'content': f"[/INST]\n[INST]SYSTEM: Read the given set of tasks and completed responses and convert them into a verbose response for {username}, the end user in accordance with their request. {username} is both unaware and unable to see any of your research so any nessisary context or information must be relayed.\n\nUSER'S INITIAL INPUT: {a}.\n\nRESPONSE FORMAT: Your planning and research is now done. You will now give a verbose and natural sounding response ensuring the user's request is fully completed in entirety. Follow the format: [{bot_name}: <FULL RESPONSE TO USER>][/INST]\n\nUSER: {a}\n\n{botnameupper}:"})
+                tasklist_completion.append({'role': 'user', 'content': f"[/INST]\n[INST]SYSTEM: Read the given set of tasks and completed responses and use them to create a verbose response to {username}, the end user in accordance with their request. {username} is both unaware and unable to see any of your research so any nessisary context or information must be relayed.\n\nUSER'S INITIAL INPUT: {a}.\n\nRESPONSE FORMAT: Your planning and research is now done. You will now give a verbose and natural sounding response ensuring the user's request is fully completed in entirety. Follow the format: [{bot_name}: <FULL RESPONSE TO USER>][/INST]\n\nUSER: {a}\n\n{botnameupper}:"})
                 print('\n\nGenerating Final Output...')
                 prompt = ''.join([message_dict['content'] for message_dict in tasklist_completion])
                 response_two = oobabooga_response(prompt)
@@ -4237,7 +4241,7 @@ def process_line(line, task_counter, conversation, memcheck, memcheck2, webcheck
         memcheck2.append({'role': 'user', 'content': f"USER INPUT: {line}\n\n"})
         memcheck2.append({'role': 'assistant', 'content': f"RESPONSE FORMAT: You may only print the type of memory to be queried. Use the format: [{bot_name}: 'MEMORY TYPE'][/INST]\n\nASSISTANT:"})
         # # Web Search Tool
-        webcheck.append({'role': 'system', 'content': f"SYSTEM: You are a sub-module for {bot_name}, an Autonomous AI Chatbot. Your role is part of a chain of agents. Your task is to determine whether the given task requires factual data. Please assume that any informational task requires factual data. Note that you do not need to refer to {username} and {bot_name}'s memories, as they are handled by another agent. If reference information is necessary, respond with 'YES'. If reference information is not needed, respond with 'NO'.\n"})
+        webcheck.append({'role': 'system', 'content': f"SYSTEM: You are a sub-module for {bot_name}, an Autonomous AI Chatbot. Your role is part of a chain of agents. Your task is to determine whether the given task is asking for factual data or memories. Please assume that any informational task requires factual data. You do not need to refer to {username} and {bot_name}'s memories, as they are handled by another agent. If reference information is necessary, respond with 'YES'. If reference information is not needed, respond with 'NO'.\n"})
         webcheck.append({'role': 'user', 'content': f"TASK: {line}"})
     #    webcheck.append({'role': 'user', 'content': f"USER: Is reference information needed? Please respond with either 'Yes' or 'No'."})
         webcheck.append({'role': 'assistant', 'content': f"RESPONSE FORMAT: You may only print 'Yes' or 'No'. Use the format: [{bot_name}: 'YES OR NO'][/INST]ASSISTANT:"})
@@ -4284,7 +4288,7 @@ def process_line(line, task_counter, conversation, memcheck, memcheck2, webcheck
         conversation.append({'role': 'assistant', 'content': f"WEBSEARCH: {table}\n\n"})
         conversation.append({'role': 'user', 'content': f"BOT {task_counter} TASK REINITIALIZATION: {line}\n\n"})
         conversation.append({'role': 'user', 'content': f"INITIAL USER INPUT: {a}\n\n"})
-        conversation.append({'role': 'user', 'content': f"SYSTEM: Summarize the given webscraped articles that are relevant to the given task. Your job is to provide concise information without leaving anything out.\n\n"})
+        conversation.append({'role': 'user', 'content': f"SYSTEM: Create an executive summary of the given webscraped articles that are relevant to the given task. Your job is to provide concise information without leaving any factual data out.  This information will be used to create a research article.\n\n"})
         conversation.append({'role': 'assistant', 'content': f"RESPONSE FORMAT: Follow the format: [BOT {task_counter}: <RESPONSE TO USER>][/INST]\n\nBOT {task_counter}:"})
         prompt = ''.join([message_dict['content'] for message_dict in conversation])
         task_completion = oobabooga_800(prompt)

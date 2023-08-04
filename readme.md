@@ -5,6 +5,8 @@ Version .043c of the Aetherius Ai Personal Assistant/Agent/Companion by Libraryo
 
 **Experimental Changelog**
 
+-Added Experimental Different Instruct formating for Oobabooga api chatbot.  Barley work for now.
+
 -Added Llama 2 Agent script.  This functions similarly to the websearch/file reading chatbot, but instead chooses if it should search external resources for each task.  It also searches both the webscrape and file reading DB's at once.
 
 -Added Qdrant Version of OpenAi Aethersearch.  Still needs work, I prefer the Llama 2 one as of now.
@@ -16,6 +18,10 @@ Version .043c of the Aetherius Ai Personal Assistant/Agent/Companion by Libraryo
 -Added Qdrant Version of Llama 2 Version of Aetherius.  If a local Qdrant server is running it will use that, otherwise it will connect to the cloud.  To use the cloud, place the Qdrant Api Key and Url in the corresponding .txt files in the /api_keys folder.  Collection not existing errors will disapear once something has been entered into the collection.       
 Qdrant Cloud: https://qdrant.to/cloud                 
 To install the local Qdrant server, first install Docker: https://www.docker.com/, then see: https://github.com/qdrant/qdrant/blob/master/QUICK_START.md
+
+------
+
+Aetherius is self-funded, consider supporting me if you use it frequently :)
 
 <a href='https://ko-fi.com/R6R2NRB0S' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi3.png?v=3' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
 

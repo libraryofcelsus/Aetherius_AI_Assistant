@@ -5,7 +5,7 @@ Version .043c of the Aetherius Ai Personal Assistant/Agent/Companion by Libraryo
 
 **Experimental Changelog**
 
--Added Experimental Different Instruct formating for Oobabooga api chatbot.  Barley work for now.
+-Added Experimental Different Instruct formating for Oobabooga api chatbot.  Barley works for now.
 
 -Added Llama 2 Agent script.  This functions similarly to the websearch/file reading chatbot, but instead chooses if it should search external resources for each task.  It also searches both the webscrape and file reading DB's at once.
 
@@ -15,13 +15,25 @@ Version .043c of the Aetherius Ai Personal Assistant/Agent/Companion by Libraryo
 
 -Added Qdrant Version of basic OpenAi Chatbot, updated the scripts and they should now follow the conversation track again.  That being said, most development has now moved to the locally ran version.
 
--Added Qdrant Version of Llama 2 Version of Aetherius.  If a local Qdrant server is running it will use that, otherwise it will connect to the cloud.  To use the cloud, place the Qdrant Api Key and Url in the corresponding .txt files in the /api_keys folder.  Collection not existing errors will disapear once something has been entered into the collection.       
-Qdrant Cloud: https://qdrant.to/cloud                 
-To install the local Qdrant server, first install Docker: https://www.docker.com/, then see: https://github.com/qdrant/qdrant/blob/master/QUICK_START.md
+------
+
+## Aetherius's Current Modules
+
+All modules upload to the main chatbot's memories, so it's knowledgebase will grow on whatever external data you want!
+
+**Main Chatbot:** A chatbot with realistic long term memory to serve as your personal Ai companion!
+
+**External Resource Modules (Aethersearch, File Processor, Agent):** These modules enable Aetherius to connect with external data. Owing to the constraints of smaller models, it is recommended to scrape the Wikipedia page of your desired subject prior to initiating a conversation. The memories created from these tools are shared across all chatbots, allowing Aetherius’s knowledge base to expand over time.
+
+**Aethersearch:** This is a websearch/scrape chatbot.
+
+**File Processor:** This is a chatbot that will let you talk with your own files.  It supports a variety of formats including Image OCR.
+
+**Agent:** This is a chatbot that follows the Autonomous Architecture.  As of now its only tools are DB searches.  It will decide if it needs its memories, external resources, or both.  If it needs external resources it will search the web and file scrape DB's from the Aethersearch and File Processor chatbots.
 
 ------
 
-Aetherius is self-funded, consider supporting me if you use it frequently :)
+Aetherius's development is self-funded, consider supporting me if you use it frequently :)
 
 <a href='https://ko-fi.com/R6R2NRB0S' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi3.png?v=3' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
 
@@ -70,19 +82,6 @@ Aetherius aims to provide a modular, personalized AI assistant experience by ena
 
 Aetherius can now be ran locally and offline maintaining 100% privacy!
 
-## Aetherius's Modules
-
-All modules upload to the main chatbot's memories, so it's knowledgebase will grow on whatever external data you want!
-
-**Main Chatbot:** A chatbot with realistic long term memory to serve as your personal Ai companion!
-
-**External Resource Modules (Aethersearch, File Processor, Agent):** These modules enable Aetherius to connect with external data. Owing to the constraints of smaller models, it is recommended to scrape the Wikipedia page of your desired subject prior to initiating a conversation. The memories created from these tools are shared across all chatbots, allowing Aetherius’s knowledge base to expand over time.
-
-**Aethersearch:** This is a websearch/scrape chatbot.
-
-**File Processor:** This is a chatbot that will let you talk with your own files.  It supports a variety of formats including Image OCR.
-
-**Agent:** This is a chatbot that follows the Autonomous Architecture.  As of now its only tools are DB searches.  It will decide if it needs its memories, external resources, or both.  If it needs external resources it will search the web and file scrape DB's from the Aethersearch and File Processor chatbots.
 
 # Changelog:
 0.043c

@@ -1,5 +1,5 @@
 # Aetherius
-Version .043c of the Aetherius Ai Personal Assistant/Agent/Companion by LibraryofCelsus.com
+Version .043d of the Aetherius Ai Personal Assistant/Agent/Companion by LibraryofCelsus.com
 
 ------
 
@@ -23,7 +23,7 @@ All modules upload to the main chatbot's memories, so it's knowledgebase will gr
 
 **Main Chatbot:** A chatbot with realistic long term memory to serve as your personal Ai companion!
 
-**External Resource Modules (Aethersearch, File Processor, Agent):** These modules enable Aetherius to connect with external data. Owing to the constraints of smaller models, it is recommended to scrape the Wikipedia page of your desired subject prior to initiating a conversation. The memories created from these tools are shared across all chatbots, allowing Aetherius’s knowledge base to expand over time.
+**External Resource Modules (Aethersearch, File Processor, Agent):** These modules enable Aetherius to connect with external data. Owing to the constraints of smaller models, it is recommended to scrape the Wikipedia page of your desired subject prior to initiating a conversation. The memories created from these tools are shared across all chatbot versions, allowing Aetherius’s knowledge base to expand over time.
 
 **Aethersearch:** This is a websearch/scrape chatbot.
 
@@ -84,6 +84,10 @@ Aetherius can now be ran locally and offline maintaining 100% privacy!
 
 
 # Changelog:
+0.043d
+
+-Cleaned up main Llama 2 chatbot code
+
 0.043c
 
 -Reworked Input Window, now handles larger text strings better.

@@ -51,9 +51,13 @@ More output examples can be found at https://github.com/libraryofcelsus/Aetheriu
 
 ------
 
+Join the Discord for help or to get more in-depth information!
+
 Discord Server: https://discord.gg/pb5zcNa7zE
 
-Join the Discord for help or to get more in-depth information!
+Subscribe to my youtube for Video Tutorials: https://www.youtube.com/@LibraryofCelsus (Channel not Launched Yet)
+
+Code Tutorials available at: https://www.libraryofcelsus.com/research/public/code-tutorials/
 
 Made by: https://github.com/libraryofcelsus
 
@@ -87,6 +91,8 @@ Aetherius can now be ran locally and offline maintaining 100% privacy!
 0.043d
 
 -Cleaned up main Llama 2 chatbot code
+
+-Cleaned up Aethersearch code
 
 0.043c
 

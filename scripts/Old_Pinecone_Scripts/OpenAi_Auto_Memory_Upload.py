@@ -28,6 +28,13 @@ from tkinter import ttk, scrolledtext, simpledialog, font
 # from pydub import effects
 
 
+openai.api_key = open_file('api_keys/key_openai.txt')
+
+
+pinecone.init(api_key=open_file('api_keys/key_pinecone.txt'), environment=open_file('api_keys/key_pinecone_env.txt'))
+vdb = pinecone.Index("aetherius")
+
+
 # Import GPT Calls based on set Config
 def import_functions_from_script(script_path):
     spec = importlib.util.spec_from_file_location("custom_module", script_path)
@@ -143,7 +150,7 @@ def DB_Upload_Heuristics(query):
         timestamp = time()
         timestring = timestamp_to_datetime(timestamp)
         unique_id = str(uuid4())
-        metadata = {'speaker': 'AETHERIUS', 'time': timestamp, 'message': query, 'timestring': timestring,
+        metadata = {'speaker': bot_name, 'time': timestamp, 'message': query, 'timestring': timestring,
                     'uuid': unique_id, "memory_type": "heuristics", "user": username}
         save_json(f'nexus/{bot_name}/{username}/heuristics_nexus/%s.json' % unique_id, metadata)
         payload.append((unique_id, vector, {"memory_type": "heuristics", "user": username}))

@@ -35,6 +35,10 @@ from bs4 import BeautifulSoup
 import subprocess
 
 
+pinecone.init(api_key=open_file('api_keys/key_pinecone.txt'), environment=open_file('api_keys/key_pinecone_env.txt'))
+vdb = pinecone.Index("aetherius")
+
+
 # For local streaming, the websockets are hosted without ssl - http://
 HOST = 'localhost:5000'
 URI = f'http://{HOST}/api/v1/chat'

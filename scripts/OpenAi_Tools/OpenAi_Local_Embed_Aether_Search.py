@@ -25,6 +25,9 @@ import importlib.util
 from sentence_transformers import SentenceTransformer
 
 
+openai.api_key = open_file('api_keys/key_openai.txt')
+
+
 model = SentenceTransformer('all-mpnet-base-v2')
 
 

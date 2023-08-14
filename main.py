@@ -5,15 +5,10 @@ import time
 import sys
 import importlib.util
 sys.path.insert(0, './scripts')
-from gtts import gTTS
-import speech_recognition as sr
-from playsound import playsound
-from pydub import AudioSegment
-from pydub.playback import play
-from pydub import effects
 import platform
 import tkinter as tk
 import customtkinter as ctk
+
 
 
 def open_file(filepath):
@@ -107,12 +102,7 @@ class Application(tk.Tk):
 
 
 if __name__ == '__main__':
-#    key = input("Enter OpenAi API KEY:")
-#   openai.api_key = key
     set_dark_ancient_theme()
-    openai.api_key = open_file('api_keys/key_openai.txt')
-    pinecone.init(api_key=open_file('api_keys/key_pinecone.txt'), environment=open_file('api_keys/key_pinecone_env.txt'))
-    vdb = pinecone.Index("aetherius")
     bot_name = open_file('./config/prompt_bot_name.txt')
     username = open_file('./config/prompt_username.txt')
     if not os.path.exists(f'nexus/{bot_name}/{username}/implicit_short_term_memory_nexus'):

@@ -28,6 +28,13 @@ from tkinter import ttk, scrolledtext, simpledialog, font, messagebox
 # from pydub import effects
 
 
+openai.api_key = open_file('api_keys/key_openai.txt')
+
+
+pinecone.init(api_key=open_file('api_keys/key_pinecone.txt'), environment=open_file('api_keys/key_pinecone_env.txt'))
+vdb = pinecone.Index("aetherius")
+
+
 # Import GPT Calls based on set Config
 def import_functions_from_script(script_path):
     spec = importlib.util.spec_from_file_location("custom_module", script_path)

@@ -34,6 +34,9 @@ from qdrant_client.http import models
 import numpy as np
 
 
+openai.api_key = open_file('api_keys/key_openai.txt')
+
+
 def check_local_server_running():
     try:
         response = requests.get("http://localhost:6333/dashboard/")

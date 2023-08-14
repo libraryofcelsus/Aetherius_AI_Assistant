@@ -38,6 +38,9 @@ import importlib.util
 # from pydub import effects
 
 
+openai.api_key = open_file('api_keys/key_openai.txt')
+
+
 def import_functions_from_script(script_path):
     spec = importlib.util.spec_from_file_location("custom_module", script_path)
     custom_module = importlib.util.module_from_spec(spec)

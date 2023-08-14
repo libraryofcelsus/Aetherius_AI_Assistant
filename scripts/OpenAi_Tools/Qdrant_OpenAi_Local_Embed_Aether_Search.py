@@ -30,6 +30,7 @@ import numpy as np
 import re
 
 
+openai.api_key = open_file('api_keys/key_openai.txt')
 
 
 def check_local_server_running():

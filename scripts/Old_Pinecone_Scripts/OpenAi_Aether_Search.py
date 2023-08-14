@@ -24,6 +24,12 @@ from bs4 import BeautifulSoup
 import importlib.util
 
 
+openai.api_key = open_file('api_keys/key_openai.txt')
+
+
+pinecone.init(api_key=open_file('api_keys/key_pinecone.txt'), environment=open_file('api_keys/key_pinecone_env.txt'))
+vdb = pinecone.Index("aetherius")
+
 
 def import_functions_from_script(script_path):
     spec = importlib.util.spec_from_file_location("custom_module", script_path)

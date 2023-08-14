@@ -29,6 +29,14 @@ from tkinter import ttk, scrolledtext, simpledialog, font
 import requests
 from sentence_transformers import SentenceTransformer
 
+
+openai.api_key = open_file('api_keys/key_openai.txt')
+
+
+pinecone.init(api_key=open_file('api_keys/key_pinecone.txt'), environment=open_file('api_keys/key_pinecone_env.txt'))
+vdb = pinecone.Index("aetherius")
+
+
 model = SentenceTransformer('all-mpnet-base-v2')
 
 # Import GPT Calls based on set Config

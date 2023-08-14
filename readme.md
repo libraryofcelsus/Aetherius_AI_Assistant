@@ -90,6 +90,8 @@ Aetherius can now be ran locally and offline maintaining 100% privacy!
 # Changelog:
 0.043d
 
+-Removed OpenAi and Pinecone Api key check from main menu and added it to the individual scripts.
+
 -Cleaned up main Llama 2 chatbot code
 
 -Cleaned up Aethersearch code

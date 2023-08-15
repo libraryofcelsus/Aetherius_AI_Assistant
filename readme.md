@@ -1,5 +1,5 @@
 # Aetherius
-Version .043d of the Aetherius Ai Personal Assistant/Agent/Companion by LibraryofCelsus.com
+Version .044 of the Aetherius Ai Personal Assistant/Agent/Companion by LibraryofCelsus.com
 
 ------
 
@@ -88,23 +88,21 @@ Aetherius can now be ran locally and offline maintaining 100% privacy!
 
 
 # Changelog:
-0.043d
+**0.044**
+
+-Consolidated Collections
+
+**0.043**
+
+-Converted to Qdrant.  Aetherius can now be ran 100% locally!
 
 -Removed OpenAi and Pinecone Api key check from main menu and added it to the individual scripts.
 
--Cleaned up main Llama 2 chatbot code
-
--Cleaned up Aethersearch code
-
-0.043c
+-Cleaned up Llama 2 code
 
 -Reworked Input Window, now handles larger text strings better.
 
 -Updated OpenAi scripts, they should now follow the conversation track better.
-
--Various Bug Fixes
-
-0.043b
 
 -Added Delete Button to Edit Conversation in Llama 2 Chatbot
 
@@ -112,35 +110,19 @@ Aetherius can now be ran locally and offline maintaining 100% privacy!
 
 -Updated Delete Menu in DB Management in Llama 2 Chatbot
 
-
-0.043a
-
 -Fixed Bug where only one Implicit and Explicit Memory were uploaded
 
 -Improved Memory Prompts, works alot better with the 7B model of Llama 2 now.  Still wouldn't recommend using the 7B model though.
 
 -Improved Auto Memory Upload.
 
-0.043
-
--Added Qdrant Version.  Aetherius can now be ran 100% locally!
-
-0.042b
-
--Local Llama 2 update, works well, but still needs to be improved.
-
-0.042a
-
--Added Webscrape Delete Button
-
--Small Webscrape prompt rework
-
 -Various Bug Fixes
 
-
-0.042
+**0.042**
 
 -Added GUI for Aetherius.  Very basic for now.
+
+-Local Llama 2 update, works well, but still needs to be improved.
 
 -Added Edit Conversation
 
@@ -148,7 +130,13 @@ Aetherius can now be ran locally and offline maintaining 100% privacy!
 
 -Added GPT 3.5 Turbo 16k
 
-0.041
+-Added Webscrape Delete Button
+
+-Small Webscrape prompt rework
+
+-Various Bug Fixes
+
+**0.041**
 
 -Reworked Conversation History, it will now persist past shutdown.
 
@@ -156,21 +144,7 @@ Aetherius can now be ran locally and offline maintaining 100% privacy!
 
 -Added Photo OCR to the Text Extractor.  To use, place the desired photo in the /Upload/SCANS folder.  Using this feature requires tesseract: https://github.com/UB-Mannheim/tesseract/wiki    Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aetherius_Ai_Assistant" Folder.  This will allow you to take Screenshots with the windows snipping tool and upload them to Aetherius for processing.
 
-0.04b
-
--Re-added Users
-
--Various Bug Fixes
-
--Intuition Prompt Rework
-
-0.04a
-
--Switched to Username based DB to Bot Name based DB, will add user's again later.
-
--Various Bug Fixes
-
-0.04
+**0.04**
 
 -New User System Implemented.  Change the username prompt in the config folder to change users.  This will allow you to have multiple versions of Aetherius on the same index.
 
@@ -180,37 +154,16 @@ Aetherius can now be ran locally and offline maintaining 100% privacy!
 
 -Aetherius now decides for itself whether or not each task in its generated tasklist requires a websearch, memory search, or both.
 
-0.039
+-Switched to Username based DB to Bot Name based DB, will add user's again later.
 
--Added Cadence DB check, will no longer use Cadence prompt if Cadence DB is empty.
-
--Fixed GPT 3.5 Context Length Bug
-
--Worked on improving Auto-Memory
-
--Implemented Auto Explicit Memory Association/Pruning
-
--Reworked Auto-Memory code
+-Re-added Users
 
 -Various Bug Fixes
 
-0.038
+-Intuition Prompt Rework
 
--Worked on Intuition
+-Various Bug Fixes
 
--Reworded internal prompts to hopefully fix wrong username bug when using gpt 3.5
-
--Added loop to skip uploading empty lines in memory upsert.
-
--Added Flashbulb Memory
-
--Improved summary prompts
-
--Implemented Implicit Short-Term Memory
-
--Implemented Implicit Memory Consolidation
-
--Implemented Implicit Memory Association/Pruning
 
 
 ## Future Plans
@@ -222,12 +175,6 @@ Aetherius can now be ran locally and offline maintaining 100% privacy!
 -Improve Aetherius's self reflection
 
 -Provide more personality examples
-
--Recreate World Creator with new architecture
-
--NPC submodule for World Creator
-
--Text-Rpg submodule for World Creator
 
 
 # Installation Guide

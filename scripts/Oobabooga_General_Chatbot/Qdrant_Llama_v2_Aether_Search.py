@@ -27,7 +27,7 @@ import requests
 from sentence_transformers import SentenceTransformer
 import shutil
 from qdrant_client import QdrantClient, models
-from qdrant_client.models import Distance, VectorParams, PointStruct, Filter, FieldCondition, Range
+from qdrant_client.models import Distance, VectorParams, PointStruct, Filter, FieldCondition, Range, MatchValue
 from qdrant_client.http.models import Batch
 
 
@@ -151,8 +151,8 @@ def chunk_text_from_url(url, chunk_size=400, overlap=40, results_callback=None):
         
         for chunk in chunks:
             websum = list()
-            websum.append({'role': 'system', 'content': "MAIN SYSTEM PROMPT: You are an ai text editor.  Your job is to take the given text from a webscrape, then return the scraped text in an informational article form.  Do not generalize, rephrase, or use latent knowledge in your summary.  If no article is given, print no article.\n\n\n"})
-            websum.append({'role': 'user', 'content': f"WEBSCRAPE: {chunk}\n\nINSTRUCTIONS: Summarize the webscrape without losing any factual knowledge and maintaining full context. The truncated article will be directly uploaded to a Database, leave out extraneous text and personal statements.[/INST]\n\nASSISTANT: Sure! Here's the summary of the webscrape:"})
+            websum.append({'role': 'system', 'content': "MAIN SYSTEM PROMPT: You are an ai text editor.  Your job is to take the given text from a webscrape, then return the scraped text in a summarized article form.  Do not generalize, rephrase, or use latent knowledge in your summary.  If no article is given, print no article.\n\n\n"})
+            websum.append({'role': 'user', 'content': f"WEBSCRAPE: {chunk}\n\nINSTRUCTIONS: Summarize the webscrape without losing any factual knowledge and maintaining full context. The summarized article will be directly uploaded to a Database, leave out extraneous text and personal statements.[/INST]\n\nASSISTANT: Sure! Here's the summary of the webscrape:"})
             prompt = ''.join([message_dict['content'] for message_dict in websum])
             text = scrape_oobabooga_scrape(prompt)
             if len(text) < 20:
@@ -444,7 +444,7 @@ def upload_implicit_short_term_memories(query):
     payload = list()
     payload = list()    
                 # Define the collection name
-    collection_name = f"Implicit_Short_Term_Memory_Bot_{bot_name}_User_{username}"
+    collection_name = f"Bot_{bot_name}_User_{username}_Implicit_Short_Term"
                 # Create the collection only if it doesn't exist
     try:
         collection_info = client.get_collection(collection_name=collection_name)
@@ -479,7 +479,7 @@ def upload_explicit_short_term_memories(query):
     payload = list()
     payload = list()    
                 # Define the collection name
-    collection_name = f"Explicit_Short_Term_Memory_Bot_{bot_name}_User_{username}"
+    collection_name = f"Bot_{bot_name}_User_{username}_Explicit_Short_Term"
                 # Create the collection only if it doesn't exist
     try:
         collection_info = client.get_collection(collection_name=collection_name)
@@ -517,9 +517,18 @@ def search_implicit_db(line_vec):
             memories2  = None
             try:
                 hits = client.search(
-                    collection_name=f"Implicit_Long_Term_Memory_Bot_{bot_name}_User_{username}",
+                    collection_name=f"Bot_{bot_name}_User_{username}",
                     query_vector=line_vec,
-                limit=3)
+                    query_filter=Filter(
+                        must=[
+                            FieldCondition(
+                                key="memory_type",
+                                match=MatchValue(value="Implicit_Long_Term")
+                            )
+                        ]
+                    ),
+                    limit=3
+                )
                     # Print the result
                 memories1 = [hit.payload['message'] for hit in hits]
                 print(memories1)
@@ -534,9 +543,18 @@ def search_implicit_db(line_vec):
         
             try:
                 hits = client.search(
-                    collection_name=f"Implicit_Short_Term_Memory_Bot_{bot_name}_User_{username}",
+                    collection_name=f"Bot_{bot_name}_User_{username}_Implicit_Short_Term",
                     query_vector=line_vec,
-                limit=5)
+                    query_filter=Filter(
+                        must=[
+                            FieldCondition(
+                                key="memory_type",
+                                match=MatchValue(value="Implicit_Short_Term")
+                            )
+                        ]
+                    ),
+                    limit=5
+                )
                     # Print the result
                 memories2 = [hit.payload['message'] for hit in hits]
                 print(memories2)
@@ -564,9 +582,18 @@ def search_episodic_db(line_vec):
             memories = None
             try:
                 hits = client.search(
-                    collection_name=f"Episodic_Memory_Bot_{bot_name}_User_{username}",
+                    collection_name=f"Bot_{bot_name}_User_{username}",
                     query_vector=line_vec,
-                limit=5)
+                    query_filter=Filter(
+                        must=[
+                            FieldCondition(
+                                key="memory_type",
+                                match=MatchValue(value="Episodic")
+                            )
+                        ]
+                    ),
+                    limit=5
+                )
                     # Print the result
                 memories = [hit.payload['message'] for hit in hits]
                 print(memories)
@@ -592,9 +619,18 @@ def search_flashbulb_db(line_vec):
             memories = None
             try:
                 hits = client.search(
-                    collection_name=f"Flashbulb_Memory_Bot_{bot_name}_User_{username}",
+                    collection_name=f"Bot_{bot_name}_User_{username}",
                     query_vector=line_vec,
-                limit=2)
+                    query_filter=Filter(
+                        must=[
+                            FieldCondition(
+                                key="memory_type",
+                                match=MatchValue(value="Flashbulb")
+                            )
+                        ]
+                    ),
+                    limit=2
+                )
                     # Print the result
                 memories = [hit.payload['message'] for hit in hits]
                 print(memories)
@@ -621,9 +657,18 @@ def search_explicit_db(line_vec):
             memories2 = None
             try:
                 hits = client.search(
-                    collection_name=f"Explicit_Long_Term_Memory_Bot_{bot_name}_User_{username}",
+                    collection_name=f"Bot_{bot_name}_User_{username}",
                     query_vector=line_vec,
-                limit=3)
+                    query_filter=Filter(
+                        must=[
+                            FieldCondition(
+                                key="memory_type",
+                                match=MatchValue(value="Explicit_Long_Term")
+                            )
+                        ]
+                    ),
+                    limit=3
+                )
                     # Print the result
                 memories1 = [hit.payload['message'] for hit in hits]
                 print(memories1)
@@ -635,9 +680,18 @@ def search_explicit_db(line_vec):
         
             try:
                 hits = client.search(
-                    collection_name=f"Explicit_Short_Term_Memory_Bot_{bot_name}_User_{username}",
+                    collection_name=f"Bot_{bot_name}_User_{username}_Explicit_Short_Term",
                     query_vector=line_vec,
-                limit=5)
+                    query_filter=Filter(
+                        must=[
+                            FieldCondition(
+                                key="memory_type",
+                                match=MatchValue(value="Explicit_Short_Term")
+                            )
+                        ]
+                    ),
+                    limit=5
+                )
                     # Print the result
                 memories2 = [hit.payload['message'] for hit in hits]
                 print(memories2)
@@ -1331,9 +1385,18 @@ class ChatBotApplication(tk.Frame):
             for line in lines:            
                 try:
                     hits = client.search(
-                        collection_name=f"Explicit_Long_Term_Memory_Bot_{bot_name}_User_{username}",
+                        collection_name=f"Bot_{bot_name}_User_{username}",
                         query_vector=vector_input1,
-                    limit=2)
+                        query_filter=Filter(
+                            must=[
+                                FieldCondition(
+                                    key="memory_type",
+                                    match=MatchValue(value="Explicit_Long_Term")
+                                )
+                            ]
+                        ),
+                        limit=2
+                    )
                     db_search_16 = [hit.payload['message'] for hit in hits]
                     conversation.append({'role': 'assistant', 'content': f"LONG TERM CHATBOT MEMORIES: {db_search_16}\n"})
                     tasklist_counter + 1
@@ -1350,7 +1413,16 @@ class ChatBotApplication(tk.Frame):
                     hits = client.search(
                         collection_name=f"Implicit_Long_Term_Memory_Bot_{bot_name}_User_{username}",
                         query_vector=vector_input1,
-                    limit=1)
+                        query_filter=Filter(
+                            must=[
+                                FieldCondition(
+                                    key="memory_type",
+                                    match=MatchValue(value="Implicit_Long_Term")
+                                )
+                            ]
+                        ),
+                        limit=1
+                    )
                     db_search_17 = [hit.payload['message'] for hit in hits]
                     conversation.append({'role': 'assistant', 'content': f"LONG TERM CHATBOT MEMORIES: {db_search_17}\n"})
                     tasklist_counter2 + 1
@@ -1368,9 +1440,18 @@ class ChatBotApplication(tk.Frame):
             db_search_1, db_search_2, db_search_3, db_search_14 = None, None, None, None
             try:
                 hits = client.search(
-                    collection_name=f"Episodic_Memory_Bot_{bot_name}_User_{username}",
+                    collection_name=f"Bot_{bot_name}_User_{username}",
                     query_vector=vector_input1,
-                limit=5)
+                    query_filter=Filter(
+                        must=[
+                            FieldCondition(
+                                key="memory_type",
+                                match=MatchValue(value="Episodic")
+                            )
+                        ]
+                    ),
+                    limit=5
+                )
                 db_search_1 = [hit.payload['message'] for hit in hits]
                 print(db_search_1)
                 print('done')
@@ -1394,9 +1475,18 @@ class ChatBotApplication(tk.Frame):
                     print(f"An unexpected error occurred: {str(e)}")
             try:
                 hits = client.search(
-                    collection_name=f"Flashbulb_Memory_Bot_{bot_name}_User_{username}",
+                    collection_name=f"Bot_{bot_name}_User_{username}",
                     query_vector=vector_input1,
-                limit=2)
+                    query_filter=Filter(
+                        must=[
+                            FieldCondition(
+                                key="memory_type",
+                                match=MatchValue(value="Flashbulb")
+                            )
+                        ]
+                    ),
+                    limit=2
+                )
                 db_search_3 = [hit.payload['message'] for hit in hits]
                 print(db_search_3)
                 print('done')
@@ -1407,9 +1497,18 @@ class ChatBotApplication(tk.Frame):
                     print(f"An unexpected error occurred: {str(e)}")
             try:
                 hits = client.search(
-                    collection_name=f"Heuristics_Bot_{bot_name}_User_{username}",
+                    collection_name=f"Bot_{bot_name}_User_{username}",
                     query_vector=vector_input1,
-                limit=5)
+                    query_filter=Filter(
+                        must=[
+                            FieldCondition(
+                                key="memory_type",
+                                match=MatchValue(value="Heuristics")
+                            )
+                        ]
+                    ),
+                    limit=5
+                )
                 db_search_14 = [hit.payload['message'] for hit in hits]
                 print(db_search_14)
                 print('done')
@@ -1420,7 +1519,6 @@ class ChatBotApplication(tk.Frame):
                     print(f"An unexpected error occurred: {str(e)}")
             # # Inner Monologue Generation
             conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S EPISODIC MEMORIES: {db_search_1}\n{db_search_3}\n\n{bot_name}'s HEURISTICS: {db_search_14}\n[/INST]\n\n\n[INST]SYSTEM:Compose a short silent soliloquy to serve as {bot_name}'s internal monologue/narrative.  Ensure it includes {bot_name}'s contemplations and emotions in relation to {username}'s request as it pertains to the given webscrape.[/INST]\n\n\n[INST]\n\nWEBSCRAPE: {db_search_2}[/INST]\n\n\n[INST]\n{usernameupper}/USER: {a}\nPlease provide a short internal monologue contemplating how the user's most recent message relates to the webscrape.[/INST]\n\n{botnameupper}:"})
-            
             prompt = ''.join([message_dict['content'] for message_dict in conversation])
             output_one = scrape_oobabooga_inner_monologue(prompt)
             print('\n\nINNER_MONOLOGUE: %s' % output_one)
@@ -1485,9 +1583,18 @@ class ChatBotApplication(tk.Frame):
             db_search_4, db_search_5, db_search_12, db_search_15 = None, None, None, None
             try:
                 hits = client.search(
-                    collection_name=f"Episodic_Memory_Bot_{bot_name}_User_{username}",
+                    collection_name=f"Bot_{bot_name}_User_{username}",
                     query_vector=vector_monologue,
-                limit=5)
+                    query_filter=Filter(
+                        must=[
+                            FieldCondition(
+                                key="memory_type",
+                                match=MatchValue(value="Episodic")
+                            )
+                        ]
+                    ),
+                    limit=5
+                )
                 db_search_4 = [hit.payload['message'] for hit in hits]
                 print(db_search_4)
             except Exception as e:
@@ -1497,9 +1604,18 @@ class ChatBotApplication(tk.Frame):
                     print(f"An unexpected error occurred: {str(e)}")
             try:
                 hits = client.search(
-                    collection_name=f"Explicit_Short_Term_Memory_Bot_{bot_name}_User_{username}",
+                    collection_name=f"Bot_{bot_name}_User_{username}_Explicit_Short_Term",
                     query_vector=vector_monologue,
-                limit=4)
+                    query_filter=Filter(
+                        must=[
+                            FieldCondition(
+                                key="memory_type",
+                                match=MatchValue(value="Explicit_Short_Term")
+                            )
+                        ]
+                    ),
+                    limit=4
+                )
                 db_search_5 = [hit.payload['message'] for hit in hits]
                 print(db_search_5)
             except Exception as e:
@@ -1509,9 +1625,18 @@ class ChatBotApplication(tk.Frame):
                     print(f"An unexpected error occurred: {str(e)}")
             try:
                 hits = client.search(
-                    collection_name=f"Flashbulb_Memory_Bot_{bot_name}_User_{username}",
+                    collection_name=f"Bot_{bot_name}_User_{username}",
                     query_vector=vector_monologue,
-                limit=2)
+                    query_filter=Filter(
+                        must=[
+                            FieldCondition(
+                                key="memory_type",
+                                match=MatchValue(value="Flashbulb")
+                            )
+                        ]
+                    ),
+                    limit=2
+                )
                 db_search_12 = [hit.payload['message'] for hit in hits]
                 print(db_search_12)
             except Exception as e:
@@ -1521,9 +1646,18 @@ class ChatBotApplication(tk.Frame):
                     print(f"An unexpected error occurred: {str(e)}")
             try:
                 hits = client.search(
-                    collection_name=f"Heuristics_Bot_{bot_name}_User_{username}",
+                    collection_name=f"Bot_{bot_name}_User_{username}",
                     query_vector=vector_monologue,
-                limit=3)
+                    query_filter=Filter(
+                        must=[
+                            FieldCondition(
+                                key="memory_type",
+                                match=MatchValue(value="Heuristics")
+                            )
+                        ]
+                    ),
+                    limit=5
+                )
                 db_search_15 = [hit.payload['message'] for hit in hits]
                 print(db_search_15)
             except Exception as e:
@@ -1531,10 +1665,7 @@ class ChatBotApplication(tk.Frame):
                     print("Collection has no memories.")
                 else:
                     print(f"An unexpected error occurred: {str(e)}")
-                    
-                    
-                    
-                    
+ 
             int_scrape = None        
             try:
                 hits = client.search(
@@ -1549,7 +1680,6 @@ class ChatBotApplication(tk.Frame):
                 else:
                     print(f"An unexpected error occurred: {str(e)}")
 
-                    
             # # Intuition Generation
             int_conversation.append({'role': 'user', 'content': f"USER INPUT: {a}\n\n"})
             int_conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S INFLUENTIAL MEMORIES: {db_search_12}\n\n{botnameupper}'S EXPLICIT MEMORIES: {db_search_5}\n\n{botnameupper}'S HEURISTICS: {db_search_15}\n\n{botnameupper}'S INNER THOUGHTS: {output_one}[/INST]\n\n[INST]WEBSCRAPE SAMPLE: {int_scrape}\n\nUSER'S INPUT: {a}\n\n\n\nSYSTEM: Transmute the user, {username}'s message as {bot_name} by devising a truncated predictive action plan in the third person point of view on how to best respond to {username}'s most recent message. Only plan on what information is needed to be given.  If the user is requesting information on a subject, give a plan on what information needs to be provided, you have access to external knowledge sources if you need it.\n\n\n{usernameupper}: {a}\nPlease only provide the third person action plan in your response.  The action plan should be in tasklist form.\n\n{botnameupper}:"}) 
@@ -1797,11 +1927,11 @@ class ChatBotApplication(tk.Frame):
     #        print(response_two)
             conversation.append({'role': 'assistant', 'content': f"THIRD-PERSON AUTOBIOGRAPHICAL MEMORY:"})
             prompt = ''.join([message_dict['content'] for message_dict in conversation])
-            conv_summary = scrape_oobabooga_episodicmem(prompt)
+            conv_summary = oobabooga_episodicmem(prompt)
             print(conv_summary)
             print('\n-----------------------\n')
             # Define the collection name
-            collection_name = f"Episodic_Memory_Bot_{bot_name}_User_{username}"
+            collection_name = f"Bot_{bot_name}_User_{username}"
             # Create the collection only if it doesn't exist
             try:
                 collection_info = client.get_collection(collection_name=collection_name)
@@ -1823,6 +1953,8 @@ class ChatBotApplication(tk.Frame):
             client.upsert(collection_name=collection_name,
                                  points=[PointStruct(id=unique_id, vector=vector1, payload=metadata)])   
             payload.clear()
+            
+            
             collection_name = f"Flash_Counter_Bot_{bot_name}_User_{username}"
             # Create the collection only if it doesn't exist
             try:
@@ -1837,10 +1969,10 @@ class ChatBotApplication(tk.Frame):
             metadata = {
                 'bot': bot_name,
                 'time': timestamp,
-                'message': timestring + '-' + conv_summary,
+                'message': timestring,
                 'timestring': timestring,
                 'uuid': unique_id,
-                'memory_type': 'Episodic',
+                'memory_type': 'Flash_Counter',
             }
             client.upsert(collection_name=collection_name,
                                  points=[PointStruct(id=unique_id, vector=vector1, payload=metadata)])   
@@ -1853,34 +1985,46 @@ class ChatBotApplication(tk.Frame):
                 flash_db = None
                 try:
                     hits = client.search(
-                        collection_name=f"Episodic_Memory_Bot_{bot_name}_User_{username}",
+                        collection_name=f"Bot_{bot_name}_User_{username}",
                         query_vector=vector_input,
-                    limit=5)
-                    # Print the result
-                #    for hit in hits:
-                #        print(hit.payload['message'])
+                        query_filter=Filter(
+                            must=[
+                                FieldCondition(
+                                    key="memory_type",
+                                    match=MatchValue(value="Episodic")
+                                )
+                            ]
+                        ),
+                        limit=5
+                    )
                     flash_db = [hit.payload['message'] for hit in hits]
                     print(flash_db)
                 except Exception as e:
                     if "Not found: Collection" in str(e):
-                        print("Collection has no memories.")
+                        print("Collection does not exist.")
                     else:
                         print(f"An unexpected error occurred: {str(e)}")
                     
                 flash_db1 = None
                 try:
                     hits = client.search(
-                        collection_name=f"Implicit_Long_Term_Memory_Bot_{bot_name}_User_{username}",
+                        collection_name=f"Bot_{bot_name}_User_{username}",
                         query_vector=vector_monologue,
-                    limit=8)
-                    # Print the result
-                #    for hit in hits:
-                #        print(hit.payload['message'])
+                        query_filter=Filter(
+                            must=[
+                                FieldCondition(
+                                    key="memory_type",
+                                    match=MatchValue(value="Implicit_Long_Term")
+                                )
+                            ]
+                        ),
+                        limit=8
+                    )
                     flash_db1 = [hit.payload['message'] for hit in hits]
                     print(flash_db1)
                 except Exception as e:
                     if "Not found: Collection" in str(e):
-                        print("Collection has no memories.")
+                        print("Collection does not exist.")
                     else:
                         print(f"An unexpected error occurred: {str(e)}")
                 print('\n-----------------------\n')
@@ -1891,17 +2035,18 @@ class ChatBotApplication(tk.Frame):
                 consolidation.append({'role': 'user', 'content': "FORMAT: Use the format: •{given Date and Time}-{emotion}: {Flashbulb Memory}[/INST]\n\n"})
                 consolidation.append({'role': 'assistant', 'content': f"RESPONSE: I will now create {bot_name}'s flashbulb memories using the given format above.\n{bot_name}: "})
                 prompt = ''.join([message_dict['content'] for message_dict in consolidation])
-                flash_response = scrape_oobabooga_flashmem(prompt)
+                flash_response = oobabooga_flashmem(prompt)
                 print(flash_response)
                 print('\n-----------------------\n')
             #    memories = results
-                lines = flash_response.splitlines()
-                for line in lines:
-                    if line.strip() == '':  # This condition checks for blank lines
-                        continue
+                segments = re.split(r'•|\n\s*\n', flash_response)
+                for segment in segments:
+                    if segment.strip() == '':  # This condition checks for blank segments
+                        continue  # This condition checks for blank lines
                     else:
+                        print(segment)
                         # Define the collection name
-                        collection_name = f"Flashbulb_Memory_Bot_{bot_name}_User_{username}"
+                        collection_name = f"Bot_{bot_name}_User_{username}"
                         # Create the collection only if it doesn't exist
                         try:
                             collection_info = client.get_collection(collection_name=collection_name)
@@ -1910,12 +2055,12 @@ class ChatBotApplication(tk.Frame):
                                 collection_name=collection_name,
                                 vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
                             )
-                        vector1 = model.encode([line])[0].tolist()
+                        vector1 = model.encode([segment])[0].tolist()
                         unique_id = str(uuid4())
                         metadata = {
                             'bot': bot_name,
                             'time': timestamp,
-                            'message': line,
+                            'message': segment,
                             'timestring': timestring,
                             'uuid': unique_id,
                             'memory_type': 'Flashbulb',
@@ -1926,41 +2071,39 @@ class ChatBotApplication(tk.Frame):
                 client.delete_collection(collection_name=f"Flash_Counter_Bot_{bot_name}_User_{username}")
                 
             # # Implicit Short Term Memory Consolidation based on amount of vectors in namespace    
-            collection_name = f"Explicit_Short_Term_Memory_Bot_{bot_name}_User_{username}"
+            collection_name = f"Bot_{bot_name}_User_{username}_Explicit_Short_Term"
             collection_info = client.get_collection(collection_name=collection_name)
             if collection_info.vectors_count > 20:
                 consolidation.clear()
                 memory_consol_db = None
                 try:
                     hits = client.search(
-                        collection_name=f"Explicit_Short_Term_Memory_Bot_{bot_name}_User_{username}",
+                        collection_name=f"Bot_{bot_name}_User_{username}_Explicit_Short_Term",
                         query_vector=vector_input,
                     limit=20)
-                    # Print the result
-                #    for hit in hits:
-                #        print(hit.payload['message'])
                     memory_consol_db = [hit.payload['message'] for hit in hits]
                     print(memory_consol_db)
                 except Exception as e:
                     if "Not found: Collection" in str(e):
-                        print("Collection has no memories.")
+                        print("Collection does not exist.")
                     else:
                         print(f"An unexpected error occurred: {str(e)}")
+
                 print('\n-----------------------\n')
                 consolidation.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: {main_prompt}\n\n"})
                 consolidation.append({'role': 'assistant', 'content': f"LOG: {memory_consol_db}\n\nSYSTEM: Read the Log and combine the different associated topics into a bullet point list of executive summaries to serve as {bot_name}'s explicit long term memories. Each summary should contain the entire context of the memory. Follow the format •<ALLEGORICAL TAG>: <EXPLICIT MEMORY>[/INST]\n{bot_name}:"})
                 prompt = ''.join([message_dict['content'] for message_dict in consolidation])
-                memory_consol = scrape_oobabooga_consolidationmem(prompt)
+                memory_consol = oobabooga_consolidationmem(prompt)
             #    print(memory_consol)
             #    print('\n-----------------------\n')
-                lines = memory_consol.splitlines()
-                for line in lines:
-                    if line.strip() == '':  # This condition checks for blank lines
-                        continue
+                segments = re.split(r'•|\n\s*\n', memory_consol)
+                for segment in segments:
+                    if segment.strip() == '':  # This condition checks for blank segments
+                        continue  # This condition checks for blank lines
                     else:
-                        print(line)
+                        print(segment)
                         # Define the collection name
-                        collection_name = f"Explicit_Long_Term_Memory_Bot_{bot_name}_User_{username}"
+                        collection_name = f"Bot_{bot_name}_User_{username}"
                         # Create the collection only if it doesn't exist
                         try:
                             collection_info = client.get_collection(collection_name=collection_name)
@@ -1969,12 +2112,12 @@ class ChatBotApplication(tk.Frame):
                                 collection_name=collection_name,
                                 vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
                             )
-                        vector1 = model.encode([line])[0].tolist()
+                        vector1 = model.encode([segment])[0].tolist()
                         unique_id = str(uuid4())
                         metadata = {
                             'bot': bot_name,
                             'time': timestamp,
-                            'message': line,
+                            'message': segment,
                             'timestring': timestring,
                             'uuid': unique_id,
                             'memory_type': 'Explicit_Long_Term',
@@ -1982,7 +2125,7 @@ class ChatBotApplication(tk.Frame):
                         client.upsert(collection_name=collection_name,
                                              points=[PointStruct(id=unique_id, vector=vector1, payload=metadata)])   
                         payload.clear()
-                client.delete_collection(collection_name=f"Explicit_Short_Term_Memory_Bot_{bot_name}_User_{username}")
+                client.delete_collection(collection_name=f"Bot_{bot_name}_User_{username}_Explicit_Short_Term")
                 
                         # Define the collection name
                 collection_name = f'Consol_Counter_Bot_{bot_name}_User_{username}'
@@ -2022,24 +2165,22 @@ class ChatBotApplication(tk.Frame):
                     memory_consol_db2 = None
                     try:
                         hits = client.search(
-                            collection_name=f"Implicit_Short_Term_Memory_Bot_{bot_name}_User_{username}",
+                            collection_name=f"Bot_{bot_name}_User_{username}_Implicit_Short_Term",
                             query_vector=vector_input,
                         limit=25)
-                        # Print the result
-                    #    for hit in hits:
-                    #        print(hit.payload['message'])
                         memory_consol_db2 = [hit.payload['message'] for hit in hits]
                         print(memory_consol_db2)
                     except Exception as e:
                         if "Not found: Collection" in str(e):
-                            print("Collection has no memories.")
+                            print("Collection does not exist.")
                         else:
                             print(f"An unexpected error occurred: {str(e)}")
+
                     print('\n-----------------------\n')
                     consolidation.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: {main_prompt}\n\n"})
                     consolidation.append({'role': 'assistant', 'content': f"LOG: {memory_consol_db2}\n\nSYSTEM: Read the Log and consolidate the different topics into executive summaries to serve as {bot_name}'s implicit long term memories. Each summary should contain the entire context of the memory. Follow the format: •<ALLEGORICAL TAG>: <IMPLICIT MEMORY>[/INST]\n{bot_name}: "})
                     prompt = ''.join([message_dict['content'] for message_dict in consolidation])
-                    memory_consol2 = scrape_oobabooga_consolidationmem(prompt)
+                    memory_consol2 = oobabooga_consolidationmem(prompt)
                     print(memory_consol2)
                     print('\n-----------------------\n')
                     consolidation.clear()
@@ -2048,34 +2189,42 @@ class ChatBotApplication(tk.Frame):
                     memory_consol_db3 = None
                     try:
                         hits = client.search(
-                            collection_name=f"Implicit_Long_Term_Memory_Bot_{bot_name}_User_{username}",
+                            collection_name=f"Bot_{bot_name}_User_{username}",
                             query_vector=vector_sum,
-                        limit=8)
-                        # Print the result
-                    #    for hit in hits:
-                    #        print(hit.payload['message'])
+                            query_filter=Filter(
+                                must=[
+                                    FieldCondition(
+                                        key="memory_type",
+                                        match=MatchValue(value="Implicit_Long_Term")
+                                    )
+                                ]
+                            ),
+                            limit=8
+                        )
                         memory_consol_db3 = [hit.payload['message'] for hit in hits]
                         print(memory_consol_db3)
                     except Exception as e:
+                        memory_consol_db3 = 'Failed Lookup'
                         if "Not found: Collection" in str(e):
-                            print("Collection has no memories.")
+                            print("Collection does not exist.")
                         else:
                             print(f"An unexpected error occurred: {str(e)}")
+
                     print('\n-----------------------\n')
                     consolidation.append({'role': 'system', 'content': f"{main_prompt}\n\n"})
                     consolidation.append({'role': 'system', 'content': f"IMPLICIT LONG TERM MEMORY: {memory_consol_db3}\n\nIMPLICIT SHORT TERM MEMORY: {memory_consol_db2}\n\nRESPONSE: Remove any duplicate information from your Implicit Short Term memory that is already found in your Long Term Memory. Then consolidate similar topics into executive summaries. Each summary should contain the entire context of the memory. Use the following format: •<EMOTIONAL TAG>: <IMPLICIT MEMORY>[/INST]\n{bot_name}:"})
                     prompt = ''.join([message_dict['content'] for message_dict in consolidation])
-                    memory_consol3 = scrape_oobabooga_consolidationmem(prompt)
+                    memory_consol3 = oobabooga_consolidationmem(prompt)
                     print(memory_consol3)
                     print('\n-----------------------\n')
-                    lines = memory_consol3.splitlines()
-                    for line in lines:
-                        if line.strip() == '':  # This condition checks for blank lines
-                            continue
+                    segments = re.split(r'•|\n\s*\n', memory_consol3)
+                    for segment in segments:
+                        if segment.strip() == '':  # This condition checks for blank segments
+                            continue  # This condition checks for blank lines
                         else:
-                            print(line)
+                            print(segment)
                             # Define the collection name
-                            collection_name = f"Implicit_Long_Term_Memory_Bot_{bot_name}_User_{username}"
+                            collection_name = f"Bot_{bot_name}_User_{username}"
                             # Create the collection only if it doesn't exist
                             try:
                                 collection_info = client.get_collection(collection_name=collection_name)
@@ -2084,12 +2233,12 @@ class ChatBotApplication(tk.Frame):
                                     collection_name=collection_name,
                                     vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
                                 )
-                            vector1 = model.encode([line])[0].tolist()
+                            vector1 = model.encode([segment])[0].tolist()
                             unique_id = str(uuid4())
                             metadata = {
                                 'bot': bot_name,
                                 'time': timestamp,
-                                'message': line,
+                                'message': segment,
                                 'timestring': timestring,
                                 'uuid': unique_id,
                                 'memory_type': 'Implicit_Long_Term',
@@ -2098,7 +2247,7 @@ class ChatBotApplication(tk.Frame):
                                                  points=[PointStruct(id=unique_id, vector=vector1, payload=metadata)])   
                             payload.clear()
                     print('\n-----------------------\n')   
-                    client.delete_collection(collection_name=f"Implicit_Short_Term_Memory_Bot_{bot_name}_User_{username}")
+                    client.delete_collection(collection_name=f"Bot_{bot_name}_User_{username}_Implicit_Short_Term")
                     print('Memory Consolidation Successful')
                     print('\n-----------------------\n')
                 else:   
@@ -2114,36 +2263,42 @@ class ChatBotApplication(tk.Frame):
                     memory_consol_db4 = None
                     try:
                         hits = client.search(
-                            collection_name=f"Implicit_Long_Term_Memory_Bot_{bot_name}_User_{username}",
+                            collection_name=f"Bot_{bot_name}_User_{username}",
                             query_vector=vector_input,
-                        limit=10)
-                        # Print the result
-                    #    for hit in hits:
-                    #        print(hit.payload['message'])
+                            query_filter=Filter(
+                                must=[
+                                    FieldCondition(
+                                        key="memory_type",
+                                        match=MatchValue(value="Implicit_Long_Term")
+                                    )
+                                ]
+                            ),
+                            limit=10
+                        )
                         memory_consol_db4 = [hit.payload['message'] for hit in hits]
                         print(memory_consol_db4)
                     except Exception as e:
                         if "Not found: Collection" in str(e):
-                            print("Collection has no memories.")
+                            print("Collection does not exist.")
                         else:
-                            print(f"An unexpected error occurred: {str(e)}")     
+                            print(f"An unexpected error occurred: {str(e)}")
+
                     ids_to_delete = [m.id for m in hits]
                     print('\n-----------------------\n')
                     consolidation.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: {main_prompt}\n\n"})
                     consolidation.append({'role': 'assistant', 'content': f"LOG: {memory_consol_db4}\n\nSYSTEM: Read the Log and consolidate the different memories into executive summaries in a process allegorical to associative processing. Each summary should contain the entire context of the memory. Follow the bullet point format: •<EMOTIONAL TAG>: <IMPLICIT MEMORY>.[/INST]\n\nRESPONSE\n{bot_name}:"})
                     prompt = ''.join([message_dict['content'] for message_dict in consolidation])
-                    memory_consol4 = scrape_oobabooga_associativemem(prompt)
+                    memory_consol4 = oobabooga_associativemem(prompt)
             #        print(memory_consol4)
             #        print('--------')
-            #        memories = results
-                    lines = memory_consol4.splitlines()
-                    for line in lines:
-                        if line.strip() == '':  # This condition checks for blank lines
-                            continue
+                    segments = re.split(r'•|\n\s*\n', memory_consol4)
+                    for segment in segments:
+                        if segment.strip() == '':  # This condition checks for blank segments
+                            continue  # This condition checks for blank lines
                         else:
-                            print(line)
+                            print(segment)
                             # Define the collection name
-                            collection_name = f"Implicit_Long_Term_Memory_Bot_{bot_name}_User_{username}"
+                            collection_name = f"Bot_{bot_name}_User_{username}"
                             # Create the collection only if it doesn't exist
                             try:
                                 collection_info = client.get_collection(collection_name=collection_name)
@@ -2152,12 +2307,12 @@ class ChatBotApplication(tk.Frame):
                                     collection_name=collection_name,
                                     vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
                                 )
-                            vector1 = model.encode([line])[0].tolist()
+                            vector1 = model.encode([segment])[0].tolist()
                             unique_id = str(uuid4())
                             metadata = {
                                 'bot': bot_name,
                                 'time': timestamp,
-                                'message': line,
+                                'message': segment,
                                 'timestring': timestring,
                                 'uuid': unique_id,
                                 'memory_type': 'Implicit_Long_Term',
@@ -2168,16 +2323,13 @@ class ChatBotApplication(tk.Frame):
                     try:
                         print('\n-----------------------\n')
                         client.delete(
-                            collection_name=f"Implicit_Long_Term_Memory_Bot_{bot_name}_User_{username}",
+                            collection_name=f"Bot_{bot_name}_User_{username}",
                             points_selector=models.PointIdsList(
                                 points=ids_to_delete,
                             ),
                         )
                     except Exception as e:
-                        if "Not found: Collection" in str(e):
-                            print("Collection has no memories.")
-                        else:
-                            print(f"An unexpected error occurred: {str(e)}")
+                        print(f"Error: {e}")
                         
                         
             # # Explicit Long-Term Memory Associative Processing/Pruning based on amount of vectors in namespace
@@ -2190,41 +2342,55 @@ class ChatBotApplication(tk.Frame):
                     consol_search = None
                     try:
                         hits = client.search(
-                            collection_name=f"Implicit_Long_Term_Memory_Bot_{bot_name}_User_{username}",
+                            collection_name=f"Bot_{bot_name}_User_{username}",
                             query_vector=vector_monologue,
-                        limit=5)
-                        # Print the result
-                    #    for hit in hits:
-                    #        print(hit.payload['message'])
+                            query_filter=Filter(
+                                must=[
+                                    FieldCondition(
+                                        key="memory_type",
+                                        match=MatchValue(value="Implicit_Long_Term")
+                                    )
+                                ]
+                            ),
+                            limit=5
+                        )
                         consol_search = [hit.payload['message'] for hit in hits]
                         print(consol_search)
                     except Exception as e:
                         if "Not found: Collection" in str(e):
-                            print("Collection has no memories.")
+                            print("Collection does not exist.")
                         else:
                             print(f"An unexpected error occurred: {str(e)}")
+
                     print('\n-----------------------\n')
                     consolidation.append({'role': 'user', 'content': f"{bot_name}'s Memories: {consol_search}[/INST]\n\n"})
                     consolidation.append({'role': 'assistant', 'content': "RESPONSE: Semantic Search Query: "})
                     prompt = ''.join([message_dict['content'] for message_dict in consolidation])
-                    consol_search_term = scrape_oobabooga_250(prompt)
+                    consol_search_term = oobabooga_250(prompt)
                     consol_vector = model.encode([consol_search_term])[0].tolist()  
                     memory_consol_db2 = None
                     try:
                         hits = client.search(
                             collection_name=f"Explicit_Long_Term_Memory_Bot_{bot_name}_User_{username}",
                             query_vector=vector_monologue,
-                        limit=5)
-                        # Print the result
-                    #    for hit in hits:
-                    #        print(hit.payload['message'])
+                            query_filter=Filter(
+                                must=[
+                                    FieldCondition(
+                                        key="memory_type",
+                                        match=MatchValue(value="Explicit_Long_Term")
+                                    )
+                                ]
+                            ),
+                            limit=5
+                        )
                         memory_consol_db2 = [hit.payload['message'] for hit in hits]
                         print(memory_consol_db2)
                     except Exception as e:
                         if "Not found: Collection" in str(e):
-                            print("Collection has no memories.")
+                            print("Collection does not exist.")
                         else:
                             print(f"An unexpected error occurred: {str(e)}")
+
                     #Find solution for this
                     ids_to_delete2 = [m.id for m in hits]
                     print('\n-----------------------\n')
@@ -2232,20 +2398,18 @@ class ChatBotApplication(tk.Frame):
                     consolidation.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: {main_prompt}\n\n"})
                     consolidation.append({'role': 'assistant', 'content': f"LOG: {memory_consol_db2}\n\nSYSTEM: Read the Log and consolidate the different memories into executive summaries in a process allegorical to associative processing. Each summary should contain the entire context of the memory.\n\nFORMAT: Follow the bullet point format: •<SEMANTIC TAG>: <EXPLICIT MEMORY>.[/INST]\n\nRESPONSE: {bot_name}:"})
                     prompt = ''.join([message_dict['content'] for message_dict in consolidation])
-                    memory_consol5 = scrape_oobabooga_associativemem(prompt)
+                    memory_consol5 = oobabooga_associativemem(prompt)
                 #    print(memory_consol5)
                 #    print('\n-----------------------\n')
                 #    memories = results
-                    paragraphs = memory_consol5.split("\n\n")
-        #    lines = inner_loop_db.splitlines()
-                    lines = memory_consol5.splitlines()
-                    for line in lines:
-                        if line.strip() == '':  # This condition checks for blank lines
-                            continue
-                        else: 
-                            print(line)
+                    segments = re.split(r'•|\n\s*\n', memory_consol5)
+                    for segment in segments:
+                        if segment.strip() == '':  # This condition checks for blank segments
+                            continue  # This condition checks for blank lines
+                        else:
+                            print(segment)
                             # Define the collection name
-                            collection_name = f"Explicit_Long_Term_Memory_Bot_{bot_name}_User_{username}"
+                            collection_name = f"Bot_{bot_name}_User_{username}"
                             # Create the collection only if it doesn't exist
                             try:
                                 collection_info = client.get_collection(collection_name=collection_name)
@@ -2254,12 +2418,12 @@ class ChatBotApplication(tk.Frame):
                                     collection_name=collection_name,
                                     vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
                                 )
-                            vector1 = model.encode([line])[0].tolist()
+                            vector1 = model.encode([segment])[0].tolist()
                             unique_id = str(uuid4())
                             metadata = {
                                 'bot': bot_name,
                                 'time': timestamp,
-                                'message': line,
+                                'message': segment,
                                 'timestring': timestring,
                                 'uuid': unique_id,
                                 'memory_type': 'Explicit_Long_Term',
@@ -2269,18 +2433,14 @@ class ChatBotApplication(tk.Frame):
                             payload.clear()
                     try:
                         print('\n-----------------------\n')
-                        
-                #        vdb.delete(ids=ids_to_delete2, namespace=f'{bot_name}')
-                    #    for id in ids_to_delete2:
                         client.delete(
-                            collection_name=f"Explicit_Long_Term_Memory_Bot_{bot_name}_User_{username}",
+                            collection_name=f"Bot_{bot_name}_User_{username}",
                             points_selector=models.PointIdsList(
                                 points=ids_to_delete2,
                             ),
                         )
                     except:
                         print('Failed2')      
-                    # Figure out solution for counter
                     client.delete_collection(collection_name=f"Consol_Counter_Bot_{bot_name}_User_{username}")    
             else:
                 pass

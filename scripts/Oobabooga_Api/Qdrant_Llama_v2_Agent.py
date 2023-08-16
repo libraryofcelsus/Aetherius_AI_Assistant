@@ -323,7 +323,7 @@ def search_webscrape_db(line):
                     limit=13
                 )
                     # Print the result
-                table = [hit.payload['message'] for hit in hits]
+                table = [hit.payload['source'] + " - " + hit.payload['message'] for hit in hits]
                 print(table)
             except Exception as e:
                 if "Not found: Collection" in str(e):
@@ -402,7 +402,7 @@ def search_external_resources_inner(a):
                     limit=6
                 )
                     # Print the result
-                table = [hit.payload['message'] for hit in hits]
+                table = [hit.payload['source'] + " - " + hit.payload['message'] for hit in hits]
                 print(table)
             except Exception as e:
                 if "Not found: Collection" in str(e):
@@ -482,7 +482,7 @@ def search_external_resources(a):
                     limit=10
                 )
                     # Print the result
-                table = [hit.payload['message'] for hit in hits]
+                table = [hit.payload['source'] + " - " + hit.payload['message'] for hit in hits]
                 print(table)
             except Exception as e:
                 if "Not found: Collection" in str(e):
@@ -2387,7 +2387,7 @@ class ChatBotApplication(tk.Frame):
                 # Print the result
             #    for hit in hits:
             #        print(hit.payload['message'])
-        #        db_search_2 = [hit.payload['message'] for hit in hits]
+        #        db_search_2 = [hit.payload['source'] + " - " + hit.payload['message'] for hit in hits]
         #        print(db_search_2)
         #        print('done')
         #    except Exception as e:

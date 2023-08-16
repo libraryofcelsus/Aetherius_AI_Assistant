@@ -152,7 +152,7 @@ def chunk_text_from_url(url, chunk_size=400, overlap=40, results_callback=None):
         for chunk in chunks:
             websum = list()
             websum.append({'role': 'system', 'content': "MAIN SYSTEM PROMPT: You are an ai text editor.  Your job is to take the given text from a webscrape, then return the scraped text in a summarized article form.  Do not generalize, rephrase, or use latent knowledge in your summary.  If no article is given, print no article.\n\n\n"})
-            websum.append({'role': 'user', 'content': f"WEBSCRAPE: {chunk}\n\nINSTRUCTIONS: Summarize the webscrape without losing any factual knowledge and maintaining full context. The summarized article will be directly uploaded to a Database, leave out extraneous text and personal statements.[/INST]\n\nASSISTANT: Sure! Here's the summary of the webscrape:"})
+            websum.append({'role': 'user', 'content': f"WEBSCRAPE: {chunk}\n\nINSTRUCTIONS: Summarize the webscrape without losing any factual knowledge and maintaining full context. The summarized article will be directly uploaded to a Database, leave out extraneous text and personal statements.[/INST] AI TEXT-EDITOR: Sure! Here's the summary of the webscrape:"})
             prompt = ''.join([message_dict['content'] for message_dict in websum])
             text = scrape_oobabooga_scrape(prompt)
             if len(text) < 20:
@@ -215,7 +215,8 @@ def chunk_text_from_url(url, chunk_size=400, overlap=40, results_callback=None):
                     metadata = {
                         'bot': bot_name,
                         'time': timestamp,
-                        'message': url + ' ' + text,
+                        'source': url,
+                        'message': text,
                         'timestring': timestring,
                         'uuid': unique_id,
                         'memory_type': 'Web_Scrape',
@@ -733,7 +734,7 @@ def search_webscrape_db(line):
                     limit=13
                 )
                     # Print the result
-                table = [hit.payload['message'] for hit in hits]
+                table = [hit.payload['source'] + " - " + hit.payload['message'] for hit in hits]
                 print(table)
             except Exception as e:
                 if "Not found: Collection" in str(e):
@@ -1482,7 +1483,7 @@ class ChatBotApplication(tk.Frame):
                     ),
                     limit=9
                 )
-                db_search_2 = [hit.payload['message'] for hit in hits]
+                db_search_2 = [hit.payload['source'] + " - " + hit.payload['message'] for hit in hits]
                 print(db_search_2)
                 print('done')
             except Exception as e:
@@ -1698,7 +1699,7 @@ class ChatBotApplication(tk.Frame):
                     ),
                     limit=9
                 )
-                int_scrape = [hit.payload['message'] for hit in hits]
+                int_scrape = [hit.payload['source'] + " - " + hit.payload['message'] for hit in hits]
                 print(int_scrape)
             except Exception as e:
                 if "Not found: Collection" in str(e):

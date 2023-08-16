@@ -432,7 +432,8 @@ def chunk_text_from_file(file_path, chunk_size=600, overlap=80):
                     metadata = {
                         'bot': bot_name,
                         'time': timestamp,
-                        'message': file_path + ' ' + paragraph,
+                        'source': file_path,
+                        'message': paragraph,
                         'timestring': timestring,
                         'uuid': unique_id,
                         'memory_type': 'File_Scrape',
@@ -445,7 +446,7 @@ def chunk_text_from_file(file_path, chunk_size=600, overlap=80):
                 else:
                     print('---------')
                     print(f'\n\n\nERROR MESSAGE FROM BOT: {fileyescheck}\n\n\n')                          
-        table = filelist
+        table = [hit.payload['source'] + " - " + hit.payload['message'] for hit in hits]
         
         return table
     except Exception as e:
@@ -529,7 +530,7 @@ def search_file_process_db(line):
                     limit=13
                 )
                     # Print the result
-                table = [hit.payload['message'] for hit in hits]
+                table = [hit.payload['source'] + " - " + hit.payload['message'] for hit in hits]
                 print(table)
             except Exception as e:
                 print(f"An unexpected error occurred: {str(e)}")
@@ -1520,7 +1521,7 @@ class ChatBotApplication(tk.Frame):
                 # Print the result
             #    for hit in hits:
             #        print(hit.payload['message'])
-                db_search_2 = [hit.payload['message'] for hit in hits]
+                db_search_2 = [hit.payload['source'] + " - " + hit.payload['message'] for hit in hits]
                 print(db_search_2)
                 print('done')
             except Exception as e:
@@ -1739,7 +1740,7 @@ class ChatBotApplication(tk.Frame):
                 # Print the result
             #    for hit in hits:
             #        print(hit.payload['message'])
-                int_scrape = [hit.payload['message'] for hit in hits]
+                int_scrape = [hit.payload['source'] + " - " + hit.payload['message'] for hit in hits]
                 print(int_scrape)
             except Exception as e:
                 print(f"An unexpected error occurred: {str(e)}")

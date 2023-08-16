@@ -1,5 +1,5 @@
 # Aetherius
-Version .044 of the Aetherius Ai Personal Assistant/Agent/Companion by LibraryofCelsus.com
+Version .044a of the Aetherius Ai Personal Assistant/Agent/Companion by LibraryofCelsus.com
 
 ------
 
@@ -7,13 +7,7 @@ Version .044 of the Aetherius Ai Personal Assistant/Agent/Companion by Libraryof
 
 -Added Experimental Different Instruct formating for Oobabooga api chatbot.  Barley works for now.
 
--Added Llama 2 Agent script.  This functions similarly to the websearch/file reading chatbot, but instead chooses if it should search external resources for each task.  It also searches both the webscrape and file reading DB's at once.
-
--Added Qdrant Version of OpenAi Aethersearch.  Still needs work, I prefer the Llama 2 one as of now.
-
--Added Experimental Version for instruct models, not optimized for any specific model yet.
-
--Added Qdrant Version of basic OpenAi Chatbot, updated the scripts and they should now follow the conversation track again.  That being said, most development has now moved to the locally ran version.
+-Added Qdrant Version of basic OpenAi Chatbot, updated the scripts and they should now follow the conversation track again.  That being said, most development has now moved to the Oobabooga version.
 
 ------
 
@@ -88,9 +82,11 @@ Aetherius can now be ran locally and offline maintaining 100% privacy!
 
 
 # Changelog:
-**0.044**
+**0.044a**
 
--Consolidated Collections
+-Consolidated Collections for better visualization with Qdrant (Available in the Qdrant dashboard)
+
+-Added Source tag for external data scrapes
 
 **0.043**
 

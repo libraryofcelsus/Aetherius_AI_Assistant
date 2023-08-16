@@ -56,15 +56,6 @@ else:
 
 
 
-
-# For local streaming, the websockets are hosted without ssl - http://
-HOST = 'localhost:5000'
-URI = f'http://{HOST}/api/v1/chat'
-
-# For reverse-proxied streaming, the remote will likely host with ssl - https://
-# URI = 'https://your-uri-here.trycloudflare.com/api/v1/generate'
-
-
 model = SentenceTransformer('all-mpnet-base-v2')
         
 
@@ -552,7 +543,7 @@ def chunk_text_from_url(url, chunk_size=500, overlap=80, results_callback=None):
         chunks = chunk_text(texttemp, chunk_size, overlap)
         weblist = list()
         # Define the collection name
-        collection_name = f"Webscrape_Tool_Bot_{bot_name}_User_{username}"
+        collection_name = f"Bot_{bot_name}_User_{username}"
         try:
             collection_info = client.get_collection(collection_name=collection_name)
             print(collection_info)
@@ -627,6 +618,7 @@ def chunk_text_from_url(url, chunk_size=500, overlap=80, results_callback=None):
                     point_id = unique_id + str(int(timestamp))
                     metadata = {
                         'bot': bot_name,
+                        'user': username,
                         'time': timestamp,
                         'message': url + ' ' + text,
                         'timestring': timestring,
@@ -884,6 +876,7 @@ def DB_Upload_Cadence(query):
         point_id = unique_id + str(int(timestamp))
         metadata = {
             'bot': bot_name,
+            'user': username,
             'time': timestamp,
             'message': query,
             'timestring': timestring,
@@ -943,6 +936,7 @@ def DB_Upload_Heuristics(query):
         unique_id = str(uuid4())
         metadata = {
             'bot': bot_name,
+            'user': username,
             'time': timestamp,
             'message': query,
             'timestring': timestring,
@@ -1002,6 +996,7 @@ def upload_implicit_long_term_memories(query):
     point_id = unique_id + str(int(timestamp))
     metadata = {
         'bot': bot_name,
+        'user': username,
         'time': timestamp,
         'message': query,
         'timestring': timestring,
@@ -1038,6 +1033,7 @@ def upload_explicit_long_term_memories(query):
     point_id = unique_id + str(int(timestamp))
     metadata = {
         'bot': bot_name,
+        'user': username,
         'time': timestamp,
         'message': query,
         'timestring': timestring,
@@ -1084,6 +1080,7 @@ def ask_upload_implicit_memories(memories):
                 point_id = unique_id + str(int(timestamp))
                 metadata = {
                     'bot': bot_name,
+                    'user': username,
                     'time': timestamp,
                     'message': segment,
                     'timestring': timestring,
@@ -1133,6 +1130,7 @@ def ask_upload_explicit_memories(memories):
                 point_id = unique_id + str(int(timestamp))
                 metadata = {
                     'bot': bot_name,
+                    'user': username,
                     'time': timestamp,
                     'message': segment,
                     'timestring': timestring,
@@ -1177,6 +1175,7 @@ def ask_upload_episodic_memories(memories):
         point_id = unique_id + str(int(timestamp))
         metadata = {
             'bot': bot_name,
+            'user': username,
             'time': timestamp,
             'message': query,
             'timestring': timestring,
@@ -1213,6 +1212,7 @@ def upload_implicit_short_term_memories(query):
     point_id = unique_id + str(int(timestamp))
     metadata = {
         'bot': bot_name,
+        'user': username,
         'time': timestamp,
         'message': query,
         'timestring': timestring,
@@ -1248,6 +1248,7 @@ def upload_explicit_short_term_memories(query):
     point_id = unique_id + str(int(timestamp))
     metadata = {
         'bot': bot_name,
+        'user': username,
         'time': timestamp,
         'message': query,
         'timestring': timestring,
@@ -2893,6 +2894,7 @@ class ChatBotApplication(tk.Frame):
             unique_id = str(uuid4())
             metadata = {
                 'bot': bot_name,
+                'user': username,
                 'time': timestamp,
                 'message': timestring + '-' + conv_summary,
                 'timestring': timestring,
@@ -2917,6 +2919,7 @@ class ChatBotApplication(tk.Frame):
             unique_id = str(uuid4())
             metadata = {
                 'bot': bot_name,
+                'user': username,
                 'time': timestamp,
                 'message': timestring,
                 'timestring': timestring,
@@ -3008,6 +3011,7 @@ class ChatBotApplication(tk.Frame):
                         unique_id = str(uuid4())
                         metadata = {
                             'bot': bot_name,
+                            'user': username,
                             'time': timestamp,
                             'message': segment,
                             'timestring': timestring,
@@ -3065,6 +3069,7 @@ class ChatBotApplication(tk.Frame):
                         unique_id = str(uuid4())
                         metadata = {
                             'bot': bot_name,
+                            'user': username,
                             'time': timestamp,
                             'message': segment,
                             'timestring': timestring,
@@ -3090,6 +3095,7 @@ class ChatBotApplication(tk.Frame):
                 unique_id = str(uuid4())
                 metadata = {
                     'bot': bot_name,
+                    'user': username,
                     'time': timestamp,
                     'message': line,
                     'timestring': timestring,
@@ -3186,6 +3192,7 @@ class ChatBotApplication(tk.Frame):
                             unique_id = str(uuid4())
                             metadata = {
                                 'bot': bot_name,
+                                'user': username,
                                 'time': timestamp,
                                 'message': segment,
                                 'timestring': timestring,
@@ -3260,6 +3267,7 @@ class ChatBotApplication(tk.Frame):
                             unique_id = str(uuid4())
                             metadata = {
                                 'bot': bot_name,
+                                'user': username,
                                 'time': timestamp,
                                 'message': segment,
                                 'timestring': timestring,
@@ -3371,6 +3379,7 @@ class ChatBotApplication(tk.Frame):
                             unique_id = str(uuid4())
                             metadata = {
                                 'bot': bot_name,
+                                'user': username,
                                 'time': timestamp,
                                 'message': segment,
                                 'timestring': timestring,

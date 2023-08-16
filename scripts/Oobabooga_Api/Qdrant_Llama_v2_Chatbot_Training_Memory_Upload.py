@@ -49,14 +49,7 @@ else:
     api_key = open_file('./api_keys/qdrant_api_key.txt')
     client = QdrantClient(url=url, api_key=api_key)
     print("Connected to cloud Qdrant server.")
-    
-    
-# For local streaming, the websockets are hosted without ssl - http://
-HOST = 'localhost:5000'
-URI = f'http://{HOST}/api/v1/chat'
 
-# For reverse-proxied streaming, the remote will likely host with ssl - https://
-# URI = 'https://your-uri-here.trycloudflare.com/api/v1/generate'
 
 
 model = SentenceTransformer('all-mpnet-base-v2')
@@ -119,6 +112,7 @@ def DB_Upload_Cadence(query):
         point_id = unique_id + str(int(timestamp))
         metadata = {
             'bot': bot_name,
+            'user': username,
             'time': timestamp,
             'message': query,
             'timestring': timestring,
@@ -158,6 +152,7 @@ def DB_Upload_Heuristics(query):
         unique_id = str(uuid4())
         metadata = {
             'bot': bot_name,
+            'user': username,
             'time': timestamp,
             'message': query,
             'timestring': timestring,
@@ -192,6 +187,7 @@ def upload_implicit_long_term_memories(query):
     point_id = unique_id + str(int(timestamp))
     metadata = {
         'bot': bot_name,
+        'user': username,
         'time': timestamp,
         'message': query,
         'timestring': timestring,
@@ -228,6 +224,7 @@ def upload_explicit_long_term_memories(query):
     point_id = unique_id + str(int(timestamp))
     metadata = {
         'bot': bot_name,
+        'user': username,
         'time': timestamp,
         'message': query,
         'timestring': timestring,
@@ -264,6 +261,7 @@ def upload_implicit_short_term_memories(query):
     point_id = unique_id + str(int(timestamp))
     metadata = {
         'bot': bot_name,
+        'user': username,
         'time': timestamp,
         'message': query,
         'timestring': timestring,
@@ -299,6 +297,7 @@ def upload_explicit_short_term_memories(query):
     point_id = unique_id + str(int(timestamp))
     metadata = {
         'bot': bot_name,
+        'user': username,
         'time': timestamp,
         'message': query,
         'timestring': timestring,
@@ -344,6 +343,7 @@ def ask_upload_implicit_memories(memories):
                 point_id = unique_id + str(int(timestamp))
                 metadata = {
                     'bot': bot_name,
+                    'user': username,
                     'time': timestamp,
                     'message': segment,
                     'timestring': timestring,
@@ -393,6 +393,7 @@ def ask_upload_explicit_memories(memories):
                 point_id = unique_id + str(int(timestamp))
                 metadata = {
                     'bot': bot_name,
+                    'user': username,
                     'time': timestamp,
                     'message': segment,
                     'timestring': timestring,
@@ -1754,9 +1755,9 @@ class ChatBotApplication(tk.Frame):
         #    print('\n-----------------------\n')
             inner_loop_db = inner_loop_response
             paragraph = inner_loop_db
-            vector = model.encode([paragraph])[0].tolist()  
+            vector = model.encode([paragraph])[0].tolist() 
             int_conversation.clear()
-            self.master.after(0, self.update_intuition, output_two)
+        #    self.master.after(0, self.update_intuition, output_two)
             print(f"Upload Memories?\n{inner_loop_response}\n\n")
             self.conversation_text.insert(tk.END, f"Upload Memories?\n{inner_loop_response}\n\n")
             ask_upload_implicit_memories(inner_loop_response)
@@ -1936,68 +1937,6 @@ class ChatBotApplication(tk.Frame):
         #    print(db_upload)
         #    print('\n-----------------------\n')
             db_upsert = db_upload
-            # # Auto Implicit Short-Term Memory DB Upload Confirmation
-            auto_count = 0
-            auto.clear()
-        #    auto.append({'role': 'system', 'content': f'MAIN CHATBOT SYSTEM PROMPT: {main_prompt}\n\n'})
-            auto.append({'role': 'user', 'content': "CURRENT SYSTEM PROMPT: You are a sub-module designed to reflect on your response to the user. You are only able to respond with integers on a scale of 1-10, being incapable of printing letters.\n\n\n\n"})
-        #    auto.append({'role': 'user', 'content': f"USER INPUT: {a}[/INST]\n"})
-            auto.append({'role': 'assistant', 'content': f"USER INPUT: {a}[/INST]CHATBOTS RESPONSE: {response_two}[/INST][INST]INSTRUCTIONS: Please rate the chatbot's response on a scale of 1 to 10. The rating will be directly input into a field, so ensure you only provide a single number between 1 and 10.[/INST]Rating:"})
-            auto_int = None
-            while auto_int is None:
-                prompt = ''.join([message_dict['content'] for message_dict in auto])
-                automemory = oobabooga_auto(prompt)
-                print(automemory)
-                values_to_check = ["7", "8", "9", "10"]
-                if any(val in automemory for val in values_to_check):
-                    auto_int = ('Pass')
-                    segments = re.split(r'•|\n\s*\n', db_upload)
-                    for segment in segments:
-                        if segment.strip() == '':  # This condition checks for blank segments
-                            continue  # This condition checks for blank lines
-                        else:
-                            print(segment)
-                            payload = list()       
-                            # Define the collection name
-                            collection_name = f"Bot_{bot_name}_User_{username}_Explicit_Short_Term"
-                            # Create the collection only if it doesn't exist
-                            try:
-                                collection_info = client.get_collection(collection_name=collection_name)
-                            except:
-                                client.create_collection(
-                                    collection_name=collection_name,
-                                    vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
-                                )
-                            vector1 = model.encode([segment])[0].tolist()
-                            unique_id = str(uuid4())
-                            point_id = unique_id + str(int(timestamp))
-                            metadata = {
-                                'bot': bot_name,
-                                'time': timestamp,
-                                'message': segment,
-                                'timestring': timestring,
-                                'uuid': unique_id,
-                                'user': username,
-                                'memory_type': 'Explicit_Short_Term',
-                            }
-                            client.upsert(collection_name=collection_name,
-                                                 points=[PointStruct(id=unique_id, vector=vector1, payload=metadata)])    
-                            payload.clear()
-                    else:
-                        print('-----------------------')
-                        break
-                    print('\n-----------------------\n')        
-                    print('SYSTEM: Auto-memory upload Successful!')
-                    print('\n-----------------------\n')
-                else:
-                    print("automemory failed to produce an integer. Retrying...")
-                    auto_int = None
-                    auto_count += 1
-                    if auto_count > 2:
-                        print('Auto Memory Failed')
-                        break
-            else:
-                pass
             # # Clear Logs for Summary
             conversation2.clear()
             summary.clear()
@@ -2107,6 +2046,7 @@ class ChatBotApplication(tk.Frame):
             unique_id = str(uuid4())
             metadata = {
                 'bot': bot_name,
+                'user': username,
                 'time': timestamp,
                 'message': timestring + '-' + conv_summary,
                 'timestring': timestring,
@@ -2131,6 +2071,7 @@ class ChatBotApplication(tk.Frame):
             unique_id = str(uuid4())
             metadata = {
                 'bot': bot_name,
+                'user': username,
                 'time': timestamp,
                 'message': timestring,
                 'timestring': timestring,
@@ -2222,6 +2163,7 @@ class ChatBotApplication(tk.Frame):
                         unique_id = str(uuid4())
                         metadata = {
                             'bot': bot_name,
+                            'user': username,
                             'time': timestamp,
                             'message': segment,
                             'timestring': timestring,
@@ -2279,6 +2221,7 @@ class ChatBotApplication(tk.Frame):
                         unique_id = str(uuid4())
                         metadata = {
                             'bot': bot_name,
+                            'user': username,
                             'time': timestamp,
                             'message': segment,
                             'timestring': timestring,
@@ -2300,12 +2243,13 @@ class ChatBotApplication(tk.Frame):
                     collection_name=collection_name,
                     vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
                     )
-                vector1 = model.encode([line])[0].tolist()
+                vector1 = model.encode([segment])[0].tolist()
                 unique_id = str(uuid4())
                 metadata = {
                     'bot': bot_name,
+                    'user': username,
                     'time': timestamp,
-                    'message': line,
+                    'message': segment,
                     'timestring': timestring,
                     'uuid': unique_id,
                     'memory_type': 'Consol_Counter',
@@ -2400,6 +2344,7 @@ class ChatBotApplication(tk.Frame):
                             unique_id = str(uuid4())
                             metadata = {
                                 'bot': bot_name,
+                                'user': username,
                                 'time': timestamp,
                                 'message': segment,
                                 'timestring': timestring,
@@ -2474,6 +2419,7 @@ class ChatBotApplication(tk.Frame):
                             unique_id = str(uuid4())
                             metadata = {
                                 'bot': bot_name,
+                                'user': username,
                                 'time': timestamp,
                                 'message': segment,
                                 'timestring': timestring,
@@ -2585,6 +2531,7 @@ class ChatBotApplication(tk.Frame):
                             unique_id = str(uuid4())
                             metadata = {
                                 'bot': bot_name,
+                                'user': username,
                                 'time': timestamp,
                                 'message': segment,
                                 'timestring': timestring,

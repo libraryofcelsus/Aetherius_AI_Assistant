@@ -61,16 +61,6 @@ else:
 
 
 
-
-
-# For local streaming, the websockets are hosted without ssl - http://
-HOST = 'localhost:5000'
-URI = f'http://{HOST}/api/v1/chat'
-
-# For reverse-proxied streaming, the remote will likely host with ssl - https://
-# URI = 'https://your-uri-here.trycloudflare.com/api/v1/generate'
-
-
 model = SentenceTransformer('all-mpnet-base-v2')
      
 
@@ -431,6 +421,7 @@ def chunk_text_from_file(file_path, chunk_size=600, overlap=80):
                     point_id = unique_id + str(int(timestamp))
                     metadata = {
                         'bot': bot_name,
+                        'user': username,
                         'time': timestamp,
                         'source': file_path,
                         'message': paragraph,
@@ -679,6 +670,7 @@ def ask_upload_memories(memories, memories2):
                 point_id = unique_id + str(int(timestamp))
                 metadata = {
                     'bot': bot_name,
+                    'user': username,
                     'time': timestamp,
                     'message': line,
                     'timestring': timestring,
@@ -2020,6 +2012,7 @@ class ChatBotApplication(tk.Frame):
             unique_id = str(uuid4())
             metadata = {
                 'bot': bot_name,
+                'user': username,
                 'time': timestamp,
                 'message': timestring + '-' + conv_summary,
                 'timestring': timestring,
@@ -2044,6 +2037,7 @@ class ChatBotApplication(tk.Frame):
             unique_id = str(uuid4())
             metadata = {
                 'bot': bot_name,
+                'user': username,
                 'time': timestamp,
                 'message': timestring,
                 'timestring': timestring,
@@ -2135,6 +2129,7 @@ class ChatBotApplication(tk.Frame):
                         unique_id = str(uuid4())
                         metadata = {
                             'bot': bot_name,
+                            'user': username,
                             'time': timestamp,
                             'message': segment,
                             'timestring': timestring,
@@ -2192,6 +2187,7 @@ class ChatBotApplication(tk.Frame):
                         unique_id = str(uuid4())
                         metadata = {
                             'bot': bot_name,
+                            'user': username,
                             'time': timestamp,
                             'message': segment,
                             'timestring': timestring,
@@ -2217,6 +2213,7 @@ class ChatBotApplication(tk.Frame):
                 unique_id = str(uuid4())
                 metadata = {
                     'bot': bot_name,
+                    'user': username,
                     'time': timestamp,
                     'message': line,
                     'timestring': timestring,
@@ -2313,6 +2310,7 @@ class ChatBotApplication(tk.Frame):
                             unique_id = str(uuid4())
                             metadata = {
                                 'bot': bot_name,
+                                'user': username,
                                 'time': timestamp,
                                 'message': segment,
                                 'timestring': timestring,
@@ -2387,6 +2385,7 @@ class ChatBotApplication(tk.Frame):
                             unique_id = str(uuid4())
                             metadata = {
                                 'bot': bot_name,
+                                'user': username,
                                 'time': timestamp,
                                 'message': segment,
                                 'timestring': timestring,
@@ -2498,6 +2497,7 @@ class ChatBotApplication(tk.Frame):
                             unique_id = str(uuid4())
                             metadata = {
                                 'bot': bot_name,
+                                'user': username,
                                 'time': timestamp,
                                 'message': segment,
                                 'timestring': timestring,

@@ -2209,13 +2209,13 @@ class ChatBotApplication(tk.Frame):
                     collection_name=collection_name,
                     vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
                     )
-                vector1 = model.encode([line])[0].tolist()
+                vector1 = model.encode([segment])[0].tolist()
                 unique_id = str(uuid4())
                 metadata = {
                     'bot': bot_name,
                     'user': username,
                     'time': timestamp,
-                    'message': line,
+                    'message': segment,
                     'timestring': timestring,
                     'uuid': unique_id,
                     'memory_type': 'Consol_Counter',

@@ -21,13 +21,14 @@ import numpy as np
 import re
 import requests
 
-# For local streaming, the websockets are hosted without ssl - http://
-HOST = 'localhost:5000'
-URI = f'http://{HOST}/api/v1/chat'
+# For a locally hosted Oobabooga Client use:
+HOST = 'http://localhost:5000/api'
 
-# For reverse-proxied streaming, the remote will likely host with ssl - https://
-# URI = 'https://your-uri-here.trycloudflare.com/api/v1/generate'
+# For a Google Colab hosted Oobabooga Client (leave in /api), use:
+#HOST = 'ENTER-NON-STREAMING-SERVER-PUBLIC-URL'
 
+# /chat enables chat generation formating
+URI = f'{HOST}/v1/chat'
 
 
 def open_file(filepath):

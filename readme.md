@@ -1,9 +1,11 @@
 # Aetherius
-Version .044a of the Aetherius Ai Personal Assistant/Agent/Companion by LibraryofCelsus.com
+Version .044b of the Aetherius Ai Personal Assistant/Agent/Companion by LibraryofCelsus.com
 
 ------
 
 **Experimental Changelog**
+
+-Added a Colab Notebook for running Oobabooga with a Public Api.  Uses the T4 GPU free tier. To use the Public Api with Aetherius, change the Host in "./scripts/resources/Llama2_chat.py" to the given non-streaming Url.
 
 -Added Experimental Different Instruct formating for Oobabooga api chatbot.  Barley works for now.
 
@@ -86,6 +88,10 @@ Aetherius can now be ran locally and offline maintaining 100% privacy!
 
 
 # Changelog:
+**0.044b**
+
+-Added Colab Notebook for people without a GPU.
+
 **0.044a**
 
 -Consolidated Collections for better visualization with Qdrant (Available in the Qdrant dashboard)
@@ -204,6 +210,8 @@ Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aethe
 
 Upload heuristics to DB and start chatting with Aetherius. Heuristic examples, and files to modify prompts can be found in the config folder!  Prompts can also be edited through the Config Menu.
 
+To run Aetherius on Google Colab with Oobabooga, use the Notebook file in the "./Colab Notebooks" Folder.
+
 To run Aetherius Locally using Oobabooga, first install the web-ui at: https://github.com/oobabooga/text-generation-webui
 
 Then, under the "Interface Mode" tab, enable the api checkbox in both fields. Then click apply and restart the interface.
@@ -285,7 +293,8 @@ Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aethe
 
 26. Once you have made a backup, you can start using the "Auto" mode, this mode has Aetherius decide for itself whether or not it should upload to its memories.
 
-27. To run Aetherius Locally using Oobabooga, first install the web-ui at: https://github.com/oobabooga/text-generation-webui
+27. To run Aetherius Locally using Oobabooga, first install the web-ui at: https://github.com/oobabooga/text-generation-webui    
+(To use Google Colab, use the Notebook file in the "./Colab Notebooks" Folder.)
 
 28. Then, under the "Interface Mode" tab, enable the api checkbox in both fields.  Then click apply and restart the interface.
 

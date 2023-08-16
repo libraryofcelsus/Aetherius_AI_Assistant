@@ -65,7 +65,11 @@ Inspired by https://github.com/daveshap/
 
 ![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/07/Aetherscrape-example.jpg)
 
-## Autonomous Architecture
+## Database Visualization with Qdrant
+
+![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/08/Qdrant-Visulization.png)
+
+## Agent Architecture
 
 ![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/07/AetheriusArch.png)
 

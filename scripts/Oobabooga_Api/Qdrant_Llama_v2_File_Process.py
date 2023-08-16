@@ -352,7 +352,7 @@ def chunk_text_from_file(file_path, chunk_size=600, overlap=80):
         chunks = chunk_text(texttemp, chunk_size, overlap)
         filelist = list()
         # Define the collection name
-        collection_name = f"Filescrape_Tool_Bot_{bot_name}_User_{username}"
+        collection_name = f"Bot_{bot_name}_User_{username}_External_Knowledgebase"
         try:
             collection_info = client.get_collection(collection_name=collection_name)
             print(collection_info)
@@ -516,9 +516,18 @@ def search_file_process_db(line):
             line_vec = model.encode([line])[0].tolist()
             try:
                 hits = client.search(
-                    collection_name=f"Filescrape_Tool_Bot_{bot_name}_User_{username}",
+                    collection_name=f"Bot_{bot_name}_User_{username}_External_Knowledgebase",
                     query_vector=line_vec,
-                limit=15)
+                    query_filter=Filter(
+                        must=[
+                            FieldCondition(
+                                key="memory_type",
+                                match=MatchValue(value="File_Scrape")
+                            )
+                        ]
+                    ),
+                    limit=13
+                )
                     # Print the result
                 table = [hit.payload['message'] for hit in hits]
                 print(table)
@@ -1152,7 +1161,7 @@ class ChatBotApplication(tk.Frame):
     def delete_web_history(self):
         bot_name = open_file('./config/prompt_bot_name.txt')
         username = open_file('./config/prompt_username.txt')
-        client.delete_collection(collection_name=f"Filescrape_Tool_Bot_{bot_name}_User_{username}")
+        client.delete_collection(collection_name=f"Bot_{bot_name}_User_{username}_External_Knowledgebase")
         print('fileprocess has been Deleted')
         pass
         
@@ -1162,7 +1171,7 @@ class ChatBotApplication(tk.Frame):
         bot_name = open_file('./config/prompt_bot_name.txt')
         username = open_file('./config/prompt_username.txt')
         try:
-            client.delete_collection(collection_name=f"Filescrape_Tool_Bot_{bot_name}_User_{username}")
+            client.delete_collection(collection_name=f"Bot_{bot_name}_User_{username}_External_Knowledgebase")
             print('File DB has been Deleted')
             self.master.destroy()
             Qdrant_Llama_v2_File_Process()
@@ -1259,7 +1268,7 @@ class ChatBotApplication(tk.Frame):
         username = open_file('./config/prompt_username.txt')
         file_path = f'./history/{username}/{bot_name}_main_conversation_history.json'
         try:
-            client.delete_collection(collection_name=f"Filescrape_Tool_Bot_{bot_name}_User_{username}")
+            client.delete_collection(collection_name=f"Bot_{bot_name}_User_{username}_External_Knowledgebase")
             print('Webscrape has been Deleted')
             self.master.destroy()
             Qdrant_Llama_v2_File_Process()
@@ -1496,9 +1505,18 @@ class ChatBotApplication(tk.Frame):
                 print(f"An unexpected error occurred: {str(e)}")
             try:
                 hits = client.search(
-                    collection_name=f"Filescrape_Tool_Bot_{bot_name}_User_{username}",
+                    collection_name=f"Bot_{bot_name}_User_{username}_External_Knowledgebase",
                     query_vector=vector_input1,
-                limit=9)
+                    query_filter=Filter(
+                        must=[
+                            FieldCondition(
+                                key="memory_type",
+                                match=MatchValue(value="File_Scrape")
+                            )
+                        ]
+                    ),
+                    limit=9
+                )
                 # Print the result
             #    for hit in hits:
             #        print(hit.payload['message'])
@@ -1706,7 +1724,7 @@ class ChatBotApplication(tk.Frame):
             # # Intuition Generation
             try:
                 hits = client.search(
-                    collection_name=f"Filescrape_Tool_Bot_{bot_name}_User_{username}",
+                    collection_name=f"Bot_{bot_name}_User_{username}_External_Knowledgebase",
                     query_vector=vector_monologue,
                     query_filter=Filter(
                         must=[

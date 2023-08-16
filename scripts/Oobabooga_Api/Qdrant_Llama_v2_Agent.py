@@ -306,17 +306,30 @@ def search_webscrape_db(line):
     username = open_file('./config/prompt_username.txt')
     try:
         with lock:
+            table = None
             line_vec = model.encode([line])[0].tolist()
             try:
                 hits = client.search(
-                    collection_name=f"Webscrape_Tool_Bot_{bot_name}_User_{username}",
+                    collection_name=f"Bot_{bot_name}_User_{username}_External_Knowledgebase",
                     query_vector=line_vec,
-                limit=15)
+                    query_filter=Filter(
+                        must=[
+                            FieldCondition(
+                                key="memory_type",
+                                match=MatchValue(value="Web_Scrape")
+                            )
+                        ]
+                    ),
+                    limit=13
+                )
                     # Print the result
                 table = [hit.payload['message'] for hit in hits]
                 print(table)
             except Exception as e:
-                print(f"An unexpected error occurred: {str(e)}")
+                if "Not found: Collection" in str(e):
+                    print("Collection has no memories.")
+                else:
+                    print(f"An unexpected error occurred: {str(e)}")
             return table
     except Exception as e:
         print(e)
@@ -324,7 +337,7 @@ def search_webscrape_db(line):
         return table
         
         
-def search_external_resources_inner(a):
+def search_external_resources_inner_old(a):
     m = multiprocessing.Manager()
     lock = m.Lock()
     bot_name = open_file('./config/prompt_bot_name.txt')
@@ -373,7 +386,37 @@ def search_external_resources_inner(a):
         return table
         
         
-def search_external_resources(line):
+def search_external_resources_inner(a):
+    m = multiprocessing.Manager()
+    lock = m.Lock()
+    bot_name = open_file('./config/prompt_bot_name.txt')
+    username = open_file('./config/prompt_username.txt')
+    try:
+        with lock:
+            table = None
+            line_vec = model.encode([a])[0].tolist()
+            try:
+                hits = client.search(
+                    collection_name=f"Bot_{bot_name}_User_{username}_External_Knowledgebase",
+                    query_vector=line_vec,
+                    limit=6
+                )
+                    # Print the result
+                table = [hit.payload['message'] for hit in hits]
+                print(table)
+            except Exception as e:
+                if "Not found: Collection" in str(e):
+                    print("Collection has no memories.")
+                else:
+                    print(f"An unexpected error occurred: {str(e)}")
+            return table
+    except Exception as e:
+        print(e)
+        table = "Error"
+        return table
+        
+        
+def search_external_resources_old(line):
     m = multiprocessing.Manager()
     lock = m.Lock()
     bot_name = open_file('./config/prompt_bot_name.txt')
@@ -416,6 +459,36 @@ def search_external_resources(line):
                 table = ("No results found.")
                 print("No results found.")
             print(table)
+            return table
+    except Exception as e:
+        print(e)
+        table = "Error"
+        return table
+        
+        
+def search_external_resources(a):
+    m = multiprocessing.Manager()
+    lock = m.Lock()
+    bot_name = open_file('./config/prompt_bot_name.txt')
+    username = open_file('./config/prompt_username.txt')
+    try:
+        with lock:
+            table = None
+            line_vec = model.encode([a])[0].tolist()
+            try:
+                hits = client.search(
+                    collection_name=f"Bot_{bot_name}_User_{username}_External_Knowledgebase",
+                    query_vector=line_vec,
+                    limit=10
+                )
+                    # Print the result
+                table = [hit.payload['message'] for hit in hits]
+                print(table)
+            except Exception as e:
+                if "Not found: Collection" in str(e):
+                    print("Collection has no memories.")
+                else:
+                    print(f"An unexpected error occurred: {str(e)}")
             return table
     except Exception as e:
         print(e)

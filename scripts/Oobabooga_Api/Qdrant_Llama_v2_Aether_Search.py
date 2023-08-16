@@ -139,7 +139,7 @@ def chunk_text_from_url(url, chunk_size=400, overlap=40, results_callback=None):
         chunks = chunk_text(texttemp, chunk_size, overlap)
         weblist = list()
         # Define the collection name
-        collection_name = f"Webscrape_Tool_Bot_{bot_name}_User_{username}"
+        collection_name = f"Bot_{bot_name}_User_{username}_External_Knowledgebase"
         try:
             collection_info = client.get_collection(collection_name=collection_name)
             print(collection_info)
@@ -720,9 +720,18 @@ def search_webscrape_db(line):
             line_vec = model.encode([line])[0].tolist()
             try:
                 hits = client.search(
-                    collection_name=f"Webscrape_Tool_Bot_{bot_name}_User_{username}",
+                    collection_name=f"Bot_{bot_name}_User_{username}_External_Knowledgebase",
                     query_vector=line_vec,
-                limit=15)
+                    query_filter=Filter(
+                        must=[
+                            FieldCondition(
+                                key="memory_type",
+                                match=MatchValue(value="Web_Scrape")
+                            )
+                        ]
+                    ),
+                    limit=13
+                )
                     # Print the result
                 table = [hit.payload['message'] for hit in hits]
                 print(table)
@@ -1165,7 +1174,7 @@ class ChatBotApplication(tk.Frame):
         bot_name = open_file('./config/prompt_bot_name.txt')
         username = open_file('./config/prompt_username.txt')
         try:
-            client.delete_collection(collection_name=f"Webscrape_Tool_Bot_{bot_name}_User_{username}")
+            client.delete_collection(collection_name=f"Bot_{bot_name}_User_{username}_External_Knowledgebase")
             print('Webscrape has been Deleted')
             self.master.destroy()
             Qdrant_Llama_v2_Aether_Search()
@@ -1454,7 +1463,6 @@ class ChatBotApplication(tk.Frame):
                 )
                 db_search_1 = [hit.payload['message'] for hit in hits]
                 print(db_search_1)
-                print('done')
             except Exception as e:
                 if "Not found: Collection" in str(e):
                     print("Collection has no memories.")
@@ -1462,9 +1470,18 @@ class ChatBotApplication(tk.Frame):
                     print(f"An unexpected error occurred: {str(e)}")
             try:
                 hits = client.search(
-                    collection_name=f"Webscrape_Tool_Bot_{bot_name}_User_{username}",
+                    collection_name=f"Bot_{bot_name}_User_{username}_External_Knowledgebase",
                     query_vector=vector_input1,
-                limit=9)
+                    query_filter=Filter(
+                        must=[
+                            FieldCondition(
+                                key="memory_type",
+                                match=MatchValue(value="Web_Scrape")
+                            )
+                        ]
+                    ),
+                    limit=9
+                )
                 db_search_2 = [hit.payload['message'] for hit in hits]
                 print(db_search_2)
                 print('done')
@@ -1669,9 +1686,18 @@ class ChatBotApplication(tk.Frame):
             int_scrape = None        
             try:
                 hits = client.search(
-                    collection_name=f"Webscrape_Tool_Bot_{bot_name}_User_{username}",
+                    collection_name=f"Bot_{bot_name}_User_{username}_External_Knowledgebase",
                     query_vector=vector_monologue,
-                limit=9)
+                    query_filter=Filter(
+                        must=[
+                            FieldCondition(
+                                key="memory_type",
+                                match=MatchValue(value="Web_Scrape")
+                            )
+                        ]
+                    ),
+                    limit=9
+                )
                 int_scrape = [hit.payload['message'] for hit in hits]
                 print(int_scrape)
             except Exception as e:

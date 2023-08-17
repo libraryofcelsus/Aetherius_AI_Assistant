@@ -2,10 +2,13 @@
 Version .044b of the Aetherius Ai Personal Assistant/Agent/Companion by LibraryofCelsus.com
 
 ------
+**Recent Changes**
+
+-8/17 Updated Llama-2 Gui Appearance and Features
+
+-8/16 Fixed Bug where html markdown was printed instead of normal text when using Public Api.
 
 **Experimental Changelog**
-
--Fixed Bug where html markdown was printed instead of normal text when using Public Api.
 
 -Added a Colab Notebook for running Oobabooga with a Public Api.  Uses the T4 GPU free tier. To use the Public Api with Aetherius, change the LocalHost in "./api_keys/HOST_Oobabooga.txt" to the given non-streaming Url.  <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Oobabooga_Public_Api.ipynb">
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
@@ -93,6 +96,8 @@ Aetherius can now be ran locally and offline maintaining 100% privacy!
 
 # Changelog:
 **0.044b**
+
+-Updated Llama-2 Gui Appearance and Features
 
 -Fixed Bug where html markdown was printed instead of normal text when using Public Api.
 

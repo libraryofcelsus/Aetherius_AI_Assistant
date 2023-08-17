@@ -20,6 +20,7 @@ from qdrant_client.http import models
 import numpy as np
 import re
 import requests
+import html
 
 # For a locally hosted Oobabooga Client use:
 HOST = 'http://localhost:5000/api'
@@ -91,7 +92,8 @@ def oobabooga_terms(prompt):
         result = response.json()['results'][0]['history']
     #    print(json.dumps(result, indent=4))
         print()
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
 
 
 def oobabooga_inner_monologue(prompt):
@@ -150,7 +152,8 @@ def oobabooga_inner_monologue(prompt):
     #    print(json.dumps(result, indent=4))
         print()
     #    print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
         
 def oobabooga_intuition(prompt):
@@ -209,7 +212,8 @@ def oobabooga_intuition(prompt):
     #    print(json.dumps(result, indent=4))
         print()
     #    print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
 
         
@@ -269,7 +273,8 @@ def oobabooga_episodicmem(prompt):
     #    print(json.dumps(result, indent=4))
         print()
     #    print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
         
 def oobabooga_flashmem(prompt):
@@ -328,7 +333,8 @@ def oobabooga_flashmem(prompt):
     #    print(json.dumps(result, indent=4))
         print()
     #    print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
         
         
@@ -388,7 +394,8 @@ def oobabooga_implicitmem(prompt):
     #    print(json.dumps(result, indent=4))
         print()
     #    print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
         
 def oobabooga_explicitmem(prompt):
@@ -447,7 +454,8 @@ def oobabooga_explicitmem(prompt):
     #    print(json.dumps(result, indent=4))
         print()
     #    print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
         
 def oobabooga_consolidationmem(prompt):
@@ -506,7 +514,8 @@ def oobabooga_consolidationmem(prompt):
     #    print(json.dumps(result, indent=4))
         print()
      #   print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
         
 def oobabooga_associativemem(prompt):
@@ -565,7 +574,8 @@ def oobabooga_associativemem(prompt):
     #    print(json.dumps(result, indent=4))
         print()
      #   print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
 
 
 def oobabooga_250(prompt):
@@ -624,7 +634,8 @@ def oobabooga_250(prompt):
     #    print(json.dumps(result, indent=4))
         print()
     #    print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
 
 
 
@@ -684,7 +695,8 @@ def oobabooga_500(prompt):
     #    print(json.dumps(result, indent=4))
         print()
      #   print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
         
 def oobabooga_800(prompt):
@@ -743,7 +755,8 @@ def oobabooga_800(prompt):
     #    print(json.dumps(result, indent=4))
         print()
     #    print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
         
         
@@ -804,7 +817,8 @@ def oobabooga_response(prompt):
     #    print(json.dumps(result, indent=4))
         print()
     #    print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
         
 def oobabooga_auto(prompt):
@@ -863,7 +877,8 @@ def oobabooga_auto(prompt):
     #    print(json.dumps(result, indent=4))
         print()
     #    print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
         
         
@@ -923,7 +938,8 @@ def oobabooga_memyesno(prompt):
     #    print(json.dumps(result, indent=4))
         print()
     #    print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
        
 def oobabooga_selector(prompt):
@@ -982,7 +998,8 @@ def oobabooga_selector(prompt):
     #    print(json.dumps(result, indent=4))
         print()
     #    print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
 
 
 def scrape_oobabooga_terms(prompt):
@@ -1040,7 +1057,8 @@ def scrape_oobabooga_terms(prompt):
         result = response.json()['results'][0]['history']
     #    print(json.dumps(result, indent=4))
         print()
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
 
 
 def scrape_oobabooga_inner_monologue(prompt):
@@ -1099,7 +1117,8 @@ def scrape_oobabooga_inner_monologue(prompt):
     #    print(json.dumps(result, indent=4))
         print()
     #    print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
         
 def scrape_oobabooga_intuition(prompt):
@@ -1158,7 +1177,8 @@ def scrape_oobabooga_intuition(prompt):
     #    print(json.dumps(result, indent=4))
         print()
     #    print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
 
         
@@ -1218,7 +1238,8 @@ def scrape_oobabooga_episodicmem(prompt):
     #    print(json.dumps(result, indent=4))
         print()
     #    print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
         
 def scrape_oobabooga_flashmem(prompt):
@@ -1277,7 +1298,8 @@ def scrape_oobabooga_flashmem(prompt):
     #    print(json.dumps(result, indent=4))
         print()
     #    print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
         
         
@@ -1337,7 +1359,8 @@ def scrape_oobabooga_implicitmem(prompt):
     #    print(json.dumps(result, indent=4))
         print()
     #    print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
         
 def scrape_oobabooga_explicitmem(prompt):
@@ -1396,7 +1419,8 @@ def scrape_oobabooga_explicitmem(prompt):
     #    print(json.dumps(result, indent=4))
         print()
     #    print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
         
 def scrape_oobabooga_consolidationmem(prompt):
@@ -1455,7 +1479,8 @@ def scrape_oobabooga_consolidationmem(prompt):
     #    print(json.dumps(result, indent=4))
         print()
      #   print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
         
 def scrape_oobabooga_associativemem(prompt):
@@ -1514,7 +1539,8 @@ def scrape_oobabooga_associativemem(prompt):
     #    print(json.dumps(result, indent=4))
         print()
      #   print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
 
 
 def scrape_oobabooga_250(prompt):
@@ -1573,7 +1599,8 @@ def scrape_oobabooga_250(prompt):
     #    print(json.dumps(result, indent=4))
         print()
     #    print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
 
 
 
@@ -1633,7 +1660,8 @@ def scrape_oobabooga_500(prompt):
     #    print(json.dumps(result, indent=4))
         print()
      #   print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
         
 def scrape_oobabooga_800(prompt):
@@ -1692,7 +1720,8 @@ def scrape_oobabooga_800(prompt):
     #    print(json.dumps(result, indent=4))
         print()
     #    print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
         
 def scrape_oobabooga_scrape(prompt):
@@ -1751,7 +1780,8 @@ def scrape_oobabooga_scrape(prompt):
     #    print(json.dumps(result, indent=4))
         print()
      #   print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
         
         
@@ -1812,7 +1842,8 @@ def scrape_oobabooga_response(prompt):
     #    print(json.dumps(result, indent=4))
         print()
     #    print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
         
 def scrape_oobabooga_auto(prompt):
@@ -1871,7 +1902,8 @@ def scrape_oobabooga_auto(prompt):
     #    print(json.dumps(result, indent=4))
         print()
     #    print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
         
         
@@ -1931,7 +1963,8 @@ def scrape_oobabooga_memyesno(prompt):
     #    print(json.dumps(result, indent=4))
         print()
     #    print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
        
 def scrape_oobabooga_selector(prompt):
@@ -1990,7 +2023,8 @@ def scrape_oobabooga_selector(prompt):
     #    print(json.dumps(result, indent=4))
         print()
     #    print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
 
 
 def agent_oobabooga_terms(prompt):
@@ -2048,7 +2082,8 @@ def agent_oobabooga_terms(prompt):
         result = response.json()['results'][0]['history']
     #    print(json.dumps(result, indent=4))
         print()
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
 
 
 def agent_oobabooga_inner_monologue(prompt):
@@ -2107,7 +2142,8 @@ def agent_oobabooga_inner_monologue(prompt):
     #    print(json.dumps(result, indent=4))
         print()
     #    print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
         
 def agent_oobabooga_intuition(prompt):
@@ -2166,7 +2202,8 @@ def agent_oobabooga_intuition(prompt):
     #    print(json.dumps(result, indent=4))
         print()
     #    print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
 
         
@@ -2226,7 +2263,8 @@ def agent_oobabooga_episodicmem(prompt):
     #    print(json.dumps(result, indent=4))
         print()
     #    print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
         
 def agent_oobabooga_flashmem(prompt):
@@ -2285,7 +2323,8 @@ def agent_oobabooga_flashmem(prompt):
     #    print(json.dumps(result, indent=4))
         print()
     #    print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
         
         
@@ -2345,7 +2384,8 @@ def agent_oobabooga_implicitmem(prompt):
     #    print(json.dumps(result, indent=4))
         print()
     #    print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
         
 def agent_oobabooga_explicitmem(prompt):
@@ -2404,7 +2444,8 @@ def agent_oobabooga_explicitmem(prompt):
     #    print(json.dumps(result, indent=4))
         print()
     #    print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
         
 def agent_oobabooga_consolidationmem(prompt):
@@ -2463,7 +2504,8 @@ def agent_oobabooga_consolidationmem(prompt):
     #    print(json.dumps(result, indent=4))
         print()
      #   print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
         
 def agent_oobabooga_associativemem(prompt):
@@ -2522,7 +2564,8 @@ def agent_oobabooga_associativemem(prompt):
     #    print(json.dumps(result, indent=4))
         print()
      #   print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
 
 
 def agent_oobabooga_250(prompt):
@@ -2581,7 +2624,8 @@ def agent_oobabooga_250(prompt):
     #    print(json.dumps(result, indent=4))
         print()
     #    print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
 
 
 
@@ -2641,7 +2685,8 @@ def agent_oobabooga_500(prompt):
     #    print(json.dumps(result, indent=4))
         print()
      #   print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
         
 def agent_oobabooga_800(prompt):
@@ -2700,7 +2745,8 @@ def agent_oobabooga_800(prompt):
     #    print(json.dumps(result, indent=4))
         print()
     #    print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
         
 def agent_oobabooga_scrape(prompt):
@@ -2759,7 +2805,8 @@ def agent_oobabooga_scrape(prompt):
     #    print(json.dumps(result, indent=4))
         print()
      #   print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
         
         
@@ -2820,7 +2867,8 @@ def agent_oobabooga_response(prompt):
     #    print(json.dumps(result, indent=4))
         print()
     #    print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
         
 def agent_oobabooga_auto(prompt):
@@ -2879,7 +2927,8 @@ def agent_oobabooga_auto(prompt):
     #    print(json.dumps(result, indent=4))
         print()
     #    print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
         
         
@@ -2939,7 +2988,8 @@ def agent_oobabooga_memyesno(prompt):
     #    print(json.dumps(result, indent=4))
         print()
     #    print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
         
 def agent_oobabooga_webyesno(prompt):
@@ -2998,7 +3048,8 @@ def agent_oobabooga_webyesno(prompt):
     #    print(json.dumps(result, indent=4))
         print()
     #    print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
        
 def agent_oobabooga_selector(prompt):
@@ -3057,7 +3108,8 @@ def agent_oobabooga_selector(prompt):
     #    print(json.dumps(result, indent=4))
         print()
     #    print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
         
 def File_Processor_oobabooga_terms(prompt):
@@ -3115,7 +3167,8 @@ def File_Processor_oobabooga_terms(prompt):
         result = response.json()['results'][0]['history']
     #    print(json.dumps(result, indent=4))
         print()
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
 
 
 def File_Processor_oobabooga_inner_monologue(prompt):
@@ -3174,7 +3227,8 @@ def File_Processor_oobabooga_inner_monologue(prompt):
     #    print(json.dumps(result, indent=4))
         print()
     #    print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
         
 def File_Processor_oobabooga_intuition(prompt):
@@ -3233,7 +3287,8 @@ def File_Processor_oobabooga_intuition(prompt):
     #    print(json.dumps(result, indent=4))
         print()
     #    print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
 
         
@@ -3293,7 +3348,8 @@ def File_Processor_oobabooga_episodicmem(prompt):
     #    print(json.dumps(result, indent=4))
         print()
     #    print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
         
 def File_Processor_oobabooga_flashmem(prompt):
@@ -3352,7 +3408,8 @@ def File_Processor_oobabooga_flashmem(prompt):
     #    print(json.dumps(result, indent=4))
         print()
     #    print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
         
         
@@ -3412,7 +3469,8 @@ def File_Processor_oobabooga_implicitmem(prompt):
     #    print(json.dumps(result, indent=4))
         print()
     #    print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
         
 def File_Processor_oobabooga_explicitmem(prompt):
@@ -3471,7 +3529,8 @@ def File_Processor_oobabooga_explicitmem(prompt):
     #    print(json.dumps(result, indent=4))
         print()
     #    print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
         
 def File_Processor_oobabooga_consolidationmem(prompt):
@@ -3530,7 +3589,8 @@ def File_Processor_oobabooga_consolidationmem(prompt):
     #    print(json.dumps(result, indent=4))
         print()
      #   print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
         
 def File_Processor_oobabooga_associativemem(prompt):
@@ -3589,7 +3649,8 @@ def File_Processor_oobabooga_associativemem(prompt):
     #    print(json.dumps(result, indent=4))
         print()
      #   print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
 
 
 def File_Processor_oobabooga_250(prompt):
@@ -3648,7 +3709,8 @@ def File_Processor_oobabooga_250(prompt):
     #    print(json.dumps(result, indent=4))
         print()
     #    print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
 
 
 
@@ -3708,7 +3770,8 @@ def File_Processor_oobabooga_500(prompt):
     #    print(json.dumps(result, indent=4))
         print()
      #   print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
         
 def File_Processor_oobabooga_800(prompt):
@@ -3767,7 +3830,8 @@ def File_Processor_oobabooga_800(prompt):
     #    print(json.dumps(result, indent=4))
         print()
     #    print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
         
 def File_Processor_oobabooga_scrape(prompt):
@@ -3826,7 +3890,8 @@ def File_Processor_oobabooga_scrape(prompt):
     #    print(json.dumps(result, indent=4))
         print()
      #   print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
         
         
@@ -3887,7 +3952,8 @@ def File_Processor_oobabooga_response(prompt):
     #    print(json.dumps(result, indent=4))
         print()
     #    print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
         
 def File_Processor_oobabooga_auto(prompt):
@@ -3946,7 +4012,8 @@ def File_Processor_oobabooga_auto(prompt):
     #    print(json.dumps(result, indent=4))
         print()
     #    print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
         
         
@@ -4006,7 +4073,8 @@ def File_Processor_oobabooga_memyesno(prompt):
     #    print(json.dumps(result, indent=4))
         print()
     #    print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
         
        
 def File_Processor_oobabooga_selector(prompt):
@@ -4065,4 +4133,5 @@ def File_Processor_oobabooga_selector(prompt):
     #    print(json.dumps(result, indent=4))
         print()
     #    print(result['visible'][-1][1])
-        return result['visible'][-1][1]
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string

@@ -1345,12 +1345,15 @@ class ChatBotApplication(customtkinter.CTkFrame):
         elif selection == "Training":
             self.memory_mode = "Training"
             print("Training mode selected!")
+        elif selection == "None":
+            memory_mode = "None"
+            print("Memory Upload Disabled.")
             
             
     def create_widgets(self):
         font_config = open_file('./config/font.txt')
         font_size = open_file('./config/font_size.txt')
-        self.memory_mode = "None"
+        self.memory_mode = "Training"
         try:
             font_size_config = int(font_size)
         except:
@@ -1478,14 +1481,17 @@ class ChatBotApplication(customtkinter.CTkFrame):
             elif selection == "Training":
                 memory_mode = "Training"
                 print("Training mode selected!")
+            elif selection == "None":
+                memory_mode = "None"
+                print("Memory Upload Disabled.")
 
 
         self.send_button = customtkinter.CTkButton(self.input_frame, text="Send", command=self.send_message)  
         self.send_button.grid(row=2, column=2, pady=3)
         
-        self.mode_menu = customtkinter.CTkComboBox(self.input_frame, values=["Auto", "Manual", "Training"], state="readonly", command=self.handle_memory_selection)
+        self.mode_menu = customtkinter.CTkComboBox(self.input_frame, values=["Auto", "Manual", "Training", "None"], state="readonly", command=self.handle_memory_selection)
         self.mode_menu.grid(row=1, column=2, columnspan=3, pady=5, sticky=tk.W+tk.E)
-        self.mode_menu.set("DB Upload Mode")
+        self.mode_menu.set("Memory Mode")
         self.mode_menu.bind("<<ComboboxSelected>>", handle_memory_selection)
 
         # Make user_input expandable and send_button fixed

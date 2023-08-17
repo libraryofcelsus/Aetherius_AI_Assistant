@@ -1174,29 +1174,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
         
         
     def display_conversation_history(self):
-        # Load the conversation history from the JSON file
-        bot_name = open_file('./config/prompt_bot_name.txt')
-        username = open_file('./config/prompt_username.txt')
-        
-        file_path = f'./history/{username}/{bot_name}_main_conversation_history.json'
-        try:
-            with open(file_path, 'r', encoding='utf-8') as f:
-                conversation_data = json.load(f)
-            # Retrieve the conversation history
-            conversation_history = conversation_data['main_conversation'] + conversation_data['running_conversation']
-            # Display the conversation history in the text widget
-            for entry in conversation_history:
-                if isinstance(entry, list):
-                    message = '\n'.join(entry)
-                else:
-                    message = entry
-                self.conversation_text.insert(tk.END, message + '\n\n')
-        except FileNotFoundError:
-            # Handle the case when the JSON file is not found
-            greeting_msg = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_greeting.txt').replace('<<NAME>>', bot_name)
-            self.conversation_text.insert(tk.END, greeting_msg + '\n\n')
-        self.conversation_text.yview(tk.END)
-        
+        pass
         
     # #  Login Menu 
     # Edit Bot Name
@@ -2939,7 +2917,8 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     ]
 
                     for future in concurrent.futures.as_completed(futures):
-                        tasklist_completion.extend(future.result())
+                        task = future.result()
+                        tasklist_completion.append({'role': 'assistant', 'content': f"{task}"})
                 tasklist_completion.append({'role': 'assistant', 'content': f"%{botnameupper}'S INNER_MONOLOGUE: {output_one}\n\n"})
         #        tasklist_completion.append({'role': 'user', 'content': f"%{bot_name}'s INTUITION%\n{output_two}\n\n"})
                 tasklist_completion.append({'role': 'user', 'content': f"[/INST]\n[INST]SYSTEM: Read the given set of tasks and completed responses and use them to create a verbose response to {username}, the end user in accordance with their request. {username} is both unaware and unable to see any of the research tasks so any necessary context or information must be relayed.\n\nUSER'S INITIAL INPUT: {a}.\n\nRESPONSE FORMAT: Your planning and research is now done. You will now give a verbose and natural sounding response ensuring the user's request is fully completed in entirety. Follow the format: [{bot_name}: <FULL RESPONSE TO USER>][/INST]\n\nUSER: {a}\n\n{botnameupper}:"})
@@ -2997,8 +2976,9 @@ class ChatBotApplication(customtkinter.CTkFrame):
             self.conversation_text.yview(tk.END)
             self.user_input.delete(0, tk.END)
             self.user_input.focus()
-            self.user_input.config(state=tk.NORMAL)
-            self.send_button.config(state=tk.NORMAL)
+            self.user_input.configure(state=tk.NORMAL)
+            self.user_input.delete("1.0", tk.END)
+            self.send_button.configure(state=tk.NORMAL)
             self.thinking_label.pack_forget()
         #    self.user_input.delete(0, tk.END)
             self.bind_enter_key()
@@ -3676,8 +3656,9 @@ class ChatBotApplication(customtkinter.CTkFrame):
         #    print(result)
             print(table)
             print('-------')
-            print(tasklist_completion)
-            return tasklist_completion
+            tasklist_completion_str = ''.join([message_dict['content'] for message_dict in tasklist_completion])
+            print(tasklist_completion_str)
+            return tasklist_completion_str
         except Exception as e:
             print(f'Failed with error: {e}')
             

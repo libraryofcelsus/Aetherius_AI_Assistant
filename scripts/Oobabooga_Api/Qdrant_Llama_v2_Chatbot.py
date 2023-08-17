@@ -1346,7 +1346,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
             self.memory_mode = "Training"
             print("Training mode selected!")
         elif selection == "None":
-            memory_mode = "None"
+            self.memory_mode = "None"
             print("Memory Upload Disabled.")
             
             

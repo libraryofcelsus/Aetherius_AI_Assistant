@@ -4,9 +4,12 @@ Version .044b of the Aetherius Ai Personal Assistant/Agent/Companion by Libraryo
 ------
 **Recent Changes**
 
--8/17 Updated Llama-2 Gui Appearance and Features
+• 8/17 Merged File Processing Chatbot into Aethersearch
 
--8/16 Fixed Bug where html markdown was printed instead of normal text when using Public Api.
+• 8/17 Updated Llama-2 Gui Appearance and Features   
+-Fixed Aethersearch Bug
+
+• 8/16 Fixed Bug where html markdown was printed instead of normal text when using Public Api.
 
 **Experimental Changelog**
 
@@ -14,9 +17,9 @@ Version .044b of the Aetherius Ai Personal Assistant/Agent/Companion by Libraryo
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
 </a>
 
--Added Experimental Different Instruct formating for Oobabooga api chatbot.  Barley works for now.
+•Added Experimental Different Instruct formating for Oobabooga api chatbot.  Barley works for now.
 
--Added Qdrant Version of basic OpenAi Chatbot, updated the scripts and they should now follow the conversation track again.  That being said, most development has now moved to the Oobabooga version.
+•Added Qdrant Version of basic OpenAi Chatbot, updated the scripts and they should now follow the conversation track again.  That being said, most development has now moved to the Oobabooga version.
 
 ------
 
@@ -26,13 +29,11 @@ All modules upload to the main chatbot's memories, so it's knowledgebase will gr
 
 **Main Chatbot:** A chatbot with realistic long term memory to serve as your personal Ai companion!
 
-**External Resource Modules (Aethersearch, File Processor, Agent):** These modules enable Aetherius to connect with external data. Owing to the constraints of smaller models, it is recommended to scrape the Wikipedia page of your desired subject prior to initiating a conversation. The memories created from these tools are shared across all chatbot versions, allowing Aetherius’s knowledge base to expand over time.
+**External Resource Modules (Aethersearch, Agent):** These modules enable Aetherius to connect with external data. Owing to the constraints of smaller models, it is recommended to scrape the Wikipedia page of your desired subject prior to initiating a conversation. The memories created from these tools are shared across all chatbot versions, allowing Aetherius’s knowledge base to expand over time.
 
-**Aethersearch:** This is a websearch/scrape chatbot.
+**Aethersearch:** This is a chatbot that will let you talk to external data.  It includes webscrape, websearch, and file processing tools.  This bot will prioritize external information over Aetherius's Memories.  File formats include .txt, pdf, epub, jpg, jpeg, and png. (Photo file types only read text with OCR, requires Tesseract.)
 
-**File Processor:** This is a chatbot that will let you talk with your own files.  It supports a variety of formats including Image OCR.
-
-**Agent:** This is a chatbot that follows the Autonomous Architecture.  As of now its only tools are DB searches.  It will decide if it needs its memories, external resources, or both.  If it needs external resources it will search the web and file scrape DB's from the Aethersearch and File Processor chatbots.
+**Agent:** This is a chatbot that follows the Autonomous Architecture.  As of now its only tools are DB searches.  It will decide if it needs its memories, external resources, or both for each task in its generated tasklist.
 
 ------
 
@@ -97,101 +98,103 @@ Aetherius can now be ran locally and offline maintaining 100% privacy!
 # Changelog:
 **0.044b**
 
--Updated Llama-2 Gui Appearance and Features
+•Updated Llama-2 Gui Appearance and Features
 
--Fixed Bug where html markdown was printed instead of normal text when using Public Api.
+•Merged Fileprocessing Chatbot into Aethersearch
 
--Added Colab Notebook for people without a GPU.
+•Fixed Bug where html markdown was printed instead of normal text when using Public Api.
+
+•Added Colab Notebook for people without a GPU.
 
 **0.044a**
 
--Consolidated Collections for better visualization with Qdrant (Available in the Qdrant dashboard)
+• Consolidated Collections for better visualization with Qdrant (Available in the Qdrant dashboard)
 
--Added Source tag for external data scrapes
+• Added Source tag for external data scrapes
 
 **0.043**
 
--Converted to Qdrant.  Aetherius can now be ran 100% locally!
+• Converted to Qdrant.  Aetherius can now be ran 100% locally!
 
--Removed OpenAi and Pinecone Api key check from main menu and added it to the individual scripts.
+• Removed OpenAi and Pinecone Api key check from main menu and added it to the individual scripts.
 
--Cleaned up Llama 2 code
+• Cleaned up Llama 2 code
 
--Reworked Input Window, now handles larger text strings better.
+• Reworked Input Window, now handles larger text strings better.
 
--Updated OpenAi scripts, they should now follow the conversation track better.
+• Updated OpenAi scripts, they should now follow the conversation track better.
 
--Added Delete Button to Edit Conversation in Llama 2 Chatbot
+• Added Delete Button to Edit Conversation in Llama 2 Chatbot
 
--Added Long Term Memory Upload in Llama 2 Chatbot
+• Added Long Term Memory Upload in Llama 2 Chatbot
 
--Updated Delete Menu in DB Management in Llama 2 Chatbot
+• Updated Delete Menu in DB Management in Llama 2 Chatbot
 
--Fixed Bug where only one Implicit and Explicit Memory were uploaded
+• Fixed Bug where only one Implicit and Explicit Memory were uploaded
 
--Improved Memory Prompts, works alot better with the 7B model of Llama 2 now.  Still wouldn't recommend using the 7B model though.
+• Improved Memory Prompts, works alot better with the 7B model of Llama 2 now.  Still wouldn't recommend using the 7B model though.
 
--Improved Auto Memory Upload.
+• Improved Auto Memory Upload.
 
--Various Bug Fixes
+• Various Bug Fixes
 
 **0.042**
 
--Added GUI for Aetherius.  Very basic for now.
+• Added GUI for Aetherius.  Very basic for now.
 
--Local Llama 2 update, works well, but still needs to be improved.
+• Local Llama 2 update, works well, but still needs to be improved.
 
--Added Edit Conversation
+• Added Edit Conversation
 
--Added Model Selection
+• Added Model Selection
 
--Added GPT 3.5 Turbo 16k
+• Added GPT 3.5 Turbo 16k
 
--Added Webscrape Delete Button
+• Added Webscrape Delete Button
 
--Small Webscrape prompt rework
+• Small Webscrape prompt rework
 
--Various Bug Fixes
+• Various Bug Fixes
 
 **0.041**
 
--Reworked Conversation History, it will now persist past shutdown.
+• Reworked Conversation History, it will now persist past shutdown.
 
--Added .TXT, .PDF, and .EPUB text extractors. For now it just functions similarly to the webscrape. Place file in the "Upload" folder in its extension's respective folder.  Then run "GPT_4_Text_Extractor.py" to extract all of the files, they will be moved to the "Finished" folder once done.
+• Added .TXT, .PDF, and .EPUB text extractors. For now it just functions similarly to the webscrape. Place file in the "Upload" folder in its extension's respective folder.  Then run "GPT_4_Text_Extractor.py" to extract all of the files, they will be moved to the "Finished" folder once done.
 
--Added Photo OCR to the Text Extractor.  To use, place the desired photo in the /Upload/SCANS folder.  Using this feature requires tesseract: https://github.com/UB-Mannheim/tesseract/wiki    Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aetherius_Ai_Assistant" Folder.  This will allow you to take Screenshots with the windows snipping tool and upload them to Aetherius for processing.
+• Added Photo OCR to the Text Extractor.  To use, place the desired photo in the /Upload/SCANS folder.  Using this feature requires tesseract: https://github.com/UB-Mannheim/tesseract/wiki    Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aetherius_Ai_Assistant" Folder.  This will allow you to take Screenshots with the windows snipping tool and upload them to Aetherius for processing.
 
 **0.04**
 
--New User System Implemented.  Change the username prompt in the config folder to change users.  This will allow you to have multiple versions of Aetherius on the same index.
+• New User System Implemented.  Change the username prompt in the config folder to change users.  This will allow you to have multiple versions of Aetherius on the same index.
 
--First iteration of Aether Search/Scrape implemented. This will be the eventual websearch system.  As of now it requires a Google CSE key and Google API key, other options coming soon.
+• First iteration of Aether Search/Scrape implemented. This will be the eventual websearch system.  As of now it requires a Google CSE key and Google API key, other options coming soon.
 
--Autonomous Tasklist Generation
+• Autonomous Tasklist Generation
 
--Aetherius now decides for itself whether or not each task in its generated tasklist requires a websearch, memory search, or both.
+• Aetherius now decides for itself whether or not each task in its generated tasklist requires a websearch, memory search, or both.
 
--Switched to Username based DB to Bot Name based DB, will add user's again later.
+• Switched to Username based DB to Bot Name based DB, will add user's again later.
 
--Re-added Users
+• Re-added Users
 
--Various Bug Fixes
+• Various Bug Fixes
 
--Intuition Prompt Rework
+• Intuition Prompt Rework
 
--Various Bug Fixes
+• Various Bug Fixes
 
 
 
 ## Future Plans
 
--Create full documentation on Aetherius's Functions
+• Create full documentation on Aetherius's Functions
 
--Usage and Tip Guides for Aetherius
+• Usage and Tip Guides for Aetherius
 
--Improve Aetherius's self reflection
+• -Improve Aetherius's self reflection
 
--Provide more personality examples
+•Provide more personality examples
 
 
 # Installation Guide

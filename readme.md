@@ -67,13 +67,15 @@ Made by: https://github.com/libraryofcelsus
 
 Inspired by https://github.com/daveshap/
 
-## Llama 2 Examples
+## Chatbot Example
+(Uses Llama2-Chat-13B)
 
-![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/07/Aetherius-Example.png)
+![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/08/Aetherius-Example-1.png)
 
-## Aether Scrape/Search Example
+## Llama 2 Aether Search Example
+(Uses Llama2-Chat-13B)
 
-![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/07/Aetherscrape-example.jpg)
+![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/08/Aetherscrape-example.png)
 
 ## Database Visualization with Qdrant
 

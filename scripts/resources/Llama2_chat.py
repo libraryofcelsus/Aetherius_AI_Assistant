@@ -22,10 +22,11 @@ import re
 import requests
 import html
 
-# For a locally hosted Oobabooga Client use:
-HOST = 'http://localhost:5000/api'
+# For a locally hosted Oobabooga Client use "http://localhost:5000/api"
+# For a Google Colab hosted Oobabooga Client use the given Public Non-Streaming Url:
+HOST = open_file('api_keys/HOST_Oobabooga.txt')
 
-# For a Google Colab hosted Oobabooga Client (leave in /api), use:
+# For a Google Colab hosted Oobabooga Client use the given Public Non-Streaming Url:
 #HOST = 'ENTER-NON-STREAMING-SERVER-PUBLIC-URL'
 
 # /chat enables chat generation formating

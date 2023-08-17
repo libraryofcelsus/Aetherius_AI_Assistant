@@ -7,7 +7,7 @@ Version .044b of the Aetherius Ai Personal Assistant/Agent/Companion by Libraryo
 
 -Fixed Bug where html markdown was printed instead of normal text when using Public Api.
 
--Added a Colab Notebook for running Oobabooga with a Public Api.  Uses the T4 GPU free tier. To use the Public Api with Aetherius, change the Host in "./scripts/resources/Llama2_chat.py" to the given non-streaming Url.  <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Oobabooga_Public_Api.ipynb">
+-Added a Colab Notebook for running Oobabooga with a Public Api.  Uses the T4 GPU free tier. To use the Public Api with Aetherius, change the LocalHost in "./api_keys/HOST_Oobabooga.txt" to the given non-streaming Url.  <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Oobabooga_Public_Api.ipynb">
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
 </a>
 
@@ -216,7 +216,7 @@ Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aethe
 
 Upload heuristics to DB and start chatting with Aetherius. Heuristic examples, and files to modify prompts can be found in the config folder!  Prompts can also be edited through the Config Menu.
 
-To run Aetherius on Google Colab with Oobabooga, use the Notebook file in the "./Colab Notebooks" Folder.  <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Oobabooga_Public_Api.ipynb">
+To run Aetherius on Google Colab with Oobabooga, use the Notebook file in the "./Colab Notebooks" Folder.  Instructions for setting the public api url are at the top. <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Oobabooga_Public_Api.ipynb">
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
 </a>
 
@@ -302,7 +302,7 @@ Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aethe
 26. Once you have made a backup, you can start using the "Auto" mode, this mode has Aetherius decide for itself whether or not it should upload to its memories.
 
 27. To run Aetherius Locally using Oobabooga, first install the web-ui at: https://github.com/oobabooga/text-generation-webui    
-(To use Google Colab, use the Notebook file in the "./Colab Notebooks" Folder.)  <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Oobabooga_Public_Api.ipynb">
+(To use Google Colab, use the Notebook file in the "./Colab Notebooks" Folder.  Instructions for setting the public api url are at the top.)  <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Oobabooga_Public_Api.ipynb">
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
 </a>
 

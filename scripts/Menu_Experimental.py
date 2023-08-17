@@ -2,22 +2,17 @@ import os
 import importlib.util
 import tkinter as tk
 from tkinter import ttk
+import customtkinter
 
 class ExperimentalMenu(tk.Toplevel):
     def __init__(self, parent):
         super().__init__(parent)
-        self.title('Aetherius Pinecone Menu')
-        self.geometry('500x400')  # adjust as needed
+        customtkinter.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
+        self.title('Aetherius Experimental Menu')
+        self.geometry('720x500')  # adjust as needed
+        dark_bg_color = "#2b2b2b"  # Dark background color. You can adjust this value.
+        self.configure(bg=dark_bg_color)  # Set the Toplevel's background color
 
-        label = ttk.Label(self, text="***********************************\n"
-                                      "*Welcome to the Aetherius Chatbot!*\n"
-                                      "*      This section is for        *\n"
-                                      "*      experimental versions      *\n"
-                                      "***********************************\n"
-                                      "*  Press [Exit] to return to the  *\n"
-                                      "*           main menu!            *\n"
-                                      "***********************************")
-        label.pack(side="top")
 
         # Get a list of all the files in the folder
         files = os.listdir('scripts/Experimental')
@@ -27,10 +22,10 @@ class ExperimentalMenu(tk.Toplevel):
         for i, script in enumerate(scripts):
             # Replace underscores with spaces
             script_name = script[:-3].replace('_', ' ')
-            button = ttk.Button(self, text=script_name, command=lambda s=script: self.run_script(s))
+            button = customtkinter.CTkButton(self, text=script_name, command=lambda s=script: self.run_script(s))
             button.pack(side="top")
 
-        exit_button = ttk.Button(self, text="Exit", command=self.destroy)
+        exit_button = customtkinter.CTkButton(self, text="Exit", command=self.destroy)
         exit_button.pack(side="bottom")
 
     def run_script(self, script):

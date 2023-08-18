@@ -5,9 +5,15 @@ import time
 import sys
 import importlib.util
 sys.path.insert(0, './scripts')
+from gtts import gTTS
+import speech_recognition as sr
+from playsound import playsound
+from pydub import AudioSegment
+from pydub.playback import play
+from pydub import effects
 import platform
 import tkinter as tk
-import customtkinter
+import customtkinter as ctk
 
 
 
@@ -30,33 +36,26 @@ class SubApplication(tk.Toplevel):
     def __init__(self, parent, module, function_name):
         super().__init__(parent)
         self.title('Aetherius Sub Menu')
-        self.geometry('720x500')  # adjust as needed
-        customtkinter.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
+        self.geometry('500x400')  # adjust as needed
         self.parent = parent
         self.module = module
         self.function_name = function_name
         self.create_widgets()
-        dark_bg_color = "#2b2b2b"  # Dark background color. You can adjust this value.
-        self.configure(bg=dark_bg_color)  # Set the Toplevel's background color
-
 
     def create_widgets(self):
-        font_config = open_file('./config/font.txt')
-        font_size = open_file('./config/font_size.txt')
+        background_color, foreground_color, button_color, highlight_color = set_dark_ancient_theme()
 
-        self.label = customtkinter.CTkLabel(self, text="Select a script:", font=(font_config, 16, "bold"))
+        self.configure(bg=background_color)
+
+        self.label = tk.Label(self, text="Select a script:", bg=background_color, fg=foreground_color, font=("Arial", 14, "bold"))
         self.label.pack(side="top", pady=10)
 
         files = os.listdir('scripts/' + self.function_name.replace('Menu_', ''))
         scripts = [file for file in files if file.endswith('.py')]
         for i, script in enumerate(scripts):
             script_name = script[:-3].replace('_', ' ')
-            button = customtkinter.CTkButton(self, text=script_name, command=lambda s=script: self.run_script(s), font=(font_config, 14))
+            button = tk.Button(self, text=script_name, command=lambda s=script: self.run_script(s), bg=button_color, activebackground=highlight_color, fg="white", font=("Arial", 12))
             button.pack(side="top", pady=3)  # Added pady=5 for spacing between buttons
-            
-        exit_button = customtkinter.CTkButton(self, text="Exit", command=self.destroy)
-        exit_button.pack(side="bottom")
-
 
     def run_script(self, script):
         module_name = script[:-3]
@@ -67,42 +66,31 @@ class SubApplication(tk.Toplevel):
         function()
 
 
-class Application(customtkinter.CTk):
+class Application(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title('Aetherius Main Menu')
-        self.geometry(f"{500}x{400}")  # adjust as needed
+        self.geometry('500x400')  # adjust as needed
         self.create_widgets()
-        customtkinter.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
 
     def create_widgets(self):
-        font_config = open_file('./config/font.txt')
-        font_size = open_file('./config/font_size.txt')
-        try:
-            font_size_config = int(font_size)
-        except:
-            font_size_config = 10
-        font_style = (f"{font_config}", font_size_config)
-        font_style_bold = (f"{font_config}", font_size_config, "bold")
-        
-        
+        background_color, foreground_color, button_color, highlight_color = set_dark_ancient_theme()
 
-
-     #   self.configure(bg=background_color)
-        self.label = customtkinter.CTkLabel(self, text="Welcome to the Aetherius Main Menu!", font=(font_config, 20, "bold"))
+        self.configure(bg=background_color)
+        self.label = tk.Label(self, text="Welcome to the Aetherius Main Menu!", bg=background_color, fg=foreground_color, font=("Arial", 18, "bold"))
         self.label.pack(side="top", pady=10)
 
-        self.label2 = customtkinter.CTkLabel(self, text="Please give a star on GitHub and\nshare with friends to support development!", font=(font_config, 14, "bold"))
+        self.label2 = tk.Label(self, text="Please give a star on GitHub and\nshare with friends to support development!", bg=background_color, fg=foreground_color, font=("Arial", 12, "bold"))
         self.label2.pack(side="top", pady=10)
 
-        self.label3 = customtkinter.CTkLabel(self, text="Select a script:", font=("Arial", 14, "bold"))
+        self.label3 = tk.Label(self, text="Select a script:", bg=background_color, fg=foreground_color, font=("Arial", 14, "bold"))
         self.label3.pack(side="top", pady=10)
 
         files = os.listdir('scripts')
         scripts = [file for file in files if file.endswith('.py')]
         for i, script in enumerate(scripts):
             script_name = script[:-3].replace('_', ' ')
-            button = customtkinter.CTkButton(self, text=script_name, command=lambda s=script: self.run_script(s), font=("Arial", 14))
+            button = tk.Button(self, text=script_name, command=lambda s=script: self.run_script(s), bg=button_color, activebackground=highlight_color, fg="white", font=("Arial", 12))
             button.pack(side="top", pady=3)
 
     def run_script(self, script):
@@ -120,7 +108,12 @@ class Application(customtkinter.CTk):
 
 
 if __name__ == '__main__':
-  #  set_dark_ancient_theme()
+#    key = input("Enter OpenAi API KEY:")
+#   openai.api_key = key
+    set_dark_ancient_theme()
+    openai.api_key = open_file('api_keys/key_openai.txt')
+    pinecone.init(api_key=open_file('api_keys/key_pinecone.txt'), environment=open_file('api_keys/key_pinecone_env.txt'))
+    vdb = pinecone.Index("aetherius")
     bot_name = open_file('./config/prompt_bot_name.txt')
     username = open_file('./config/prompt_username.txt')
     if not os.path.exists(f'nexus/{bot_name}/{username}/implicit_short_term_memory_nexus'):

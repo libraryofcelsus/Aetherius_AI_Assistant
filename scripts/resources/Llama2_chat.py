@@ -100,6 +100,7 @@ def oobabooga_inner_monologue(prompt):
     rep_pen = open_file(f'./config/Generation_Settings/Inner_Monologue/rep_pen.txt')
     max_tokens = open_file(f'./config/Generation_Settings/Inner_Monologue/max_tokens.txt')
     top_k = open_file(f'./config/Generation_Settings/Inner_Monologue/top_k.txt')
+    min_tokens = open_file(f'./config/Generation_Settings/Inner_Monologue/min_tokens.txt')
     request = {
         'user_input': prompt,
         'max_new_tokens': max_tokens,
@@ -126,7 +127,7 @@ def oobabooga_inner_monologue(prompt):
         'top_a': 0,
         'repetition_penalty': rep_pen,
         'top_k': top_k,
-        'min_length': 0,
+        'min_length': min_tokens,
         'no_repeat_ngram_size': 0,
         'num_beams': 1,
         'penalty_alpha': 0,
@@ -165,6 +166,7 @@ def oobabooga_intuition(prompt):
     rep_pen = open_file(f'./config/Generation_Settings/Intuition/rep_pen.txt')
     max_tokens = open_file(f'./config/Generation_Settings/Intuition/max_tokens.txt')
     top_k = open_file(f'./config/Generation_Settings/Intuition/top_k.txt')
+    min_tokens = open_file(f'./config/Generation_Settings/Intuition/min_tokens.txt')
     request = {
         'user_input': prompt,
         'max_new_tokens': max_tokens,
@@ -191,7 +193,7 @@ def oobabooga_intuition(prompt):
         'top_a': 0,
         'repetition_penalty': rep_pen,
         'top_k': top_k,
-        'min_length': 0,
+        'min_length': min_tokens,
         'no_repeat_ngram_size': 0,
         'num_beams': 1,
         'penalty_alpha': 0,
@@ -774,6 +776,7 @@ def oobabooga_response(prompt):
     rep_pen = open_file(f'./config/Generation_Settings/Response/rep_pen.txt')
     max_tokens = open_file(f'./config/Generation_Settings/Response/max_tokens.txt')
     top_k = open_file(f'./config/Generation_Settings/Response/top_k.txt')
+    min_tokens = open_file(f'./config/Generation_Settings/Response/min_tokens.txt')
     request = {
         'user_input': prompt,
         'max_new_tokens': max_tokens,
@@ -800,7 +803,7 @@ def oobabooga_response(prompt):
         'top_a': 0,
         'repetition_penalty': rep_pen,
         'top_k': top_k,
-        'min_length': 0,
+        'min_length': min_tokens,
         'no_repeat_ngram_size': 0,
         'num_beams': 1,
         'penalty_alpha': 0,
@@ -1079,6 +1082,7 @@ def scrape_oobabooga_inner_monologue(prompt):
     rep_pen = open_file(f'./config/Generation_Settings/Inner_Monologue/rep_pen.txt')
     max_tokens = open_file(f'./config/Generation_Settings/Inner_Monologue/max_tokens.txt')
     top_k = open_file(f'./config/Generation_Settings/Inner_Monologue/top_k.txt')
+    min_tokens = open_file(f'./config/Generation_Settings/Inner_Monologue/min_tokens.txt')
     request = {
         'user_input': prompt,
         'max_new_tokens': max_tokens,
@@ -1105,7 +1109,7 @@ def scrape_oobabooga_inner_monologue(prompt):
         'top_a': 0,
         'repetition_penalty': rep_pen,
         'top_k': top_k,
-        'min_length': 0,
+        'min_length': min_tokens,
         'no_repeat_ngram_size': 0,
         'num_beams': 1,
         'penalty_alpha': 0,
@@ -1144,6 +1148,7 @@ def scrape_oobabooga_intuition(prompt):
     rep_pen = open_file(f'./config/Generation_Settings/Intuition/rep_pen.txt')
     max_tokens = open_file(f'./config/Generation_Settings/Intuition/max_tokens.txt')
     top_k = open_file(f'./config/Generation_Settings/Intuition/top_k.txt')
+    min_tokens = open_file(f'./config/Generation_Settings/Intuition/min_tokens.txt')
     request = {
         'user_input': prompt,
         'max_new_tokens': max_tokens,
@@ -1170,7 +1175,7 @@ def scrape_oobabooga_intuition(prompt):
         'top_a': 0,
         'repetition_penalty': rep_pen,
         'top_k': top_k,
-        'min_length': 0,
+        'min_length': min_tokens,
         'no_repeat_ngram_size': 0,
         'num_beams': 1,
         'penalty_alpha': 0,
@@ -1813,6 +1818,7 @@ def scrape_oobabooga_response(prompt):
     rep_pen = open_file(f'./config/Generation_Settings/Response/rep_pen.txt')
     max_tokens = open_file(f'./config/Generation_Settings/Response/max_tokens.txt')
     top_k = open_file(f'./config/Generation_Settings/Response/top_k.txt')
+    min_tokens = open_file(f'./config/Generation_Settings/Response/min_tokens.txt')
     request = {
         'user_input': prompt,
         'max_new_tokens': max_tokens,
@@ -1839,7 +1845,7 @@ def scrape_oobabooga_response(prompt):
         'top_a': 0,
         'repetition_penalty': rep_pen,
         'top_k': top_k,
-        'min_length': 0,
+        'min_length': min_tokens,
         'no_repeat_ngram_size': 0,
         'num_beams': 1,
         'penalty_alpha': 0,

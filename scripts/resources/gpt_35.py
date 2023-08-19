@@ -5,6 +5,7 @@ sys.path.insert(0, './config/Chatbot_Prompts')
 sys.path.insert(0, './scripts/resources')
 import os
 import openai
+from basic_functions import *
 import json
 import time
 from time import time, sleep
@@ -28,6 +29,88 @@ def gpt3_embedding(query, engine='text-embedding-ada-002'):
                 exit()
             print(f"Retrying with error: {e} in 20 seconds...")
             sleep(20)
+            
+            
+def chatgpt_inner_monologue_completion(query):
+    max_counter = 7
+    counter = 0
+    temperature = open_file(f'./config/Generation_Settings/OpenAi/Inner_Monologue/temperature.txt')
+    top_p = open_file(f'./config/Generation_Settings/OpenAi/Inner_Monologue/top_p.txt')
+    rep_pen = open_file(f'./config/Generation_Settings/OpenAi/Inner_Monologue/rep_pen.txt')
+    max_tokens = open_file(f'./config/Generation_Settings/OpenAi/Inner_Monologue/max_tokens.txt')
+    while True:
+        try:
+            completion = openai.ChatCompletion.create(
+              model="gpt-3.5-turbo",
+              frequency_penalty=float(rep_pen),
+              top_p=float(top_p),
+              max_tokens=int(max_tokens),
+              temperature=float(temperature),
+              messages=query
+            )
+            response = (completion.choices[0].message.content)
+            return response
+        except Exception as e:
+            while True:
+                try:
+                    completion = openai.ChatCompletion.create(
+                      model="gpt-3.5-turbo-16k",
+                      frequency_penalty=float(rep_pen),
+                      top_p=float(top_p),
+                      max_tokens=int(max_tokens),
+                      temperature=float(temperature),
+                      messages=query
+                    )
+                    response = (completion.choices[0].message.content)
+                    return response
+                except Exception as oops:
+                    counter +=1
+                    if counter >= max_counter:
+                        print(f"Exiting with error: {e}")
+                        exit()
+                    print(f"Retrying with error: {e} in 20 seconds...")
+                    sleep(20)
+                    
+                    
+def chatgpt_intuition_completion(query):
+    max_counter = 7
+    counter = 0
+    temperature = open_file(f'./config/Generation_Settings/OpenAi/Intuition/temperature.txt')
+    top_p = open_file(f'./config/Generation_Settings/OpenAi/Intuition/top_p.txt')
+    rep_pen = open_file(f'./config/Generation_Settings/OpenAi/Intuition/rep_pen.txt')
+    max_tokens = open_file(f'./config/Generation_Settings/OpenAi/Intuition/max_tokens.txt')
+    while True:
+        try:
+            completion = openai.ChatCompletion.create(
+              model="gpt-3.5-turbo",
+              frequency_penalty=float(rep_pen),
+              top_p=float(top_p),
+              max_tokens=int(max_tokens),
+              temperature=float(temperature),
+              messages=query
+            )
+            response = (completion.choices[0].message.content)
+            return response
+        except Exception as e:
+            while True:
+                try:
+                    completion = openai.ChatCompletion.create(
+                      model="gpt-3.5-turbo-16k",
+                      frequency_penalty=float(rep_pen),
+                      top_p=float(top_p),
+                      max_tokens=int(max_tokens),
+                      temperature=float(temperature),
+                      messages=query
+                    )
+                    response = (completion.choices[0].message.content)
+                    return response
+                except Exception as oops:
+                    counter +=1
+                    if counter >= max_counter:
+                        print(f"Exiting with error: {e}")
+                        exit()
+                    print(f"Retrying with error: {e} in 20 seconds...")
+                    sleep(20)
             
             
 def chatgpt200_completion(query):
@@ -163,7 +246,7 @@ def chatgpt35_completion(query):
                     
             
             
-def chatgptyesno_completion(query):
+def chatgpt_yesno_completion(query):
     max_counter = 7
     counter = 0
     while True:
@@ -231,15 +314,21 @@ def chatgptselector_completion(query):
             
             
             
-def chatgptresponse_completion(query):
+def chatgpt_response_completion(query):
     max_counter = 7
     counter = 0
+    temperature = open_file(f'./config/Generation_Settings/OpenAi/Response/temperature.txt')
+    top_p = open_file(f'./config/Generation_Settings/OpenAi/Response/top_p.txt')
+    rep_pen = open_file(f'./config/Generation_Settings/OpenAi/Response/rep_pen.txt')
+    max_tokens = open_file(f'./config/Generation_Settings/OpenAi/Response/max_tokens.txt')
     while True:
         try:
             completion = openai.ChatCompletion.create(
               model="gpt-3.5-turbo",
-              max_tokens=500,
-              temperature=0.5,
+              frequency_penalty=float(rep_pen),
+              top_p=float(top_p),
+              max_tokens=int(max_tokens),
+              temperature=float(temperature),
               messages=query
             )
             response = (completion.choices[0].message.content)
@@ -249,8 +338,10 @@ def chatgptresponse_completion(query):
                 try:
                     completion = openai.ChatCompletion.create(
                       model="gpt-3.5-turbo-16k",
-                      max_tokens=500,
-                      temperature=0.5,
+                      frequency_penalty=float(rep_pen),
+                      top_p=float(top_p),
+                      max_tokens=int(max_tokens),
+                      temperature=float(temperature),
                       messages=query
                     )
                     response = (completion.choices[0].message.content)
@@ -263,6 +354,38 @@ def chatgptresponse_completion(query):
                     print(f"Retrying with error: {e} in 20 seconds...")
                     sleep(20)
             
+            
+def chatgpt_summary_completion(query):
+    max_counter = 7
+    counter = 0
+    while True:
+        try:
+            completion = openai.ChatCompletion.create(
+              model="gpt-3.5-turbo",
+              max_tokens=500,
+              temperature=0.1,
+              messages=query
+            )
+            response = (completion.choices[0].message.content)
+            return response
+        except Exception as e:
+            while True:
+                try:
+                    completion = openai.ChatCompletion.create(
+                      model="gpt-3.5-turbo-16k",
+                      max_tokens=500,
+                      temperature=0.1,
+                      messages=query
+                    )
+                    response = (completion.choices[0].message.content)
+                    return response
+                except Exception as oops:
+                    counter +=1
+                    if counter >= max_counter:
+                        print(f"Exiting with error: {e}")
+                        exit()
+                    print(f"Retrying with error: {e} in 20 seconds...")
+                    sleep(20)
             
 def chatgptsummary_completion(query):
     max_counter = 7

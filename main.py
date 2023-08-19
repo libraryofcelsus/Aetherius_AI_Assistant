@@ -95,13 +95,13 @@ class Application(customtkinter.CTk):
         self.label2 = customtkinter.CTkLabel(self, text="Please give a star on GitHub and\nshare with friends to support development!", font=(font_config, 14, "bold"))
         self.label2.pack(side="top", pady=10)
 
-        self.label3 = customtkinter.CTkLabel(self, text="Select a script:", font=("Arial", 14, "bold"))
+        self.label3 = customtkinter.CTkLabel(self, text="Select an Option:", font=("Arial", 14, "bold"))
         self.label3.pack(side="top", pady=10)
 
         files = os.listdir('scripts')
         scripts = [file for file in files if file.endswith('.py')]
         for i, script in enumerate(scripts):
-            script_name = script[:-3].replace('_', ' ')
+            script_name = script[:-3].replace('Menu_', '').replace('_', ' ')
             button = customtkinter.CTkButton(self, text=script_name, command=lambda s=script: self.run_script(s), font=("Arial", 14))
             button.pack(side="top", pady=3)
 

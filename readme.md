@@ -4,6 +4,8 @@ Version .044c of the Aetherius Ai Personal Assistant/Agent/Companion by Libraryo
 ------
 **Recent Changes**
 
+• 8/19 Added new GUI for OpenAi bot, Agent mode still needs to be converted.  Still experimental.
+
 • 8/18 New Gui for Aetherius, most chatbots have been consolidated into one Ui.  Only Llama-2 Version done for now.
 
 • 8/17 Merged File Processing Chatbot into Aethersearch

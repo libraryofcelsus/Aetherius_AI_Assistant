@@ -1,8 +1,10 @@
 # Aetherius
-Version .044b of the Aetherius Ai Personal Assistant/Agent/Companion by LibraryofCelsus.com
+Version .044c of the Aetherius Ai Personal Assistant/Agent/Companion by LibraryofCelsus.com
 
 ------
 **Recent Changes**
+
+• 8/18 New Gui for Aetherius, most chatbots have been consolidated into one Ui.  Only Llama-2 Version done for now.
 
 • 8/17 Merged File Processing Chatbot into Aethersearch
 
@@ -67,15 +69,10 @@ Made by: https://github.com/libraryofcelsus
 
 Inspired by https://github.com/daveshap/
 
-## Chatbot Example
-(Uses Llama2-Chat-13B)
+## Example
+(Uses Llama2-Chat-13B and a webscrape of this Github page.)
 
-![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/08/Aetherius-Example-1.png)
-
-## Llama 2 Aether Search Example
-(Uses Llama2-Chat-13B)
-
-![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/08/Aetherscrape-example.png)
+![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/08/Aetherius-Example-2.png)
 
 ## Database Visualization with Qdrant
 
@@ -98,6 +95,10 @@ Aetherius can now be ran locally and offline maintaining 100% privacy!
 
 
 # Changelog:
+**0.044c**
+
+•New Gui for Aetherius.  Most Chatbot modes are now consolidated under one Ui.  Only Llama 2 Version done for now.
+
 **0.044b**
 
 •Updated Llama-2 Gui Appearance and Features

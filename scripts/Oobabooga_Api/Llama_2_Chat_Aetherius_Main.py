@@ -157,8 +157,8 @@ def chunk_text_from_url(url, chunk_size=400, overlap=40, results_callback=None):
         
         for chunk in chunks:
             websum = list()
-            websum.append({'role': 'system', 'content': "MAIN SYSTEM PROMPT: You are an ai text editor.  Your job is to take the given text from a webscrape, then return the scraped text in a summarized article form.  Do not generalize, rephrase, or use latent knowledge in your summary.  If no article is given, print no article.\n\n\n"})
-            websum.append({'role': 'user', 'content': f"WEBSCRAPE: {chunk}\n\nINSTRUCTIONS: Summarize the webscrape without losing any factual knowledge and maintaining full context. The summarized article will be directly uploaded to a Database, leave out extraneous text and personal statements.[/INST] AI TEXT-EDITOR: Sure! Here's the summary of the webscrape:"})
+            websum.append({'role': 'system', 'content': "MAIN SYSTEM PROMPT: You are an ai text summarizer.  Your job is to take the given text from a scraped article, then return the text in a summarized article form.  Do not generalize, rephrase, or add information in your summary, keep the same semantic meaning.  If no article is given, print no article.\n\n\n"})
+            websum.append({'role': 'user', 'content': f"SCRAPED ARTICLE: {chunk}\n\nINSTRUCTIONS: Summarize the article without losing any factual knowledge and maintaining full context and information. Only print the truncated article, do not include any additional text or comments. [/INST]"})
             prompt = ''.join([message_dict['content'] for message_dict in websum])
             text = scrape_oobabooga_scrape(prompt)
             if len(text) < 20:
@@ -167,7 +167,7 @@ def chunk_text_from_url(url, chunk_size=400, overlap=40, results_callback=None):
         #    paragraphs = text.split('\n\n')  # Split into paragraphs
         #    for paragraph in paragraphs:  # Process each paragraph individually, add a check to see if paragraph contained actual information.
             webcheck = list()
-            webcheck.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are an agent for an automated webscraping tool. Your task is to decide if the previous Ai Agent scraped the text successfully. The scraped text should contain some form of article, if it does, print 'YES'. If the article was scraped successfully, print: 'YES'.  If the webscrape failed or is a response from the first agent, print: 'NO'.\n\n"})
+            webcheck.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are an agent for an automated webscraping tool. Your task is to decide if the previous Ai Agent scraped the text successfully. The scraped text should contain some form of article, if it does, print 'YES'. If the article was scraped successfully, print: 'YES'.  If the webscrape failed, print: 'NO'.\n\n"})
             webcheck.append({'role': 'user', 'content': f"ORIGINAL TEXT FROM SCRAPE: {chunk}\n\n"})
             webcheck.append({'role': 'user', 'content': f"PROCESSED WEBSCRAPE: {text}\n\n"})
             webcheck.append({'role': 'user', 'content': f"SYSTEM: You are responding for a Yes or No input field. You are only capible of printing Yes or No. Use the format: [AI AGENT: <'Yes'/'No'>][/INST]\n\nASSISTANT:"})
@@ -199,7 +199,7 @@ def chunk_text_from_url(url, chunk_size=400, overlap=40, results_callback=None):
             else:
                 if 'yes' in webyescheck.lower():
                     semanticterm = list()
-                    semanticterm.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a bot responsible for taging articles with a title for database queries.  Your job is to read the given text, then create a title in question form representative of what the article is about.  The title should be semantically identical to the overview of the article and not include extraneous info. Use the format: [<TITLE IN QUESTION FORM>].\n\n"})
+                    semanticterm.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a bot responsible for taging articles with a title for database queries.  Your job is to read the given text, then create a title in question form representative of what the article is about, focusing on its main subject.  The title should be semantically identical to the overview of the article and not include extraneous info.  The article is from the URL: {url}. Use the format: [<TITLE IN QUESTION FORM>].\n\n"})
                     semanticterm.append({'role': 'user', 'content': f"ARTICLE: {text}\n\n"})
                     semanticterm.append({'role': 'user', 'content': f"SYSTEM: Create a short, single question that encapsulates the semantic meaning of the Article.  Use the format: [<QUESTION TITLE>].  Please only print the title, it will be directly input in front of the article.[/INST]\n\nASSISTANT: Sure! Here's the summary of the webscrape:"})
                     prompt = ''.join([message_dict['content'] for message_dict in semanticterm])

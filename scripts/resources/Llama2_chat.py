@@ -1753,7 +1753,7 @@ def scrape_oobabooga_scrape(prompt):
         'history': history,
         'mode': 'instruct',  # Valid options: 'chat', 'chat-instruct', 'instruct'
         'instruction_template': 'Llama-v2',  # Will get autodetected if unset
-        'context_instruct': f"[INST] <<SYS>>\nYou are a summarizer for a webscrape tool. Your task is to take the given webscrape and summarize it without losing any factual data or implicit meaning.\n<</SYS>>",  # Optional
+        'context_instruct': f"[INST] <<SYS>>\nYou are an ai text summarizer.  Your job is to take the given text from a scraped article, then return the text in a summarized article form.  Do not give any comments or personal statements, only directly return the summarized article, nothing more.\n<</SYS>>",  # Optional
         'your_name': f'{username}',
 
         'regenerate': False,
@@ -1764,15 +1764,15 @@ def scrape_oobabooga_scrape(prompt):
         # in presets/preset-name.yaml are used instead of the individual numbers.
         'preset': 'None',  
         'do_sample': True,
-        'temperature': 0.7,
-        'top_p': 0.3,
+        'temperature': 0.4,
+        'top_p': 0.1,
         'typical_p': 1,
         'epsilon_cutoff': 0,  # In units of 1e-4
         'eta_cutoff': 0,  # In units of 1e-4
         'tfs': 1,
         'top_a': 0,
         'repetition_penalty': 1.08,
-        'top_k': 40,
+        'top_k': 35,
         'min_length': 100,
         'no_repeat_ngram_size': 0,
         'num_beams': 1,

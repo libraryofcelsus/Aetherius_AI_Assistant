@@ -15,7 +15,7 @@ Version .044c of the Aetherius Ai Personal Assistant/Agent/Companion by Libraryo
 
 **Experimental Changelog**
 
--Added a Colab Notebook for running Oobabooga with a Public Api.  Uses the T4 GPU free tier. To use the Public Api with Aetherius, change the LocalHost in "./api_keys/HOST_Oobabooga.txt" to the given non-streaming Url.  <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Oobabooga_Public_Api.ipynb">
+-Added a Colab Notebook for running Oobabooga with a Public Api.  Uses the T4 GPU free tier. To use the Public Api with Aetherius, change the "Set Oobabooga Host" in the Config Menu to the given non-streaming Url.  <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Oobabooga_Public_Api.ipynb">
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
 </a>
 
@@ -25,17 +25,19 @@ Version .044c of the Aetherius Ai Personal Assistant/Agent/Companion by Libraryo
 
 ------
 
-## Aetherius's Current Modules
+## Aetherius's Current Modes
 
-All modules upload to the main chatbot's memories, so it's knowledgebase will grow on whatever external data you want!
+All modes upload to the main chatbot's memories, so it's knowledgebase will grow on whatever external data you want!
 
 **Main Chatbot:** A chatbot with realistic long term memory to serve as your personal Ai companion!
 
-**External Resource Modules (Aethersearch, Agent):** These modules enable Aetherius to connect with external data. Owing to the constraints of smaller models, it is recommended to scrape the Wikipedia page of your desired subject prior to initiating a conversation. The memories created from these tools are shared across all chatbot versions, allowing Aetherius’s knowledge base to expand over time.
+**Agent Mode** This mode enables the Agent Architecture.  This will allow Aetherius autonomously generate a research tasklist, as well as connect with external data.  The memories created from this mode are shared with the main chatbot, allowing Aetherius’s knowledge base to expand over time.
 
-**Aethersearch:** This is a chatbot that will let you talk to external data.  It includes webscrape, websearch, and file processing tools.  This bot will prioritize external information over Aetherius's Memories.  File formats include .txt, pdf, epub, jpg, jpeg, and png. (Photo file types only read text with OCR, requires Tesseract.)
+**Web DB:** This checkmark will let you talk to data scraped with the Web Search/Scrape Tool.
 
-**Agent:** This is a chatbot that follows the Autonomous Architecture.  As of now its only tools are DB searches.  It will decide if it needs its memories, external resources, or both for each task in its generated tasklist.
+**File DB:** This check mark will let you talk to data scraped from files with the File Processing Tool.
+
+**Memory DB:** This checkmark will have Aetherius choose it's most relivant memory database and then search it.
 
 ------
 
@@ -72,7 +74,7 @@ Inspired by https://github.com/daveshap/
 ## Example
 (Uses Llama2-Chat-13B and a webscrape of this Github page.)
 
-![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/08/Aetherius-Example-2.png)
+![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/08/Aetherius-Example-3.png)
 
 ## Database Visualization with Qdrant
 
@@ -227,7 +229,7 @@ Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aethe
 
 Upload heuristics to DB and start chatting with Aetherius. Heuristic examples, and files to modify prompts can be found in the config folder!  Prompts can also be edited through the Config Menu.
 
-To run Aetherius on Google Colab with Oobabooga, use the Notebook file in the "./Colab Notebooks" Folder.  Instructions for setting the public api url are at the top. <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Oobabooga_Public_Api.ipynb">
+To run Aetherius on Google Colab with Oobabooga, use the Notebook file in the "./Colab Notebooks" Folder.  To use the Public Api with Aetherius, change the "Set Oobabooga Host" in the Config Menu to the given non-streaming Url. <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Oobabooga_Public_Api.ipynb">
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
 </a>
 
@@ -313,7 +315,7 @@ Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aethe
 26. Once you have made a backup, you can start using the "Auto" mode, this mode has Aetherius decide for itself whether or not it should upload to its memories.
 
 27. To run Aetherius Locally using Oobabooga, first install the web-ui at: https://github.com/oobabooga/text-generation-webui    
-(To use Google Colab, use the Notebook file in the "./Colab Notebooks" Folder.  Instructions for setting the public api url are at the top.)  <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Oobabooga_Public_Api.ipynb">
+(To use Google Colab, use the Notebook file in the "./Colab Notebooks" Folder.  To use the Public Api with Aetherius, change the "Set Oobabooga Host" in the Config Menu to the given non-streaming Url.)  <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Oobabooga_Public_Api.ipynb">
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
 </a>
 

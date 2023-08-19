@@ -4,16 +4,13 @@ Version .044c of the Aetherius Ai Personal Assistant/Agent/Companion by Libraryo
 ------
 **Recent Changes**
 
-• 8/19 Added new GUI for OpenAi bot, Agent mode still needs to be converted.  Still experimental.
+• 8/19 Added new GUI for OpenAi bot, Agent mode still needs to be converted.  Still a work in progress.
 
-• 8/18 New Gui for Aetherius, most chatbots have been consolidated into one Ui.  Only Llama-2 Version done for now.
+• 8/18 New Gui for the Llama2 Version of Aetherius, most chatbots have been consolidated into one Ui.
 
 • 8/17 Merged File Processing Chatbot into Aethersearch
 
 • 8/17 Updated Llama-2 Gui Appearance and Features   
--Fixed Aethersearch Bug
-
-• 8/16 Fixed Bug where html markdown was printed instead of normal text when using Public Api.
 
 **Experimental Changelog**
 
@@ -31,9 +28,13 @@ Version .044c of the Aetherius Ai Personal Assistant/Agent/Companion by Libraryo
 
 All modes upload to the main chatbot's memories, so it's knowledgebase will grow on whatever external data you want!
 
-**Main Chatbot:** A chatbot with realistic long term memory to serve as your personal Ai companion!
+**Main Chatbot:** A chatbot with realistic long term memory to serve as your personal Ai companion!  This is the default mode.   
+-*Auto Memory Mode:* Aetherius autonomously decides if it should upload the generated memories to its database.   
+-*Manual Memory Mode:* User will be asked if memories should be uploaded at the end after response generation.   
+-*Training Memory Mode:* User will be asked if the memories should be uploaded for each type of memory. (Implicit and Explicit Short Term)   
+-*None:* No memories will be uploaded.
 
-**Agent Mode** This mode enables the Agent Architecture.  This will allow Aetherius autonomously generate a research tasklist, as well as connect with external data.  The memories created from this mode are shared with the main chatbot, allowing Aetherius’s knowledge base to expand over time.
+**Agent Mode** This mode enables the Agent Architecture.  This will allow Aetherius autonomously generate a research tasklist, as well as connect with external data.  The memories created from this mode are uploaded to the main chatbot, allowing Aetherius’s knowledge base to expand over time.
 
 **Web DB:** This checkmark will let you talk to data scraped with the Web Search/Scrape Tool.
 
@@ -89,19 +90,16 @@ Inspired by https://github.com/daveshap/
 # Current Version Information
 
 **What is Aetherius?**  Aetherius is an Ai LLM Retrieval Framework focused on bringing realistic long-term memory and thought formation to a customizable chatbot/companion. 
-My goal is to create a locally ran Ai Assistant that you actually have control over and own. One that cannot be changed by an external force without concent.
+My goal is to create a locally ran Ai Assistant that you actually have control over and own. One that cannot be changed or limited by an external force without concent.
 
-Currently, Aetherius's main focus is creating a good architecture for realistic long-term memory storage and thought formation. Currently Aetherius has websearch and file reading abilities.  More features will come at a later date.
-
-Aetherius aims to provide a modular, personalized AI assistant experience by enabling the addition of task-specific Modules and Sub-Modules. If all goes as planned, Aetherius will support integration with other open-source projects and models.
+Aetherius aims to provide a modular, personalized AI assistant using Retrieval Augmented Generation and Tools. If all goes as planned, Aetherius will support integration with other open-source projects.
 
 Aetherius can now be ran locally and offline maintaining 100% privacy!
-
 
 # Changelog:
 **0.044c**
 
-•New Gui for Aetherius.  Most Chatbot modes are now consolidated under one Ui.  Only Llama 2 Version done for now.
+•New Gui for Aetherius.  Most Chatbot modes are now consolidated under one Ui.
 
 **0.044b**
 
@@ -195,43 +193,53 @@ Aetherius can now be ran locally and offline maintaining 100% privacy!
 
 ## Future Plans
 
-• Create full documentation on Aetherius's Functions
+• Improve Ui
 
-• Usage and Tip Guides for Aetherius
+• Continue to Improve internal prompts
 
-• -Improve Aetherius's self reflection
+• Finish Aetherius Usage Guide
 
-•Provide more personality examples
+• Better Documentation 
 
+• Voice Input
+
+• TTS
+
+• Book/File Summarizer Tool
+
+• Data Comparison Tool
+
+• Add more LLM models
+
+• Launch Ai Tutorial YouTube Channel
 
 # Installation Guide
 
 ## Installer bat
 
-Run the Installer Bat, it is located at: https://github.com/libraryofcelsus/Aetherius_AI_Assistant/blob/main/scripts/resources/install.bat
+Run the Installer Bat as admin, it is located at: https://github.com/libraryofcelsus/Aetherius_AI_Assistant/blob/main/scripts/resources/install.bat
 
 ![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/05/Capture11111111.png)
 
-Copy your OpenAi and Pinecone API keys to api_key folder inside of the created Aetherius_Ai_Assistant folder
+Copy your OpenAi and Qdrant API/URL keys to the api_key folder inside of the created Aetherius_Ai_Assistant folder
 
-If using Qdrant Cloud copy their Api key and Url instead of Pinecone.  Qdrant Cloud: https://qdrant.to/cloud
+Qdrant Cloud: https://qdrant.to/cloud
 
-To use a local Qdrant server, first install Docker: https://www.docker.com/, then see: https://github.com/qdrant/qdrant/blob/master/QUICK_START.md
+To use a local Qdrant server, first install Docker: https://www.docker.com.  
+Next type: **docker pull qdrant/qdrant:latest** in the command prompt.  
+After it is finished downloading, type **docker run -p 6333:6333 qdrant/qdrant:latest**  
 
 Once the local Qdrant server is running, it should be auto detected by Aetherius.
 
-If you get an error, you may need to do steps 5, 8, and 9 from the manual installation.
-
 Launch Aetherius with **run.bat**
-
-At pinecone.io, create an index named "Aetherius" with 768 dimensions and "cosine" as the metric.
 
 Photo OCR (jpg, jpeg, png) requires tesseract: https://github.com/UB-Mannheim/tesseract/wiki   
 Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aetherius_Ai_Assistant" Folder.
 
-Upload heuristics to DB and start chatting with Aetherius. Heuristic examples, and files to modify prompts can be found in the config folder!  Prompts can also be edited through the Config Menu.
+Upload heuristics to DB and change the Bot and User name to start chatting with Aetherius!  
+Heuristic examples, and files to modify prompts can be found in the config folder.  Prompts can also be edited through the Config Menu.
 
-To run Aetherius on Google Colab with Oobabooga, use the Notebook file in the "./Colab Notebooks" Folder.  To use the Public Api with Aetherius, change the "Set Oobabooga Host" in the Config Menu to the given non-streaming Url. <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Oobabooga_Public_Api.ipynb">
+To run Aetherius on Google Colab with Oobabooga using a public Api, use the Notebook file in the "./Colab Notebooks" Folder.  To use the Public Api with Aetherius, change the "Set Oobabooga Host" in the Config Menu to the given non-streaming Url. <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Oobabooga_Public_Api.ipynb">
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
 </a>
 
@@ -241,9 +249,9 @@ Then, under the "Interface Mode" tab, enable the api checkbox in both fields. Th
 
 Next, navigate to the models tab. Uncheck the autoload models box and then input "TheBloke/Llama-2-13B-chat-GPTQ" into the downloads box. Other models may work, but this is the one that is tested.
 
-Once the download is completed, reload the model selection menu and then select the model. Change the model loader to Exllama and set the max_seq_len to "4096".
+Once the download is completed, reload the model selection menu and then select the model. Change the model loader to Exllama and set the max_seq_len to "4096".  Set the "gpu_split" to .5 under your Gpu's max Vram.
 
-Click the "load" button and load the model. The Oobabooga API bots should now work!
+Click the "load" button and load the model. The Aetherius should now work!
 
 Photo OCR (jpg, jpeg, png) requires tesseract: https://github.com/UB-Mannheim/tesseract/wiki
 Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aetherius_Ai_Assistant" Folder.
@@ -323,14 +331,13 @@ Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aethe
 
 28. Then, under the "Interface Mode" tab, enable the api checkbox in both fields.  Then click apply and restart the interface.
 
-29. Next, navigate to the models tab. Uncheck the autoload models box and then input "TheBloke/Llama-2-13B-chat-GPTQ" into the downloads box. Other models may work, but 
-    this is the one that is tested.
+29. Next, navigate to the models tab. Uncheck the autoload models box and then input "TheBloke/Llama-2-13B-chat-GPTQ" into the downloads box. Other models may work, but this is the one that is tested.
 
-30. Once the download is completed, reload the model selection menu and then select the model. Change the model loader to Exllama and set the max_seq_len to "4096".
+30. Once the download is completed, reload the model selection menu and then select the model. Change the model loader to Exllama and set the max_seq_len to "4096". Set the "gpu_split" to .5 under your Gpu's max Vram.
 
 31. Click the "load" button and load the model.  The Oobabooga API bots should now work!
 
-[Aetherius Usage Guide](https://www.libraryofcelsus.com/research/aetherius-usage-guide/)
+
 
 # Contact
 Discord: libraryofcelsus      -> Old Username Style: Celsus#0262

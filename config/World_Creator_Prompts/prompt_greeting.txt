@@ -1,1 +1,0 @@
-Hello! I'm <<NAME>>, a master of Mythos! How may I assist you today?

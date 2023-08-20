@@ -244,6 +244,39 @@ def chatgpt35_completion(query):
                     print(f"Retrying with error: {e} in 20 seconds...")
                     sleep(20)
                     
+
+def chatgpt_scrape_completion(query):
+    max_counter = 7
+    counter = 0
+    while True:
+        try:
+            completion = openai.ChatCompletion.create(
+              model="gpt-3.5-turbo",
+              max_tokens=600,
+              temperature=0.2,
+              messages=query
+            )
+            response = (completion.choices[0].message.content)
+            return response
+        except Exception as e:
+            while True:
+                try:
+                    completion = openai.ChatCompletion.create(
+                      model="gpt-3.5-turbo-16k",
+                      max_tokens=600,
+                      temperature=0.2,
+                      messages=query
+                    )
+                    response = (completion.choices[0].message.content)
+                    return response
+                except Exception as oops:
+                    counter +=1
+                    if counter >= max_counter:
+                        print(f"Exiting with error: {e}")
+                        exit()
+                    print(f"Retrying with error: {e} in 20 seconds...")
+                    sleep(20)
+                    
             
             
 def chatgpt_yesno_completion(query):

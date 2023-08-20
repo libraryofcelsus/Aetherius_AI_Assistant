@@ -257,6 +257,31 @@ def chatgpt_response_completion(query):
             sleep(20)
             
             
+def chatgpt_scrape_completion(query):
+    max_counter = 7
+    counter = 0
+    temperature = open_file(f'./config/Generation_Settings/OpenAi/Response/temperature.txt')
+    top_p = open_file(f'./config/Generation_Settings/OpenAi/Response/top_p.txt')
+    rep_pen = open_file(f'./config/Generation_Settings/OpenAi/Response/rep_pen.txt')
+    max_tokens = open_file(f'./config/Generation_Settings/OpenAi/Response/max_tokens.txt')
+    while True:
+        try:
+            completion = openai.ChatCompletion.create(
+              model="gpt-4",
+              max_tokens=600,
+              temperature=0.2,
+              messages=query
+            )
+            response = (completion.choices[0].message.content)
+            return response
+        except Exception as e:
+            counter +=1
+            if counter >= max_counter:
+                print(f"Exiting with error: {e}")
+                exit()
+            print(f"Retrying with error: {e} in 20 seconds...")
+            sleep(20)
+            
                     
                     
 def chatgptauto_completion(query):

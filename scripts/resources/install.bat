@@ -23,8 +23,32 @@ echo Cloning the repository...
 git clone https://github.com/libraryofcelsus/Aetherius_AI_Assistant.git
 cd /d "%~dp0Aetherius_AI_Assistant"
 
-echo Installing Python if not already installed...
-powershell -Command "if (-not (Get-Command python -ErrorAction SilentlyContinue)) {Invoke-WebRequest -Uri 'https://www.python.org/ftp/python/3.10.6/python-3.10.6-amd64.exe' -OutFile 'python-installer.exe'; Start-Process 'python-installer.exe' -ArgumentList '/quiet InstallAllUsers=1 PrependPath=1' -Wait; Remove-Item 'python-installer.exe'; }"
+
+setlocal
+
+:: Define the Python installation path
+set PYTHON_PATH=C:\Users\Celsus\AppData\Local\Programs\Python\Python310\python.exe
+
+:: Check if Python is installed
+if exist "%PYTHON_PATH%" (
+    echo Python is already installed.
+    goto :dependencies
+) else (
+    echo Installing Python...
+    powershell -Command "Invoke-WebRequest -Uri 'https://www.python.org/ftp/python/3.10.6/python-3.10.6-amd64.exe' -OutFile 'python-installer.exe'; Start-Process 'python-installer.exe' -ArgumentList '/quiet InstallAllUsers=1 PrependPath=1 TargetDir=C:\Users\Celsus\AppData\Local\Programs\Python\Python310' -Wait; Remove-Item 'python-installer.exe';"
+)
+
+:: Install project dependencies
+:dependencies
+if exist "%PYTHON_PATH%" (
+    echo Installing project dependencies...
+    "%PYTHON_PATH%" -m pip install -r requirements.txt
+) else (
+    echo No Python at "%PYTHON_PATH%"
+)
+
+endlocal
+
 
 echo Creating a virtual environment...
 python -m venv "%~dp0Aetherius_AI_Assistant\venv"

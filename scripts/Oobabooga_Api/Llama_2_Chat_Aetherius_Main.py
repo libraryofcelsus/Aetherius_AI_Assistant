@@ -19,7 +19,6 @@ import customtkinter
 import tkinter as tk
 from tkinter import ttk, scrolledtext, simpledialog, font, messagebox
 import requests
-from sentence_transformers import SentenceTransformer
 import shutil
 from PyPDF2 import PdfReader
 from ebooklib import epub
@@ -75,7 +74,6 @@ else:
 # URI = 'https://your-uri-here.trycloudflare.com/api/v1/generate'
 
 
-model = SentenceTransformer('all-mpnet-base-v2')
 
 
 # Import GPT Calls based on set Config
@@ -90,6 +88,23 @@ def get_script_path_from_file(file_path):
     return f'./scripts/resources/{script_name}.py'
 # Define the paths to the text file and scripts directory
 file_path = './config/model.txt'
+# Read the script name from the text file
+script_path = get_script_path_from_file(file_path)
+# Import the functions from the desired script
+import_functions_from_script(script_path)
+
+
+def import_functions_from_script_embed(script_path):
+    spec = importlib.util.spec_from_file_location("custom_module", script_path)
+    custom_module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(custom_module)
+    globals().update(vars(custom_module))
+def get_script_path_from_file_embed(file_path):
+    with open(file_path, 'r') as file:
+        script_name = file.read().strip()
+    return f'./scripts/resources/{script_name}.py'
+# Define the paths to the text file and scripts directory
+file_path = './config/Settings/embedding_model.txt'
 # Read the script name from the text file
 script_path = get_script_path_from_file(file_path)
 # Import the functions from the desired script
@@ -224,7 +239,7 @@ def chunk_text_from_url(url, chunk_size=400, overlap=40, results_callback=None):
                     timestring = timestamp_to_datetime(timestamp)
                     # Create the collection only if it doesn't exist
 
-                    vector1 = model.encode([url + ' ' + semantic_db_term + ' ' + text])[0].tolist()
+                    vector1 = embeddings(url + ' ' + semantic_db_term + ' ' + text)
                 #    embedding = model.encode(query)
                     unique_id = str(uuid4())
                     point_id = unique_id + str(int(timestamp))
@@ -363,7 +378,7 @@ def chunk_text_from_file(file_path, chunk_size=600, overlap=80):
                     timestring = timestamp_to_datetime(timestamp)
                     # Create the collection only if it doesn't exist
 
-                    vector1 = model.encode([filename + '\n' + semantic_db_term + '\n' + paragraph])[0].tolist()
+                    vector1 = embeddings(filename + '\n' + semantic_db_term + '\n' + paragraph)
                 #    embedding = model.encode(query)
                     unique_id = str(uuid4())
                     point_id = unique_id + str(int(timestamp))
@@ -731,7 +746,7 @@ def DB_Upload_Cadence(query):
                 collection_name=collection_name,
                 vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
             )
-        vector1 = model.encode([query])[0].tolist()
+        vector1 = embeddings(query)
         unique_id = str(uuid4())
         point_id = unique_id + str(int(timestamp))
         metadata = {
@@ -772,7 +787,8 @@ def DB_Upload_Heuristics(query):
                 collection_name=collection_name,
                 vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
             )
-        embedding = model.encode([query])[0].tolist()
+    #    embedding = embeddings(query)
+        embedding = embeddings(query)
         unique_id = str(uuid4())
         metadata = {
             'bot': bot_name,
@@ -806,7 +822,7 @@ def upload_implicit_long_term_memories(query):
             collection_name=collection_name,
             vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
         )
-    vector1 = model.encode([query])[0].tolist()
+    vector1 = embeddings(query)
     unique_id = str(uuid4())
     point_id = unique_id + str(int(timestamp))
     metadata = {
@@ -843,7 +859,7 @@ def upload_explicit_long_term_memories(query):
             collection_name=collection_name,
             vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
         )
-    vector1 = model.encode([query])[0].tolist()
+    vector1 = embeddings(query)
     unique_id = str(uuid4())
     point_id = unique_id + str(int(timestamp))
     metadata = {
@@ -880,7 +896,7 @@ def upload_implicit_short_term_memories(query):
             collection_name=collection_name,
             vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
         )
-    vector1 = model.encode([query])[0].tolist()
+    vector1 = embeddings(query)
     unique_id = str(uuid4())
     point_id = unique_id + str(int(timestamp))
     metadata = {
@@ -916,7 +932,7 @@ def upload_explicit_short_term_memories(query):
             collection_name=collection_name,
             vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
         )
-    vector1 = model.encode([query])[0].tolist()
+    vector1 = embeddings(query)
     unique_id = str(uuid4())
     point_id = unique_id + str(int(timestamp))
     metadata = {
@@ -962,7 +978,7 @@ def ask_upload_implicit_memories(memories):
                         collection_name=collection_name,
                         vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
                     )
-                vector1 = model.encode([segment])[0].tolist()
+                vector1 = embeddings(segment)
                 unique_id = str(uuid4())
                 point_id = unique_id + str(int(timestamp))
                 metadata = {
@@ -1012,7 +1028,7 @@ def ask_upload_explicit_memories(memories):
                         collection_name=collection_name,
                         vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
                     )
-                vector1 = model.encode([segment])[0].tolist()
+                vector1 = embeddings(segment)
                 unique_id = str(uuid4())
                 point_id = unique_id + str(int(timestamp))
                 metadata = {
@@ -1071,7 +1087,7 @@ def upload_implicit_short_term_memories(query):
             collection_name=collection_name,
             vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
         )
-    vector1 = model.encode([query])[0].tolist()
+    vector1 = embeddings(query)
     unique_id = str(uuid4())
     point_id = unique_id + str(int(timestamp))
     metadata = {
@@ -1107,7 +1123,7 @@ def upload_explicit_short_term_memories(query):
             collection_name=collection_name,
             vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
         )
-    vector1 = model.encode([query])[0].tolist()
+    vector1 = embeddings(query)
     unique_id = str(uuid4())
     point_id = unique_id + str(int(timestamp))
     metadata = {
@@ -2463,6 +2479,69 @@ class ChatBotApplication(customtkinter.CTkFrame):
 
         top.mainloop()
         
+        
+    def Set_Embed(self):
+        file_path = "./config/Settings/embedding_model.txt"
+        dark_bg_color = "#2B2B2B"
+        light_text_color = "#ffffff"
+
+        with open(file_path, 'r', encoding='utf-8') as file:
+            host_value = file.read()
+
+        top = tk.Toplevel(self)
+        top.configure(bg=dark_bg_color)
+        top.title("Set Embedding Model")
+
+        # Replace label with a read-only Text widget to allow selection
+        label_text = "Options: sentence_xformers, hf_embeddings\nEnter what embedding provider you wish to use:"
+        
+        # Adjust the appearance of the Text widget
+        label = tk.Text(top, height=3, wrap=tk.WORD, bg=dark_bg_color, fg=light_text_color, bd=0, padx=10, pady=10, relief=tk.FLAT, highlightthickness=0)
+        label.insert(tk.END, label_text)
+        label.configure(state=tk.DISABLED)  # Make it read-only
+        label.pack(pady=10)
+
+        self.host_entry = tk.Entry(top, bg=dark_bg_color, fg=light_text_color, width=50)
+        self.host_entry.insert(tk.END, host_value)
+        self.host_entry.pack(padx=10, pady=10)
+
+        def copy_to_clipboard(widget):
+            try:
+                selected_text = widget.selection_get()
+                top.clipboard_clear()
+                top.clipboard_append(selected_text)
+            except tk.TclError:
+                pass  # Nothing is selected
+
+        def paste_from_clipboard(widget):
+            clipboard_text = top.clipboard_get()
+            widget.insert(tk.INSERT, clipboard_text)
+
+        # Create context menu
+        context_menu = tk.Menu(top, tearoff=0)
+        context_menu.add_command(label="Copy", command=lambda: copy_to_clipboard(focused_widget))
+        context_menu.add_command(label="Paste", command=lambda: paste_from_clipboard(focused_widget))
+
+        def show_context_menu(event):
+            global focused_widget
+            focused_widget = event.widget
+            context_menu.post(event.x_root, event.y_root)
+
+        # Bind right-click to show the context menu
+        label.bind("<Button-3>", show_context_menu)
+        self.host_entry.bind("<Button-3>", show_context_menu)
+
+        def save_host():
+            new_host = self.host_entry.get()
+            with open(file_path, 'w') as file:
+                file.write(new_host)
+            top.destroy()
+
+        save_button = customtkinter.CTkButton(top, text="Save", command=save_host)
+        save_button.pack(pady=10)
+
+        top.mainloop()
+        
 
     #Fallback to size 10 if no font size
     def update_font_settings(self):
@@ -2901,9 +2980,11 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 self.Set_Conv_Length()
             elif selection == "Set Oobabooga HOST":
                 self.Set_Host()
+            elif selection == "Set Embedding Model":
+                self.Set_Embed()
         
         # Config Dropdown Menu
-        self.menu = customtkinter.CTkComboBox(self.top_frame, values=["Set Oobabooga HOST", "Edit Font", "Edit Font Size", "Set Conv Length"], state="readonly", command=handle_menu_selection)
+        self.menu = customtkinter.CTkComboBox(self.top_frame, values=["Set Oobabooga HOST", "Set Embedding Model", "Edit Font", "Edit Font Size", "Set Conv Length"], state="readonly", command=handle_menu_selection)
         self.menu.grid(row=0, column=4, padx=5, pady=5, sticky=tk.W+tk.E)
         self.menu.set("Config Menu")
         self.menu.bind("<<ComboboxSelected>>", self.handle_menu_selection)
@@ -3121,7 +3202,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
             history = {'internal': [], 'visible': []}
             con_hist = f'{conversation_history}'
             message_input = a
-            vector_input = model.encode([message_input])[0].tolist()
+            vector_input = embeddings(message_input)
             conversation.append({'role': 'user', 'content': f"USER INPUT: {a}\n\n\n"})        
             # # Generate Semantic Search Terms
             tasklist.append({'role': 'system', 'content': "SYSTEM: You are a semantic rephraser. Your role is to interpret the original user query and generate 2-5 synonymous search terms that will guide the exploration of the chatbot's memory database. Each alternative term should reflect the essence of the user's initial search input. Please list your results using a hyphenated bullet point structure.\n\n"})
@@ -3136,7 +3217,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
             db_term_result2 = {}
             tasklist_counter = 0
             tasklist_counter2 = 0
-            vector_input1 = model.encode([message_input])[0].tolist()
+            vector_input1 = embeddings(message_input)
             for line in lines:            
                 try:
                     hits = client.search(
@@ -3342,7 +3423,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
             output_one = oobabooga_inner_monologue(prompt)
             inner_output = (f'{output_one}\n\n')
             paragraph = output_one
-            vector_monologue = model.encode([paragraph])[0].tolist()
+            vector_monologue = embeddings(paragraph)
             print('\n\nINNER_MONOLOGUE: %s' % output_one)
             print('\n-----------------------\n')
             # # Clear Conversation List
@@ -3393,7 +3474,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
             con_hist = f'{conversation_history}'
             message = output_one
             # # Memory DB Search     
-            vector_monologue = model.encode([message])[0].tolist()
+            vector_monologue = embeddings(message)
             db_search_7, db_search_8, db_search_9, db_search_10 = None, None, None, None
             try:
                 hits = client.search(
@@ -3498,7 +3579,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
         #    print('\n-----------------------\n')
             inner_loop_db = inner_loop_response
             paragraph = inner_loop_db
-            vector = model.encode([paragraph])[0].tolist()
+            vector = embeddings(paragraph)
             if self.memory_mode == 'Auto': 
                 # # Auto Implicit Short-Term Memory DB Upload Confirmation
                 auto_count = 0
@@ -3531,7 +3612,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                                         collection_name=collection_name,
                                         vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
                                     )
-                                vector1 = model.encode([segment])[0].tolist()
+                                vector1 = embeddings(segment)
                                 unique_id = str(uuid4())
                                 point_id = unique_id + str(int(timestamp))
                                 metadata = {
@@ -3615,10 +3696,10 @@ class ChatBotApplication(customtkinter.CTkFrame):
             else:
                 conversation.append({'role': 'assistant', 'content': "%s" % greeting_msg})
             message_input = a
-            vector_input = model.encode([message_input])[0].tolist()
+            vector_input = embeddings(message_input)
             # # Check for "Clear Memory"
             message = output_one
-            vector_monologue = model.encode([message])[0].tolist()
+            vector_monologue = embeddings(message)
         # # Update Second Conversation List for Response
             print('\n-----------------------\n')
             print('\n%s is thinking...\n' % bot_name)
@@ -3776,7 +3857,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                                         collection_name=collection_name,
                                         vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
                                     )
-                                vector1 = model.encode([segment])[0].tolist()
+                                vector1 = embeddings(segment)
                                 unique_id = str(uuid4())
                                 point_id = unique_id + str(int(timestamp))
                                 metadata = {
@@ -3915,7 +3996,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     collection_name=collection_name,
                     vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
                 )
-            vector1 = model.encode([timestring + '-' + conv_summary])[0].tolist()
+            vector1 = embeddings(timestring + '-' + conv_summary)
             unique_id = str(uuid4())
             metadata = {
                 'bot': bot_name,
@@ -3940,7 +4021,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     collection_name=collection_name,
                     vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
                 )
-            vector1 = model.encode([timestring + '-' + conv_summary])[0].tolist()
+            vector1 = embeddings(timestring + '-' + conv_summary)
             unique_id = str(uuid4())
             metadata = {
                 'bot': bot_name,
@@ -4032,7 +4113,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                                 collection_name=collection_name,
                                 vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
                             )
-                        vector1 = model.encode([segment])[0].tolist()
+                        vector1 = embeddings(segment)
                         unique_id = str(uuid4())
                         metadata = {
                             'bot': bot_name,
@@ -4090,7 +4171,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                                 collection_name=collection_name,
                                 vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
                             )
-                        vector1 = model.encode([segment])[0].tolist()
+                        vector1 = embeddings(segment)
                         unique_id = str(uuid4())
                         metadata = {
                             'bot': bot_name,
@@ -4116,7 +4197,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     collection_name=collection_name,
                     vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
                     )
-                vector1 = model.encode([segment])[0].tolist()
+                vector1 = embeddings(segment)
                 unique_id = str(uuid4())
                 metadata = {
                     'bot': bot_name,
@@ -4165,7 +4246,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     print('\n-----------------------\n')
                     consolidation.clear()
                     print('Finished.\nRemoving Redundant Memories.')
-                    vector_sum = model.encode([memory_consol2])[0].tolist()
+                    vector_sum = embeddings(memory_consol2)
                     memory_consol_db3 = None
                     try:
                         hits = client.search(
@@ -4213,7 +4294,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                                     collection_name=collection_name,
                                     vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
                                 )
-                            vector1 = model.encode([segment])[0].tolist()
+                            vector1 = embeddings(segment)
                             unique_id = str(uuid4())
                             metadata = {
                                 'bot': bot_name,
@@ -4288,7 +4369,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                                     collection_name=collection_name,
                                     vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
                                 )
-                            vector1 = model.encode([segment])[0].tolist()
+                            vector1 = embeddings(segment)
                             unique_id = str(uuid4())
                             metadata = {
                                 'bot': bot_name,
@@ -4349,7 +4430,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     consolidation.append({'role': 'assistant', 'content': "RESPONSE: Semantic Search Query: "})
                     prompt = ''.join([message_dict['content'] for message_dict in consolidation])
                     consol_search_term = oobabooga_250(prompt)
-                    consol_vector = model.encode([consol_search_term])[0].tolist()  
+                    consol_vector = embeddings(consol_search_term)
                     memory_consol_db2 = None
                     try:
                         hits = client.search(
@@ -4400,7 +4481,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                                     collection_name=collection_name,
                                     vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
                                 )
-                            vector1 = model.encode([segment])[0].tolist()
+                            vector1 = embeddings(segment)
                             unique_id = str(uuid4())
                             metadata = {
                                 'bot': bot_name,
@@ -4527,7 +4608,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
             # # User Input Text
        #     a = input(f'\n\nUSER: ')
             message_input = a
-            vector_input = model.encode([message_input])[0].tolist()
+            vector_input = embeddings(message_input)
             # # Check for Commands
             # # Check for "Clear Memory"
             conversation.append({'role': 'system', 'content': f"MAIN CHATBOT SYSTEM PROMPT: {main_prompt}\n\n"})
@@ -4547,7 +4628,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
             db_term_result2 = {}
             tasklist_counter = 0
             tasklist_counter2 = 0
-            vector_input1 = model.encode([message_input])[0].tolist()
+            vector_input1 = embeddings(message_input)
             # # Split bullet points into separate lines to be used as individual queries during a parallel db search     
             for line in lines:            
                 try:
@@ -4778,7 +4859,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
             timestamp = time()
             timestring = timestamp_to_datetime(timestamp)
             message = output_one
-            vector_monologue = model.encode(['Inner Monologue: ' + message])[0].tolist()
+            vector_monologue = embeddings('Inner Monologue: ' + message)
             # # Memory DB Search          
             print('\n-----------------------\n')
             db_search_4, db_search_5, db_search_12, db_search_15 = None, None, None, None
@@ -4956,7 +5037,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
             inner_loop_response = agent_oobabooga_implicitmem(prompt)
             inner_loop_db = inner_loop_response
             summary.clear()
-            vector = model.encode([inner_loop_db])[0].tolist()
+            vector = embeddings(inner_loop_db)
             conversation.clear()
             # # Auto Implicit Short-Term Memory DB Upload Confirmation
     #        auto_count = 0
@@ -5185,7 +5266,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
             
             
             
-            vector_input1 = model.encode([line])[0].tolist()
+            vector_input1 = embeddings(line)
             if self.are_both_web_and_file_db_checked():
                 try:
                     hits = client.search(
@@ -5295,7 +5376,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 print('-----------')
                 print(mem2) if 'YES' in mem1.upper() else fail()
                 print(' --------- ')
-                line_vec = model.encode([line])[0].tolist()  # EPISODIC, FLASHBULB, IMPLICIT LONG TERM, EXPLICIT LONG TERM
+                line_vec = embeddings(line)  # EPISODIC, FLASHBULB, IMPLICIT LONG TERM, EXPLICIT LONG TERM
                 mem2_upper = mem2.upper()
 
                 if 'EPISO' in mem2_upper:

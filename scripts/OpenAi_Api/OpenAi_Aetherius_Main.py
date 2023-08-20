@@ -20,7 +20,6 @@ import customtkinter
 import tkinter as tk
 from tkinter import ttk, scrolledtext, simpledialog, font, messagebox
 import requests
-from sentence_transformers import SentenceTransformer
 import shutil
 from PyPDF2 import PdfReader
 from ebooklib import epub
@@ -95,6 +94,23 @@ def get_script_path_from_file(file_path):
     return f'./scripts/resources/{script_name}.py'
 # Define the paths to the text file and scripts directory
 file_path = './config/model.txt'
+# Read the script name from the text file
+script_path = get_script_path_from_file(file_path)
+# Import the functions from the desired script
+import_functions_from_script(script_path)
+
+
+def import_functions_from_script_embed(script_path):
+    spec = importlib.util.spec_from_file_location("custom_module", script_path)
+    custom_module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(custom_module)
+    globals().update(vars(custom_module))
+def get_script_path_from_file_embed(file_path):
+    with open(file_path, 'r') as file:
+        script_name = file.read().strip()
+    return f'./scripts/resources/{script_name}.py'
+# Define the paths to the text file and scripts directory
+file_path = './config/Settings/embedding_model.txt'
 # Read the script name from the text file
 script_path = get_script_path_from_file(file_path)
 # Import the functions from the desired script
@@ -2453,6 +2469,69 @@ class ChatBotApplication(customtkinter.CTkFrame):
 
         top.mainloop()
         
+        
+    def Set_Embed(self):
+        file_path = "./config/Settings/embedding_model.txt"
+        dark_bg_color = "#2B2B2B"
+        light_text_color = "#ffffff"
+
+        with open(file_path, 'r', encoding='utf-8') as file:
+            host_value = file.read()
+
+        top = tk.Toplevel(self)
+        top.configure(bg=dark_bg_color)
+        top.title("Set Embedding Model")
+
+        # Replace label with a read-only Text widget to allow selection
+        label_text = "Options: sentence_xformers, hf_embeddings\nEnter what embedding provider you wish to use:"
+        
+        # Adjust the appearance of the Text widget
+        label = tk.Text(top, height=3, wrap=tk.WORD, bg=dark_bg_color, fg=light_text_color, bd=0, padx=10, pady=10, relief=tk.FLAT, highlightthickness=0)
+        label.insert(tk.END, label_text)
+        label.configure(state=tk.DISABLED)  # Make it read-only
+        label.pack(pady=10)
+
+        self.host_entry = tk.Entry(top, bg=dark_bg_color, fg=light_text_color, width=50)
+        self.host_entry.insert(tk.END, host_value)
+        self.host_entry.pack(padx=10, pady=10)
+
+        def copy_to_clipboard(widget):
+            try:
+                selected_text = widget.selection_get()
+                top.clipboard_clear()
+                top.clipboard_append(selected_text)
+            except tk.TclError:
+                pass  # Nothing is selected
+
+        def paste_from_clipboard(widget):
+            clipboard_text = top.clipboard_get()
+            widget.insert(tk.INSERT, clipboard_text)
+
+        # Create context menu
+        context_menu = tk.Menu(top, tearoff=0)
+        context_menu.add_command(label="Copy", command=lambda: copy_to_clipboard(focused_widget))
+        context_menu.add_command(label="Paste", command=lambda: paste_from_clipboard(focused_widget))
+
+        def show_context_menu(event):
+            global focused_widget
+            focused_widget = event.widget
+            context_menu.post(event.x_root, event.y_root)
+
+        # Bind right-click to show the context menu
+        label.bind("<Button-3>", show_context_menu)
+        self.host_entry.bind("<Button-3>", show_context_menu)
+
+        def save_host():
+            new_host = self.host_entry.get()
+            with open(file_path, 'w') as file:
+                file.write(new_host)
+            top.destroy()
+
+        save_button = customtkinter.CTkButton(top, text="Save", command=save_host)
+        save_button.pack(pady=10)
+
+        top.mainloop()
+        
 
     #Fallback to size 10 if no font size
     def update_font_settings(self):
@@ -2823,9 +2902,11 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 self.Set_Conv_Length()
             elif selection == "Select GPT Model":
                 self.Model_Selection()
+            elif selection == "Select Embedding Model":
+                self.Set_Embed()
         
         # Config Dropdown Menu
-        self.menu = customtkinter.CTkComboBox(self.top_frame, values=["Select GPT Model", "Edit Font", "Edit Font Size", "Set Conv Length"], state="readonly", command=handle_menu_selection)
+        self.menu = customtkinter.CTkComboBox(self.top_frame, values=["Select GPT Model", "Select Embedding Model", "Edit Font", "Edit Font Size", "Set Conv Length"], state="readonly", command=handle_menu_selection)
         self.menu.grid(row=0, column=4, padx=5, pady=5, sticky=tk.W+tk.E)
         self.menu.set("Config Menu")
         self.menu.bind("<<ComboboxSelected>>", self.handle_menu_selection)

@@ -215,6 +215,8 @@ In January 2023, I had my inaugural encounter with ChatGPT 3.5.  Since that pivo
 
 ## Installer bat
 
+Install Python 3.10.6, Make sure you add it to PATH: **https://www.python.org/downloads/release/python-3106/**
+
 Run the Installer Bat as admin, it is located at: https://github.com/libraryofcelsus/Aetherius_AI_Assistant/blob/main/scripts/resources/install.bat
 
 ![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/05/Capture11111111.png)
@@ -228,6 +230,8 @@ Next type: **docker pull qdrant/qdrant:latest** in the command prompt.
 After it is finished downloading, type **docker run -p 6333:6333 qdrant/qdrant:latest**  
 
 Once the local Qdrant server is running, it should be auto detected by Aetherius.
+
+If No Qdrant server is running, Aetherius will save to disk.
 
 Launch Aetherius with **run.bat**
 
@@ -297,7 +301,7 @@ Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aethe
 
 16. Now follow the steps in Qdrants Quick Start guide: https://github.com/qdrant/qdrant/blob/master/QUICK_START.md
 
-17. Once the local Qdrant server is running, it should be auto detected by Aetherius.
+17. Once the local Qdrant server is running, it should be auto detected by Aetherius.  If No Qdrant server is running, Aetherius will save to disk.
 
 18. Copy your Google Api key to key_google.txt  (Google Keys only needed if using AetherSearch's websearch.)
 

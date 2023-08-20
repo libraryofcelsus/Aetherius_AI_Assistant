@@ -6,7 +6,7 @@ Version .044d of the Aetherius Ai Personal Assistant/Agent/Companion by Libraryo
 
 • 8/20 Added Embedding Selection Menu, for now only Sentence Transformers and Hugging Face Embeddings are available.
 
-• 8/20 Installer bat should now be fixed.
+• 8/20 Google Colab and Installer bat should now be fixed.
 
 • 8/19 Added new GUI for the OpenAi Version of Aetherius, still a work in progress.
 

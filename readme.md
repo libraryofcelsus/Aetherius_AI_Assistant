@@ -4,6 +4,8 @@ Version .044d of the Aetherius Ai Personal Assistant/Agent/Companion by Libraryo
 ------
 **Recent Changes**
 
+• 8/20 Added A_100 Checkmark in the Google Colab, this will let you run Llama 2 70B
+
 • 8/20 Added Embedding Selection Menu, for now only Sentence Transformers and Hugging Face Embeddings are available.
 
 • 8/20 Google Colab and Installer bat should now be fixed.

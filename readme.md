@@ -1,8 +1,12 @@
 # Aetherius
-Version .044c of the Aetherius Ai Personal Assistant/Agent/Companion by LibraryofCelsus.com
+Version .044d of the Aetherius Ai Personal Assistant/Agent/Companion by LibraryofCelsus.com
 
 ------
 **Recent Changes**
+
+• 8/20 Added Embedding Selection Menu, for now only Sentence Transformers and Hugging Face Embeddings are available.
+
+• 8/20 Installer bat should now be fixed.
 
 • 8/19 Added new GUI for the OpenAi Version of Aetherius, still a work in progress.
 
@@ -119,6 +123,10 @@ In January 2023, I had my inaugural encounter with ChatGPT 3.5.  Since that pivo
 • Launch Ai Tutorial YouTube Channel
 
 # Changelog:
+**0.044d**
+
+• Added Embedding Selection Menu, for now only Sentence Transformers and Hugging Face Embeddings are available.
+
 **0.044c**
 
 •New Gui for Aetherius.  Most Chatbot modes are now consolidated under one Ui.

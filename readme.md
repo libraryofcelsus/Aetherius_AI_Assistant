@@ -89,12 +89,34 @@ Inspired by https://github.com/daveshap/
 
 # Current Version Information
 
-**What is Aetherius?**  Aetherius is an Ai LLM Retrieval Framework focused on bringing realistic long-term memory and thought formation to a customizable chatbot/companion. 
-My goal is to create a locally ran Ai Assistant that you actually have control over and own. One that cannot be changed or limited by an external force without concent.
-
+**What is Aetherius?**   
+Aetherius is an Ai LLM Retrieval Framework focused on bringing realistic long-term memory and thought formation to a customizable chatbot/companion. 
+My goal is to create a locally ran Ai Assistant that you actually have control over and own. One that cannot be changed or limited by an external force without concent.  
 Aetherius aims to provide a modular, personalized AI assistant using Retrieval Augmented Generation and Tools. If all goes as planned, Aetherius will support integration with other open-source projects.
 
-Aetherius can now be ran locally and offline maintaining 100% privacy!
+In January 2023, I had my inaugural encounter with ChatGPT 3.5.  Since that pivotal moment, I've been deeply obsessed with AI, dedicating countless hours each day to both its study and hands-on experimentation. The Aetherius AI Assistant is the cumulation of that research.
+
+## Future Plans
+
+• Improve Ui
+
+• Continue to Improve internal prompts
+
+• Finish Aetherius Usage Guide
+
+• Better Documentation 
+
+• Voice Input
+
+• TTS
+
+• Book/File Summarizer Tool
+
+• Data Comparison Tool
+
+• Add more LLM models
+
+• Launch Ai Tutorial YouTube Channel
 
 # Changelog:
 **0.044c**
@@ -188,30 +210,6 @@ Aetherius can now be ran locally and offline maintaining 100% privacy!
 • Intuition Prompt Rework
 
 • Various Bug Fixes
-
-
-
-## Future Plans
-
-• Improve Ui
-
-• Continue to Improve internal prompts
-
-• Finish Aetherius Usage Guide
-
-• Better Documentation 
-
-• Voice Input
-
-• TTS
-
-• Book/File Summarizer Tool
-
-• Data Comparison Tool
-
-• Add more LLM models
-
-• Launch Ai Tutorial YouTube Channel
 
 # Installation Guide
 

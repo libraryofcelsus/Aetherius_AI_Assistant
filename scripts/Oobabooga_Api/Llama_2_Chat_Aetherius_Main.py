@@ -50,10 +50,20 @@ if check_local_server_running():
     client = QdrantClient(url="http://localhost:6333")
     print("Connected to local Qdrant server.")
 else:
-    url = open_file('./api_keys/qdrant_url.txt')
-    api_key = open_file('./api_keys/qdrant_api_key.txt')
-    client = QdrantClient(url=url, api_key=api_key)
-    print("Connected to cloud Qdrant server.")
+    try:
+        url = open_file('./api_keys/qdrant_url.txt')
+        api_key = open_file('./api_keys/qdrant_api_key.txt')
+        client = QdrantClient(url=url, api_key=api_key)
+        client.recreate_collection(
+            collection_name="Ping",
+            vectors_config=VectorParams(size=1, distance=Distance.COSINE),
+        )
+        print("Connected to cloud Qdrant server.")
+    except:
+        if not os.path.exists("./Qdrant_DB"):
+            os.makedirs("./Qdrant_DB")
+        client = QdrantClient(path="./Qdrant_DB")
+        print("Neither a local nor a cloud Qdrant server could be connected. Using disk storage.")
     
     
 # For local streaming, the websockets are hosted without ssl - http://
@@ -174,7 +184,7 @@ def chunk_text_from_url(url, chunk_size=400, overlap=40, results_callback=None):
        
             
             prompt = ''.join([message_dict['content'] for message_dict in webcheck])
-            webyescheck = scrape_oobabooga_selector(prompt)
+            webyescheck = 'yes'
             
             if 'no webscrape' in text.lower():
                 print('---------')
@@ -4654,7 +4664,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     hits = client.search(
                         collection_name=f"Bot_{bot_name}_User_{username}_External_Knowledgebase",
                         query_vector=vector_input1,
-                        limit=9
+                        limit=10
                     )
                     db_search_2 = [hit.payload['source'] + " - " + hit.payload['message'] for hit in hits]
                     print(db_search_2)
@@ -4674,7 +4684,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                                     )
                                 ]
                             ),
-                            limit=9
+                            limit=10
                         )
                         db_search_2 = [hit.payload['source'] + " - " + hit.payload['message'] for hit in hits]
                         print(db_search_2)
@@ -4693,7 +4703,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                                     )
                                 ]
                             ),
-                            limit=9
+                            limit=10
                         )
                         db_search_2 = [hit.payload['source'] + " - " + hit.payload['message'] for hit in hits]
                         print(db_search_2)
@@ -4705,7 +4715,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 
                
             # # Inner Monologue Generation
-            conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S EPISODIC MEMORIES: {db_search_1}\n{db_search_3}\n\n{bot_name}'s HEURISTICS: {db_search_14}\nEXTERNAL RESOURCES: {db_search_2}[/INST]\n\n\n[INST]PREVIOUS CONVERSATION HISTORY: {con_hist}[/INST]\n\n\n\n[INST]SYSTEM:Compose a short silent soliloquy to serve as {bot_name}'s internal monologue/narrative.  Ensure it includes {bot_name}'s contemplations and emotions in relation to {username}'s request.\n\n\nCURRENT CONVERSATION HISTORY: {con_hist}\n\n\n{usernameupper}/USER: {a}\nPlease directly provide a short internal monologue as {bot_name} contemplating the user's most recent message.\n\n{botnameupper}: Of course, here is an inner soliloquy for {bot_name}:"})
+            conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S EPISODIC MEMORIES: {db_search_1}\n{db_search_3}\n\n{bot_name}'s HEURISTICS: {db_search_14}\nEXTERNAL RESOURCES: {db_search_2}[/INST]\n\n\n[INST]PREVIOUS CONVERSATION HISTORY: {con_hist}[/INST]\n\n\n\n[INST]SYSTEM:Compose a short silent soliloquy to serve as {bot_name}'s internal monologue/narrative.  Ensure it includes {bot_name}'s contemplations in relation to {username}'s request using the external information.\n\n\nCURRENT CONVERSATION HISTORY: {con_hist}\n\n\n{usernameupper}/USER: {a}\nPlease directly provide a short internal monologue as {bot_name} contemplating the user's most recent message.\n\n{botnameupper}: Of course, here is an inner soliloquy for {bot_name}:"})
             
             prompt = ''.join([message_dict['content'] for message_dict in conversation])
             output_one = agent_oobabooga_inner_monologue(prompt)

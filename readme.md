@@ -1,7 +1,7 @@
 # Aetherius
 Version .044d of the Aetherius Ai Personal Assistant/Agent/Companion by LibraryofCelsus.com
 
-For a quick demo deployment, see: [Public Oobabooga Api Colab](https://www.libraryofcelsus.com/research/aetherius-usage-guide/) / [Aetherius Google Colab](https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Aetherius_Colab_Edition.ipynb)
+For a quick demo deployment, see: [Public Oobabooga Api Colab](https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Oobabooga_Public_Api.ipynb) / [Aetherius Google Colab](https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Aetherius_Colab_Edition.ipynb)
 
 ------
 **Recent Changes**

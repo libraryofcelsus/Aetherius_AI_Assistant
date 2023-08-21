@@ -4,6 +4,10 @@ Version .044d of the Aetherius Ai Personal Assistant/Agent/Companion by Libraryo
 ------
 **Recent Changes**
 
+• 8/21 Added Google Colab Version of Aetherius, very basic for now. <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Aetherius_Colab_Edition.ipynb">
+  <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
+</a>
+
 • 8/20 Added A_100 Checkmark in the Google Colab, this will let you run Llama 2 70B
 
 • 8/20 Added Embedding Selection Menu, for now only Sentence Transformers and Hugging Face Embeddings are available.
@@ -222,6 +226,18 @@ In January 2023, I had my inaugural encounter with ChatGPT 3.5.  Since that pivo
 • Various Bug Fixes
 
 # Installation Guide
+
+## Google Colab
+
+To run Aetherius on Google Colab, first run the Oobabooga Public Api: <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Oobabooga_Public_Api.ipynb">
+  <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
+</a>
+
+Then, go to Qdrant and get an API key and URL: https://qdrant.to/cloud
+
+The final step will be to run the actual Aetherius Script.  You can install it locally or run it on a colab notebook found here: <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Aetherius_Colab_Edition.ipynb">
+  <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
+</a>
 
 ## Installer bat
 

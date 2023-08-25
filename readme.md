@@ -56,7 +56,7 @@ All modes upload to the main chatbot's memories, so it's knowledgebase will grow
 
 ------
 
-Aetherius's development is self-funded, consider supporting me if you use it frequently :)
+Aetherius's development is self-funded by my day job, consider supporting me if you use it frequently or want development speed to increase.
 
 <a href='https://ko-fi.com/R6R2NRB0S' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi3.png?v=3' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
 

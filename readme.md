@@ -6,6 +6,8 @@ For a quick demo deployment, see: [Public Oobabooga Api Colab](https://colab.res
 ------
 **Recent Changes**
 
+• 8/26 Updated Google Colab Version of Aetherius with Agent mode, Tools still need to be added.
+
 • 8/21 Added Google Colab Version of Aetherius, very basic for now. <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Aetherius_Colab_Edition.ipynb">
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
 </a>

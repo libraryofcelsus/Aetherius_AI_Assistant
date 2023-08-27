@@ -1,10 +1,14 @@
 # Aetherius
-Version .044d of the Aetherius Ai Personal Assistant/Agent/Companion by LibraryofCelsus.com
+Version .044e of the Aetherius Ai Personal Assistant/Agent/Companion by LibraryofCelsus.com
 
 For quick demo deployment without a UI, see: [Public Oobabooga Api Colab](https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Oobabooga_Public_Api.ipynb) / [Aetherius Google Colab](https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Aetherius_Colab_Edition_Oobabooga.ipynb)
 
 ------
 **Recent Changes**
+
+• 8/27 Removed Username from collection name and switched to useing Metadata.
+
+• 8/27 Fixed Bug where embedding size wasn't being set when creating new collections.
 
 • 8/26 Updated Google Colab Version of Aetherius with Agent mode, Tools still need to be added.
 
@@ -133,6 +137,12 @@ In January 2023, I had my inaugural encounter with ChatGPT 3.5.  Since that pivo
 • Launch Ai Tutorial YouTube Channel
 
 # Changelog:
+**0.044e**
+
+• Fixed Bug where embedding size wasn't being set when creating collections.
+
+• Swiched usernames from collection name to metadata.
+
 **0.044d**
 
 • Added Embedding Selection Menu, for now only Sentence Transformers and Hugging Face Embeddings are available.

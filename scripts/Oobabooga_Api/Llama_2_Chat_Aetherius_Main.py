@@ -4295,7 +4295,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 try:
                     hits = client.search(
                         collection_name=f"Bot_{bot_name}_Explicit_Short_Term",
-                        query_vector=vector_input1,
+                        query_vector=vector_input,
                         query_filter=Filter(
                             must=[
                                 FieldCondition(
@@ -4407,7 +4407,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     try:
                         hits = client.search(
                             collection_name=f"Bot_{bot_name}_Implicit_Short_Term",
-                            query_vector=vector_input1,
+                            query_vector=vector_input,
                             query_filter=Filter(
                                 must=[
                                     FieldCondition(

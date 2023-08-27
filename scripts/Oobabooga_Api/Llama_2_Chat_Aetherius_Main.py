@@ -32,6 +32,8 @@ import numpy as np
 import re
 
 
+embed_size = open_file('./config/embed_size.txt')
+
 def check_local_server_running():
     try:
         response = requests.get("http://localhost:6333/dashboard/")
@@ -170,14 +172,14 @@ def chunk_text_from_url(url, chunk_size=400, overlap=40, results_callback=None):
         chunks = chunk_text(texttemp, chunk_size, overlap)
         weblist = list()
         # Define the collection name
-        collection_name = f"Bot_{bot_name}_User_{username}_External_Knowledgebase"
+        collection_name = f"Bot_{bot_name}_External_Knowledgebase"
         try:
             collection_info = client.get_collection(collection_name=collection_name)
             print(collection_info)
         except:
             client.create_collection(
             collection_name=collection_name,
-            vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
+            vectors_config=VectorParams(size=embed_size, distance=Distance.COSINE),
         )
         
         for chunk in chunks:
@@ -305,14 +307,14 @@ def chunk_text_from_file(file_path, chunk_size=600, overlap=80):
         chunks = chunk_text(texttemp, chunk_size, overlap)
         filelist = list()
         # Define the collection name
-        collection_name = f"Bot_{bot_name}_User_{username}_External_Knowledgebase"
+        collection_name = f"Bot_{bot_name}_External_Knowledgebase"
         try:
             collection_info = client.get_collection(collection_name=collection_name)
             print(collection_info)
         except:
             client.create_collection(
             collection_name=collection_name,
-            vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
+            vectors_config=VectorParams(size=embed_size, distance=Distance.COSINE),
         )
         
         for chunk in chunks:
@@ -737,14 +739,14 @@ def DB_Upload_Cadence(query):
         bot_name = open_file('./config/prompt_bot_name.txt')
         username = open_file('./config/prompt_username.txt')
         # Define the collection name
-        collection_name = f"Bot_{bot_name}_User_{username}"
+        collection_name = f"Bot_{bot_name}"
         # Create the collection only if it doesn't exist
         try:
             collection_info = client.get_collection(collection_name=collection_name)
         except:
             client.create_collection(
                 collection_name=collection_name,
-                vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
+                vectors_config=VectorParams(size=embed_size, distance=Distance.COSINE),
             )
         vector1 = embeddings(query)
         unique_id = str(uuid4())
@@ -779,13 +781,13 @@ def DB_Upload_Heuristics(query):
         bot_name = open_file('./config/prompt_bot_name.txt')
         username = open_file('./config/prompt_username.txt')
         # Define the collection name
-        collection_name = f"Bot_{bot_name}_User_{username}"
+        collection_name = f"Bot_{bot_name}"
         try:
             collection_info = client.get_collection(collection_name=collection_name)
         except:
             client.create_collection(
                 collection_name=collection_name,
-                vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
+                vectors_config=VectorParams(size=embed_size, distance=Distance.COSINE),
             )
     #    embedding = embeddings(query)
         embedding = embeddings(query)
@@ -813,14 +815,14 @@ def upload_implicit_long_term_memories(query):
     payload = list()
     payload = list()    
                 # Define the collection name
-    collection_name = f"Bot_{bot_name}_User_{username}"
+    collection_name = f"Bot_{bot_name}"
                 # Create the collection only if it doesn't exist
     try:
         collection_info = client.get_collection(collection_name=collection_name)
     except:
         client.create_collection(
             collection_name=collection_name,
-            vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
+            vectors_config=VectorParams(size=embed_size, distance=Distance.COSINE),
         )
     vector1 = embeddings(query)
     unique_id = str(uuid4())
@@ -850,14 +852,14 @@ def upload_explicit_long_term_memories(query):
     payload = list()
     payload = list()    
                 # Define the collection name
-    collection_name = f"Bot_{bot_name}_User_{username}"
+    collection_name = f"Bot_{bot_name}"
                 # Create the collection only if it doesn't exist
     try:
         collection_info = client.get_collection(collection_name=collection_name)
     except:
         client.create_collection(
             collection_name=collection_name,
-            vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
+            vectors_config=VectorParams(size=embed_size, distance=Distance.COSINE),
         )
     vector1 = embeddings(query)
     unique_id = str(uuid4())
@@ -887,14 +889,14 @@ def upload_implicit_short_term_memories(query):
     payload = list()
     payload = list()    
                 # Define the collection name
-    collection_name = f"Bot_{bot_name}_User_{username}_Implicit_Short_Term"
+    collection_name = f"Bot_{bot_name}_Implicit_Short_Term"
                 # Create the collection only if it doesn't exist
     try:
         collection_info = client.get_collection(collection_name=collection_name)
     except:
         client.create_collection(
             collection_name=collection_name,
-            vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
+            vectors_config=VectorParams(size=embed_size, distance=Distance.COSINE),
         )
     vector1 = embeddings(query)
     unique_id = str(uuid4())
@@ -923,14 +925,14 @@ def upload_explicit_short_term_memories(query):
     payload = list()
     payload = list()    
                 # Define the collection name
-    collection_name = f"Bot_{bot_name}_User_{username}_Explicit_Short_Term"
+    collection_name = f"Bot_{bot_name}_Explicit_Short_Term"
                 # Create the collection only if it doesn't exist
     try:
         collection_info = client.get_collection(collection_name=collection_name)
     except:
         client.create_collection(
             collection_name=collection_name,
-            vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
+            vectors_config=VectorParams(size=embed_size, distance=Distance.COSINE),
         )
     vector1 = embeddings(query)
     unique_id = str(uuid4())
@@ -969,14 +971,14 @@ def ask_upload_implicit_memories(memories):
                 payload = list()
             #    a = input(f'\n\nUSER: ')        
                 # Define the collection name
-                collection_name = f"Bot_{bot_name}_User_{username}_Implicit_Short_Term"
+                collection_name = f"Bot_{bot_name}_Implicit_Short_Term"
                 # Create the collection only if it doesn't exist
                 try:
                     collection_info = client.get_collection(collection_name=collection_name)
                 except:
                     client.create_collection(
                         collection_name=collection_name,
-                        vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
+                        vectors_config=VectorParams(size=embed_size, distance=Distance.COSINE),
                     )
                 vector1 = embeddings(segment)
                 unique_id = str(uuid4())
@@ -1019,14 +1021,14 @@ def ask_upload_explicit_memories(memories):
                 payload = list()
             #    a = input(f'\n\nUSER: ')        
                 # Define the collection name
-                collection_name = f"Bot_{bot_name}_User_{username}_Explicit_Short_Term"
+                collection_name = f"Bot_{bot_name}_Explicit_Short_Term"
                 # Create the collection only if it doesn't exist
                 try:
                     collection_info = client.get_collection(collection_name=collection_name)
                 except:
                     client.create_collection(
                         collection_name=collection_name,
-                        vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
+                        vectors_config=VectorParams(size=embed_size, distance=Distance.COSINE),
                     )
                 vector1 = embeddings(segment)
                 unique_id = str(uuid4())
@@ -1078,14 +1080,14 @@ def upload_implicit_short_term_memories(query):
     payload = list()
     payload = list()    
                 # Define the collection name
-    collection_name = f"Bot_{bot_name}_User_{username}_Implicit_Short_Term"
+    collection_name = f"Bot_{bot_name}_Implicit_Short_Term"
                 # Create the collection only if it doesn't exist
     try:
         collection_info = client.get_collection(collection_name=collection_name)
     except:
         client.create_collection(
             collection_name=collection_name,
-            vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
+            vectors_config=VectorParams(size=embed_size, distance=Distance.COSINE),
         )
     vector1 = embeddings(query)
     unique_id = str(uuid4())
@@ -1114,14 +1116,14 @@ def upload_explicit_short_term_memories(query):
     payload = list()
     payload = list()    
                 # Define the collection name
-    collection_name = f"Bot_{bot_name}_User_{username}_Explicit_Short_Term"
+    collection_name = f"Bot_{bot_name}_Explicit_Short_Term"
                 # Create the collection only if it doesn't exist
     try:
         collection_info = client.get_collection(collection_name=collection_name)
     except:
         client.create_collection(
             collection_name=collection_name,
-            vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
+            vectors_config=VectorParams(size=embed_size, distance=Distance.COSINE),
         )
     vector1 = embeddings(query)
     unique_id = str(uuid4())
@@ -1153,7 +1155,7 @@ def search_implicit_db(line_vec):
             memories2  = None
             try:
                 hits = client.search(
-                    collection_name=f"Bot_{bot_name}_User_{username}",
+                    collection_name=f"Bot_{bot_name}",
                     query_vector=line_vec,
                     query_filter=Filter(
                         must=[
@@ -1179,7 +1181,7 @@ def search_implicit_db(line_vec):
         
             try:
                 hits = client.search(
-                    collection_name=f"Bot_{bot_name}_User_{username}_Implicit_Short_Term",
+                    collection_name=f"Bot_{bot_name}_Implicit_Short_Term",
                     query_vector=line_vec,
                     query_filter=Filter(
                         must=[
@@ -1218,7 +1220,7 @@ def search_episodic_db(line_vec):
             memories = None
             try:
                 hits = client.search(
-                    collection_name=f"Bot_{bot_name}_User_{username}",
+                    collection_name=f"Bot_{bot_name}",
                     query_vector=line_vec,
                     query_filter=Filter(
                         must=[
@@ -1255,7 +1257,7 @@ def search_flashbulb_db(line_vec):
             memories = None
             try:
                 hits = client.search(
-                    collection_name=f"Bot_{bot_name}_User_{username}",
+                    collection_name=f"Bot_{bot_name}",
                     query_vector=line_vec,
                     query_filter=Filter(
                         must=[
@@ -1293,7 +1295,7 @@ def search_explicit_db(line_vec):
             memories2 = None
             try:
                 hits = client.search(
-                    collection_name=f"Bot_{bot_name}_User_{username}",
+                    collection_name=f"Bot_{bot_name}",
                     query_vector=line_vec,
                     query_filter=Filter(
                         must=[
@@ -1316,7 +1318,7 @@ def search_explicit_db(line_vec):
         
             try:
                 hits = client.search(
-                    collection_name=f"Bot_{bot_name}_User_{username}_Explicit_Short_Term",
+                    collection_name=f"Bot_{bot_name}_Explicit_Short_Term",
                     query_vector=line_vec,
                     query_filter=Filter(
                         must=[
@@ -1806,16 +1808,21 @@ class ChatBotApplication(customtkinter.CTkFrame):
         def delete_cadence():
             # Replace 'username' and 'bot_name' with appropriate variables if available.
             # You may need to adjust 'vdb' based on how your database is initialized.
+            username = open_file('./config/prompt_username.txt')
             confirm = messagebox.askyesno("Confirmation", "Are you sure you want to delete saved cadence?")
             if confirm:
                 client.delete(
-                    collection_name=f"Bot_{bot_name}_User_{username}",
+                    collection_name=f"Bot_{bot_name}",
                     points_selector=models.FilterSelector(
                         filter=models.Filter(
                             must=[
                                 models.FieldCondition(
                                     key="memory_type",
                                     match=models.MatchValue(value="Cadence"),
+                                ),
+                                models.FieldCondition(
+                                    key="user",
+                                    match=models.MatchValue(value=f"{username}"),
                                 ),
                             ],
                         )
@@ -1875,16 +1882,21 @@ class ChatBotApplication(customtkinter.CTkFrame):
         def delete_heuristics():
             # Replace 'username' and 'bot_name' with appropriate variables if available.
             # You may need to adjust 'vdb' based on how your database is initialized.
+            username = open_file('./config/prompt_username.txt')
             confirm = messagebox.askyesno("Confirmation", "Are you sure you want to delete heuristics?")
             if confirm:
                 client.delete(
-                    collection_name=f"Bot_{bot_name}_User_{username}",
+                    collection_name=f"Bot_{bot_name}",
                     points_selector=models.FilterSelector(
                         filter=models.Filter(
                             must=[
                                 models.FieldCondition(
                                     key="memory_type",
                                     match=models.MatchValue(value="Heuristics"),
+                                ),
+                                models.FieldCondition(
+                                    key="user",
+                                    match=models.MatchValue(value=f"{username}"),
                                 ),
                             ],
                         )
@@ -1983,16 +1995,21 @@ class ChatBotApplication(customtkinter.CTkFrame):
         def delete_cadence():
                 # Replace 'username' and 'bot_name' with appropriate variables if available.
                 # You may need to adjust 'vdb' based on how your database is initialized.
+            username = open_file('./config/prompt_username.txt')
             confirm = messagebox.askyesno("Confirmation", "Are you sure you want to delete saved cadence?")
             if confirm:
                 client.delete(
-                    collection_name=f"Bot_{bot_name}_User_{username}",
+                    collection_name=f"Bot_{bot_name}",
                     points_selector=models.FilterSelector(
                         filter=models.Filter(
                             must=[
                                 models.FieldCondition(
                                     key="memory_type",
                                     match=models.MatchValue(value="Cadence"),
+                                ),
+                                models.FieldCondition(
+                                    key="user",
+                                    match=models.MatchValue(value=f"{username}"),
                                 ),
                             ],
                         )
@@ -2003,16 +2020,21 @@ class ChatBotApplication(customtkinter.CTkFrame):
         def delete_heuristics():
                 # Replace 'username' and 'bot_name' with appropriate variables if available.
                 # You may need to adjust 'vdb' based on how your database is initialized.
+            username = open_file('./config/prompt_username.txt')
             confirm = messagebox.askyesno("Confirmation", "Are you sure you want to delete heuristics?")
             if confirm:
                 client.delete(
-                    collection_name=f"Bot_{bot_name}_User_{username}",
+                    collection_name=f"Bot_{bot_name}",
                     points_selector=models.FilterSelector(
                         filter=models.Filter(
                             must=[
                                 models.FieldCondition(
                                     key="memory_type",
                                     match=models.MatchValue(value="Heuristics"),
+                                ),
+                                models.FieldCondition(
+                                    key="user",
+                                    match=models.MatchValue(value=f"{username}"),
                                 ),
                             ],
                         )
@@ -2023,18 +2045,56 @@ class ChatBotApplication(customtkinter.CTkFrame):
         def delete_counters():
                 # Replace 'username' and 'bot_name' with appropriate variables if available.
                 # You may need to adjust 'vdb' based on how your database is initialized.
+            username = open_file('./config/prompt_username.txt')
             confirm = messagebox.askyesno("Confirmation", "Are you sure you want to delete memory consolidation counters?")
             if confirm:
-                client.delete_collection(collection_name=f"Flash_Counter_Bot_{bot_name}_User_{username}")
-                client.delete_collection(collection_name=f"Consol_Counter_Bot_{bot_name}_User_{username}")
+                client.delete(
+                    collection_name=f"Flash_Counter_Bot_{bot_name}",
+                    points_selector=models.FilterSelector(
+                        filter=models.Filter(
+                            must=[
+                                models.FieldCondition(
+                                    key="user",
+                                    match=models.MatchValue(value=f"{username}"),
+                                ),
+                            ],
+                        )
+                    ),
+                ) 
+                client.delete(
+                    collection_name=f"Consol_Counter_Bot_{bot_name}",
+                    points_selector=models.FilterSelector(
+                        filter=models.Filter(
+                            must=[
+                                models.FieldCondition(
+                                    key="user",
+                                    match=models.MatchValue(value=f"{username}"),
+                                ),
+                            ],
+                        )
+                    ),
+                ) 
                 
                 
         def delete_bot():
                 # Replace 'username' and 'bot_name' with appropriate variables if available.
                 # You may need to adjust 'vdb' based on how your database is initialized.
+            username = open_file('./config/prompt_username.txt')
             confirm = messagebox.askyesno("Confirmation", f"Are you sure you want to delete {bot_name} in their entirety?")
             if confirm:
-                client.delete_collection(collection_name=f"Bot_{bot_name}_User_{username}")
+                client.delete(
+                    collection_name=f"Bot_{bot_name}",
+                    points_selector=models.FilterSelector(
+                        filter=models.Filter(
+                            must=[
+                                models.FieldCondition(
+                                    key="user",
+                                    match=models.MatchValue(value=f"{username}"),
+                                ),
+                            ],
+                        )
+                    ),
+                )
                 
                 
         delete_cadence_button = customtkinter.CTkButton(deletion_window, text="Delete Cadence", command=delete_cadence)
@@ -3221,14 +3281,18 @@ class ChatBotApplication(customtkinter.CTkFrame):
             for line in lines:            
                 try:
                     hits = client.search(
-                        collection_name=f"Bot_{bot_name}_User_{username}",
+                        collection_name=f"Bot_{bot_name}",
                         query_vector=vector_input1,
                         query_filter=Filter(
                             must=[
                                 FieldCondition(
                                     key="memory_type",
-                                    match=MatchValue(value="Explicit_Long_Term")
-                                )
+                                    match=MatchValue(value="Explicit_Long_Term"),
+                                ),
+                                FieldCondition(
+                                    key="user",
+                                    match=models.MatchValue(value=f"{username}"),
+                                ),
                             ]
                         ),
                         limit=4
@@ -3247,14 +3311,18 @@ class ChatBotApplication(customtkinter.CTkFrame):
 
                 try:
                     hits = client.search(
-                        collection_name=f"Bot_{bot_name}_User_{username}",
+                        collection_name=f"Bot_{bot_name}",
                         query_vector=vector_input1,
                         query_filter=Filter(
                             must=[
                                 FieldCondition(
                                     key="memory_type",
-                                    match=MatchValue(value="Implicit_Long_Term")
-                                )
+                                    match=MatchValue(value="Implicit_Long_Term"),
+                                ),
+                                FieldCondition(
+                                    key="user",
+                                    match=models.MatchValue(value=f"{username}"),
+                                ),
                             ]
                         ),
                         limit=4
@@ -3275,14 +3343,18 @@ class ChatBotApplication(customtkinter.CTkFrame):
             db_search_3, db_search_4, db_search_5, db_search_6 = None, None, None, None
             try:
                 hits = client.search(
-                    collection_name=f"Bot_{bot_name}_User_{username}",
+                    collection_name=f"Bot_{bot_name}",
                     query_vector=vector_input1,
                     query_filter=Filter(
                         must=[
                             FieldCondition(
                                 key="memory_type",
-                                match=MatchValue(value="Episodic")
-                            )
+                                match=MatchValue(value="Episodic"),
+                            ),
+                            FieldCondition(
+                                key="user",
+                                match=models.MatchValue(value=f"{username}"),
+                            ),
                         ]
                     ),
                     limit=6
@@ -3296,14 +3368,18 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     print(f"An unexpected error occurred: {str(e)}")
             try:
                 hits = client.search(
-                    collection_name=f"Bot_{bot_name}_User_{username}_Explicit_Short_Term",
+                    collection_name=f"Bot_{bot_name}_Explicit_Short_Term",
                     query_vector=vector_input1,
                     query_filter=Filter(
                         must=[
                             FieldCondition(
                                 key="memory_type",
-                                match=MatchValue(value="Explicit_Short_Term")
-                            )
+                                match=MatchValue(value="Explicit_Short_Term"),
+                            ),
+                            FieldCondition(
+                                key="user",
+                                match=models.MatchValue(value=f"{username}"),
+                            ),
                         ]
                     ),
                     limit=5
@@ -3317,14 +3393,18 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     print(f"An unexpected error occurred: {str(e)}")
             try:
                 hits = client.search(
-                    collection_name=f"Bot_{bot_name}_User_{username}",
+                    collection_name=f"Bot_{bot_name}",
                     query_vector=vector_input1,
                     query_filter=Filter(
                         must=[
                             FieldCondition(
                                 key="memory_type",
-                                match=MatchValue(value="Flashbulb")
-                            )
+                                match=MatchValue(value="Flashbulb"),
+                            ),
+                            FieldCondition(
+                                key="user",
+                                match=models.MatchValue(value=f"{username}"),
+                            ),
                         ]
                     ),
                     limit=2
@@ -3338,14 +3418,18 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     print(f"An unexpected error occurred: {str(e)}")
             try:
                 hits = client.search(
-                    collection_name=f"Bot_{bot_name}_User_{username}",
+                    collection_name=f"Bot_{bot_name}",
                     query_vector=vector_input1,
                     query_filter=Filter(
                         must=[
                             FieldCondition(
                                 key="memory_type",
-                                match=MatchValue(value="Heuristics")
-                            )
+                                match=MatchValue(value="Heuristics"),
+                            ),
+                            FieldCondition(
+                                key="user",
+                                match=models.MatchValue(value=f"{username}"),
+                            ),
                         ]
                     ),
                     limit=5
@@ -3361,10 +3445,21 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 if self.is_web_db_checked():
                     try:
                         hits = client.search(
-                            collection_name=f"Bot_{bot_name}_User_{username}_External_Knowledgebase",
+                            collection_name=f"Bot_{bot_name}_External_Knowledgebase",
                             query_vector=vector_input1,
+                            query_filter=Filter(
+                                must=[
+                                    FieldCondition(
+                                        key="user",
+                                        match=models.MatchValue(value=f"{username}"),
+                                    ),
+                                ]
+                            ),
                             limit=5
                         )
+                        
+                        
+                        
                         inner_web = [hit.payload['message'] for hit in hits]
                         print(inner_web)
                     except Exception as e:
@@ -3376,14 +3471,18 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 if self.is_web_db_checked():
                     try:
                         hits = client.search(
-                            collection_name=f"Bot_{bot_name}_User_{username}_External_Knowledgebase",
+                            collection_name=f"Bot_{bot_name}_External_Knowledgebase",
                             query_vector=vector_input1,
                             query_filter=Filter(
                                 must=[
                                     FieldCondition(
                                         key="memory_type",
-                                        match=MatchValue(value="Web_Scrape")
-                                    )
+                                        match=MatchValue(value="Web_Scrape"),
+                                    ),
+                                    FieldCondition(
+                                        key="user",
+                                        match=models.MatchValue(value=f"{username}"),
+                                    ),
                                 ]
                             ),
                             limit=5
@@ -3398,14 +3497,18 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 if self.is_web_db_checked():
                     try:
                         hits = client.search(
-                            collection_name=f"Bot_{bot_name}_User_{username}_External_Knowledgebase",
+                            collection_name=f"Bot_{bot_name}_External_Knowledgebase",
                             query_vector=vector_input1,
                             query_filter=Filter(
                                 must=[
                                     FieldCondition(
                                         key="memory_type",
-                                        match=MatchValue(value="File_Scrape")
-                                    )
+                                        match=MatchValue(value="File_Scrape"),
+                                    ),
+                                    FieldCondition(
+                                        key="user",
+                                        match=models.MatchValue(value=f"{username}"),
+                                    ),
                                 ]
                             ),
                             limit=5
@@ -3478,14 +3581,18 @@ class ChatBotApplication(customtkinter.CTkFrame):
             db_search_7, db_search_8, db_search_9, db_search_10 = None, None, None, None
             try:
                 hits = client.search(
-                    collection_name=f"Bot_{bot_name}_User_{username}",
+                    collection_name=f"Bot_{bot_name}",
                     query_vector=vector_monologue,
                     query_filter=Filter(
                         must=[
                             FieldCondition(
                                 key="memory_type",
-                                match=MatchValue(value="Episodic")
-                            )
+                                match=MatchValue(value="Episodic"),
+                            ),
+                            FieldCondition(
+                                key="user",
+                                match=models.MatchValue(value=f"{username}"),
+                            ),
                         ]
                     ),
                     limit=3
@@ -3499,14 +3606,18 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     print(f"An unexpected error occurred: {str(e)}")
             try:
                 hits = client.search(
-                    collection_name=f"Bot_{bot_name}_User_{username}_Explicit_Short_Term",
+                    collection_name=f"Bot_{bot_name}_Explicit_Short_Term",
                     query_vector=vector_monologue,
                     query_filter=Filter(
                         must=[
                             FieldCondition(
                                 key="memory_type",
-                                match=MatchValue(value="Explicit_Short_Term")
-                            )
+                                match=MatchValue(value="Explicit_Short_Term"),
+                            ),
+                            FieldCondition(
+                                key="user",
+                                match=models.MatchValue(value=f"{username}"),
+                            ),
                         ]
                     ),
                     limit=3
@@ -3520,14 +3631,18 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     print(f"An unexpected error occurred: {str(e)}")
             try:
                 hits = client.search(
-                    collection_name=f"Bot_{bot_name}_User_{username}",
+                    collection_name=f"Bot_{bot_name}",
                     query_vector=vector_monologue,
                     query_filter=Filter(
                         must=[
                             FieldCondition(
                                 key="memory_type",
-                                match=MatchValue(value="Flashbulb")
-                            )
+                                match=MatchValue(value="Flashbulb"),
+                            ),
+                            FieldCondition(
+                                key="user",
+                                match=models.MatchValue(value=f"{username}"),
+                            ),
                         ]
                     ),
                     limit=2
@@ -3541,14 +3656,18 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     print(f"An unexpected error occurred: {str(e)}")
             try:
                 hits = client.search(
-                    collection_name=f"Bot_{bot_name}_User_{username}",
+                    collection_name=f"Bot_{bot_name}",
                     query_vector=vector_monologue,
                     query_filter=Filter(
                         must=[
                             FieldCondition(
                                 key="memory_type",
-                                match=MatchValue(value="Heuristics")
-                            )
+                                match=MatchValue(value="Heuristics"),
+                            ),
+                            FieldCondition(
+                                key="user",
+                                match=models.MatchValue(value=f"{username}"),
+                            ),
                         ]
                     ),
                     limit=5
@@ -3603,14 +3722,14 @@ class ChatBotApplication(customtkinter.CTkFrame):
                                 print(segment)
                                 payload = list()   
                                 # Define the collection name
-                                collection_name = f"Bot_{bot_name}_User_{username}_Implicit_Short_Term"
+                                collection_name = f"Bot_{bot_name}_Implicit_Short_Term"
                                 # Create the collection only if it doesn't exist
                                 try:
                                     collection_info = client.get_collection(collection_name=collection_name)
                                 except:
                                     client.create_collection(
                                         collection_name=collection_name,
-                                        vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
+                                        vectors_config=VectorParams(size=embed_size, distance=Distance.COSINE),
                                     )
                                 vector1 = embeddings(segment)
                                 unique_id = str(uuid4())
@@ -3708,14 +3827,18 @@ class ChatBotApplication(customtkinter.CTkFrame):
             # # Generate Cadence
             try:
                 hits = client.search(
-                    collection_name=f"Bot_{bot_name}_User_{username}",
+                    collection_name=f"Bot_{bot_name}",
                     query_vector=vector_monologue,
                     query_filter=Filter(
                         must=[
                             FieldCondition(
                                 key="memory_type",
-                                match=MatchValue(value="Cadence")
-                            )
+                                match=MatchValue(value="Cadence"),
+                            ),
+                            FieldCondition(
+                                key="user",
+                                match=models.MatchValue(value=f"{username}"),
+                            ),
                         ]
                     ),
                     limit=2
@@ -3731,14 +3854,18 @@ class ChatBotApplication(customtkinter.CTkFrame):
             db_search_12, db_search_13, db_search_14 = None, None, None
             try:
                 hits = client.search(
-                    collection_name=f"Bot_{bot_name}_User_{username}",
+                    collection_name=f"Bot_{bot_name}",
                     query_vector=vector_monologue,
                     query_filter=Filter(
                         must=[
                             FieldCondition(
                                 key="memory_type",
-                                match=MatchValue(value="Implicit_Long_Term")
-                            )
+                                match=MatchValue(value="Implicit_Long_Term"),
+                            ),
+                            FieldCondition(
+                                key="user",
+                                match=models.MatchValue(value=f"{username}"),
+                            ),
                         ]
                     ),
                     limit=4
@@ -3752,14 +3879,18 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     print(f"An unexpected error occurred: {str(e)}")
             try:
                 hits = client.search(
-                    collection_name=f"Bot_{bot_name}_User_{username}",
+                    collection_name=f"Bot_{bot_name}",
                     query_vector=vector_monologue,
                     query_filter=Filter(
                         must=[
                             FieldCondition(
                                 key="memory_type",
-                                match=MatchValue(value="Episodic")
-                            )
+                                match=MatchValue(value="Episodic"),
+                            ),
+                            FieldCondition(
+                                key="user",
+                                match=models.MatchValue(value=f"{username}"),
+                            ),
                         ]
                     ),
                     limit=7
@@ -3773,14 +3904,18 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     print(f"An unexpected error occurred: {str(e)}")
             try:
                 hits = client.search(
-                    collection_name=f"Bot_{bot_name}_User_{username}",
+                    collection_name=f"Bot_{bot_name}",
                     query_vector=vector_monologue,
                     query_filter=Filter(
                         must=[
                             FieldCondition(
                                 key="memory_type",
-                                match=MatchValue(value="Heuristics")
-                            )
+                                match=MatchValue(value="Heuristics"),
+                            ),
+                            FieldCondition(
+                                key="user",
+                                match=models.MatchValue(value=f"{username}"),
+                            ),
                         ]
                     ),
                     limit=5
@@ -3848,14 +3983,14 @@ class ChatBotApplication(customtkinter.CTkFrame):
                                 print(segment)
                                 payload = list()       
                                 # Define the collection name
-                                collection_name = f"Bot_{bot_name}_User_{username}_Explicit_Short_Term"
+                                collection_name = f"Bot_{bot_name}_Explicit_Short_Term"
                                 # Create the collection only if it doesn't exist
                                 try:
                                     collection_info = client.get_collection(collection_name=collection_name)
                                 except:
                                     client.create_collection(
                                         collection_name=collection_name,
-                                        vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
+                                        vectors_config=VectorParams(size=embed_size, distance=Distance.COSINE),
                                     )
                                 vector1 = embeddings(segment)
                                 unique_id = str(uuid4())
@@ -3987,14 +4122,14 @@ class ChatBotApplication(customtkinter.CTkFrame):
             print(conv_summary)
             print('\n-----------------------\n')
             # Define the collection name
-            collection_name = f"Bot_{bot_name}_User_{username}"
+            collection_name = f"Bot_{bot_name}"
             # Create the collection only if it doesn't exist
             try:
                 collection_info = client.get_collection(collection_name=collection_name)
             except:
                 client.create_collection(
                     collection_name=collection_name,
-                    vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
+                    vectors_config=VectorParams(size=embed_size, distance=Distance.COSINE),
                 )
             vector1 = embeddings(timestring + '-' + conv_summary)
             unique_id = str(uuid4())
@@ -4012,14 +4147,14 @@ class ChatBotApplication(customtkinter.CTkFrame):
             payload.clear()
             
             
-            collection_name = f"Flash_Counter_Bot_{bot_name}_User_{username}"
+            collection_name = f"Flash_Counter_Bot_{bot_name}"
             # Create the collection only if it doesn't exist
             try:
                 collection_info = client.get_collection(collection_name=collection_name)
             except:
                 client.create_collection(
                     collection_name=collection_name,
-                    vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
+                    vectors_config=VectorParams(size=embed_size, distance=Distance.COSINE),
                 )
             vector1 = embeddings(timestring + '-' + conv_summary)
             unique_id = str(uuid4())
@@ -4037,20 +4172,24 @@ class ChatBotApplication(customtkinter.CTkFrame):
             payload.clear()
 
             # # Flashbulb Memory Generation
-            collection_name = f"Flash_Counter_Bot_{bot_name}_User_{username}"
+            collection_name = f"Flash_Counter_Bot_{bot_name}"
             collection_info = client.get_collection(collection_name=collection_name)
             if collection_info.vectors_count > 7:
                 flash_db = None
                 try:
                     hits = client.search(
-                        collection_name=f"Bot_{bot_name}_User_{username}",
+                        collection_name=f"Bot_{bot_name}",
                         query_vector=vector_input,
                         query_filter=Filter(
                             must=[
                                 FieldCondition(
                                     key="memory_type",
-                                    match=MatchValue(value="Episodic")
-                                )
+                                    match=MatchValue(value="Episodic"),
+                                ),
+                                FieldCondition(
+                                    key="user",
+                                    match=models.MatchValue(value=f"{username}"),
+                                ),
                             ]
                         ),
                         limit=5
@@ -4066,14 +4205,19 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 flash_db1 = None
                 try:
                     hits = client.search(
-                        collection_name=f"Bot_{bot_name}_User_{username}",
+                        collection_name=f"Bot_{bot_name}",
                         query_vector=vector_monologue,
                         query_filter=Filter(
                             must=[
                                 FieldCondition(
                                     key="memory_type",
-                                    match=MatchValue(value="Implicit_Long_Term")
-                                )
+                                    match=MatchValue(value="Implicit_Long_Term"),
+                                ),
+                                FieldCondition(
+                                    key="user",
+                                    match=models.MatchValue(value=f"{username}"),
+                                ),
+
                             ]
                         ),
                         limit=8
@@ -4104,14 +4248,14 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     else:
                         print(segment)
                         # Define the collection name
-                        collection_name = f"Bot_{bot_name}_User_{username}"
+                        collection_name = f"Bot_{bot_name}"
                         # Create the collection only if it doesn't exist
                         try:
                             collection_info = client.get_collection(collection_name=collection_name)
                         except:
                             client.create_collection(
                                 collection_name=collection_name,
-                                vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
+                                vectors_config=VectorParams(size=embed_size, distance=Distance.COSINE),
                             )
                         vector1 = embeddings(segment)
                         unique_id = str(uuid4())
@@ -4127,19 +4271,41 @@ class ChatBotApplication(customtkinter.CTkFrame):
                         client.upsert(collection_name=collection_name,
                                              points=[PointStruct(id=unique_id, vector=vector1, payload=metadata)])   
                         payload.clear()
-                client.delete_collection(collection_name=f"Flash_Counter_Bot_{bot_name}_User_{username}")
+                client.delete(
+                    collection_name=f"Flash_Counter_Bot_{bot_name}",
+                    points_selector=models.FilterSelector(
+                        filter=models.Filter(
+                            must=[
+                                models.FieldCondition(
+                                    key="user",
+                                    match=models.MatchValue(value=f"{username}"),
+                                ),
+                            ],
+                        )
+                    ),
+                ) 
                 
-            # # Implicit Short Term Memory Consolidation based on amount of vectors in namespace    
-            collection_name = f"Bot_{bot_name}_User_{username}_Explicit_Short_Term"
+            # # Short Term Memory Consolidation based on amount of vectors in namespace    
+            collection_name = f"Bot_{bot_name}_Explicit_Short_Term"
             collection_info = client.get_collection(collection_name=collection_name)
             if collection_info.vectors_count > 20:
                 consolidation.clear()
                 memory_consol_db = None
+                        
                 try:
                     hits = client.search(
-                        collection_name=f"Bot_{bot_name}_User_{username}_Explicit_Short_Term",
-                        query_vector=vector_input,
-                    limit=20)
+                        collection_name=f"Bot_{bot_name}_Explicit_Short_Term",
+                        query_vector=vector_input1,
+                        query_filter=Filter(
+                            must=[
+                                FieldCondition(
+                                    key="user",
+                                    match=MatchValue(value=f"{username}")
+                                )
+                            ]
+                        ),
+                        limit=20
+                    )
                     memory_consol_db = [hit.payload['message'] for hit in hits]
                     print(memory_consol_db)
                 except Exception as e:
@@ -4147,6 +4313,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                         print("Collection does not exist.")
                     else:
                         print(f"An unexpected error occurred: {str(e)}")
+                        
 
                 print('\n-----------------------\n')
                 consolidation.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: {main_prompt}\n\n"})
@@ -4162,14 +4329,14 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     else:
                         print(segment)
                         # Define the collection name
-                        collection_name = f"Bot_{bot_name}_User_{username}"
+                        collection_name = f"Bot_{bot_name}"
                         # Create the collection only if it doesn't exist
                         try:
                             collection_info = client.get_collection(collection_name=collection_name)
                         except:
                             client.create_collection(
                                 collection_name=collection_name,
-                                vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
+                                vectors_config=VectorParams(size=embed_size, distance=Distance.COSINE),
                             )
                         vector1 = embeddings(segment)
                         unique_id = str(uuid4())
@@ -4185,17 +4352,29 @@ class ChatBotApplication(customtkinter.CTkFrame):
                         client.upsert(collection_name=collection_name,
                                              points=[PointStruct(id=unique_id, vector=vector1, payload=metadata)])   
                         payload.clear()
-                client.delete_collection(collection_name=f"Bot_{bot_name}_User_{username}_Explicit_Short_Term")
+                client.delete(
+                    collection_name=f"Bot_{bot_name}_Explicit_Short_Term",
+                    points_selector=models.FilterSelector(
+                        filter=models.Filter(
+                            must=[
+                                models.FieldCondition(
+                                    key="user",
+                                    match=models.MatchValue(value=f"{username}"),
+                                ),
+                            ],
+                        )
+                    ),
+                ) 
                 
                         # Define the collection name
-                collection_name = f'Consol_Counter_Bot_{bot_name}_User_{username}'
+                collection_name = f'Consol_Counter_Bot_{bot_name}'
                         # Create the collection only if it doesn't exist
                 try:
                     collection_info = client.get_collection(collection_name=collection_name)
                 except:
                     client.create_collection(
                     collection_name=collection_name,
-                    vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
+                    vectors_config=VectorParams(size=embed_size, distance=Distance.COSINE),
                     )
                 vector1 = embeddings(segment)
                 unique_id = str(uuid4())
@@ -4208,7 +4387,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     'uuid': unique_id,
                     'memory_type': 'Consol_Counter',
                 }
-                client.upsert(collection_name=f'Consol_Counter_Bot_{bot_name}_User_{username}',
+                client.upsert(collection_name=f'Consol_Counter_Bot_{bot_name}',
                     points=[PointStruct(id=unique_id, vector=vector1, payload=metadata)])   
                 payload.clear()
                 print('\n-----------------------\n')
@@ -4218,24 +4397,38 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 
                 
                 # # Implicit Short Term Memory Consolidation based on amount of vectors in namespace
-                collection_name = f"Consol_Counter_Bot_{bot_name}_User_{username}"
+                collection_name = f"Consol_Counter_Bot_{bot_name}"
                 collection_info = client.get_collection(collection_name=collection_name)
                 if collection_info.vectors_count % 2 == 0:
                     consolidation.clear()
                     print('Beginning Implicit Short-Term Memory Consolidation')
                     memory_consol_db2 = None
+      
                     try:
                         hits = client.search(
-                            collection_name=f"Bot_{bot_name}_User_{username}_Implicit_Short_Term",
-                            query_vector=vector_input,
-                        limit=25)
+                            collection_name=f"Bot_{bot_name}_Implicit_Short_Term",
+                            query_vector=vector_input1,
+                            query_filter=Filter(
+                                must=[
+                                    FieldCondition(
+                                        key="user",
+                                        match=MatchValue(value=f"{username}")
+                                    )
+                                ]
+                            ),
+                            limit=25
+                        )
                         memory_consol_db2 = [hit.payload['message'] for hit in hits]
                         print(memory_consol_db2)
                     except Exception as e:
                         if "Not found: Collection" in str(e):
                             print("Collection does not exist.")
                         else:
-                            print(f"An unexpected error occurred: {str(e)}")
+                            print(f"An unexpected error occurred: {str(e)}") 
+                            
+                            
+                            
+                            
 
                     print('\n-----------------------\n')
                     consolidation.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: {main_prompt}\n\n"})
@@ -4250,14 +4443,18 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     memory_consol_db3 = None
                     try:
                         hits = client.search(
-                            collection_name=f"Bot_{bot_name}_User_{username}",
+                            collection_name=f"Bot_{bot_name}",
                             query_vector=vector_sum,
                             query_filter=Filter(
                                 must=[
                                     FieldCondition(
                                         key="memory_type",
-                                        match=MatchValue(value="Implicit_Long_Term")
-                                    )
+                                        match=MatchValue(value="Implicit_Long_Term"),
+                                    ),
+                                    FieldCondition(
+                                        key="user",
+                                        match=MatchValue(value=f"{username}"),
+                                    ),
                                 ]
                             ),
                             limit=8
@@ -4285,14 +4482,14 @@ class ChatBotApplication(customtkinter.CTkFrame):
                         else:
                             print(segment)
                             # Define the collection name
-                            collection_name = f"Bot_{bot_name}_User_{username}"
+                            collection_name = f"Bot_{bot_name}"
                             # Create the collection only if it doesn't exist
                             try:
                                 collection_info = client.get_collection(collection_name=collection_name)
                             except:
                                 client.create_collection(
                                     collection_name=collection_name,
-                                    vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
+                                    vectors_config=VectorParams(size=embed_size, distance=Distance.COSINE),
                                 )
                             vector1 = embeddings(segment)
                             unique_id = str(uuid4())
@@ -4309,7 +4506,19 @@ class ChatBotApplication(customtkinter.CTkFrame):
                                                  points=[PointStruct(id=unique_id, vector=vector1, payload=metadata)])   
                             payload.clear()
                     print('\n-----------------------\n')   
-                    client.delete_collection(collection_name=f"Bot_{bot_name}_User_{username}_Implicit_Short_Term")
+                    client.delete(
+                        collection_name=f"Implicit_Short_Term_Memory_Bot_{bot_name}",
+                        points_selector=models.FilterSelector(
+                            filter=models.Filter(
+                                must=[
+                                    models.FieldCondition(
+                                        key="user",
+                                        match=models.MatchValue(value=f"{username}"),
+                                    ),
+                                ],
+                            )
+                        ),
+                    )
                     print('Memory Consolidation Successful')
                     print('\n-----------------------\n')
                 else:   
@@ -4317,7 +4526,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     
                     
             # # Implicit Associative Processing/Pruning based on amount of vectors in namespace   
-                collection_name = f"Consol_Counter_Bot_{bot_name}_User_{username}"
+                collection_name = f"Consol_Counter_Bot_{bot_name}"
                 collection_info = client.get_collection(collection_name=collection_name)
                 if collection_info.vectors_count % 4 == 0:
                     consolidation.clear()
@@ -4325,14 +4534,18 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     memory_consol_db4 = None
                     try:
                         hits = client.search(
-                            collection_name=f"Bot_{bot_name}_User_{username}",
+                            collection_name=f"Bot_{bot_name}",
                             query_vector=vector_input,
                             query_filter=Filter(
                                 must=[
                                     FieldCondition(
                                         key="memory_type",
-                                        match=MatchValue(value="Implicit_Long_Term")
-                                    )
+                                        match=MatchValue(value="Implicit_Long_Term"),
+                                    ),
+                                    FieldCondition(
+                                        key="user",
+                                        match=MatchValue(value=f"{username}"),
+                                    ),
                                 ]
                             ),
                             limit=10
@@ -4360,14 +4573,14 @@ class ChatBotApplication(customtkinter.CTkFrame):
                         else:
                             print(segment)
                             # Define the collection name
-                            collection_name = f"Bot_{bot_name}_User_{username}"
+                            collection_name = f"Bot_{bot_name}"
                             # Create the collection only if it doesn't exist
                             try:
                                 collection_info = client.get_collection(collection_name=collection_name)
                             except:
                                 client.create_collection(
                                     collection_name=collection_name,
-                                    vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
+                                    vectors_config=VectorParams(size=embed_size, distance=Distance.COSINE),
                                 )
                             vector1 = embeddings(segment)
                             unique_id = str(uuid4())
@@ -4386,7 +4599,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     try:
                         print('\n-----------------------\n')
                         client.delete(
-                            collection_name=f"Bot_{bot_name}_User_{username}",
+                            collection_name=f"Bot_{bot_name}",
                             points_selector=models.PointIdsList(
                                 points=ids_to_delete,
                             ),
@@ -4396,7 +4609,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                         
                         
             # # Explicit Long-Term Memory Associative Processing/Pruning based on amount of vectors in namespace
-                collection_name = f"Consol_Counter_Bot_{bot_name}_User_{username}"
+                collection_name = f"Consol_Counter_Bot_{bot_name}"
                 collection_info = client.get_collection(collection_name=collection_name)
                 if collection_info.vectors_count > 5:
                     consolidation.clear()
@@ -4405,14 +4618,18 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     consol_search = None
                     try:
                         hits = client.search(
-                            collection_name=f"Bot_{bot_name}_User_{username}",
+                            collection_name=f"Bot_{bot_name}",
                             query_vector=vector_monologue,
                             query_filter=Filter(
                                 must=[
                                     FieldCondition(
                                         key="memory_type",
-                                        match=MatchValue(value="Implicit_Long_Term")
-                                    )
+                                        match=MatchValue(value="Implicit_Long_Term"),
+                                    ),
+                                    FieldCondition(
+                                        key="user",
+                                        match=MatchValue(value=f"{username}"),
+                                    ),
                                 ]
                             ),
                             limit=5
@@ -4434,14 +4651,18 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     memory_consol_db2 = None
                     try:
                         hits = client.search(
-                            collection_name=f"Explicit_Long_Term_Memory_Bot_{bot_name}_User_{username}",
+                            collection_name=f"Explicit_Long_Term_Memory_Bot_{bot_name}",
                             query_vector=vector_monologue,
                             query_filter=Filter(
                                 must=[
                                     FieldCondition(
                                         key="memory_type",
-                                        match=MatchValue(value="Explicit_Long_Term")
-                                    )
+                                        match=MatchValue(value="Explicit_Long_Term"),
+                                    ),
+                                    FieldCondition(
+                                        key="user",
+                                        match=MatchValue(value=f"{username}"),
+                                    ),
                                 ]
                             ),
                             limit=5
@@ -4472,14 +4693,14 @@ class ChatBotApplication(customtkinter.CTkFrame):
                         else:
                             print(segment)
                             # Define the collection name
-                            collection_name = f"Bot_{bot_name}_User_{username}"
+                            collection_name = f"Bot_{bot_name}"
                             # Create the collection only if it doesn't exist
                             try:
                                 collection_info = client.get_collection(collection_name=collection_name)
                             except:
                                 client.create_collection(
                                     collection_name=collection_name,
-                                    vectors_config=models.VectorParams(size=model.get_sentence_embedding_dimension(), distance=Distance.COSINE),
+                                    vectors_config=VectorParams(size=embed_size, distance=Distance.COSINE),
                                 )
                             vector1 = embeddings(segment)
                             unique_id = str(uuid4())
@@ -4498,14 +4719,26 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     try:
                         print('\n-----------------------\n')
                         client.delete(
-                            collection_name=f"Bot_{bot_name}_User_{username}",
+                            collection_name=f"Bot_{bot_name}",
                             points_selector=models.PointIdsList(
                                 points=ids_to_delete2,
                             ),
                         )
                     except:
                         print('Failed2')      
-                    client.delete_collection(collection_name=f"Consol_Counter_Bot_{bot_name}_User_{username}")    
+                    client.delete(
+                        collection_name=f"Consol_Counter_Bot_{bot_name}",
+                        points_selector=models.FilterSelector(
+                            filter=models.Filter(
+                                must=[
+                                    models.FieldCondition(
+                                        key="user",
+                                        match=models.MatchValue(value=f"{username}"),
+                                    ),
+                                ],
+                            )
+                        ),
+                    ) 
             else:
                 pass
             consolidation.clear()
@@ -4633,7 +4866,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
             for line in lines:            
                 try:
                     hits = client.search(
-                        collection_name=f"Bot_{bot_name}_User_{username}",
+                        collection_name=f"Bot_{bot_name}",
                         query_vector=vector_input1,
                         query_filter=Filter(
                             must=[
@@ -4658,7 +4891,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     print(f"An unexpected error occurred: {str(e)}")
                 try:
                     hits = client.search(
-                        collection_name=f"Bot_{bot_name}_User_{username}",
+                        collection_name=f"Bot_{bot_name}",
                         query_vector=vector_input1,
                         query_filter=Filter(
                             must=[
@@ -4686,7 +4919,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
             db_search_1, db_search_2, db_search_3, db_search_14 = None, None, None, None
             try:
                 hits = client.search(
-                    collection_name=f"Bot_{bot_name}_User_{username}",
+                    collection_name=f"Bot_{bot_name}",
                     query_vector=vector_input1,
                     query_filter=Filter(
                         must=[
@@ -4704,7 +4937,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 print(f"An unexpected error occurred: {str(e)}")
             try:
                 hits = client.search(
-                    collection_name=f"Bot_{bot_name}_User_{username}",
+                    collection_name=f"Bot_{bot_name}",
                     query_vector=vector_input1,
                     query_filter=Filter(
                         must=[
@@ -4722,7 +4955,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 print(f"An unexpected error occurred: {str(e)}")
             try:
                 hits = client.search(
-                    collection_name=f"Bot_{bot_name}_User_{username}",
+                    collection_name=f"Bot_{bot_name}",
                     query_vector=vector_input1,
                     query_filter=Filter(
                         must=[
@@ -4743,7 +4976,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
             if self.are_both_web_and_file_db_checked():
                 try:
                     hits = client.search(
-                        collection_name=f"Bot_{bot_name}_User_{username}_External_Knowledgebase",
+                        collection_name=f"Bot_{bot_name}_External_Knowledgebase",
                         query_vector=vector_input1,
                         limit=10
                     )
@@ -4755,7 +4988,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 if self.is_web_db_checked():
                     try:
                         hits = client.search(
-                            collection_name=f"Bot_{bot_name}_User_{username}_External_Knowledgebase",
+                            collection_name=f"Bot_{bot_name}_External_Knowledgebase",
                             query_vector=vector_input1,
                             query_filter=Filter(
                                 must=[
@@ -4774,7 +5007,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 elif self.is_file_db_checked():
                     try:
                         hits = client.search(
-                            collection_name=f"Bot_{bot_name}_User_{username}_External_Knowledgebase",
+                            collection_name=f"Bot_{bot_name}_External_Knowledgebase",
                             query_vector=vector_input1,
                             query_filter=Filter(
                                 must=[
@@ -4865,7 +5098,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
             db_search_4, db_search_5, db_search_12, db_search_15 = None, None, None, None
             try:
                 hits = client.search(
-                    collection_name=f"Episodic_Memory_Bot_{bot_name}_User_{username}",
+                    collection_name=f"Episodic_Memory_Bot_{bot_name}",
                     query_vector=vector_monologue,
                     query_filter=Filter(
                         must=[
@@ -4886,7 +5119,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 print(f"An unexpected error occurred: {str(e)}")
             try:
                 hits = client.search(
-                    collection_name=f"Bot_{bot_name}_User_{username}_Explicit_Short_Term",
+                    collection_name=f"Bot_{bot_name}_Explicit_Short_Term",
                     query_vector=vector_monologue,
                     query_filter=Filter(
                         must=[
@@ -4907,7 +5140,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 print(f"An unexpected error occurred: {str(e)}")
             try:
                 hits = client.search(
-                    collection_name=f"Bot_{bot_name}_User_{username}",
+                    collection_name=f"Bot_{bot_name}",
                     query_vector=vector_monologue,
                     query_filter=Filter(
                         must=[
@@ -4928,7 +5161,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 print(f"An unexpected error occurred: {str(e)}")
             try:
                 hits = client.search(
-                    collection_name=f"Bot_{bot_name}_User_{username}",
+                    collection_name=f"Bot_{bot_name}",
                     query_vector=vector_monologue,
                     query_filter=Filter(
                         must=[
@@ -4950,7 +5183,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     
         #    try:
         #        hits = client.search(
-        #            collection_name=f"Webscrape_Tool_Bot_{bot_name}_User_{username}",
+        #            collection_name=f"Webscrape_Tool_Bot_{bot_name}",
         #            query_vector=vector_monologue,
         #        limit=5)
                 # Print the result
@@ -4965,7 +5198,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
             if self.are_both_web_and_file_db_checked():
                 try:
                     hits = client.search(
-                        collection_name=f"Bot_{bot_name}_User_{username}_External_Knowledgebase",
+                        collection_name=f"Bot_{bot_name}_External_Knowledgebase",
                         query_vector=vector_monologue,
                         limit=9
                     )
@@ -4977,7 +5210,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 if self.is_web_db_checked():
                     try:
                         hits = client.search(
-                            collection_name=f"Bot_{bot_name}_User_{username}_External_Knowledgebase",
+                            collection_name=f"Bot_{bot_name}_External_Knowledgebase",
                             query_vector=vector_monologue,
                             query_filter=Filter(
                                 must=[
@@ -4996,7 +5229,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 elif self.is_file_db_checked():
                     try:
                         hits = client.search(
-                            collection_name=f"Bot_{bot_name}_User_{username}_External_Knowledgebase",
+                            collection_name=f"Bot_{bot_name}_External_Knowledgebase",
                             query_vector=vector_monologue,
                             query_filter=Filter(
                                 must=[
@@ -5270,7 +5503,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
             if self.are_both_web_and_file_db_checked():
                 try:
                     hits = client.search(
-                        collection_name=f"Bot_{bot_name}_User_{username}_External_Knowledgebase",
+                        collection_name=f"Bot_{bot_name}_External_Knowledgebase",
                         query_vector=vector_input1,
                         limit=13
                     )
@@ -5282,7 +5515,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 if self.is_web_db_checked():
                     try:
                         hits = client.search(
-                            collection_name=f"Bot_{bot_name}_User_{username}_External_Knowledgebase",
+                            collection_name=f"Bot_{bot_name}_External_Knowledgebase",
                             query_vector=vector_input1,
                             query_filter=Filter(
                                 must=[
@@ -5301,7 +5534,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 elif self.is_file_db_checked():
                     try:
                         hits = client.search(
-                            collection_name=f"Bot_{bot_name}_User_{username}_External_Knowledgebase",
+                            collection_name=f"Bot_{bot_name}_External_Knowledgebase",
                             query_vector=vector_input1,
                             query_filter=Filter(
                                 must=[

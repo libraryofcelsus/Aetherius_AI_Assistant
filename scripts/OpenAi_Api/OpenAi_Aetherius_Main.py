@@ -3615,6 +3615,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
             # # Inner Monologue Generation
             conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S EPISODIC MEMORIES: {db_search_3}\n{db_search_5}\n\n{botnameupper}'S SHORT-TERM MEMORIES: {db_search_4}.\n\n{botnameupper}'s HEURISTICS: {db_search_6}\n\n\n\nSYSTEM:Compose a short silent soliloquy to serve as {bot_name}'s internal monologue/narrative.  Ensure it includes {bot_name}'s contemplations and emotions in relation to {username}'s request.\n\n\nCURRENT CONVERSATION HISTORY: {con_hist}"})
             conversation.append({'role': 'user', 'content': f"{usernameupper}/USER: {a}\nPlease directly provide a short internal monologue as {bot_name} contemplating the user's most recent message."})
+            conversation.append({'role': 'assistant', 'content': f"{botnameupper}: "})
             output_one = chatgpt_inner_monologue_completion(conversation)
             inner_output = (f'{output_one}\n\n')
             paragraph = output_one
@@ -3759,6 +3760,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
             # # Intuition Generation
             int_conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S FLASHBULB MEMORIES: {db_search_9}\n{botnameupper}'S EXPLICIT MEMORIES: {db_search_8}\n{botnameupper}'s HEURISTICS: {db_search_10}\n{botnameupper}'S INNER THOUGHTS: {output_one}\n{botnameupper}'S EPISODIC MEMORIES: {db_search_7}\nPREVIOUS CONVERSATION HISTORY: {con_hist}\n\n\n\nSYSTEM: Transmute the user, {username}'s message as {bot_name} by devising a truncated predictive action plan in the third person point of view on how to best respond to {username}'s most recent message. You are not allowed to use external resources.  Do not create a plan for generic conversation, only on what information is needed to be given.  If the user is requesting information on a subject, give a plan on what information needs to be provided."}) 
             int_conversation.append({'role': 'user', 'content': f"{usernameupper}: {a}\nPlease only provide the third person action plan in your response.  The action plan should be in tasklist form."})
+            int_conversation.append({'role': 'assistant', 'content': f"{botnameupper}: "})
             output_two = chatgpt_intuition_completion(int_conversation)
             message_two = output_two
             print('\n\nINTUITION: %s' % output_two)
@@ -3992,6 +3994,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
             # # Generate Aetherius's Response
             conversation2.append({'role': 'assistant', 'content': f"CHATBOTS MEMORIES: {db_search_12}\n{db_search_13}\n\n{bot_name}'s HEURISTICS: {db_search_14}\n\nCHATBOTS INNER THOUGHTS: {output_one}\n{second_prompt}\n\nI am in the middle of a conversation with my user, {username}.\n{botnameupper}'S RESPONSE PLANNING: Now I will now complete my action plan and use it to help structure my response, prioritizing informational requests: {output_two}\n\nI will now read our conversation history, then I will then do my best to respond naturally in a way that both answer's the user and shows emotional intelligence.\n\nCONVERSATION HISTORY: {con_hist}"})
             conversation2.append({'role': 'user', 'content': f"{usernameupper}/USER: {a}\nPlease provide a natural sounding response as {bot_name} to the user's latest message.  Fufill the user, {username}'s request to its entirety, questioning the user may lead to them being displeased."})
+            conversation2.append({'role': 'assistant', 'content': f"{botnameupper}: "})
             response_two = chatgpt_response_completion(conversation2)
             self.conversation_text.insert(tk.END, f"Response: {response_two}\n\n")
             tts_model = open_file('./config/Settings/TTS.txt')

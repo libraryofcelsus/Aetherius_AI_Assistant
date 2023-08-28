@@ -4024,7 +4024,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
             db_msg = f"USER: {a}\nINNER_MONOLOGUE: {output_one}\n{bot_name}'s RESPONSE: {response_two}"
             summary.append({'role': 'assistant', 'content': f"LOG: {db_msg}\n\nSYSTEM: Use the log to extract the salient points about {bot_name}, {username}, and any informational topics mentioned in the chatbot's inner monologue and response. These points should be used to create concise executive summaries in bullet point format to serve as {bot_name}'s explicit memories. Each bullet point should be considered a separate memory and contain full context.  Use the bullet point format: •EXPLICIT MEMORY:<Executive Summary>\n\n{botnameupper}: Sure! Here are some explicit memories based on {bot_name}'s response:"})
             prompt = ''.join([message_dict['content'] for message_dict in summary])
-            db_upload = chatgpt250_completion(prompt)
+            db_upload = chatgpt250_completion(summary)
         #    print(db_upload)
         #    print('\n-----------------------\n')
             db_upsert = db_upload

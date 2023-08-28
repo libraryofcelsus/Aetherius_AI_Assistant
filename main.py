@@ -1,6 +1,4 @@
 import os
-import openai
-import pinecone
 import time
 import sys
 import importlib.util

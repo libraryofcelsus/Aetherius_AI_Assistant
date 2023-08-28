@@ -30,6 +30,14 @@ from qdrant_client.models import Distance, VectorParams, PointStruct, Filter, Fi
 from qdrant_client.http import models
 import numpy as np
 import re
+import sounddevice as sd
+import whisper
+import pydub
+import subprocess
+import keyboard
+from scipy.io.wavfile import write
+from pydub.playback import play as pydub_play
+from gtts import gTTS
 
 
 embed_size = open_file('./config/embed_size.txt')
@@ -78,39 +86,45 @@ else:
 
 
 
-# Import GPT Calls based on set Config
-def import_functions_from_script(script_path):
-    spec = importlib.util.spec_from_file_location("custom_module", script_path)
+def import_functions_from_script(script_path, custom_name="custom_module"):
+    """
+    Import functions from a given script path.
+
+    Parameters:
+    - script_path: The path to the script to import.
+    - custom_name: Optional custom module name for import.
+    """
+    spec = importlib.util.spec_from_file_location(custom_name, script_path)
     custom_module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(custom_module)
     globals().update(vars(custom_module))
-def get_script_path_from_file(file_path):
+
+def get_script_path_from_file(file_path, base_folder='./scripts/resources/'):
+    """
+    Get the script path from a text file.
+
+    Parameters:
+    - file_path: The path to the text file containing the script name.
+    - base_folder: The base folder where the script is located.
+    """
     with open(file_path, 'r') as file:
         script_name = file.read().strip()
-    return f'./scripts/resources/{script_name}.py'
-# Define the paths to the text file and scripts directory
-file_path = './config/model.txt'
-# Read the script name from the text file
-script_path = get_script_path_from_file(file_path)
-# Import the functions from the desired script
-import_functions_from_script(script_path)
+    return f'{base_folder}{script_name}.py'
 
+# Import for model
+file_path1 = './config/model.txt'
+script_path1 = get_script_path_from_file(file_path1)
+import_functions_from_script(script_path1, "model_module")
 
-def import_functions_from_script_embed(script_path):
-    spec = importlib.util.spec_from_file_location("custom_module", script_path)
-    custom_module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(custom_module)
-    globals().update(vars(custom_module))
-def get_script_path_from_file_embed(file_path):
-    with open(file_path, 'r') as file:
-        script_name = file.read().strip()
-    return f'./scripts/resources/{script_name}.py'
-# Define the paths to the text file and scripts directory
-file_path = './config/Settings/embedding_model.txt'
-# Read the script name from the text file
-script_path = get_script_path_from_file(file_path)
-# Import the functions from the desired script
-import_functions_from_script(script_path)
+# Import for embedding model
+file_path2 = './config/Settings/embedding_model.txt'
+script_path2 = get_script_path_from_file(file_path2)
+import_functions_from_script(script_path2, "embedding_module")
+
+# Import for TTS
+file_path3 = './config/Settings/TTS.txt'
+script_path3 = get_script_path_from_file(file_path3, base_folder='./scripts/resources/TTS/')
+import_functions_from_script(script_path3, "TTS_module")
 
 
 # Set the Theme for the Chatbot
@@ -121,6 +135,46 @@ def set_dark_ancient_theme():
     text_color = 'white'
 
     return background_color, foreground_color, button_color, text_color
+    
+
+# record_audio('audio', duration, sample_rate, channels, dtype)
+
+def record_audio(filename, duration, sample_rate, channels, dtype):
+    print("Press and hold the Right Alt key to record...")
+    audio_data = []
+
+    while True:
+        if keyboard.is_pressed('right alt'):
+            if len(audio_data) == 0:
+                print("Recording...")
+
+            # Record 100ms chunks while key is down
+            audio_chunk = sd.rec(int(sample_rate * 0.1), samplerate=sample_rate, channels=channels, dtype=dtype)
+            sd.wait()
+
+            # Append chunk to audio data
+            audio_data.extend(audio_chunk)
+
+        elif len(audio_data) > 0:
+            print("Stopped recording.")
+            break
+
+    audio_data = np.array(audio_data, dtype=dtype)
+
+    # Save audio as a WAV file first
+    write('audio.wav', sample_rate, np.array(audio_data))
+
+    # Use FFmpeg to convert WAV to MP3
+    subprocess.run(['ffmpeg', '-i', 'audio.wav', 'audio.mp3'])
+    print(f"Saved as {filename}.mp3")
+    
+    
+def play(audio_segment):
+    pydub_play(audio_segment)
+    
+    
+    
+
     
     
 def google_search(query, my_api_key, my_cse_id, **kwargs):
@@ -2129,6 +2183,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
         self.user_input.delete("1.0", tk.END)  # Clear all the text in the widget.
     #    self.user_input.configure(state=tk.DISABLED)
         self.send_button.configure(state=tk.DISABLED)
+        self.voice_button.configure(state=tk.DISABLED)
         self.user_input.unbind("<Return>")
         # Display "Thinking..." in the input field
     #    self.thinking_label.grid(row=2, column=2, pady=3)
@@ -2136,6 +2191,65 @@ class ChatBotApplication(customtkinter.CTkFrame):
         self.user_input.configure(state=tk.DISABLED)
         t = threading.Thread(target=self.process_message, args=(a,))
         t.start()
+        
+    def initiate_record_audio(self):
+        self.user_input.delete("1.0", tk.END)  # Clear all the text in the widget.
+        self.user_input.insert(tk.END, f"Press and hold the Right Alt key to record...")
+        self.send_button.configure(state=tk.DISABLED)
+        self.voice_button.configure(state=tk.DISABLED)
+        self.user_input.unbind("<Return>")
+        audio_thread = threading.Thread(target=self.record_audio)
+        audio_thread.start()
+        
+    def record_audio(self):
+        print("Press and hold the Right Alt key to record...")
+
+     #   self.user_input.insert(tk.END, f"Press and hold the Right Alt key to record...")
+        filename = 'audio'
+
+        # Initialize variables
+        duration = None  # Variable duration
+        sample_rate = 44100  # 44.1kHz
+        channels = 2  # Stereo
+        dtype = np.int16  # 16-bit PCM format
+        audio_data = np.empty((0, channels), dtype=dtype)
+
+        while True:
+            if keyboard.is_pressed('right alt'):
+                if len(audio_data) == 0:
+                    print("Recording...")
+                
+                # Record 100ms chunks while the key is down
+                audio_chunk = sd.rec(int(sample_rate * 0.1), samplerate=sample_rate, channels=channels, dtype=dtype)
+                sd.wait()
+                
+                # Append chunk to audio data
+                audio_data = np.vstack([audio_data, audio_chunk])
+
+            elif len(audio_data) > 0:
+                print("Stopped recording.")
+                break
+
+        # Save audio as a WAV file first
+        write('audio.wav', sample_rate, audio_data)
+
+        # Use FFmpeg to convert WAV to MP3
+        subprocess.run(['ffmpeg', '-i', 'audio.wav', 'audio.mp3'])
+        print(f"Saved as {filename}.mp3")
+        
+        model_stt = whisper.load_model("base")
+        result = model_stt.transcribe("audio.mp3")
+        a = result["text"]
+        os.remove("audio.wav")
+        os.remove("audio.mp3")
+        # Display "Thinking..." in the input field
+    #    self.thinking_label.grid(row=2, column=2, pady=3)
+        self.user_input.delete("1.0", tk.END)
+        self.user_input.insert(tk.END, f"Thinking...\n\nPlease Wait...")
+        self.user_input.configure(state=tk.DISABLED)
+        t = threading.Thread(target=self.process_message, args=(a,))
+        t.start()
+
 
 
     def process_message(self, a):
@@ -2602,6 +2716,69 @@ class ChatBotApplication(customtkinter.CTkFrame):
 
         top.mainloop()
         
+        
+    def Set_TTS(self):
+        file_path = "./config/Settings/TTS.txt"
+        dark_bg_color = "#2B2B2B"
+        light_text_color = "#ffffff"
+
+        with open(file_path, 'r', encoding='utf-8') as file:
+            host_value = file.read()
+
+        top = tk.Toplevel(self)
+        top.configure(bg=dark_bg_color)
+        top.title("Set TTS Model")
+
+        # Replace label with a read-only Text widget to allow selection
+        label_text = "Options: gTTS(Google), elevenTTS(Elevenlabs)\nEnter what TTS provider you wish to use:"
+        
+        # Adjust the appearance of the Text widget
+        label = tk.Text(top, height=3, wrap=tk.WORD, bg=dark_bg_color, fg=light_text_color, bd=0, padx=10, pady=10, relief=tk.FLAT, highlightthickness=0)
+        label.insert(tk.END, label_text)
+        label.configure(state=tk.DISABLED)  # Make it read-only
+        label.pack(pady=10)
+
+        self.host_entry = tk.Entry(top, bg=dark_bg_color, fg=light_text_color, width=50)
+        self.host_entry.insert(tk.END, host_value)
+        self.host_entry.pack(padx=10, pady=10)
+
+        def copy_to_clipboard(widget):
+            try:
+                selected_text = widget.selection_get()
+                top.clipboard_clear()
+                top.clipboard_append(selected_text)
+            except tk.TclError:
+                pass  # Nothing is selected
+
+        def paste_from_clipboard(widget):
+            clipboard_text = top.clipboard_get()
+            widget.insert(tk.INSERT, clipboard_text)
+
+        # Create context menu
+        context_menu = tk.Menu(top, tearoff=0)
+        context_menu.add_command(label="Copy", command=lambda: copy_to_clipboard(focused_widget))
+        context_menu.add_command(label="Paste", command=lambda: paste_from_clipboard(focused_widget))
+
+        def show_context_menu(event):
+            global focused_widget
+            focused_widget = event.widget
+            context_menu.post(event.x_root, event.y_root)
+
+        # Bind right-click to show the context menu
+        label.bind("<Button-3>", show_context_menu)
+        self.host_entry.bind("<Button-3>", show_context_menu)
+
+        def save_host():
+            new_host = self.host_entry.get()
+            with open(file_path, 'w') as file:
+                file.write(new_host)
+            top.destroy()
+
+        save_button = customtkinter.CTkButton(top, text="Save", command=save_host)
+        save_button.pack(pady=10)
+
+        top.mainloop()
+        
 
     #Fallback to size 10 if no font size
     def update_font_settings(self):
@@ -2658,6 +2835,11 @@ class ChatBotApplication(customtkinter.CTkFrame):
 
     def is_web_db_checked(self):
         return self.web_db_var.get()
+        
+        
+    def is_tts_checked(self):
+        return self.tts_var.get()
+        
 
     def is_file_db_checked(self):
         return self.file_db_var.get()
@@ -3042,9 +3224,11 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 self.Set_Host()
             elif selection == "Set Embedding Model":
                 self.Set_Embed()
+            elif selection == "Set TTS Model":
+                self.Set_TTS()
         
         # Config Dropdown Menu
-        self.menu = customtkinter.CTkComboBox(self.top_frame, values=["Set Oobabooga HOST", "Set Embedding Model", "Edit Font", "Edit Font Size", "Set Conv Length"], state="readonly", command=handle_menu_selection)
+        self.menu = customtkinter.CTkComboBox(self.top_frame, values=["Set Oobabooga HOST", "Set Embedding Model", "Set TTS Model", "Edit Font", "Edit Font Size", "Set Conv Length"], state="readonly", command=handle_menu_selection)
         self.menu.grid(row=0, column=4, padx=5, pady=5, sticky=tk.W+tk.E)
         self.menu.set("Config Menu")
         self.menu.bind("<<ComboboxSelected>>", self.handle_menu_selection)
@@ -3102,15 +3286,21 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 memory_mode = "None"
                 print("Memory Upload Disabled.")
 
+        self.tts_var = tk.BooleanVar(value=False)
 
-        self.send_button = customtkinter.CTkButton(self.input_frame, text="Send", command=self.send_message)  
+        self.voice_button = customtkinter.CTkButton(self.input_frame, text="Voice", command=self.initiate_record_audio, width=50)  
+        self.voice_button.grid(row=2, column=3, padx=5)
+
+        self.send_button = customtkinter.CTkButton(self.input_frame, text="Send", command=self.send_message, width=120)  
         self.send_button.grid(row=2, column=2, padx=5, pady=3)
         
-        self.mode_menu = customtkinter.CTkComboBox(self.input_frame, values=["Auto", "Manual", "Training", "None"], state="readonly", command=self.handle_memory_selection)
-        self.mode_menu.grid(row=1, column=2, columnspan=3, padx=5, pady=10, sticky=tk.W+tk.E)
+        self.mode_menu = customtkinter.CTkComboBox(self.input_frame, values=["Auto", "Manual", "Training", "None"], state="readonly", command=self.handle_memory_selection, width=120)
+        self.mode_menu.grid(row=1, column=2, padx=5, pady=10, sticky=tk.W+tk.E)
         self.mode_menu.set("Memory Mode")
         self.mode_menu.bind("<<ComboboxSelected>>", handle_memory_selection)
         
+        self.tts_check = customtkinter.CTkCheckBox(self.input_frame, variable=self.tts_var, text="TTS", width=12)
+        self.tts_check.grid(row=1, column=3, padx=5)
         
         
         def toggle_db_checkboxes():
@@ -3932,6 +4122,14 @@ class ChatBotApplication(customtkinter.CTkFrame):
             conversation2.append({'role': 'assistant', 'content': f"CHATBOTS MEMORIES: {db_search_12}\n{db_search_13}\n\n{bot_name}'s HEURISTICS: {db_search_14}\n\nCHATBOTS INNER THOUGHTS: {output_one}\n{second_prompt}\n\nI am in the middle of a conversation with my user, {username}.\n{botnameupper}'S RESPONSE PLANNING: Now I will now complete my action plan and use it to help structure my response, prioritizing informational requests: {output_two}\n\nI will now read our conversation history, then I will then do my best to respond naturally in a way that both answer's the user and shows emotional intelligence.\n\nCONVERSATION HISTORY: {con_hist}\n\n\n{usernameupper}/USER: {a}\nPlease provide a natural sounding response as {bot_name} to the user's latest message.  Fufill the user, {username}'s request to its entirety, questioning the user may lead to them being displeased.  You are directly responding to the user.\n\n{botnameupper}:"})
             prompt = ''.join([message_dict['content'] for message_dict in conversation2])
             response_two = oobabooga_response(prompt)
+            self.conversation_text.insert(tk.END, f"Response: {response_two}\n\n")
+            tts_model = open_file('./config/Settings/TTS.txt')
+            if self.is_tts_checked():
+                if tts_model == 'barkTTS':
+                    TTS_Generation(response_two)
+                else:
+                    t = threading.Thread(target=TTS_Generation, args=(response_two,))
+                    t.start()
             print('\n\n%s: %s' % (bot_name, response_two))
             print('\n-----------------------\n')
             main_conversation.append(timestring, username, a, bot_name, response_two)
@@ -4026,7 +4224,6 @@ class ChatBotApplication(customtkinter.CTkFrame):
             # # Clear Logs for Summary
             conversation2.clear()
             summary.clear()
-            self.conversation_text.insert(tk.END, f"Response: {response_two}\n\n")
             if self.memory_mode == 'Training':
                 self.conversation_text.insert(tk.END, f"Upload Memories?\n{db_upload}\n\n")
                 print(f"Upload Memories?\n{db_upload}\n\n")
@@ -4074,6 +4271,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
             self.user_input.configure(state=tk.NORMAL)
             self.user_input.delete("1.0", tk.END)
             self.send_button.configure(state=tk.NORMAL)
+            self.voice_button.configure(state=tk.NORMAL)
             self.thinking_label.pack_forget()
         #    self.user_input.delete(0, tk.END)
             self.bind_enter_key()
@@ -4747,7 +4945,6 @@ class ChatBotApplication(customtkinter.CTkFrame):
             
             
     def Agent_Tasklist_Inner_Monologue(self, a):
-        vdb = pinecone.Index("aetherius")
         my_api_key = open_file('api_keys/key_google.txt')
         my_cse_id = open_file('api_keys/key_google_cse.txt')
         # # Number of Messages before conversation is summarized, higher number, higher api cost. Change to 3 when using GPT 3.5 due to token usage.
@@ -5477,6 +5674,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
             self.user_input.configure(state=tk.NORMAL)
             self.user_input.delete("1.0", tk.END)
             self.send_button.configure(state=tk.NORMAL)
+            self.voice_button.configure(state=tk.NORMAL)
             self.thinking_label.pack_forget()
         #    self.user_input.delete(0, tk.END)
             self.bind_enter_key()

@@ -11,7 +11,6 @@ import time
 from time import time, sleep
 import datetime
 from uuid import uuid4
-import pinecone
 
 def gpt3_embedding(query, engine='text-embedding-ada-002'):
     max_counter = 7

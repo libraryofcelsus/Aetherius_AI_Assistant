@@ -1,10 +1,12 @@
 # Aetherius
-Version .044e of the Aetherius Ai Personal Assistant/Agent/Companion by LibraryofCelsus.com
+Version .044f of the Aetherius Ai Personal Assistant/Agent/Companion by LibraryofCelsus.com
 
 For quick demo deployment without a UI, see: [Public Oobabooga Api Colab](https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Oobabooga_Public_Api.ipynb) / [Aetherius Google Colab](https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Aetherius_Colab_Edition_Oobabooga.ipynb)
 
 ------
 **Recent Changes**
+
+• 8/28 Added Voice input using Whisper and TTS using gTTS or Eleven Labs.  Bark TTS still a work in progress.
 
 • 8/27 Updated usage guide with explanations of Ui's functions.
 
@@ -139,6 +141,10 @@ In January 2023, I had my inaugural encounter with ChatGPT 3.5.  Since that pivo
 • Launch Ai Tutorial YouTube Channel
 
 # Changelog:
+**0.044f**
+
+• Added Voice input using Whisper and TTS using gTTS or Eleven Labs.  Bark TTS still a work in progress.
+
 **0.044e**
 
 • Fixed Bug where embedding size wasn't being set when creating collections.

@@ -6,6 +6,8 @@ For quick demo deployment without a UI, see: [Public Oobabooga Api Colab](https:
 ------
 **Recent Changes**
 
+• 8/27 Updated usage guide with explination of Ui's functions.
+
 • 8/27 Removed Username from collection name and switched to using Metadata.
 
 • 8/27 Fixed Bug where embedding size wasn't being set when creating new collections.

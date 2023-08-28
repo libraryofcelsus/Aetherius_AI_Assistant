@@ -6,7 +6,7 @@ For quick demo deployment without a UI, see: [Public Oobabooga Api Colab](https:
 ------
 **Recent Changes**
 
-• 8/27 Updated usage guide with explination of Ui's functions.
+• 8/27 Updated usage guide with explanations of Ui's functions.
 
 • 8/27 Removed Username from collection name and switched to using Metadata.
 
@@ -60,7 +60,7 @@ All modes upload to the main chatbot's memories, so it's knowledgebase will grow
 
 **File DB:** This check mark will let you talk to data scraped from files with the File Processing Tool.
 
-**Memory DB:** This checkmark will have Aetherius choose it's most relivant memory database and then search it.
+**Memory DB:** This checkmark will have Aetherius choose it's most relevant memory database and then search it.
 
 ------
 
@@ -143,7 +143,7 @@ In January 2023, I had my inaugural encounter with ChatGPT 3.5.  Since that pivo
 
 • Fixed Bug where embedding size wasn't being set when creating collections.
 
-• Swiched usernames from collection name to metadata.
+• Switched usernames from collection name to metadata.
 
 **0.044d**
 

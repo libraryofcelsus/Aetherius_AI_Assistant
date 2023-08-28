@@ -17,6 +17,39 @@ if %errorlevel% equ 0 (
 )
 
 
+:: Check if FFmpeg is already installed
+where ffmpeg >nul 2>nul
+if %errorlevel% equ 0 (
+    echo FFmpeg is already installed.
+) else (
+    :: Create a directory for FFmpeg
+    mkdir ffmpeg_install
+    cd ffmpeg_install
+
+    :: Download FFmpeg (Replace the URL with the latest version if needed)
+    echo Downloading FFmpeg...
+    curl -o ffmpeg.zip https://www.gyan.dev/ffmpeg/builds/packages/ffmpeg-5.1.2-essentials_build.zip
+
+    :: Unzip FFmpeg
+    echo Unzipping FFmpeg...
+    tar -xf ffmpeg.zip
+
+    :: Rename and move folder to C:\
+    echo Moving FFmpeg to C:\...
+    move ffmpeg-5.1.2-essentials_build C:\ffmpeg
+
+    :: Add FFmpeg to system PATH
+    echo Adding FFmpeg to PATH...
+    setx /M PATH "%PATH%;C:\ffmpeg\bin"
+
+    :: Clean up
+    cd ..
+    rmdir /S /Q ffmpeg_install
+    echo FFmpeg installation complete!
+)
+
+
+
 setlocal enabledelayedexpansion
 
 cd /d "%~dp0"

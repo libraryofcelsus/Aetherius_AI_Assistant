@@ -2327,7 +2327,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
         subprocess.run(['ffmpeg', '-i', 'audio.wav', 'audio.mp3'])
         print(f"Saved as {filename}.mp3")
         
-        model_stt = whisper.load_model("base")
+        model_stt = whisper.load_model("small")
         result = model_stt.transcribe("audio.mp3")
         a = result["text"]
         os.remove("audio.wav")
@@ -2693,7 +2693,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
         top.title("Set Oobabooga Host")
 
         # Replace label with a read-only Text widget to allow selection
-        label_text = "(Default Localhost: http://localhost:5000/api\nEnter Non-Streaming URL from Oobabooga Public Api:"
+        label_text = "(Default Localhost: http://localhost:5000/api)\nEnter the Non-Streaming URL from the Oobabooga Public Api Google Colab:"
         
         # Adjust the appearance of the Text widget
         label = tk.Text(top, height=3, wrap=tk.WORD, bg=dark_bg_color, fg=light_text_color, bd=0, padx=10, pady=10, relief=tk.FLAT, highlightthickness=0)
@@ -2861,7 +2861,8 @@ class ChatBotApplication(customtkinter.CTkFrame):
             new_host = self.host_entry.get()
             with open(file_path, 'w') as file:
                 file.write(new_host)
-            top.destroy()
+            self.master.destroy()
+            Llama_2_Chat_Aetherius_Main()
 
         save_button = customtkinter.CTkButton(top, text="Save", command=save_host)
         save_button.pack(pady=10)
@@ -5969,6 +5970,20 @@ def Llama_2_Chat_Aetherius_Main():
     base_path = "./config/Chatbot_Prompts"
     base_prompts_path = os.path.join(base_path, "Base")
     user_bot_path = os.path.join(base_path, username, bot_name)
+    # Import for model
+    file_path1 = './config/model.txt'
+    script_path1 = get_script_path_from_file(file_path1)
+    import_functions_from_script(script_path1, "model_module")
+
+    # Import for embedding model
+    file_path2 = './config/Settings/embedding_model.txt'
+    script_path2 = get_script_path_from_file(file_path2)
+    import_functions_from_script(script_path2, "embedding_module")
+
+    # Import for TTS
+    file_path3 = './config/Settings/TTS.txt'
+    script_path3 = get_script_path_from_file(file_path3, base_folder='./scripts/resources/TTS/')
+    import_functions_from_script(script_path3, "TTS_module")
     # Check if user_bot_path exists
     if not os.path.exists(user_bot_path):
         os.makedirs(user_bot_path)  # Create directory

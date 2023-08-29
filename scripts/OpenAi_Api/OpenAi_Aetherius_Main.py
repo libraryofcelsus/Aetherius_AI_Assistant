@@ -2323,7 +2323,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
         subprocess.run(['ffmpeg', '-i', 'audio.wav', 'audio.mp3'])
         print(f"Saved as {filename}.mp3")
         
-        model_stt = whisper.load_model("small")
+        model_stt = whisper.load_model("base")
         result = model_stt.transcribe("audio.mp3")
         a = result["text"]
         os.remove("audio.wav")
@@ -3625,7 +3625,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                             print(f"An unexpected error occurred: {str(e)}")
             # # Inner Monologue Generation
             conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S EPISODIC MEMORIES: {db_search_3}\n{db_search_5}\n\n{botnameupper}'S SHORT-TERM MEMORIES: {db_search_4}.\n\n{botnameupper}'s HEURISTICS: {db_search_6}\n\n\n\nSYSTEM:Compose a short, truncated silent soliloquy to serve as {bot_name}'s internal monologue/narrative.  Ensure it includes {bot_name}'s contemplations and reflections in relation to {username}'s request.\n\n\nCURRENT CONVERSATION HISTORY: {con_hist}"})
-            conversation.append({'role': 'user', 'content': f"{usernameupper}/USER: {a}\nPlease directly provide a concise internal monologue as {bot_name}, contemplating the user's most recent message."})
+            conversation.append({'role': 'user', 'content': f"{usernameupper}/USER: {a}\nPlease provide a paragraph length internal monologue/narrative as {bot_name}, contemplating the user's most recent message."})
             conversation.append({'role': 'assistant', 'content': f"{botnameupper}: "})
             output_one = chatgpt_inner_monologue_completion(conversation)
             inner_output = (f'{output_one}\n\n')

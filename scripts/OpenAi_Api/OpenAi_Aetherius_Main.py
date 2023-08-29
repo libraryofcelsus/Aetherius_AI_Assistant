@@ -144,6 +144,7 @@ def set_dark_ancient_theme():
     
 def play(audio_segment):
     pydub_play(audio_segment)
+    self.is_recording = False
     
     
 def google_search(query, my_api_key, my_cse_id, **kwargs):
@@ -1434,6 +1435,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
         self.create_widgets()
         # Load and display conversation history
         self.display_conversation_history()
+        self.is_recording = False
         
     def show_context_menu(self, event):
         # Create the menu
@@ -1919,6 +1921,13 @@ class ChatBotApplication(customtkinter.CTkFrame):
         delete_button = customtkinter.CTkButton(heuristics_window, text="Delete Heuristics", command=delete_heuristics, bg_color=dark_bg_color)
         delete_button.grid(row=5, column=0, padx=5, pady=5)
         
+    def bind_right_alt_key(self):
+        self.user_input.bind("<Alt_R>", lambda event: self.check_and_record_audio())
+        
+    def check_and_record_audio(self):
+        if not self.is_recording:
+            self.initiate_record_audio()
+        
         
     def is_tts_checked(self):
         return self.tts_var.get()
@@ -1936,7 +1945,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
         top.title("Set TTS Model")
 
         # Replace label with a read-only Text widget to allow selection
-        label_text = "Options: gTTS(Google), elevenTTS(Elevenlabs)\nEnter what TTS provider you wish to use:"
+        label_text = "Options: gTTS(Google), elevenTTS(Elevenlabs), barkTTS(suno-ai)\nEnter what TTS provider you wish to use:"
         
         # Adjust the appearance of the Text widget
         label = tk.Text(top, height=3, wrap=tk.WORD, bg=dark_bg_color, fg=light_text_color, bd=0, padx=10, pady=10, relief=tk.FLAT, highlightthickness=0)
@@ -2269,6 +2278,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
 
 
     def initiate_record_audio(self):
+        self.is_recording = True
         self.user_input.delete("1.0", tk.END)  # Clear all the text in the widget.
         self.user_input.insert(tk.END, f"Press and hold the Right Alt key to record...")
         self.send_button.configure(state=tk.DISABLED)
@@ -2313,7 +2323,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
         subprocess.run(['ffmpeg', '-i', 'audio.wav', 'audio.mp3'])
         print(f"Saved as {filename}.mp3")
         
-        model_stt = whisper.load_model("base")
+        model_stt = whisper.load_model("small")
         result = model_stt.transcribe("audio.mp3")
         a = result["text"]
         os.remove("audio.wav")
@@ -3309,6 +3319,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
         self.grid_rowconfigure(1, weight=5)
         self.grid_rowconfigure(2, weight=0)
 
+        self.bind_right_alt_key()
         self.bind_enter_key()
         self.conversation_text.bind("<1>", lambda event: self.conversation_text.focus_set())
         self.conversation_text.bind("<Button-3>", self.show_context_menu)
@@ -3613,8 +3624,8 @@ class ChatBotApplication(customtkinter.CTkFrame):
                         else:
                             print(f"An unexpected error occurred: {str(e)}")
             # # Inner Monologue Generation
-            conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S EPISODIC MEMORIES: {db_search_3}\n{db_search_5}\n\n{botnameupper}'S SHORT-TERM MEMORIES: {db_search_4}.\n\n{botnameupper}'s HEURISTICS: {db_search_6}\n\n\n\nSYSTEM:Compose a short silent soliloquy to serve as {bot_name}'s internal monologue/narrative.  Ensure it includes {bot_name}'s contemplations and emotions in relation to {username}'s request.\n\n\nCURRENT CONVERSATION HISTORY: {con_hist}"})
-            conversation.append({'role': 'user', 'content': f"{usernameupper}/USER: {a}\nPlease directly provide a short internal monologue as {bot_name} contemplating the user's most recent message."})
+            conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S EPISODIC MEMORIES: {db_search_3}\n{db_search_5}\n\n{botnameupper}'S SHORT-TERM MEMORIES: {db_search_4}.\n\n{botnameupper}'s HEURISTICS: {db_search_6}\n\n\n\nSYSTEM:Compose a short, truncated silent soliloquy to serve as {bot_name}'s internal monologue/narrative.  Ensure it includes {bot_name}'s contemplations and reflections in relation to {username}'s request.\n\n\nCURRENT CONVERSATION HISTORY: {con_hist}"})
+            conversation.append({'role': 'user', 'content': f"{usernameupper}/USER: {a}\nPlease directly provide a concise internal monologue as {bot_name}, contemplating the user's most recent message."})
             conversation.append({'role': 'assistant', 'content': f"{botnameupper}: "})
             output_one = chatgpt_inner_monologue_completion(conversation)
             inner_output = (f'{output_one}\n\n')
@@ -3758,7 +3769,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     print(f"An unexpected error occurred: {str(e)}")
             print('\n-----------------------\n')
             # # Intuition Generation
-            int_conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S FLASHBULB MEMORIES: {db_search_9}\n{botnameupper}'S EXPLICIT MEMORIES: {db_search_8}\n{botnameupper}'s HEURISTICS: {db_search_10}\n{botnameupper}'S INNER THOUGHTS: {output_one}\n{botnameupper}'S EPISODIC MEMORIES: {db_search_7}\nPREVIOUS CONVERSATION HISTORY: {con_hist}\n\n\n\nSYSTEM: Transmute the user, {username}'s message as {bot_name} by devising a truncated predictive action plan in the third person point of view on how to best respond to {username}'s most recent message. You are not allowed to use external resources.  Do not create a plan for generic conversation, only on what information is needed to be given.  If the user is requesting information on a subject, give a plan on what information needs to be provided."}) 
+            int_conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S FLASHBULB MEMORIES: {db_search_9}\n{botnameupper}'S EXPLICIT MEMORIES: {db_search_8}\n{botnameupper}'s HEURISTICS: {db_search_10}\n{botnameupper}'S INNER THOUGHTS: {output_one}\n{botnameupper}'S EPISODIC MEMORIES: {db_search_7}\nPREVIOUS CONVERSATION HISTORY: {con_hist}\n\n\n\nSYSTEM: Transmute the user, {username}'s message as {bot_name} by devising a short, truncated predictive action plan in the third person point of view on how to best respond to {username}'s most recent message. Give the action plan in a list format. If the user is requesting information on a subject, give a plan on what information needs to be provided.  If the user is engauging in generic conversation, no action plan is needed."}) 
             int_conversation.append({'role': 'user', 'content': f"{usernameupper}: {a}\nPlease only provide the third person action plan in your response.  The action plan should be in tasklist form."})
             int_conversation.append({'role': 'assistant', 'content': f"{botnameupper}: "})
             output_two = chatgpt_intuition_completion(int_conversation)
@@ -4144,9 +4155,11 @@ class ChatBotApplication(customtkinter.CTkFrame):
             self.user_input.focus()
             self.user_input.configure(state=tk.NORMAL)
             self.user_input.delete("1.0", tk.END)
+            self.is_recording = False
             self.send_button.configure(state=tk.NORMAL)
             self.voice_button.configure(state=tk.NORMAL)
             self.thinking_label.pack_forget()
+            self.bind_right_alt_key()
         #    self.user_input.delete(0, tk.END)
             self.bind_enter_key()
             return
@@ -5602,9 +5615,11 @@ class ChatBotApplication(customtkinter.CTkFrame):
             self.user_input.focus()
             self.user_input.configure(state=tk.NORMAL)
             self.user_input.delete("1.0", tk.END)
+            self.is_recording = False
             self.send_button.configure(state=tk.NORMAL)
             self.voice_button.configure(state=tk.NORMAL)
             self.thinking_label.pack_forget()
+            self.bind_right_alt_key()
             self.bind_enter_key()
             return
             

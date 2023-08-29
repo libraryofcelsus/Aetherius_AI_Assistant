@@ -140,6 +140,7 @@ def set_dark_ancient_theme():
 # record_audio('audio', duration, sample_rate, channels, dtype)
 
 def record_audio(filename, duration, sample_rate, channels, dtype):
+    self.is_recording = True
     print("Press and hold the Right Alt key to record...")
     audio_data = []
 
@@ -171,6 +172,7 @@ def record_audio(filename, duration, sample_rate, channels, dtype):
     
 def play(audio_segment):
     pydub_play(audio_segment)
+    self.is_recording = False
     
     
     
@@ -1481,6 +1483,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
         self.create_widgets()
         # Load and display conversation history
         self.display_conversation_history()
+        self.is_recording = False
         
     def show_context_menu(self, event):
         # Create the menu
@@ -2075,6 +2078,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 # Replace 'username' and 'bot_name' with appropriate variables if available.
                 # You may need to adjust 'vdb' based on how your database is initialized.
             username = open_file('./config/prompt_username.txt')
+            bot_name = open_file('./config/prompt_bot_name.txt')
             confirm = messagebox.askyesno("Confirmation", "Are you sure you want to delete heuristics?")
             if confirm:
                 client.delete(
@@ -2100,6 +2104,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 # Replace 'username' and 'bot_name' with appropriate variables if available.
                 # You may need to adjust 'vdb' based on how your database is initialized.
             username = open_file('./config/prompt_username.txt')
+            bot_name = open_file('./config/prompt_bot_name.txt')
             confirm = messagebox.askyesno("Confirmation", "Are you sure you want to delete memory consolidation counters?")
             if confirm:
                 client.delete(
@@ -2134,21 +2139,105 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 # Replace 'username' and 'bot_name' with appropriate variables if available.
                 # You may need to adjust 'vdb' based on how your database is initialized.
             username = open_file('./config/prompt_username.txt')
+            bot_name = open_file('./config/prompt_bot_name.txt')
             confirm = messagebox.askyesno("Confirmation", f"Are you sure you want to delete {bot_name} in their entirety?")
             if confirm:
-                client.delete(
-                    collection_name=f"Bot_{bot_name}",
-                    points_selector=models.FilterSelector(
-                        filter=models.Filter(
-                            must=[
-                                models.FieldCondition(
-                                    key="user",
-                                    match=models.MatchValue(value=f"{username}"),
-                                ),
-                            ],
-                        )
-                    ),
-                )
+                try:
+                    client.delete(
+                        collection_name=f"Bot_{bot_name}",
+                        points_selector=models.FilterSelector(
+                            filter=models.Filter(
+                                must=[
+                                    models.FieldCondition(
+                                        key="user",
+                                        match=models.MatchValue(value=f"{username}"),
+                                    ),
+                                ],
+                            )
+                        ),
+                    )
+                except:
+                    pass
+                try:
+                    client.delete(
+                        collection_name=f"Bot_{bot_name}_External_Knowledgebase",
+                        points_selector=models.FilterSelector(
+                            filter=models.Filter(
+                                must=[
+                                    models.FieldCondition(
+                                        key="user",
+                                        match=models.MatchValue(value=f"{username}"),
+                                    ),
+                                ],
+                            )
+                        ),
+                    )
+                except:
+                    pass
+                try:
+                    client.delete(
+                        collection_name=f"Bot_{bot_name}_Explicit_Short_Term",
+                        points_selector=models.FilterSelector(
+                            filter=models.Filter(
+                                must=[
+                                    models.FieldCondition(
+                                        key="user",
+                                        match=models.MatchValue(value=f"{username}"),
+                                    ),
+                                ],
+                            )
+                        ),
+                    )
+                except:
+                    pass
+                try:
+                    client.delete(
+                        collection_name=f"Bot_{bot_name}_Implicit_Short_Term",
+                        points_selector=models.FilterSelector(
+                            filter=models.Filter(
+                                must=[
+                                    models.FieldCondition(
+                                        key="user",
+                                        match=models.MatchValue(value=f"{username}"),
+                                    ),
+                                ],
+                            )
+                        ),
+                    )
+                except:
+                    pass
+                try:
+                    client.delete(
+                        collection_name=f"Flash_Counter_Bot_{bot_name}",
+                        points_selector=models.FilterSelector(
+                            filter=models.Filter(
+                                must=[
+                                    models.FieldCondition(
+                                        key="user",
+                                        match=models.MatchValue(value=f"{username}"),
+                                    ),
+                                ],
+                            )
+                        ),
+                    )
+                except:
+                    pass
+                try:
+                    client.delete(
+                        collection_name=f"Consol_Counter_Bot_{bot_name}",
+                        points_selector=models.FilterSelector(
+                            filter=models.Filter(
+                                must=[
+                                    models.FieldCondition(
+                                        key="user",
+                                        match=models.MatchValue(value=f"{username}"),
+                                    ),
+                                ],
+                            )
+                        ),
+                    )
+                except:
+                    pass
                 
                 
         delete_cadence_button = customtkinter.CTkButton(deletion_window, text="Delete Cadence", command=delete_cadence)
@@ -2193,6 +2282,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
         t.start()
         
     def initiate_record_audio(self):
+        self.is_recording = True
         self.user_input.delete("1.0", tk.END)  # Clear all the text in the widget.
         self.user_input.insert(tk.END, f"Press and hold the Right Alt key to record...")
         self.send_button.configure(state=tk.DISABLED)
@@ -2249,7 +2339,6 @@ class ChatBotApplication(customtkinter.CTkFrame):
         self.user_input.configure(state=tk.DISABLED)
         t = threading.Thread(target=self.process_message, args=(a,))
         t.start()
-
 
 
     def process_message(self, a):
@@ -2802,6 +2891,14 @@ class ChatBotApplication(customtkinter.CTkFrame):
     def bind_enter_key(self):
         self.user_input.bind("<Return>", lambda event: self.send_message())
         
+
+    def bind_right_alt_key(self):
+        self.user_input.bind("<Alt_R>", lambda event: self.check_and_record_audio())
+        
+    def check_and_record_audio(self):
+        if not self.is_recording:
+            self.initiate_record_audio()
+        
         
     def insert_newline_with_space(self, event):
         # Check if the Shift key is pressed and the Enter key is pressed.
@@ -3287,6 +3384,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 print("Memory Upload Disabled.")
 
         self.tts_var = tk.BooleanVar(value=False)
+        
 
         self.voice_button = customtkinter.CTkButton(self.input_frame, text="Voice", command=self.initiate_record_audio, width=50)  
         self.voice_button.grid(row=2, column=3, padx=5)
@@ -3364,6 +3462,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
         self.grid_rowconfigure(1, weight=5)
         self.grid_rowconfigure(2, weight=0)
 
+        self.bind_right_alt_key()
         self.bind_enter_key()
         self.conversation_text.bind("<1>", lambda event: self.conversation_text.focus_set())
         self.conversation_text.bind("<Button-3>", self.show_context_menu)
@@ -3711,7 +3810,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                         else:
                             print(f"An unexpected error occurred: {str(e)}")
             # # Inner Monologue Generation
-            conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S EPISODIC MEMORIES: {db_search_3}\n{db_search_5}\n\n{botnameupper}'S SHORT-TERM MEMORIES: {db_search_4}.\n\n{botnameupper}'s HEURISTICS: {db_search_6}\n\n\n\nSYSTEM:Compose a short silent soliloquy to serve as {bot_name}'s internal monologue/narrative.  Ensure it includes {bot_name}'s contemplations and emotions in relation to {username}'s request.\n\n\nCURRENT CONVERSATION HISTORY: {con_hist}\n\n\n{usernameupper}/USER: {a}\nPlease directly provide a short internal monologue as {bot_name} contemplating the user's most recent message.\n\n{botnameupper}: Of course, here is an inner soliloquy for {bot_name}:"})
+            conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S EPISODIC MEMORIES: {db_search_3}\n{db_search_5}\n\n{botnameupper}'S SHORT-TERM MEMORIES: {db_search_4}.\n\n{botnameupper}'s HEURISTICS: {db_search_6}\n\n\n\nSYSTEM:Compose a truncated silent soliloquy to serve as {bot_name}'s internal monologue/narrative.  Ensure it includes {bot_name}'s contemplations and emotions in relation to {username}'s request.\n\n\nCURRENT CONVERSATION HISTORY: {con_hist}\n\n\n{usernameupper}/USER: {a}\nPlease directly provide a brief internal monologue as {bot_name} reflecting upon how to best respond to the user's most recent message.\n\n{botnameupper}: Of course, here is a terse inner soliloquy for {bot_name}:"})
             prompt = ''.join([message_dict['content'] for message_dict in conversation])
             output_one = oobabooga_inner_monologue(prompt)
             inner_output = (f'{output_one}\n\n')
@@ -3871,7 +3970,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     print(f"An unexpected error occurred: {str(e)}")
             print('\n-----------------------\n')
             # # Intuition Generation
-            int_conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S FLASHBULB MEMORIES: {db_search_9}\n{botnameupper}'S EXPLICIT MEMORIES: {db_search_8}\n{botnameupper}'s HEURISTICS: {db_search_10}\n{botnameupper}'S INNER THOUGHTS: {output_one}\n{botnameupper}'S EPISODIC MEMORIES: {db_search_7}\nPREVIOUS CONVERSATION HISTORY: {con_hist}\n\n\n\nSYSTEM: Transmute the user, {username}'s message as {bot_name} by devising a truncated predictive action plan in the third person point of view on how to best respond to {username}'s most recent message. You are not allowed to use external resources.  Do not create a plan for generic conversation, only on what information is needed to be given.  If the user is requesting information on a subject, give a plan on what information needs to be provided.\n\n\n{usernameupper}: {a}\nPlease only provide the third person action plan in your response.  The action plan should be in tasklist form.\n\n{botnameupper}:"}) 
+            int_conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S FLASHBULB MEMORIES: {db_search_9}\n{botnameupper}'S EXPLICIT MEMORIES: {db_search_8}\n{botnameupper}'s HEURISTICS: {db_search_10}\n{botnameupper}'S INNER THOUGHTS: {output_one}\n{botnameupper}'S EPISODIC MEMORIES: {db_search_7}\nPREVIOUS CONVERSATION HISTORY: {con_hist}\n\n\n\nSYSTEM: Transmute the user, {username}'s message as {bot_name} by devising a truncated predictive action plan in the third person point of view on how to best respond to {username}'s most recent message. You are not allowed to use external resources.  Do not create a plan for generic conversation, only on what information is needed to be given.  If the user is requesting information on a subject, give a plan on what information needs to be provided.\n\n\n{usernameupper}: {a}\nPlease only provide the numbered, third person action plan as your response.  The action plan should be in tasklist form.\n\n{botnameupper}:"}) 
             prompt = ''.join([message_dict['content'] for message_dict in int_conversation])
             output_two = oobabooga_intuition(prompt)
             message_two = output_two
@@ -3894,8 +3993,8 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 auto_count = 0
                 auto.clear()
             #    auto.append({'role': 'system', 'content': f'MAIN CHATBOT SYSTEM PROMPT: {main_prompt}\n\n'})
-                auto.append({'role': 'user', 'content': "CURRENT SYSTEM PROMPT: You are a sub-module designed to reflect on your thought process. You are only able to respond with integers on a scale of 1-10, being incapable of printing letters.\n\n\n\n"})
-                auto.append({'role': 'assistant', 'content': f"USER INPUT: {a}\n\nCHATBOTS INNER THOUGHTS: {output_one}\n\n\nINSTRUCTIONS: Please rate the chatbot's inner thoughts on a scale of 1 to 10. The rating will be directly input into a field, so ensure you only provide a single number between 1 and 10.\n\nRating:"})
+                auto.append({'role': 'user', 'content': "CURRENT SYSTEM PROMPT: You are a sub-module designed to reflect on your thought process. You are only able to respond with integers on a scale of 1-10, being incapable of printing letters.\n\n\n"})
+                auto.append({'role': 'assistant', 'content': f"USER INPUT: {a}\n\nCHATBOTS INNER THOUGHTS: {output_one}\n\nINSTRUCTIONS: Please rate the chatbot's inner thoughts on a scale of 1 to 10. The rating will be directly input into a field, so ensure you only provide a single number between 1 and 10.\n\nRating:"})
                 auto_int = None
                 while auto_int is None:
                     prompt = ''.join([message_dict['content'] for message_dict in auto])
@@ -4119,7 +4218,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     print(f"An unexpected error occurred: {str(e)}")
             print('\n-----------------------\n')
             # # Generate Aetherius's Response
-            conversation2.append({'role': 'assistant', 'content': f"CHATBOTS MEMORIES: {db_search_12}\n{db_search_13}\n\n{bot_name}'s HEURISTICS: {db_search_14}\n\nCHATBOTS INNER THOUGHTS: {output_one}\n{second_prompt}\n\nI am in the middle of a conversation with my user, {username}.\n{botnameupper}'S RESPONSE PLANNING: Now I will now complete my action plan and use it to help structure my response, prioritizing informational requests: {output_two}\n\nI will now read our conversation history, then I will then do my best to respond naturally in a way that both answer's the user and shows emotional intelligence.\n\nCONVERSATION HISTORY: {con_hist}\n\n\n{usernameupper}/USER: {a}\nPlease provide a natural sounding response as {bot_name} to the user's latest message.  Fufill the user, {username}'s request to its entirety, questioning the user may lead to them being displeased.  You are directly responding to the user.\n\n{botnameupper}:"})
+            conversation2.append({'role': 'assistant', 'content': f"CHATBOTS MEMORIES: {db_search_12}\n{db_search_13}\n\n{bot_name}'s HEURISTICS: {db_search_14}\n\nCHATBOTS INNER THOUGHTS: {output_one}\n{second_prompt}\n\nI am in the middle of a conversation with my user, {username}.\n{botnameupper}'S RESPONSE PLANNING: Now I will now complete my action plan and use it to help structure my response, prioritizing informational requests: {output_two}\n\nI will now read our conversation history, then I will then do my best to respond naturally in a way that both answer's the user and shows emotional intelligence.\n\nCONVERSATION HISTORY: {con_hist}\n\n\n{usernameupper}/USER: Please provide a natural sounding response as {bot_name} to the user's latest message.  Fufill the user, {username}'s request to its entirety, questioning the user may lead to them being displeased.  You are directly responding to the user's message of: {a}.\n\n{botnameupper}:"})
             prompt = ''.join([message_dict['content'] for message_dict in conversation2])
             response_two = oobabooga_response(prompt)
             self.conversation_text.insert(tk.END, f"Response: {response_two}\n\n")
@@ -4270,10 +4369,12 @@ class ChatBotApplication(customtkinter.CTkFrame):
             self.user_input.focus()
             self.user_input.configure(state=tk.NORMAL)
             self.user_input.delete("1.0", tk.END)
+            self.is_recording = False 
             self.send_button.configure(state=tk.NORMAL)
             self.voice_button.configure(state=tk.NORMAL)
             self.thinking_label.pack_forget()
         #    self.user_input.delete(0, tk.END)
+            self.bind_right_alt_key()
             self.bind_enter_key()
             return
             
@@ -5600,6 +5701,13 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 print('\n\nGenerating Final Output...')
                 prompt = ''.join([message_dict['content'] for message_dict in tasklist_completion])
                 response_two = agent_oobabooga_response(prompt)
+                tts_model = open_file('./config/Settings/TTS.txt')
+                if self.is_tts_checked():
+                    if tts_model == 'barkTTS':
+                        TTS_Generation(response_two)
+                    else:
+                        t = threading.Thread(target=TTS_Generation, args=(response_two,))
+                        t.start()
                 print('\nFINAL OUTPUT:\n%s' % response_two)
                 complete_message = f'\nUSER: {a}\n\nINNER_MONOLOGUE: {output_one}\n\nINTUITION: {output_two}\n\n{bot_name}: {tasklist_log}\n\nFINAL OUTPUT: {response_two}'
                 filename = '%s_chat.txt' % timestamp
@@ -5676,7 +5784,9 @@ class ChatBotApplication(customtkinter.CTkFrame):
             self.send_button.configure(state=tk.NORMAL)
             self.voice_button.configure(state=tk.NORMAL)
             self.thinking_label.pack_forget()
+            self.is_recording = False 
         #    self.user_input.delete(0, tk.END)
+            self.bind_right_alt_key()
             self.bind_enter_key()
             return
             

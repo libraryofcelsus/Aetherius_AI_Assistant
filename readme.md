@@ -6,6 +6,8 @@ For quick demo deployment without a UI, see: [Public Oobabooga Api Colab](https:
 ------
 **Recent Changes**
 
+• 8/28 OpenAi version of Aetherius should no longer print it's name.
+
 • 8/28 Added Voice input using Whisper and TTS using gTTS or Eleven Labs.  Bark TTS still a work in progress.
 
 • 8/27 Updated usage guide with explanations of Ui's functions.

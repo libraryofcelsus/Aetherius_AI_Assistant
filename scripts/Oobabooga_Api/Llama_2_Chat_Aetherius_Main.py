@@ -2819,7 +2819,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
         top.title("Set TTS Model")
 
         # Replace label with a read-only Text widget to allow selection
-        label_text = "Options: gTTS(Google), elevenTTS(Elevenlabs)\nEnter what TTS provider you wish to use:"
+        label_text = "Options: gTTS(Google), elevenTTS(Elevenlabs), barkTTS(Suno-ai)\nEnter what TTS provider you wish to use:"
         
         # Adjust the appearance of the Text widget
         label = tk.Text(top, height=3, wrap=tk.WORD, bg=dark_bg_color, fg=light_text_color, bd=0, padx=10, pady=10, relief=tk.FLAT, highlightthickness=0)
@@ -3810,7 +3810,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                         else:
                             print(f"An unexpected error occurred: {str(e)}")
             # # Inner Monologue Generation
-            conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S EPISODIC MEMORIES: {db_search_3}\n{db_search_5}\n\n{botnameupper}'S SHORT-TERM MEMORIES: {db_search_4}.\n\n{botnameupper}'s HEURISTICS: {db_search_6}\n\n\n\nSYSTEM:Compose a truncated silent soliloquy to serve as {bot_name}'s internal monologue/narrative.  Ensure it includes {bot_name}'s contemplations and emotions in relation to {username}'s request.\n\n\nCURRENT CONVERSATION HISTORY: {con_hist}\n\n\n{usernameupper}/USER: {a}\nPlease directly provide a brief internal monologue as {bot_name} reflecting upon how to best respond to the user's most recent message.\n\n{botnameupper}: Of course, here is a terse inner soliloquy for {bot_name}:"})
+            conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S EPISODIC MEMORIES: {db_search_3}\n{db_search_5}\n\n{botnameupper}'S SHORT-TERM MEMORIES: {db_search_4}.\n\n{botnameupper}'s HEURISTICS: {db_search_6}\n\n\n\nSYSTEM:Compose a truncated silent soliloquy to serve as {bot_name}'s internal monologue/narrative.  Ensure it includes {bot_name}'s contemplations in relation to {username}'s request.\n\n\nCURRENT CONVERSATION HISTORY: {con_hist}\n\n\n{usernameupper}/USER: {a}\nPlease directly provide a brief internal monologue as {bot_name} reflecting upon how to best respond to the user's most recent message.\n\n{botnameupper}: Of course, here is a terse inner soliloquy for {bot_name}:"})
             prompt = ''.join([message_dict['content'] for message_dict in conversation])
             output_one = oobabooga_inner_monologue(prompt)
             inner_output = (f'{output_one}\n\n')
@@ -4217,14 +4217,16 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 else:
                     print(f"An unexpected error occurred: {str(e)}")
             print('\n-----------------------\n')
+            tts_model = open_file('./config/Settings/TTS.txt')
             # # Generate Aetherius's Response
             conversation2.append({'role': 'assistant', 'content': f"CHATBOTS MEMORIES: {db_search_12}\n{db_search_13}\n\n{bot_name}'s HEURISTICS: {db_search_14}\n\nCHATBOTS INNER THOUGHTS: {output_one}\n{second_prompt}\n\nI am in the middle of a conversation with my user, {username}.\n{botnameupper}'S RESPONSE PLANNING: Now I will now complete my action plan and use it to help structure my response, prioritizing informational requests: {output_two}\n\nI will now read our conversation history, then I will then do my best to respond naturally in a way that both answer's the user and shows emotional intelligence.\n\nCONVERSATION HISTORY: {con_hist}\n\n\n{usernameupper}/USER: Please provide a natural sounding response as {bot_name} to the user's latest message.  Fufill the user, {username}'s request to its entirety, questioning the user may lead to them being displeased.  You are directly responding to the user's message of: {a}.\n\n{botnameupper}:"})
             prompt = ''.join([message_dict['content'] for message_dict in conversation2])
             response_two = oobabooga_response(prompt)
             self.conversation_text.insert(tk.END, f"Response: {response_two}\n\n")
-            tts_model = open_file('./config/Settings/TTS.txt')
             if self.is_tts_checked():
                 if tts_model == 'barkTTS':
+                    audio_thread = threading.Thread(target=audio_player)
+                    audio_thread.start()
                     TTS_Generation(response_two)
                 else:
                     t = threading.Thread(target=TTS_Generation, args=(response_two,))

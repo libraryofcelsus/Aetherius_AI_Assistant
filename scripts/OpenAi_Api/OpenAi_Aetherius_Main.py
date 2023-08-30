@@ -3811,34 +3811,34 @@ class ChatBotApplication(customtkinter.CTkFrame):
                             # Check if it is the final segment and if the memory is cut off (ends without punctuation)
                             if index == total_segments - 1 and not segment[-1] in ['.', '!', '?']:
                                 continue
-                                print(segment)
-                                payload = list()   
-                                # Define the collection name
-                                collection_name = f"Bot_{bot_name}_Implicit_Short_Term"
-                                # Create the collection only if it doesn't exist
-                                try:
-                                    collection_info = client.get_collection(collection_name=collection_name)
-                                except:
-                                    client.create_collection(
-                                        collection_name=collection_name,
-                                        vectors_config=models.VectorParams(size=embed_size, distance=Distance.COSINE),
-                                    )
-                                vector1 = model.encode([segment])[0].tolist()
-                                unique_id = str(uuid4())
-                                point_id = unique_id + str(int(timestamp))
-                                metadata = {
-                                    'bot': bot_name,
-                                    'user': username,
-                                    'time': timestamp,
-                                    'message': segment,
-                                    'timestring': timestring,
-                                    'uuid': unique_id,
-                                    'user': username,
-                                    'memory_type': 'Implicit_Short_Term',
-                                }
-                                client.upsert(collection_name=collection_name,
-                                                     points=[PointStruct(id=unique_id, vector=vector1, payload=metadata)])  
-                                payload.clear()
+                            print(segment)
+                            payload = list()   
+                            # Define the collection name
+                            collection_name = f"Bot_{bot_name}_Implicit_Short_Term"
+                            # Create the collection only if it doesn't exist
+                            try:
+                                collection_info = client.get_collection(collection_name=collection_name)
+                            except:
+                                client.create_collection(
+                                    collection_name=collection_name,
+                                    vectors_config=models.VectorParams(size=embed_size, distance=Distance.COSINE),
+                                )
+                            vector1 = model.encode([segment])[0].tolist()
+                            unique_id = str(uuid4())
+                            point_id = unique_id + str(int(timestamp))
+                            metadata = {
+                                'bot': bot_name,
+                                'user': username,
+                                'time': timestamp,
+                                'message': segment,
+                                'timestring': timestring,
+                                'uuid': unique_id,
+                                'user': username,
+                                'memory_type': 'Implicit_Short_Term',
+                            }
+                            client.upsert(collection_name=collection_name,
+                                                 points=[PointStruct(id=unique_id, vector=vector1, payload=metadata)])  
+                            payload.clear()
                         else:
                             print('-----------------------')
                             break
@@ -4069,34 +4069,34 @@ class ChatBotApplication(customtkinter.CTkFrame):
                             # Check if it is the final segment and if the memory is cut off (ends without punctuation)
                             if index == total_segments - 1 and not segment[-1] in ['.', '!', '?']:
                                 continue
-                                print(segment)
-                                payload = list()       
-                                # Define the collection name
-                                collection_name = f"Bot_{bot_name}_Explicit_Short_Term"
-                                # Create the collection only if it doesn't exist
-                                try:
-                                    collection_info = client.get_collection(collection_name=collection_name)
-                                except:
-                                    client.create_collection(
-                                        collection_name=collection_name,
-                                        vectors_config=models.VectorParams(size=embed_size, distance=Distance.COSINE),
-                                    )
-                                vector1 = model.encode([segment])[0].tolist()
-                                unique_id = str(uuid4())
-                                point_id = unique_id + str(int(timestamp))
-                                metadata = {
-                                    'bot': bot_name,
-                                    'user': username,
-                                    'time': timestamp,
-                                    'message': segment,
-                                    'timestring': timestring,
-                                    'uuid': unique_id,
-                                    'user': username,
-                                    'memory_type': 'Explicit_Short_Term',
-                                }
-                                client.upsert(collection_name=collection_name,
-                                                     points=[PointStruct(id=unique_id, vector=vector1, payload=metadata)])    
-                                payload.clear()
+                            print(segment)
+                            payload = list()       
+                            # Define the collection name
+                            collection_name = f"Bot_{bot_name}_Explicit_Short_Term"
+                            # Create the collection only if it doesn't exist
+                            try:
+                                collection_info = client.get_collection(collection_name=collection_name)
+                            except:
+                                client.create_collection(
+                                    collection_name=collection_name,
+                                    vectors_config=models.VectorParams(size=embed_size, distance=Distance.COSINE),
+                                )
+                            vector1 = model.encode([segment])[0].tolist()
+                            unique_id = str(uuid4())
+                            point_id = unique_id + str(int(timestamp))
+                            metadata = {
+                                'bot': bot_name,
+                                'user': username,
+                                'time': timestamp,
+                                'message': segment,
+                                'timestring': timestring,
+                                'uuid': unique_id,
+                                'user': username,
+                                'memory_type': 'Explicit_Short_Term',
+                            }
+                            client.upsert(collection_name=collection_name,
+                                                 points=[PointStruct(id=unique_id, vector=vector1, payload=metadata)])    
+                            payload.clear()
                         else:
                             print('-----------------------')
                             break
@@ -4134,7 +4134,8 @@ class ChatBotApplication(customtkinter.CTkFrame):
                             continue  # This condition checks for blank lines
                             # Check if it is the final segment and if the memory is cut off (ends without punctuation)
                         if index == total_segments - 1 and not segment[-1] in ['.', '!', '?']:
-                            upload_implicit_short_term_memories(segment)
+                            continue
+                         upload_implicit_short_term_memories(segment)
                     segments = re.split(r'•|\n\s*\n', db_upsert)
                     total_segments = len(segments)
                     for index, segment in enumerate(segments):
@@ -4143,7 +4144,8 @@ class ChatBotApplication(customtkinter.CTkFrame):
                             continue  # This condition checks for blank lines
                             # Check if it is the final segment and if the memory is cut off (ends without punctuation)
                         if index == total_segments - 1 and not segment[-1] in ['.', '!', '?']:
-                            upload_explicit_short_term_memories(segment)
+                            continue
+                        upload_explicit_short_term_memories(segment)
                     dataset = f"[INST] <<SYS>>\nYou are {bot_name}. Give a brief, first-person, silent soliloquy as your inner monologue that reflects on your contemplations in relation on how to respond to the user, {username}'s most recent message.  Directly print the inner monologue.\n<</SYS>>\n\n{usernameupper}: {a} [/INST]\n{botnameupper}: {output_one}"
                     filename = '%s_chat.txt' % timestamp
                     save_file(f'logs/{bot_name}/{username}/Llama2_Dataset/Inner_Monologue/%s' % filename, dataset)  

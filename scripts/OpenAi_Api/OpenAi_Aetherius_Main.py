@@ -2156,14 +2156,13 @@ class ChatBotApplication(customtkinter.CTkFrame):
                         )
                     ),
                 ) 
-
-                
-                
+              
         def delete_webscrape():
                 # Replace 'username' and 'bot_name' with appropriate variables if available.
                 # You may need to adjust 'vdb' based on how your database is initialized.
             username = open_file('./config/prompt_username.txt')
-            confirm = messagebox.askyesno("Confirmation", "Are you sure you want to delete the Webscrape Database?")
+            bot_name = open_file('./config/prompt_bot_name.txt')
+            confirm = messagebox.askyesno("Confirmation", "Are you sure you want to delete the saved webscrape?")
             if confirm:
                 client.delete(
                     collection_name=f"Bot_{bot_name}_External_Knowledgebase",
@@ -2171,24 +2170,24 @@ class ChatBotApplication(customtkinter.CTkFrame):
                         filter=models.Filter(
                             must=[
                                 models.FieldCondition(
-                                    key="memory_type",
-                                    match=models.MatchValue(value="Web_Scrape"),
-                                ),
-                                models.FieldCondition(
                                     key="user",
                                     match=models.MatchValue(value=f"{username}"),
+                                ),
+                                models.FieldCondition(
+                                    key="memory_type",
+                                    match=models.MatchValue(value=f"Web_Scrape"),
                                 ),
                             ],
                         )
                     ),
-                )   
-                
+                ) 
                 
         def delete_filescrape():
                 # Replace 'username' and 'bot_name' with appropriate variables if available.
                 # You may need to adjust 'vdb' based on how your database is initialized.
             username = open_file('./config/prompt_username.txt')
-            confirm = messagebox.askyesno("Confirmation", "Are you sure you want to delete the File Processing Database?")
+            bot_name = open_file('./config/prompt_bot_name.txt')
+            confirm = messagebox.askyesno("Confirmation", "Are you sure you want to delete the saved scraped files?")
             if confirm:
                 client.delete(
                     collection_name=f"Bot_{bot_name}_External_Knowledgebase",
@@ -2196,18 +2195,17 @@ class ChatBotApplication(customtkinter.CTkFrame):
                         filter=models.Filter(
                             must=[
                                 models.FieldCondition(
-                                    key="memory_type",
-                                    match=models.MatchValue(value="File_Scrape"),
-                                ),
-                                models.FieldCondition(
                                     key="user",
                                     match=models.MatchValue(value=f"{username}"),
+                                ),
+                                models.FieldCondition(
+                                    key="memory_type",
+                                    match=models.MatchValue(value=f"Web_Scrape"),
                                 ),
                             ],
                         )
                     ),
-                )  
-                
+                ) 
                 
         def delete_bot():
                 # Replace 'username' and 'bot_name' with appropriate variables if available.
@@ -3805,10 +3803,14 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     if any(val in automemory for val in values_to_check):
                         auto_int = ('Pass')
                         segments = re.split(r'•|\n\s*\n', inner_loop_response)
-                        for segment in segments:
-                            if segment.strip() == '':  # This condition checks for blank segments
+                        total_segments = len(segments)
+                        for index, segment in enumerate(segments):
+                            segment = segment.strip()
+                            if segment == '':  # This condition checks for blank segments
                                 continue  # This condition checks for blank lines
-                            else:
+                            # Check if it is the final segment and if the memory is cut off (ends without punctuation)
+                            if index == total_segments - 1 and not segment[-1] in ['.', '!', '?']:
+                                continue
                                 print(segment)
                                 payload = list()   
                                 # Define the collection name
@@ -4059,10 +4061,14 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     if any(val in automemory for val in values_to_check):
                         auto_int = ('Pass')
                         segments = re.split(r'•|\n\s*\n', db_upload)
-                        for segment in segments:
-                            if segment.strip() == '':  # This condition checks for blank segments
+                        total_segments = len(segments)
+                        for index, segment in enumerate(segments):
+                            segment = segment.strip()
+                            if segment == '':  # This condition checks for blank segments
                                 continue  # This condition checks for blank lines
-                            else:
+                            # Check if it is the final segment and if the memory is cut off (ends without punctuation)
+                            if index == total_segments - 1 and not segment[-1] in ['.', '!', '?']:
+                                continue
                                 print(segment)
                                 payload = list()       
                                 # Define the collection name
@@ -4121,16 +4127,22 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 mem_upload_yescheck = ask_upload_memories(inner_loop_response, db_upsert)
                 if mem_upload_yescheck == "yes":
                     segments = re.split(r'•|\n\s*\n', inner_loop_response)
-                    for segment in segments:
-                        if segment.strip() == '':  # This condition checks for blank segments
+                    total_segments = len(segments)
+                    for index, segment in enumerate(segments):
+                        segment = segment.strip()
+                        if segment == '':  # This condition checks for blank segments
                             continue  # This condition checks for blank lines
-                        else:
+                            # Check if it is the final segment and if the memory is cut off (ends without punctuation)
+                        if index == total_segments - 1 and not segment[-1] in ['.', '!', '?']:
                             upload_implicit_short_term_memories(segment)
                     segments = re.split(r'•|\n\s*\n', db_upsert)
-                    for segment in segments:
-                        if segment.strip() == '':  # This condition checks for blank segments
+                    total_segments = len(segments)
+                    for index, segment in enumerate(segments):
+                        segment = segment.strip()
+                        if segment == '':  # This condition checks for blank segments
                             continue  # This condition checks for blank lines
-                        else:
+                            # Check if it is the final segment and if the memory is cut off (ends without punctuation)
+                        if index == total_segments - 1 and not segment[-1] in ['.', '!', '?']:
                             upload_explicit_short_term_memories(segment)
                     dataset = f"[INST] <<SYS>>\nYou are {bot_name}. Give a brief, first-person, silent soliloquy as your inner monologue that reflects on your contemplations in relation on how to respond to the user, {username}'s most recent message.  Directly print the inner monologue.\n<</SYS>>\n\n{usernameupper}: {a} [/INST]\n{botnameupper}: {output_one}"
                     filename = '%s_chat.txt' % timestamp

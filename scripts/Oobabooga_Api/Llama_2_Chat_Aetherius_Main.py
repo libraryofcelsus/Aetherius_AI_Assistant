@@ -4347,7 +4347,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     values_to_check = ["7", "8", "9", "10"]
                     if any(val in automemory for val in values_to_check):
                         auto_int = ('Pass')
-                        segments = re.split(r'•|\n\s*\n', inner_loop_response)
+                        segments = re.split(r'•|\n\s*\n', db_upsert)
                         total_segments = len(segments)
                         for index, segment in enumerate(segments):
                             segment = segment.strip()

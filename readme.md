@@ -10,7 +10,7 @@ For quick demo deployment without a UI, see: [Public Oobabooga Api Colab](https:
 
 • 8/30 Various Bug Fixes
 
-• 8/30 Improved Internal Prompts for Llama 2 Agent Mode and Webscrape Tool.
+• 8/30 Improved Internal Prompts for Llama 2 Version of Aetherius
 
 • 8/30 Added Delete buttons for external resources in DB mangement Deletion Menu in Llama 2 chatbot.
 
@@ -112,7 +112,7 @@ Aetherius is an Ai LLM Retrieval Framework focused on bringing realistic long-te
 My goal is to create a locally ran Ai Assistant that you actually have control over and own. One that cannot be changed or limited by an external force without concent.  
 Aetherius aims to provide a modular, personalized AI assistant using Retrieval Augmented Generation and Tools. If all goes as planned, Aetherius will support integration with other open-source projects.
 
-In January 2023, I had my inaugural encounter with ChatGPT 3.5.  Since that pivotal moment, I've been deeply obsessed with AI, dedicating countless hours each day to both its study and hands-on experimentation. The Aetherius AI Assistant is the cumulation of that research.
+In January 2023, I had my inaugural experience with ChatGPT 3.5 and LLMs in general. Since that moment, I've been deeply obsessed with AI, dedicating countless hours each day to studying it and to hands-on experimentation. The Aetherius AI Assistant is the culmination of that research.
 
 ## Future Plans
 

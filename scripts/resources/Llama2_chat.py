@@ -173,7 +173,7 @@ def oobabooga_intuition(prompt):
         'history': history,
         'mode': 'instruct',  # Valid options: 'chat', 'chat-instruct', 'instruct'
         'instruction_template': 'Llama-v2',  # Will get autodetected if unset
-        'context_instruct': f"[INST] <<SYS>>\nYou are {bot_name}. Give a brief, first-person, silent soliloquy as your inner monologue that reflects on your contemplations in relation on how to respond to the user, {username}'s most recent message.  Directly print the inner monologue.\n<</SYS>>",  # Optional
+        'context_instruct': f"[INST] <<SYS>>\nTransmute the user, {username}'s message as {bot_name} by devising a truncated predictive action plan in the third person point of view on how to best respond to {username}'s most recent message. You do not have access to external resources.  Do not create a plan for generic conversation, only on what information is needed to be given.\n<</SYS>>",  # Optional
         'your_name': f'{username}',
 
         'regenerate': False,
@@ -783,7 +783,7 @@ def oobabooga_response(prompt):
         'history': history,
         'mode': 'instruct',  # Valid options: 'chat', 'chat-instruct', 'instruct'
         'instruction_template': 'Llama-v2',  # Will get autodetected if unset
-        'context_instruct': f"[INST] <<SYS>>\nYou are {bot_name}. Give a brief, first-person, silent soliloquy as your inner monologue that reflects on your contemplations in relation on how to respond to the user, {username}'s most recent message.  Directly print the inner monologue.\n<</SYS>>",  # Optional
+        'context_instruct': f"[INST] <<SYS>>\nYou are {bot_name}. You are in the middle of a conversation with your user, {username}. You will do your best to respond naturally in a way that both answer's the user and shows emotional intelligence.\n<</SYS>>",  # Optional
         'your_name': f'{username}',
 
         'regenerate': False,
@@ -2541,7 +2541,7 @@ def agent_oobabooga_consolidationmem(prompt):
         result = response.json()['results'][0]['history']
     #    print(json.dumps(result, indent=4))
         print()
-     #   print(result['visible'][-1][1])
+    #    print(result['visible'][-1][1])
         decoded_string = html.unescape(result['visible'][-1][1])
         return decoded_string
         
@@ -2601,7 +2601,7 @@ def agent_oobabooga_associativemem(prompt):
         result = response.json()['results'][0]['history']
     #    print(json.dumps(result, indent=4))
         print()
-     #   print(result['visible'][-1][1])
+    #    print(result['visible'][-1][1])
         decoded_string = html.unescape(result['visible'][-1][1])
         return decoded_string
 
@@ -2722,7 +2722,7 @@ def agent_oobabooga_500(prompt):
         result = response.json()['results'][0]['history']
     #    print(json.dumps(result, indent=4))
         print()
-     #   print(result['visible'][-1][1])
+    #    print(result['visible'][-1][1])
         decoded_string = html.unescape(result['visible'][-1][1])
         return decoded_string
         
@@ -2842,7 +2842,7 @@ def agent_oobabooga_scrape(prompt):
         result = response.json()['results'][0]['history']
     #    print(json.dumps(result, indent=4))
         print()
-     #   print(result['visible'][-1][1])
+    #    print(result['visible'][-1][1])
         decoded_string = html.unescape(result['visible'][-1][1])
         return decoded_string
         
@@ -2986,6 +2986,66 @@ def agent_oobabooga_memyesno(prompt):
         'mode': 'instruct',  # Valid options: 'chat', 'chat-instruct', 'instruct'
         'instruction_template': 'Llama-v2',  # Will get autodetected if unset
         'context_instruct': f"[INST] <<SYS>>\nYou are a sub-agent for {bot_name}, an Autonomous Ai-Chatbot. Your purpose is to decide if the user's input requires {bot_name}'s past memories to complete. If the user's request pertains to information about the user, the chatbot, {bot_name}, or past personal events should be searched for in memory by printing 'YES'.  If memories are needed, print: 'YES'.  If they are not needed, print: 'NO'. You may only print YES or NO.\n<</SYS>>",  # Optional
+        'your_name': f'{username}',
+
+        'regenerate': False,
+        '_continue': False,
+        'stop_at_newline': False,
+        'chat_generation_attempts': 1,
+        # Generation params. If 'preset' is set to different than 'None', the values
+        # in presets/preset-name.yaml are used instead of the individual numbers.
+        'preset': 'None',  
+        'do_sample': True,
+        'temperature': 0.4,
+        'top_p': 0.1,
+        'typical_p': 1,
+        'epsilon_cutoff': 0,  # In units of 1e-4
+        'eta_cutoff': 0,  # In units of 1e-4
+        'tfs': 1,
+        'top_a': 0,
+        'repetition_penalty': 1.18,
+        'top_k': 20,
+        'min_length': 0,
+        'no_repeat_ngram_size': 0,
+        'num_beams': 1,
+        'penalty_alpha': 0,
+        'length_penalty': 1,
+        'early_stopping': False,
+        'mirostat_mode': 0,
+        'mirostat_tau': 5,
+        'mirostat_eta': 0.1,
+
+        'seed': -1,
+        'add_bos_token': True,
+        'truncation_length': 4096,
+        'ban_eos_token': False,
+        'skip_special_tokens': True,
+        'stopping_strings': []
+    }
+
+    response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+
+    if response.status_code == 200:
+        result = response.json()['results'][0]['history']
+    #    print(json.dumps(result, indent=4))
+        print()
+    #    print(result['visible'][-1][1])
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
+        
+        
+def agent_oobabooga_webcheckyesno(prompt):
+    bot_name = open_file('./config/prompt_bot_name.txt')
+    username = open_file('./config/prompt_username.txt')
+    main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+    history = {'internal': [], 'visible': []}
+    request = {
+        'user_input': prompt,
+        'max_new_tokens': 10,
+        'history': history,
+        'mode': 'instruct',  # Valid options: 'chat', 'chat-instruct', 'instruct'
+        'instruction_template': 'Llama-v2',  # Will get autodetected if unset
+        'context_instruct': f"[INST] <<SYS>>\nYou are a sub-agent for an automated webscraping tool. Your task is to decide if the previous Ai sub-agent scraped legible information. The scraped text should contain some form of article, if it does, print 'YES'.  If the webscrape failed or is illegible, print: 'NO'.\n<</SYS>>",  # Optional
         'your_name': f'{username}',
 
         'regenerate': False,

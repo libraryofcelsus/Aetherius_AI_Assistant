@@ -1,10 +1,18 @@
 # Aetherius
-Version .044f of the Aetherius Ai Personal Assistant/Agent/Companion by LibraryofCelsus.com
+Version .045a of the Aetherius Ai Personal Assistant/Agent/Companion by LibraryofCelsus.com
+
+Aetherius is in a state of constant iterative development.  If you like the version you are using, keep a backup.  Expect Bugs.
 
 For quick demo deployment without a UI, see: [Public Oobabooga Api Colab](https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Oobabooga_Public_Api.ipynb) / [Aetherius Google Colab](https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Aetherius_Colab_Edition_Oobabooga.ipynb)
 
 ------
 **Recent Changes**
+
+• 8/30 Improved Internal Prompts for Llama 2 Agent Mode and Webscrape Tool.
+
+• 8/30 Added Delete buttons for external resources in DB mangement Deletion Menu in Llama 2 chatbot.
+
+• 8/30 Added check for punctuation for memory uploads to avoid cut off memories from being uploaded in the Llama 2 chatbot.
 
 • 8/29 Added Bark TTS
 
@@ -19,24 +27,6 @@ For quick demo deployment without a UI, see: [Public Oobabooga Api Colab](https:
 • 8/27 Fixed Bug where embedding size wasn't being set when creating new collections.
 
 • 8/26 Updated Google Colab Version of Aetherius with Agent mode, Tools still need to be added.
-
-• 8/21 Added Google Colab Version of Aetherius, very basic for now. <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Aetherius_Colab_Edition_Oobabooga.ipynb">
-  <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
-</a>
-
-• 8/20 Added A_100 Checkmark in the Google Colab, this will let you run Llama 2 70B
-
-• 8/20 Added Embedding Selection Menu, for now only Sentence Transformers and Hugging Face Embeddings are available.
-
-• 8/20 Google Colab and Installer bat should now be fixed.
-
-• 8/19 Added new GUI for the OpenAi Version of Aetherius, still a work in progress.
-
-• 8/18 New Gui for the Llama2 Version of Aetherius, most chatbots have now been consolidated into one Ui.
-
-• 8/17 Merged File Processing Chatbot into Aethersearch
-
-• 8/17 Updated Llama-2 Gui Appearance and Features   
 
 **Experimental Changelog**
 
@@ -145,6 +135,15 @@ In January 2023, I had my inaugural encounter with ChatGPT 3.5.  Since that pivo
 • Launch Ai Tutorial YouTube Channel
 
 # Changelog:
+
+**0.045a**
+
+• Added check for punctuation for memory uploads to avoid cut off uploads in Llama 2 chatbot.
+
+• Added Delete buttons for external resources in DB mangement Deletion Menu in Llama 2 chatbot.
+
+• Improved Internal Prompts for Llama 2 Agent Mode and Webscrape Tool.
+
 **0.044f**
 
 • Added Voice input using Whisper and TTS using gTTS or Eleven Labs.  Bark TTS still a work in progress.

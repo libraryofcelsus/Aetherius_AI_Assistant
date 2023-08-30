@@ -4009,7 +4009,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
             conversation2.append({'role': 'user', 'content': f"{usernameupper}/USER: {a}\nPlease provide a natural sounding response as {bot_name} to the user's latest message.  Fufill the user, {username}'s request to its entirety, questioning the user may lead to them being displeased."})
             conversation2.append({'role': 'assistant', 'content': f"{botnameupper}: "})
             response_two = chatgpt_response_completion(conversation2)
-            self.conversation_text.insert(tk.END, f"Response: {response_two}\n\n")
+            self.conversation_text.insert(tk.END, "Response: {}".format(response_two.replace('\\n', '\n')) + "\n\n")
             tts_model = open_file('./config/Settings/TTS.txt')
             if self.is_tts_checked():
                 if tts_model == 'barkTTS':
@@ -4135,7 +4135,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                             # Check if it is the final segment and if the memory is cut off (ends without punctuation)
                         if index == total_segments - 1 and not segment[-1] in ['.', '!', '?']:
                             continue
-                         upload_implicit_short_term_memories(segment)
+                        upload_implicit_short_term_memories(segment)
                     segments = re.split(r'•|\n\s*\n', db_upsert)
                     total_segments = len(segments)
                     for index, segment in enumerate(segments):
@@ -4571,7 +4571,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                             payload.clear()
                     print('\n-----------------------\n')   
                     client.delete(
-                        collection_name=f"Implicit_Short_Term_Memory_Bot_{bot_name}",
+                        collection_name=f"Bot_{bot_name}_Implicit_Short_Term",
                         points_selector=models.FilterSelector(
                             filter=models.Filter(
                                 must=[

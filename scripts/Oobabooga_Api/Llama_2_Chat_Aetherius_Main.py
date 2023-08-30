@@ -4292,10 +4292,10 @@ class ChatBotApplication(customtkinter.CTkFrame):
             print('\n-----------------------\n')
             tts_model = open_file('./config/Settings/TTS.txt')
             # # Generate Aetherius's Response
-            conversation2.append({'role': 'assistant', 'content': f"CHATBOTS MEMORIES: {db_search_12}\n{db_search_13}\n\n{bot_name}'s HEURISTICS: {db_search_14}\n\nCHATBOTS INNER THOUGHTS: {output_one}\n{second_prompt}[/INST]\n\n[INST]I am in the middle of a conversation with my user, {username}.\n{botnameupper}'S RESPONSE PLANNING: Now I will now complete my action plan and use it to help structure my response, prioritizing informational requests: {output_two}\n\nI will now read our conversation history, then I will then do my best to respond naturally in a way that both answer's the user and shows emotional intelligence.[/INST]\n\n[INST]CONVERSATION HISTORY: {con_hist}[/INST]\n\n\n[INST]{usernameupper}/USER: Please provide a natural sounding response as {bot_name} to the user's latest message.  Fufill the user, {username}'s request to its entirety, questioning the user may lead to them being displeased.  You are directly responding to the user's message of: {a}.[/INST]{botnameupper}:"})
+            conversation2.append({'role': 'assistant', 'content': f"CHATBOTS MEMORIES: {db_search_12}\n{db_search_13}\n\n{bot_name}'s HEURISTICS: {db_search_14}\n\nCHATBOTS INNER THOUGHTS: {output_one}\n{second_prompt}[/INST]\n\n[INST]I am in the middle of a conversation with my user, {username}.\n{botnameupper}'S RESPONSE PLANNING: Now I will now complete my action plan and use it to help structure my response, prioritizing informational requests: {output_two}\n\nI will now read our conversation history, then I will then do my best to respond naturally in a way that both answer's the user and shows emotional intelligence.[/INST]\n\n[INST]CONVERSATION HISTORY: {con_hist}[/INST]\n\n\n[INST]{usernameupper}/USER: Please provide a natural sounding response as {bot_name} to the user's latest message.  Fufill the user, {username}'s request to its entirety, questioning the user may lead to them being displeased.  You are directly responding to the user's message of: {a}.[/INST]{botnameupper}: Sure, here is a response to {username}'s message:"})
             prompt = ''.join([message_dict['content'] for message_dict in conversation2])
             response_two = oobabooga_response(prompt)
-            self.conversation_text.insert(tk.END, f"Response: {response_two}\n\n")
+            self.conversation_text.insert(tk.END, "Response: {}".format(response_two.replace('\\n', '\n')) + "\n\n")
             if self.is_tts_checked():
                 if tts_model == 'barkTTS':
                     audio_thread = threading.Thread(target=audio_player)
@@ -4895,7 +4895,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                             payload.clear()
                     print('\n-----------------------\n')   
                     client.delete(
-                        collection_name=f"Implicit_Short_Term_Memory_Bot_{bot_name}",
+                        collection_name=f"Bot_{bot_name}_Implicit_Short_Term",
                         points_selector=models.FilterSelector(
                             filter=models.Filter(
                                 must=[

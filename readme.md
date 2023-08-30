@@ -8,6 +8,8 @@ For quick demo deployment without a UI, see: [Public Oobabooga Api Colab](https:
 ------
 **Recent Changes**
 
+• 8/30 Various Bug Fixes
+
 • 8/30 Improved Internal Prompts for Llama 2 Agent Mode and Webscrape Tool.
 
 • 8/30 Added Delete buttons for external resources in DB mangement Deletion Menu in Llama 2 chatbot.
@@ -143,6 +145,8 @@ In January 2023, I had my inaugural encounter with ChatGPT 3.5.  Since that pivo
 • Added Delete buttons for external resources in DB mangement Deletion Menu in Llama 2 chatbot.
 
 • Improved Internal Prompts for Llama 2 Agent Mode and Webscrape Tool.
+
+• Various Bug Fixes
 
 **0.044f**
 

@@ -16,3 +16,4 @@ keyboard
 scipy
 gTTS
 elevenlabs
+pandas

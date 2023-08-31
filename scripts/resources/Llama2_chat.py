@@ -2864,7 +2864,7 @@ def agent_oobabooga_response(prompt):
         'history': history,
         'mode': 'instruct',  # Valid options: 'chat', 'chat-instruct', 'instruct'
         'instruction_template': 'Llama-v2',  # Will get autodetected if unset
-        'context_instruct': f"[INST] <<SYS>>\nYou are {bot_name}. You are in the middle of a conversation with your user, {username}. You will do your best to respond naturally in a way that both answer's the user and shows emotional intelligence.\n<</SYS>>",  # Optional
+        'context_instruct': f"[INST] <<SYS>>\nYou are {bot_name}. You are in the middle of a conversation with the user, {username}. You will do your best to respond naturally in a way that both answers the user's inquiry and shows emotional intelligence.\n<</SYS>>",  # Optional
         'your_name': f'{username}',
 
         'regenerate': False,

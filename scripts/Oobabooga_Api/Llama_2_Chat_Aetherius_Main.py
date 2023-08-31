@@ -38,6 +38,7 @@ import keyboard
 from scipy.io.wavfile import write
 from pydub.playback import play as pydub_play
 from gtts import gTTS
+import pandas as pd
 
 
 embed_size = open_file('./config/embed_size.txt')
@@ -175,7 +176,88 @@ def play(audio_segment):
     self.is_recording = False
     
     
-    
+#def write_to_dataset(a, response_two, bot_name, username):
+#    # Define the folder and file paths
+#    result = messagebox.askyesno("Upload Memories", "Do you want to write to dataset?")
+#    if result:
+#        folder_path = f"./logs/Datasets/{bot_name}/{username}"
+#        file_path = f"{folder_path}/dataset.json"
+
+        # Check if the folder exists; if not, create it
+#        if not os.path.exists(folder_path):
+#            os.makedirs(folder_path)
+
+        # Read existing data
+#        try:
+#            with open(file_path, 'r') as f:
+#                data = json.load(f)
+#        except FileNotFoundError:
+#            data = []
+
+        # Append new data
+#        new_entry = {
+#            "input": a,
+#            "output": response_two
+#        }
+#        data.append(new_entry)
+
+        # Write updated data back to file
+#        with open(file_path, 'w') as f:
+#            json.dump(data, f, indent=4)
+
+
+def write_to_dataset(a, response_two, bot_name, username, main_prompt):
+    # Ask for permission to write to dataset
+    result = messagebox.askyesno("Upload Memories", "Do you want to write to dataset?")
+    if result:
+        folder_path = f"./logs/Datasets/{bot_name}/{username}"
+        json_file_path = f"{folder_path}/dataset.json"
+        csv_file_path = f"{folder_path}/dataset.csv"
+        txt_file_path = f"{folder_path}/dataset.txt"
+
+        # Check if the folder exists; if not, create it
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
+
+        # Update JSON
+        try:
+            with open(json_file_path, 'r') as f:
+                json_data = json.load(f)
+        except FileNotFoundError:
+            json_data = []
+        
+        new_entry_json = {
+            "instruction": main_prompt,
+            "input": a,
+            "output": response_two
+        }
+        json_data.append(new_entry_json)
+
+        with open(json_file_path, 'w') as f:
+            json.dump(json_data, f, indent=4)
+
+        # Update CSV
+        try:
+            df = pd.read_csv(csv_file_path, encoding='ISO-8859-1')
+        except FileNotFoundError:
+            df = pd.DataFrame(columns=['text'])
+
+        formatted_text = f"[INST] <<SYS>>\n{main_prompt}\n<</SYS>>\n\n{a} [/INST] {response_two}"
+        new_entry_csv = {'text': [formatted_text]}
+        
+        new_df = pd.DataFrame(new_entry_csv)
+        df = pd.concat([df, new_df], ignore_index=True)
+        
+        df.to_csv(csv_file_path, index=False)
+
+        # Update TXT
+        new_entry_txt = f"%INSTRUCTION%\n{main_prompt}\n\n%INPUT%\n{a}\n\n%OUTPUT%\n{response_two}\n\n\n\n"
+        try:
+            with open(txt_file_path, 'a') as f:  # 'a' means append mode
+                f.write(new_entry_txt)
+        except FileNotFoundError:
+            with open(txt_file_path, 'w') as f:  # 'w' means write mode
+                f.write(new_entry_txt)
 
     
     
@@ -4047,7 +4129,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
             # # Generate Implicit Short-Term Memory
             implicit_short_term_memory = f'\nUSER: {a}\nINNER_MONOLOGUE: {output_one}'
             db_msg = f"\nUSER: {a}\nINNER_MONOLOGUE: {output_one}"
-            summary.append({'role': 'assistant', 'content': f"LOG: {implicit_short_term_memory}[/INST][INST]SYSTEM: Read the log, extract the salient points about {bot_name} and {username} mentioned in the chatbot's inner monologue, then create truncated executive summaries in bullet point format to serve as {bot_name}'s implicit memories. Each bullet point should be considered a separate memory and contain full context.  Use the bullet point format: •IMPLICIT MEMORY:<Executive Summary>[/INST]{botnameupper}: Sure! Here are some implicit memories in bullet point format based on {bot_name}'s internal thoughts:"})
+            summary.append({'role': 'assistant', 'content': f"LOG: {implicit_short_term_memory}[/INST][INST]SYSTEM: Read the log, extract the salient points about {bot_name} and {username} mentioned in the chatbot's inner monologue, then create truncated executive summaries in bullet point format to serve as {bot_name}'s implicit memories. Each bullet point should be considered a separate memory and contain full context.  Use the bullet point format: •<Executive Summary>[/INST]{botnameupper}: Sure! Here are some implicit memories in bullet point format based on {bot_name}'s internal thoughts:"})
             prompt = ''.join([message_dict['content'] for message_dict in summary])
             inner_loop_response = oobabooga_implicitmem(prompt)
             summary.clear()
@@ -4325,7 +4407,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
         #    summary.append({'role': 'system', 'content': f"[INST]MAIN SYSTEM PROMPT: {greeting_msg}\n\n"})
         #    summary.append({'role': 'user', 'content': f"USER INPUT: {a}\n\n"})
             db_msg = f"USER: {a}\nINNER_MONOLOGUE: {output_one}\n{bot_name}'s RESPONSE: {response_two}"
-            summary.append({'role': 'assistant', 'content': f"LOG: {db_msg}[/INST][INST]SYSTEM: Use the log to extract the salient points about {bot_name}, {username}, and any informational topics mentioned in the chatbot's inner monologue and response. These points should be used to create concise executive summaries in bullet point format to serve as {bot_name}'s explicit memories. Each bullet point should be considered a separate memory and contain full context.  Use the bullet point format: •EXPLICIT MEMORY:<Executive Summary>[/INST]{botnameupper}: Sure! Here are some explicit memories in bullet point format based on {bot_name}'s response:"})
+            summary.append({'role': 'assistant', 'content': f"LOG: {db_msg}[/INST][INST]SYSTEM: Use the log to extract the salient points about {bot_name}, {username}, and any informational topics mentioned in the chatbot's inner monologue and response. These points should be used to create concise executive summaries in bullet point format to serve as {bot_name}'s explicit memories. Each bullet point should be considered a separate memory and contain full context.  Use the bullet point format: •<Executive Summary>[/INST]{botnameupper}: Sure! Here are some explicit memories in bullet point format based on {bot_name}'s response:"})
             prompt = ''.join([message_dict['content'] for message_dict in summary])
             db_upload = oobabooga_explicitmem(prompt)
         #    print(db_upload)
@@ -4409,6 +4491,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 if db_upload_yescheck == 'yes':
                     t = threading.Thread(target=self.GPT_Memories, args=(a, vector_input, vector_monologue, output_one, response_two))
                     t.start()
+                write_to_dataset(a, response_two, bot_name, username, main_prompt)
             if self.memory_mode == 'Manual':
                 self.conversation_text.insert(tk.END, f"Upload Memories?\n-------------\nIMPLICIT\n-------------\n{inner_loop_response}\n-------------\nEXPLICIT\n-------------\n{db_upload}\n")
                 mem_upload_yescheck = ask_upload_memories(inner_loop_response, db_upsert)
@@ -4435,21 +4518,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                         if index == total_segments - 1 and not segment[-1] in ['.', '!', '?']:
                             continue
                         upload_explicit_short_term_memories(segment)
-                    dataset = f"[INST] <<SYS>>\nYou are {bot_name}. Give a brief, first-person, silent soliloquy as your inner monologue that reflects on your contemplations in relation on how to respond to the user, {username}'s most recent message.  Directly print the inner monologue.\n<</SYS>>\n\n{usernameupper}: {a} [/INST]\n{botnameupper}: {output_one}"
-                    filename = '%s_chat.txt' % timestamp
-                    save_file(f'logs/{bot_name}/{username}/Llama2_Dataset/Inner_Monologue/%s' % filename, dataset)  
-                    dataset = f"[INST] <<SYS>>\nCreate a short predictive action plan in third person point of view as {bot_name} based on the user, {username}'s input. This response plan will be directly passed onto the main chatbot system to help plan the response to the user.  The character window is limited to 400 characters, leave out extraneous text to save space.  Please provide the truncated action plan in a tasklist format.  Focus on informational planning, do not get caught in loops of asking for more information.\n<</SYS>>\n\n{botnameupper}'S INNER THOUGHTS: {output_one}\n{usernameupper}: {a} [/INST]\n{botnameupper}: {output_two}"
-                    filename = '%s_chat.txt' % timestamp
-                    save_file(f'logs/{bot_name}/{username}/Llama2_Dataset/Intuition/%s' % filename, dataset)  
-                    dataset = f"[INST] <<SYS>>\n{main_prompt}\n<</SYS>>\n\n{usernameupper}: {a} [/INST]\n{botnameupper}: {response_two}"
-                    filename = '%s_chat.txt' % timestamp
-                    save_file(f'logs/{bot_name}/{username}/Llama2_Dataset/Response/%s' % filename, dataset)    
-                    dataset = f"[INST] <<SYS>>\nYou are {bot_name}.  You are in the middle of a conversation with your user.  Read the conversation history, your inner monologue, action plan, and your memories.  Then, in first-person, generate a single comprehensive and natural sounding response to the user, {username}.\n<</SYS>>\n\n{botnameupper}'S INNER THOUGHTS: {output_one}\n{botnameupper}'S ACTION PLAN: {output_two}\n{usernameupper}: {a} [/INST]\n{botnameupper}: {response_two}"
-                    filename = '%s_chat.txt' % timestamp
-                    save_file(f'logs/{bot_name}/{username}/Llama2_Dataset/Complete_Response/%s' % filename, dataset) 
-                    print('\n\nSYSTEM: Upload Successful!')
-                    t = threading.Thread(target=self.GPT_Memories, args=(a, vector_input, vector_monologue, output_one, response_two))
-                    t.start()
+                write_to_dataset(a, response_two, bot_name, username, main_prompt)
             if self.memory_mode == 'Auto':        
                 t = threading.Thread(target=self.GPT_Memories, args=(a, vector_input, vector_monologue, output_one, response_two))
                 t.start()
@@ -5847,7 +5916,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
             counter += 1
             conversation.clear()
             
-            
+            write_to_dataset(a, response_two, bot_name, username, main_prompt)
             self.conversation_text.insert(tk.END, f"Upload Memories?\n-------------\nIMPLICIT\n-------------\n{inner_loop_db}\n-------------\nEXPLICIT\n-------------\n{db_upload}\n")
             mem_upload_yescheck = ask_upload_memories(inner_loop_db, db_upsert)
             if mem_upload_yescheck == "yes":

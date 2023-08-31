@@ -8,6 +8,8 @@ For quick demo deployment without a UI, see: [Public Oobabooga Api Colab](https:
 ------
 **Recent Changes**
 
+• 8/30 Added Experimental Dataset generator, available when using the Manual or Training Mode.  Datasets are output to ./logs/Datasets
+
 • 8/30 Various Bug Fixes
 
 • 8/30 Improved Internal Prompts for Llama 2 Version of Aetherius
@@ -123,10 +125,6 @@ In January 2023, I had my inaugural experience with ChatGPT 3.5 and LLMs in gene
 • Finish Aetherius Usage Guide
 
 • Better Documentation 
-
-• Voice Input
-
-• TTS
 
 • Book/File Summarizer Tool
 

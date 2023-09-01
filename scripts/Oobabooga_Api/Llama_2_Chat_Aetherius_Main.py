@@ -2968,7 +2968,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
         top.title("Set TTS Model")
 
         # Replace label with a read-only Text widget to allow selection
-        label_text = "Options: gTTS(Google), elevenTTS(Elevenlabs), barkTTS(Suno-ai)\nEnter what TTS provider you wish to use:"
+        label_text = "Options: gTTS(Google TTS), elevenTTS(Eleven Labs), barkTTS(Bark TTS), coquiaiTTS(Voice Cloning)\nEnter what TTS provider you wish to use:"
         
         # Adjust the appearance of the Text widget
         label = tk.Text(top, height=3, wrap=tk.WORD, bg=dark_bg_color, fg=light_text_color, bd=0, padx=10, pady=10, relief=tk.FLAT, highlightthickness=0)
@@ -5768,6 +5768,10 @@ class ChatBotApplication(customtkinter.CTkFrame):
     #        else:
     #            pass                  
             # After the operations are complete, call the response generation function in a separate thread
+            if self.memory_mode == 'Training':
+                print(f"Upload Memories?\n{inner_loop_response}\n\n")
+                self.conversation_text.insert(tk.END, f"Upload Memories?\n{inner_loop_response}\n\n")
+                ask_upload_implicit_memories(inner_loop_response)
             t = threading.Thread(target=self.Agent_Tasklist_Response, args=(a, vector_input, vector_monologue, output_one, output_two, inner_loop_db))
             t.start()
             return  
@@ -5915,27 +5919,43 @@ class ChatBotApplication(customtkinter.CTkFrame):
     #        t.start()
             counter += 1
             conversation.clear()
-            
-            write_to_dataset(a, response_two, bot_name, username, main_prompt)
-            self.conversation_text.insert(tk.END, f"Upload Memories?\n-------------\nIMPLICIT\n-------------\n{inner_loop_db}\n-------------\nEXPLICIT\n-------------\n{db_upload}\n")
-            mem_upload_yescheck = ask_upload_memories(inner_loop_db, db_upsert)
-            if mem_upload_yescheck == "yes":
-                segments = re.split(r'•|\n\s*\n', inner_loop_db)
-                for segment in segments:
-                    if segment.strip() == '':  # This condition checks for blank segments
-                        continue  # This condition checks for blank lines
-                    else:
+            summary.clear()
+            if self.memory_mode == 'Training':
+                self.conversation_text.insert(tk.END, f"Upload Memories?\n{db_upload}\n\n")
+                print(f"Upload Memories?\n{db_upload}\n\n")
+                db_upload_yescheck = ask_upload_explicit_memories(db_upsert)
+                if db_upload_yescheck == 'yes':
+                    t = threading.Thread(target=self.GPT_Memories, args=(a, vector_input, vector_monologue, output_one, response_two))
+                    t.start()
+                write_to_dataset(a, response_two, bot_name, username, main_prompt)
+            if self.memory_mode == 'Manual':
+                self.conversation_text.insert(tk.END, f"Upload Memories?\n-------------\nIMPLICIT\n-------------\n{inner_loop_db}\n-------------\nEXPLICIT\n-------------\n{db_upload}\n")
+                mem_upload_yescheck = ask_upload_memories(inner_loop_db, db_upsert)
+                if mem_upload_yescheck == "yes":
+                    segments = re.split(r'•|\n\s*\n', inner_loop_db)
+                    total_segments = len(segments)
+
+                    for index, segment in enumerate(segments):
+                        segment = segment.strip()
+                        if segment == '':  # This condition checks for blank segments
+                            continue  # This condition checks for blank lines      
+                        # Check if it is the final segment and if the memory is cut off (ends without punctuation)
+                        if index == total_segments - 1 and not segment[-1] in ['.', '!', '?']:
+                            continue
                         upload_implicit_short_term_memories(segment)
-                segments = re.split(r'•|\n\s*\n', db_upsert)
-                for segment in segments:
-                    if segment.strip() == '':  # This condition checks for blank segments
-                        continue  # This condition checks for blank lines
-                    else:
+                    segments = re.split(r'•|\n\s*\n', db_upsert)
+                    total_segments = len(segments)
+
+                    for index, segment in enumerate(segments):
+                        segment = segment.strip()
+                        if segment == '':  # This condition checks for blank segments
+                            continue  # This condition checks for blank lines      
+                        # Check if it is the final segment and if the memory is cut off (ends without punctuation)
+                        if index == total_segments - 1 and not segment[-1] in ['.', '!', '?']:
+                            continue
                         upload_explicit_short_term_memories(segment)
-                dataset = f'[INST] <<SYS>>\n{main_prompt}\n<</SYS>>\n\n{usernameupper}: {a} [/INST]\n{botnameupper}: {response_two}'
-                filename = '%s_chat.txt' % timestamp
-                save_file(f'logs/{bot_name}/{username}/Llama2_Dataset/%s' % filename, dataset)        
-                print('\n\nSYSTEM: Upload Successful!')
+                write_to_dataset(a, response_two, bot_name, username, main_prompt)
+            if self.memory_mode == 'Auto':        
                 t = threading.Thread(target=self.GPT_Memories, args=(a, vector_input, vector_monologue, output_one, response_two))
                 t.start()
             self.conversation_text.yview(tk.END)
@@ -5962,9 +5982,9 @@ class ChatBotApplication(customtkinter.CTkFrame):
             botnameupper = bot_name.upper()
             usernameupper = username.upper()
             tasklist_completion2.append({'role': 'user', 'content': f"CURRENT ASSIGNED TASK: {line}[/INST]"})
-            conversation.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a sub-agent for {bot_name}, an Autonomous Ai-Chatbot. You are one of many agents in a chain. You are to take the given task and complete it in its entirety. Be Verbose and take other tasks into account when formulating your answer.[/INST]"})
-            conversation.append({'role': 'user', 'content': f"[INST]Task list: {master_tasklist_output}[/INST]"})
-            conversation.append({'role': 'assistant', 'content': f"TASK ASSIGNMENT: Bot: I have studied the given tasklist.  The task I have chosen to complete is {line}."})
+            conversation.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a sub-agent for {bot_name}, an Autonomous Ai-Chatbot. You are one of many agents in a chain. You are to take the given task and complete it in its entirety. Be Verbose and take other tasks into account when formulating your answer.\n"})
+            conversation.append({'role': 'user', 'content': f"Task list: {master_tasklist_output}[/INST]"})
+            conversation.append({'role': 'assistant', 'content': f"Bot {task_counter}: I have studied the given tasklist.  The task I have chosen to complete is {line}."})
             vector_input1 = embeddings(line)
             if self.are_both_web_and_file_db_checked():
                 try:
@@ -6092,7 +6112,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     result = ('No Memories')
             conversation.append({'role': 'assistant', 'content': f"[INST] INITIAL USER REQUEST: {a} [/INST]"})
             conversation.append({'role': 'user', 'content': f"EXTERNAL RESOURCES: {table}\nBOT {task_counter} TASK REINITIALIZATION: {line}."})
-            conversation.append({'role': 'user', 'content': f"[INST]SYSTEM: Extract information from the External Resources that is relivent to the given task and then combine it into a single article. Your job is to provide the gathered information in a combined, easy to read format so it may be used to create a research paper..[/INST]"})
+            conversation.append({'role': 'user', 'content': f"[INST]SYSTEM: Retrieve and summarize pertinent information from external sources related to a given research task. Present the summarized data in a single, easy-to-understand response suitable for inclusion in a research paper.[/INST] Bot {task_counter}: Sure, here is all of the pertinent information in a truncated format:"})
             conversation.append({'role': 'assistant', 'content': f"BOT {task_counter}: Sure, here's an overview of the scraped text:"})
             prompt = ''.join([message_dict['content'] for message_dict in conversation])
             task_completion = agent_oobabooga_800(prompt)

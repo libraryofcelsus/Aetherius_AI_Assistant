@@ -39,6 +39,7 @@ import keyboard
 from scipy.io.wavfile import write
 from pydub.playback import play as pydub_play
 from gtts import gTTS
+import pandas as pd
 
 
 openai.api_key = open_file('api_keys/key_openai.txt')
@@ -147,6 +148,60 @@ def play(audio_segment):
     self.is_recording = False
     
     
+def write_to_dataset(a, response_two, bot_name, username, main_prompt):
+    # Ask for permission to write to dataset
+    result = messagebox.askyesno("Upload Memories", "Do you want to write to dataset?")
+    if result:
+        folder_path = f"./logs/Datasets/{bot_name}/{username}"
+        json_file_path = f"{folder_path}/dataset.json"
+        csv_file_path = f"{folder_path}/dataset.csv"
+        txt_file_path = f"{folder_path}/dataset.txt"
+
+        # Check if the folder exists; if not, create it
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
+
+        # Update JSON
+        try:
+            with open(json_file_path, 'r') as f:
+                json_data = json.load(f)
+        except FileNotFoundError:
+            json_data = []
+        
+        new_entry_json = {
+            "instruction": main_prompt,
+            "input": a,
+            "output": response_two
+        }
+        json_data.append(new_entry_json)
+
+        with open(json_file_path, 'w') as f:
+            json.dump(json_data, f, indent=4)
+
+        # Update CSV
+        try:
+            df = pd.read_csv(csv_file_path, encoding='ISO-8859-1')
+        except FileNotFoundError:
+            df = pd.DataFrame(columns=['text'])
+
+        formatted_text = f"[INST] <<SYS>>\n{main_prompt}\n<</SYS>>\n\n{a} [/INST] {response_two}"
+        new_entry_csv = {'text': [formatted_text]}
+        
+        new_df = pd.DataFrame(new_entry_csv)
+        df = pd.concat([df, new_df], ignore_index=True)
+        
+        df.to_csv(csv_file_path, index=False)
+
+        # Update TXT
+        new_entry_txt = f"%INSTRUCTION%\n{main_prompt}\n\n%INPUT%\n{a}\n\n%OUTPUT%\n{response_two}\n\n\n\n"
+        try:
+            with open(txt_file_path, 'a') as f:  # 'a' means append mode
+                f.write(new_entry_txt)
+        except FileNotFoundError:
+            with open(txt_file_path, 'w') as f:  # 'w' means write mode
+                f.write(new_entry_txt)
+    
+    
 def google_search(query, my_api_key, my_cse_id, **kwargs):
   params = {
     "key": my_api_key,
@@ -218,12 +273,12 @@ def chunk_text_from_url(url, chunk_size=400, overlap=40, results_callback=None):
         #    paragraphs = text.split('\n\n')  # Split into paragraphs
         #    for paragraph in paragraphs:  # Process each paragraph individually, add a check to see if paragraph contained actual information.
             webcheck = list()
-            webcheck.append({'role': 'system', 'content': f"You are an agent for an automated webscraping tool. Your task is to decide if the previous Ai Agent scraped the text successfully. If the webscrape was successful, print 'YES'. If the webscrape failed, print: 'NO'."})
+            webcheck.append({'role': 'system', 'content': f"You are a sub-agent for an automated webscraping tool. Your task is to decide if the previous Ai sub-agent scraped legible information. The scraped text should contain some form of article, if it does, print 'YES'.  If the webscrape failed or is illegible, print: 'NO'."})
             webcheck.append({'role': 'user', 'content': f"ORIGINAL TEXT FROM SCRAPE: {chunk}"})
             webcheck.append({'role': 'assistant', 'content': f"PROCESSED WEBSCRAPE: {text}"})
             webcheck.append({'role': 'user', 'content': f"You are responding for a Yes or No input field. You are only capable of printing Yes or No. Does the processed webscrape contain information?  Use the format: 'Yes'/'No'"})
-
-            webyescheck = 'yes'
+            webcheck.append({'role': 'assistant', 'content': f"ASSISTANT: "})
+            webyescheck = chatgpt_yesno_completion(webcheck)
             
             if 'no webscrape' in text.lower():
                 print('---------')
@@ -262,7 +317,7 @@ def chunk_text_from_url(url, chunk_size=400, overlap=40, results_callback=None):
                     timestring = timestamp_to_datetime(timestamp)
                     # Create the collection only if it doesn't exist
 
-                    vector1 = model.encode([url + ' ' + semantic_db_term + ' ' + text])[0].tolist()
+                    vector1 = model.encode([semantic_db_term + ' ' + text])[0].tolist()
                 #    embedding = model.encode(query)
                     unique_id = str(uuid4())
                     point_id = unique_id + str(int(timestamp))
@@ -271,6 +326,7 @@ def chunk_text_from_url(url, chunk_size=400, overlap=40, results_callback=None):
                         'user': username,
                         'time': timestamp,
                         'source': url,
+                        'tag': semantic_db_term,
                         'message': text,
                         'timestring': timestring,
                         'uuid': unique_id,
@@ -1945,7 +2001,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
         top.title("Set TTS Model")
 
         # Replace label with a read-only Text widget to allow selection
-        label_text = "Options: gTTS(Google), elevenTTS(Elevenlabs), barkTTS(suno-ai)\nEnter what TTS provider you wish to use:"
+        label_text = "Options: gTTS(Google TTS), elevenTTS(Eleven Labs), barkTTS(Bark TTS), coquiaiTTS(Voice Cloning)\nEnter what TTS provider you wish to use:"
         
         # Adjust the appearance of the Text widget
         label = tk.Text(top, height=3, wrap=tk.WORD, bg=dark_bg_color, fg=light_text_color, bd=0, padx=10, pady=10, relief=tk.FLAT, highlightthickness=0)
@@ -3767,8 +3823,8 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     print(f"An unexpected error occurred: {str(e)}")
             print('\n-----------------------\n')
             # # Intuition Generation
-            int_conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S FLASHBULB MEMORIES: {db_search_9}\n{botnameupper}'S EXPLICIT MEMORIES: {db_search_8}\n{botnameupper}'s HEURISTICS: {db_search_10}\n{botnameupper}'S INNER THOUGHTS: {output_one}\n{botnameupper}'S EPISODIC MEMORIES: {db_search_7}\nPREVIOUS CONVERSATION HISTORY: {con_hist}\n\n\n\nSYSTEM: Transmute the user, {username}'s message as {bot_name} by devising a short, truncated predictive action plan in the third person point of view on how to best respond to {username}'s most recent message. Give the action plan in a list format. If the user is requesting information on a subject, give a plan on what information needs to be provided.  If the user is engauging in generic conversation, no action plan is needed."}) 
-            int_conversation.append({'role': 'user', 'content': f"{usernameupper}: {a}\nPlease only provide the third person action plan in your response.  The action plan should be in tasklist form."})
+            int_conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S FLASHBULB MEMORIES: {db_search_9}\n{botnameupper}'S EXPLICIT MEMORIES: {db_search_8}\n{botnameupper}'s HEURISTICS: {db_search_10}\n{botnameupper}'S INNER THOUGHTS: {output_one}\n{botnameupper}'S EPISODIC MEMORIES: {db_search_7}\nPREVIOUS CONVERSATION HISTORY: {con_hist}\n\n\n\nSYSTEM: Transmute the user, {username}'s message as {bot_name} by devising a truncated predictive action plan in the third person point of view on how to best respond to {username}'s most recent message. You do not have access to external resources.  Do not create a plan for generic conversation, only on what information is needed to be given.  If the user is requesting information on a subject, predict what information needs to be provided."}) 
+            int_conversation.append({'role': 'user', 'content': f"{usernameupper}: {a}\nPlease only provide the truncated third person action plan in your response.  The action plan should be in tasklist form."})
             int_conversation.append({'role': 'assistant', 'content': f"{botnameupper}: "})
             output_two = chatgpt_intuition_completion(int_conversation)
             message_two = output_two
@@ -4006,7 +4062,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
             print('\n-----------------------\n')
             # # Generate Aetherius's Response
             conversation2.append({'role': 'assistant', 'content': f"CHATBOTS MEMORIES: {db_search_12}\n{db_search_13}\n\n{bot_name}'s HEURISTICS: {db_search_14}\n\nCHATBOTS INNER THOUGHTS: {output_one}\n{second_prompt}\n\nI am in the middle of a conversation with my user, {username}.\n{botnameupper}'S RESPONSE PLANNING: Now I will now complete my action plan and use it to help structure my response, prioritizing informational requests: {output_two}\n\nI will now read our conversation history, then I will then do my best to respond naturally in a way that both answer's the user and shows emotional intelligence.\n\nCONVERSATION HISTORY: {con_hist}"})
-            conversation2.append({'role': 'user', 'content': f"{usernameupper}/USER: {a}\nPlease provide a natural sounding response as {bot_name} to the user's latest message.  Fufill the user, {username}'s request to its entirety, questioning the user may lead to them being displeased."})
+            conversation2.append({'role': 'user', 'content': f"{usernameupper}/USER'S LATEST INQUIRY: {a}\nPlease provide a natural sounding response as {bot_name} to the user's latest inquiry.  Fufill the user, {username}'s request to its entirety, questioning the user may lead to them being displeased."})
             conversation2.append({'role': 'assistant', 'content': f"{botnameupper}: "})
             response_two = chatgpt_response_completion(conversation2)
             self.conversation_text.insert(tk.END, "Response: {}".format(response_two.replace('\\n', '\n')) + "\n\n")
@@ -4122,6 +4178,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 if db_upload_yescheck == 'yes':
                     t = threading.Thread(target=self.GPT_Memories, args=(a, vector_input, vector_monologue, output_one, response_two))
                     t.start()
+                write_to_dataset(a, response_two, bot_name, username, main_prompt)
             if self.memory_mode == 'Manual':
                 self.conversation_text.insert(tk.END, f"Upload Memories?\n-------------\nIMPLICIT\n-------------\n{inner_loop_response}\n-------------\nEXPLICIT\n-------------\n{db_upload}\n")
                 mem_upload_yescheck = ask_upload_memories(inner_loop_response, db_upsert)
@@ -4161,6 +4218,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     print('\n\nSYSTEM: Upload Successful!')
                     t = threading.Thread(target=self.GPT_Memories, args=(a, vector_input, vector_monologue, output_one, response_two))
                     t.start()
+                write_to_dataset(a, response_two, bot_name, username, main_prompt)
             if self.memory_mode == 'Auto':        
                 t = threading.Thread(target=self.GPT_Memories, args=(a, vector_input, vector_monologue, output_one, response_two))
                 t.start()
@@ -5588,6 +5646,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 if db_upload_yescheck == 'yes':
                     t = threading.Thread(target=self.GPT_Memories, args=(a, vector_input, vector_monologue, output_one, response_two))
                     t.start()
+                write_to_dataset(a, response_two, bot_name, username, main_prompt)
             if self.memory_mode == 'Manual':
                 self.conversation_text.insert(tk.END, f"Upload Memories?\n-------------\nIMPLICIT\n-------------\n{inner_loop_response}\n-------------\nEXPLICIT\n-------------\n{db_upload}\n")
                 mem_upload_yescheck = ask_upload_memories(inner_loop_response, db_upsert)
@@ -5619,6 +5678,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     print('\n\nSYSTEM: Upload Successful!')
                     t = threading.Thread(target=self.GPT_Memories, args=(a, vector_input, vector_monologue, output_one, response_two))
                     t.start()
+                write_to_dataset(a, response_two, bot_name, username, main_prompt)
             if self.memory_mode == 'Auto':        
                 t = threading.Thread(target=self.GPT_Memories, args=(a, vector_input, vector_monologue, output_one, response_two))
                 t.start()

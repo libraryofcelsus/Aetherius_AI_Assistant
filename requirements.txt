@@ -15,5 +15,5 @@ sounddevice
 keyboard
 scipy
 gTTS
-elevenlabs
+TTS
 pandas

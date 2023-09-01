@@ -8,6 +8,8 @@ For quick demo deployment without a UI, see: [Public Oobabooga Api Colab](https:
 ------
 **Recent Changes**
 
+• 9/1 Added Voice Cloning with coqui TTS.  Place the recording of the voice you want cloned in the folder ./cloning and change the name to "audio.wav"
+
 • 8/30 Added Experimental Dataset generator, available when using the Manual or Training Mode.  Datasets are output to ./logs/Datasets
 
 • 8/30 Various Bug Fixes

@@ -5862,10 +5862,10 @@ class ChatBotApplication(customtkinter.CTkFrame):
             timestamp = time()
             timestring = timestamp_to_datetime(timestamp)
             # # Test for basic Autonomous Tasklist Generation and Task Completion
-            master_tasklist.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a stateless task list coordinator for {bot_name}, an autonomous Ai chatbot. Your job is to combine the user's input and the user facing chatbots action plan, then transform it into a bullet point list of independent research queries for {bot_name}'s response that can be executed by separate AI agents in a cluster computing environment. The other asynchronous Ai agents are stateless and cannot communicate with each other or the user during task execution, however the agents do have access to {bot_name}'s memories and an information Database. Exclude tasks involving final product production, user communication, or checking work with other entities. Respond using bullet point format following: '•[task]\n•[task]\n•[task]'[/INST]"})
+            master_tasklist.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a stateless task list coordinator for {bot_name}, an autonomous Ai chatbot. Your job is to combine the user's input and the user facing chatbots action plan, then transform it into a bullet point list of independent research queries for {bot_name}'s response that can be executed by separate AI agents in a cluster computing environment. The other asynchronous Ai agents are stateless and cannot communicate with each other or the user during task execution, however the agents do have access to {bot_name}'s memories and an information Database. Exclude tasks involving final product production, user communication, or checking work with other entities. Respond using bullet point format following: '•[task]'[/INST]"})
             master_tasklist.append({'role': 'user', 'content': f"USER FACING CHATBOT'S INTUITIVE ACTION PLAN: {output_two}"})
             master_tasklist.append({'role': 'user', 'content': f"[INST]USER INQUIRY: {a}\n\n"})
-            master_tasklist.append({'role': 'assistant', 'content': f"RESPONSE FORMAT: You may only print the task list in hyphenated bullet point format. Use the format: '•[task]\n•[task]\n•[task]'[/INST]ASSISTANT:"})
+            master_tasklist.append({'role': 'assistant', 'content': f"RESPONSE FORMAT: You may only print the task list in hyphenated bullet point format. Please limit the tasklist to three to eight items maximum. Use the format: '•[task]'[/INST]ASSISTANT:"})
             
             prompt = ''.join([message_dict['content'] for message_dict in master_tasklist])
             master_tasklist_output = agent_oobabooga_500(prompt)
@@ -5880,12 +5880,11 @@ class ChatBotApplication(customtkinter.CTkFrame):
             task_counter = 1
             # # Split bullet points into separate lines to be used as individual queries
             try:
-                lines = master_tasklist_output.splitlines()
-            except:
-                line = master_tasklist_output
-        #    print('\n\nSYSTEM: Would you like to autonomously complete this task list?\n        Press Y for yes or N for no.')
-        #    user_input = input("'Y' or 'N': ")
-         #   if user_input == 'y':
+                lines = re.split(r'\n\s*•\s*|\n\n', master_tasklist_output)
+                lines = [line.strip() for line in lines if line.strip()]  # Remove any empty lines or lines with only whitespace
+            except Exception as e:
+                print(f"An error occurred: {e}")
+                lines = [master_tasklist_output]
             try:
                 with concurrent.futures.ThreadPoolExecutor() as executor:
                     futures = [
@@ -5902,7 +5901,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                         
                 tasklist_completion.append({'role': 'assistant', 'content': f"[/INST] [INST]USER'S INITIAL INPUT: {a}[/INST]{botnameupper}'S INNER_MONOLOGUE: {output_one}"})
         #        tasklist_completion.append({'role': 'user', 'content': f"%{bot_name}'s INTUITION%\n{output_two}\n\n"})
-                tasklist_completion.append({'role': 'user', 'content': f"[INST]SYSTEM: Read the given set of tasks and completed responses and use them to create a verbose response to {username}, the end user in accordance with their request. {username} is both unaware and unable to see any of your research so any nessisary context or information must be relayed.\n\nUSER'S INITIAL INPUT: {a}.\n\nRESPONSE FORMAT: Your planning and research is now done. You will now give a verbose and natural sounding response ensuring the user's request is fully completed in entirety. Follow the format: [{bot_name}: <FULL RESPONSE TO USER>]USER: {a}[/INST] {botnameupper}:"})
+                tasklist_completion.append({'role': 'user', 'content': f"[INST]SYSTEM: SYSTEM: Using the tasks and completed responses from the research task loop, create a comprehensive and conversational response for {username}. Please note that {username} has no access to the research you have conducted, so be sure to include all necessary context and information in your reply.\n\nUSER'S INITIAL INPUT: {a}.\n\nRESPONSE FORMAT: Now that you've completed your planning and research, craft a detailed and natural-sounding response to ensure the user's request is fully met. Follow this format: {bot_name}: <DETAILED RESPONSE TO USER'S QUERY>[/INST] {botnameupper}:"})
                 print('\n\nGenerating Final Output...')
                 prompt = ''.join([message_dict['content'] for message_dict in tasklist_completion])
                 response_two = agent_oobabooga_response(prompt)
@@ -6155,7 +6154,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
             conversation.append({'role': 'user', 'content': f"[INST]SYSTEM: Retrieve and summarize pertinent information from external sources related to a given research task. Present the summarized data in a single, easy-to-understand response suitable for inclusion in a research paper.[/INST] Bot {task_counter}: Sure, here is all of the pertinent information in a truncated format:"})
             conversation.append({'role': 'assistant', 'content': f"BOT {task_counter}: Sure, here's an overview of the scraped text:"})
             prompt = ''.join([message_dict['content'] for message_dict in conversation])
-            task_completion = agent_oobabooga_800(prompt)
+            task_completion = agent_oobabooga_line_response(prompt)
             # chatgpt35_completion(conversation),
             # conversation.clear(),
             # tasklist_completion.append({'role': 'assistant', 'content': f"MEMORIES: {memories}\n\n"}),

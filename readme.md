@@ -19,7 +19,7 @@ For a quick demo deployment without a UI, see: [Public Oobabooga Api Colab](http
 
 • 8/30 Improved Internal Prompts for Llama 2 Version of Aetherius
 
-• 8/30 Added Delete buttons for external resources in DB mangement Deletion Menu in Llama 2 chatbot.
+• 8/30 Added Delete buttons for external resources in DB management Deletion Menu in Llama 2 chatbot.
 
 • 8/30 Added check for punctuation for memory uploads to avoid cut off memories from being uploaded in the Llama 2 chatbot.
 
@@ -63,9 +63,9 @@ All modes upload to the main chatbot's memories, so it's knowledgebase will grow
 
 ------
 
-Aetherius's development is self-funded by my day job, consider supporting me if you use it frequently, want development speed to increase, or if you want help setting up a custom version of Aetherius for your usecase.
+Aetherius's development is self-funded by my day job, consider supporting me if you use it frequently, want development speed to increase, or if you want help setting up a custom version of Aetherius for your use case.
 
-<a href='https://ko-fi.com/R6R2NRB0S' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi3.png?v=3' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
+<a href='https://ko-fi.com/libraryofcelsus' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi3.png?v=3' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
 
 ------
 
@@ -110,7 +110,7 @@ Inspired by https://github.com/daveshap/
 
 **What is Aetherius?**   
 Aetherius is an Ai LLM Retrieval Framework focused on bringing realistic long-term memory and thought formation to a customizable chatbot/companion. 
-My goal is to create a locally ran Ai Assistant that you actually have control over and own. One that cannot be changed or limited by an external force without concent.  
+My goal is to create a locally run Ai Assistant that you actually have control over and own. One that cannot be changed or limited by an external force without consent.  
 Aetherius aims to provide a modular, personalized AI assistant using Retrieval Augmented Generation and Tools. If all goes as planned, Aetherius will support integration with other open-source projects.
 
 In January 2023, I had my inaugural experience with ChatGPT 3.5 and LLMs in general. Since that moment, I've been deeply obsessed with AI, dedicating countless hours each day to studying it and to hands-on experimentation. The Aetherius AI Assistant is the culmination of that research.
@@ -145,7 +145,7 @@ In January 2023, I had my inaugural experience with ChatGPT 3.5 and LLMs in gene
 
 • Added check for punctuation for memory uploads to avoid cut off uploads in Llama 2 chatbot.
 
-• Added Delete buttons for external resources in DB mangement Deletion Menu in Llama 2 chatbot.
+• Added Delete buttons for external resources in DB management Deletion Menu in Llama 2 chatbot.
 
 • Improved Internal Prompts for Llama 2 Agent Mode and Webscrape Tool.
 
@@ -342,60 +342,57 @@ Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aethe
 
 9. Install the required packages: **pip install -r requirements.txt**
 
-10. Copy your OpenAI api key to key_openai.txt (If using Oobabooga, you may skip this.)
+10. Install FFmpeg: **https://www.gyan.dev/ffmpeg/builds/**
 
-    (If using Qdrant skip to step 14.)
+11. Update Cuda: **python -m pip install torch torchvision torchaudio --index-url.https://download.pytorch.org/whl/cu118**
 
-11. Create a Index on pinecone.io titled: "aetherius" with 768 dimensions and cosine as the metric. I usually do a P1 instance. (Use 1536 dimensions for Open Ai 
-    embeddings.)
+12. Copy your OpenAI api key to key_openai.txt (If using Oobabooga, you may skip this.)
 
-12. Copy Api key for that Index and paste it in key_pinecone.txt 
+16. If using Qdrant Cloud copy their Api key and Url to their respective .txt files in the ./api_keys folder.  Qdrant Cloud: https://qdrant.to/cloud
 
-13. Copy the Pinecone Environment and paste it in key_pinecone_env.txt
+17. To use a local Qdrant server, first install Docker: https://www.docker.com/
 
-14. If using Qdrant Cloud copy their Api key and Url instead of Pinecone.  Qdrant Cloud: https://qdrant.to/cloud
+18. Now run: **docker pull qdrant/qdrant:latest** in CMD
 
-15. To use a local Qdrant server, first install Docker: https://www.docker.com/
+19. Next run: **docker run -p 6333:6333 qdrant/qdrant:latest**
 
-16. Now follow the steps in Qdrants Quick Start guide: https://github.com/qdrant/qdrant/blob/master/QUICK_START.md
+20. Once the local Qdrant server is running, it should be auto detected by Aetherius.  If No Qdrant server is running, Aetherius will save to disk.
 
-17. Once the local Qdrant server is running, it should be auto detected by Aetherius.  If No Qdrant server is running, Aetherius will save to disk.
+21. Copy your Google Api key to key_google.txt  (Google Keys only needed if using AetherSearch's websearch.)
 
-18. Copy your Google Api key to key_google.txt  (Google Keys only needed if using AetherSearch's websearch.)
+22. Copy your Google CSE ID to key_google_cse.txt
 
-19. Copy your Google CSE ID to key_google_cse.txt
-
-20. If you plan on using Photo OCR (jpg, jpeg, png Text Recognition), it requires tesseract: https://github.com/UB-Mannheim/tesseract/wiki
+23. If you plan on using Photo OCR (jpg, jpeg, png Text Recognition), it requires tesseract: https://github.com/UB-Mannheim/tesseract/wiki
     Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aetherius_Ai_Assistant" Folder.  Photos must be placed in the ./Upload/SCANS folder.
 
-21. Run main.py by typing **python main.py** in cmd or **run.bat** as admin to start Aetherius. (Using run.bat will let you skip opening CMD and activating the 
-    enviornment.)
+24. Run main.py by typing **python main.py** in cmd or **run.bat** as admin to start Aetherius. (Using run.bat will let you skip opening CMD and activating the 
+    environment.)
 
-22. Select DB Upload Heuristics from the DB Management menu to upload Heuristics for the bot, this DB can also function as a Personality DB. An example of how to do 
+25. Select DB Upload Heuristics from the DB Management menu to upload Heuristics for the bot, this DB can also function as a Personality DB. An example of how to do 
     this can be found in "personality_db_input_examples.txt" in the config folder.
 
-23. Edit the chatbot's prompts with the Config Menu. This will let you change the main, secondary, and greeting prompts.  You can also change things like the font style 
+26. Edit the chatbot's prompts with the Config Menu. This will let you change the main, secondary, and greeting prompts.  You can also change things like the font style 
     and size.
 
-24. You can change the botname and the username in the login menu.  Changing either of these will create a new chatbot.
+27. You can change the botname and the username in the login menu.  Changing either of these will create a new chatbot.
 
-25. Once the chatbot has adopted a desired personality, I recommend creating a backup of the "nexus" folder and then create a collection of the "aetherius" index on 
+28. Once the chatbot has adopted a desired personality, I recommend creating a backup of the "nexus" folder and then create a collection of the "aetherius" index on 
     pinecone.io.  This will let you revert back to a base state if issues arise later.
 
-26. Once you have made a backup, you can start using the "Auto" mode, this mode has Aetherius decide for itself whether or not it should upload to its memories.
+29. Once you have made a backup, you can start using the "Auto" mode, this mode has Aetherius decide for itself whether or not it should upload to its memories.
 
-27. To run Aetherius Locally using Oobabooga, first install the web-ui at: https://github.com/oobabooga/text-generation-webui    
+30. To run Aetherius Locally using Oobabooga, first install the web-ui at: https://github.com/oobabooga/text-generation-webui    
 (To use Google Colab, use the Notebook file in the "./Colab Notebooks" Folder.  To use the Public Api with Aetherius, change the "Set Oobabooga Host" in the Config Menu to the given non-streaming Url.)  <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Oobabooga_Public_Api.ipynb">
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
 </a>
 
-28. Then, under the "Interface Mode" tab, enable the api checkbox in both fields.  Then click apply and restart the interface.
+31. Then, under the "Interface Mode" tab, enable the api checkbox in both fields.  Then click apply and restart the interface.
 
-29. Next, navigate to the models tab. Uncheck the autoload models box and then input "TheBloke/Llama-2-13B-chat-GPTQ" into the downloads box. Other models may work, but this is the one that is tested.
+32. Next, navigate to the models tab. Uncheck the autoload models box and then input "TheBloke/Llama-2-13B-chat-GPTQ" into the downloads box. Other models may work, but this is the one that is tested.
 
-30. Once the download is completed, reload the model selection menu and then select the model. Change the model loader to Exllama and set the max_seq_len to "4096". Set the "gpu_split" to .5 under your Gpu's max Vram.
+33. Once the download is completed, reload the model selection menu and then select the model. Change the model loader to Exllama and set the max_seq_len to "4096". Set the "gpu_split" to .5 under your Gpu's max Vram.
 
-31. Click the "load" button and load the model.  The Oobabooga API bots should now work!
+34. Click the "load" button and load the model.  The Oobabooga API bots should now work!
 
 
 

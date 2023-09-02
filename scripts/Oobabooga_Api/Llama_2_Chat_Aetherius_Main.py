@@ -17,7 +17,7 @@ import threading
 import concurrent.futures
 import customtkinter
 import tkinter as tk
-from tkinter import ttk, scrolledtext, simpledialog, font, messagebox
+from tkinter import ttk, scrolledtext, simpledialog, font, messagebox, filedialog
 import requests
 import shutil
 from PyPDF2 import PdfReader
@@ -28,6 +28,7 @@ from bs4 import BeautifulSoup
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams, PointStruct, Filter, FieldCondition, Range, MatchValue
 from qdrant_client.http import models
+from concurrent.futures import ThreadPoolExecutor
 import numpy as np
 import re
 import sounddevice as sd
@@ -418,14 +419,19 @@ def chunk_text_from_file(file_path, chunk_size=600, overlap=80):
         bot_name = open_file('./config/prompt_bot_name.txt')
         pytesseract.pytesseract.tesseract_cmd = '.\\Tesseract-ocr\\tesseract.exe'
         textemp = None
-        file_extension = os.path.splitext(file_path)[1].lower() 
+        file_extension = os.path.splitext(file_path)[1].lower()
+        
+        texttemp = None  # Initialize texttemp
+        
         if file_extension == '.txt':
             with open(file_path, 'r') as file:
                 texttemp = file.read().replace('\n', ' ').replace('\r', '')
+                
         elif file_extension == '.pdf':
             with open(file_path, 'rb') as file:
                 pdf = PdfReader(file)
                 texttemp = " ".join(page.extract_text() for page in pdf.pages)
+                
         elif file_extension == '.epub':
             book = epub.read_epub(file_path)
             texts = []
@@ -433,16 +439,30 @@ def chunk_text_from_file(file_path, chunk_size=600, overlap=80):
                 soup = BeautifulSoup(item.content, 'html.parser')
                 texts.append(soup.get_text())
             texttemp = ' '.join(texts)
+            
         elif file_extension in ['.png', '.jpg', '.jpeg']:
             image = open_image_file(file_path)
             if image is not None:
                 texttemp = pytesseract.image_to_string(image).replace('\n', ' ').replace('\r', '')
-                # Save OCR output to raw text file
-                save_path = './Upload/SCANS/Finished/Raw/' + os.path.basename(file_path) + '.txt'
-                save_text_to_file(texttemp, save_path)
+                
+        elif file_extension in ['.mp4', '.mkv', '.flv', '.avi']:
+            audio_file = "audio_extracted.wav"  # Replace with a more unique name if needed
+            subprocess.run(["ffmpeg", "-i", file_path, "-vn", "-acodec", "pcm_s16le", "-ac", "1", "-ar", "44100", "-f", "wav", audio_file])
+            
+            model_stt = whisper.load_model("small")
+            transcribe_result = model_stt.transcribe(audio_file)
+            if isinstance(transcribe_result, dict) and 'text' in transcribe_result:
+                texttemp = transcribe_result['text']
+            else:
+                print("Unexpected transcribe result")
+                texttemp = ""  # or set to some default value
+            os.remove(audio_file)  # Make sure you want to delete this
+            
         else:
             print(f"Unsupported file type: {file_extension}")
             return []
+
+        # The rest of your existing code
         texttemp = '\n'.join(line for line in texttemp.splitlines() if line.strip())
         chunks = chunk_text(texttemp, chunk_size, overlap)
         filelist = list()
@@ -459,11 +479,11 @@ def chunk_text_from_file(file_path, chunk_size=600, overlap=80):
         
         for chunk in chunks:
             filesum = list()
-            filesum.append({'role': 'system', 'content': "You are a Data Summarizer sub-module, responsible for processing text data from files. Your role includes identifying and highlighting significant or factual information. Extraneous data should be discarded, and only essential details must be returned. Stick to the data provided; do not infer or generalize.  Convert lists into a continuous text summary to maintain this format. Present your responses in a Running Text format using the following pattern: [SEMANTIC QUESTION TAG:SUMMARY]. Note that the semantic question tag should be a question that corresponds to the paired information within the summary. Always provide the two together without linebreaks."})
-            filesum.append({'role': 'user', 'content': f"TEXT CHUNK: {chunk}"})
-            filesum = list()
-            filesum.append({'role': 'system', 'content': "MAIN SYSTEM PROMPT: You are an ai text editor.  Your job is to take the given text from a file, then return the scraped text in an informational article form.  Do not generalize, rephrase, or use latent knowledge in your summary.  If no article is given, print no article.\n\n\n"})
-            filesum.append({'role': 'user', 'content': f"FILE TEXT: {chunk}\n\nINSTRUCTIONS: Summarize the text scrape without losing any factual knowledge and maintaining full context. The truncated article will be directly uploaded to a Database, leave out extraneous text and personal statements.[/INST]\n\nASSISTANT: Sure! Here's the summary of the file:"})
+            
+            filesum.append({'role': 'system', 'content': "MAIN SYSTEM PROMPT: You are an ai text summarizer.  Your job is to take the given text from a scraped file, then return the text in a summarized article form.  Do not generalize, rephrase, or add information in your summary, keep the same semantic meaning.  If no article is given, print no article.\n\n\n"})
+            filesum.append({'role': 'user', 'content': f"SCRAPED ARTICLE: {chunk}\n\nINSTRUCTIONS: Summarize the article without losing any factual knowledge and maintaining full context and information. Only print the truncated article, do not include any additional text or comments. [/INST] SUMMARIZER BOT: Sure! Here is the summarized article based on the scraped text:"})
+
+
             prompt = ''.join([message_dict['content'] for message_dict in filesum])
             text = File_Processor_oobabooga_scrape(prompt)
             if len(text) < 20:
@@ -482,7 +502,6 @@ def chunk_text_from_file(file_path, chunk_size=600, overlap=80):
             filecheck.append({'role': 'user', 'content': f"SYSTEM: You are responding for a Yes or No input field. You are only capible of printing Yes or No. Use the format: [AI AGENT: <'Yes'/'No'>][/INST]\n\nASSISTANT:"})
             prompt = ''.join([message_dict['content'] for message_dict in filecheck])
             fileyescheck = 'yes'
-            
             if 'no file' in text.lower():
                 print('---------')
                 print('Summarization Failed')
@@ -513,31 +532,42 @@ def chunk_text_from_file(file_path, chunk_size=600, overlap=80):
                     semantic_db_term = File_Processor_oobabooga_scrape(prompt)
                     filename = os.path.basename(file_path)
                     print('---------')
+
+                    # Generate and append filename and paragraph to filelist
                     filelist.append(filename + ' ' + paragraph)
                     print(filename + '\n' + semantic_db_term + '\n' + paragraph)
+
+                    # Create or update the text file in ./Upload
+                    text_file_path = './Upload/' + filename + '.txt'
+                    with open(text_file_path, 'a') as f:  # 'a' means append mode
+                        f.write('<' + filename + '>\n')
+                        f.write('<' + semantic_db_term + '>\n')
+                        f.write('<' + paragraph + '>\n\n')  # Double newline for separation
+
                     payload = list()
                     timestamp = time()
                     timestring = timestamp_to_datetime(timestamp)
-                    # Create the collection only if it doesn't exist
-
                     vector1 = embeddings(filename + '\n' + semantic_db_term + '\n' + paragraph)
-                #    embedding = model.encode(query)
                     unique_id = str(uuid4())
                     point_id = unique_id + str(int(timestamp))
+
                     metadata = {
                         'bot': bot_name,
                         'user': username,
                         'time': timestamp,
                         'source': filename,
+                        'tag': semantic_db_term,
                         'message': paragraph,
                         'timestring': timestring,
                         'uuid': unique_id,
                         'memory_type': 'File_Scrape',
                     }
+
                     client.upsert(collection_name=collection_name,
-                                         points=[PointStruct(id=unique_id, vector=vector1, payload=metadata)]) 
-                    payload.clear()           
-                    filecheck.clear()        
+                                  points=[PointStruct(id=unique_id, vector=vector1, payload=metadata)])
+
+                    payload.clear()
+                    filecheck.clear()      
                     pass  
                 else:
                     print('---------')
@@ -692,6 +722,10 @@ def GPT_4_Text_Extract():
         os.makedirs('Upload/PDF/Finished')
     if not os.path.exists('Upload/EPUB'):
         os.makedirs('Upload/EPUB')
+    if not os.path.exists('Upload/VIDEOS'):
+        os.makedirs('Upload/VIDEOS')
+    if not os.path.exists('Upload/VIDEOS/Finished'):
+        os.makedirs('Upload/VIDEOS/Finished')
     if not os.path.exists('Upload/EPUB/Finished'):
         os.makedirs('Upload/EPUB/Finished')
     if not os.path.exists(f'nexus/file_process_memory_nexus'):
@@ -736,6 +770,7 @@ def GPT_4_Text_Extract():
         process_files_in_directory('./Upload/TXT', './Upload/TXT/Finished')
         process_files_in_directory('./Upload/PDF', './Upload/PDF/Finished')
         process_files_in_directory('./Upload/EPUB', './Upload/EPUB/Finished')
+        process_files_in_directory('./Upload/VIDEOS', './Upload/VIDEOS/Finished')
         # # Start or Continue Conversation based on if response exists
         conversation.append({'role': 'system', 'content': '%s' % main_prompt})
         int_conversation.append({'role': 'system', 'content': '%s' % main_prompt})
@@ -2568,7 +2603,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
 
         # Function to gather and display the list of files in the destination folders
         def display_existing_files():
-            destination_folders = ["./Upload/EPUB", "./Upload/PDF", "./Upload/TXT", "./Upload/SCANS"]
+            destination_folders = ["./Upload/EPUB", "./Upload/PDF", "./Upload/TXT", "./Upload/SCANS", "./Upload/VIDEOS"]
             existing_files = []
 
             for folder in destination_folders:
@@ -2592,7 +2627,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
 
         def select_file():
             filetypes = [
-                ("Supported Files", "*.epub *.pdf *.txt *.png *.jpg *.jpeg"),
+                ("Supported Files", "*.epub *.pdf *.txt *.png *.jpg *.jpeg *.mp4 *.mkv *.flv *.avi"),
                 ("All Files", "*.*")
             ]
             file_path = filedialog.askopenfilename(filetypes=filetypes)
@@ -2600,9 +2635,10 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 process_file(file_path)
 
         def process_file(file_path):
-            file_name = os.path.basename(file_path)
-            extension = os.path.splitext(file_name)[1].lower()
-
+            file_name = os.path.basename(file_path)  # Extracting just the filename from the full path
+            extension = os.path.splitext(file_name)[1].lower()  # Extracting and converting the file extension to lowercase
+            
+            # Directory assignment based on file extension
             if extension == ".epub":
                 destination_folder = "./Upload/EPUB"
             elif extension == ".pdf":
@@ -2611,12 +2647,16 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 destination_folder = "./Upload/TXT"
             elif extension in [".png", ".jpg", ".jpeg"]:
                 destination_folder = "./Upload/SCANS"
+            elif extension in [".mp4", ".mkv", ".flv", ".avi"]:
+                destination_folder = "./Upload/VIDEOS"
             else:
                 update_results(f"Unsupported file type: {extension}")
                 return
 
+            # Destination path
             destination_path = os.path.join(destination_folder, file_name)
 
+            # File copy operation
             try:
                 shutil.copy2(file_path, destination_path)
                 result_text = f"File '{file_name}' copied to {destination_folder}"
@@ -2968,7 +3008,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
         top.title("Set TTS Model")
 
         # Replace label with a read-only Text widget to allow selection
-        label_text = "Options: gTTS(Google TTS), elevenTTS(Eleven Labs), barkTTS(Bark TTS), coquiaiTTS(Voice Cloning)\nEnter what TTS provider you wish to use:"
+        label_text = "Options: gTTS(Google), elevenTTS(Elevenlabs), barkTTS(Suno-ai)\nEnter what TTS provider you wish to use:"
         
         # Adjust the appearance of the Text widget
         label = tk.Text(top, height=3, wrap=tk.WORD, bg=dark_bg_color, fg=light_text_color, bd=0, padx=10, pady=10, relief=tk.FLAT, highlightthickness=0)

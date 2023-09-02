@@ -1,12 +1,15 @@
 # Aetherius
-Version .045a of the Aetherius Ai Personal Assistant/Agent/Companion by LibraryofCelsus.com
+Version .045b of the Aetherius Ai Personal Assistant/Agent/Companion by LibraryofCelsus.com
 
 Aetherius is in a state of constant iterative development.  If you like the version you are using, keep a backup.  Expect Bugs.
 
-For quick demo deployment without a UI, see: [Public Oobabooga Api Colab](https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Oobabooga_Public_Api.ipynb) / [Aetherius Google Colab](https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Aetherius_Colab_Edition_Oobabooga.ipynb)
+For a quick demo deployment without a UI, see: [Public Oobabooga Api Colab](https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Oobabooga_Public_Api.ipynb) / [Aetherius Google Colab](https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Aetherius_Colab_Edition_Oobabooga.ipynb)
 
 ------
 **Recent Changes**
+
+• 9/2 Added Video Processing to the Llama 2 file scrape tool.  Videos will be converted to text, summarized, then uploaded to the Database for Q/A.    
+(Note: To get Whisper working with cuda, you may need to run the commands: **.\venv\Scripts\activate**    and    **python -m pip install torch torchvision torchaudio --index-url.https://download.pytorch.org/whl/cu118**
 
 • 9/1 Added Voice Cloning with coqui TTS.  Place the recording of the voice you want cloned in the folder ./cloning and change the name to "audio.wav"
 
@@ -30,20 +33,6 @@ For quick demo deployment without a UI, see: [Public Oobabooga Api Colab](https:
 
 • 8/27 Removed Username from collection name and switched to using Metadata.
 
-• 8/27 Fixed Bug where embedding size wasn't being set when creating new collections.
-
-• 8/26 Updated Google Colab Version of Aetherius with Agent mode, Tools still need to be added.
-
-**Experimental Changelog**
-
--Added a Colab Notebook for running Oobabooga with a Public Api.  Uses the T4 GPU free tier. To use the Public Api with Aetherius, change the "Set Oobabooga Host" in the Config Menu to the given non-streaming Url.  <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Oobabooga_Public_Api.ipynb">
-  <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
-</a>
-
-•Added Experimental Different Instruct formating for Oobabooga api chatbot.  Barley works for now.
-
-•Added Qdrant Version of basic OpenAi Chatbot, updated the scripts and they should now follow the conversation track again.  That being said, most development has now moved to the Oobabooga version.
-
 ------
 
 ## Aetherius's Current Modes
@@ -63,6 +52,14 @@ All modes upload to the main chatbot's memories, so it's knowledgebase will grow
 **File DB:** This check mark will let you talk to data scraped from files with the File Processing Tool.
 
 **Memory DB:** This checkmark will have Aetherius choose it's most relevant memory database and then search it.
+
+------
+
+## Aetherius's Current Tools
+
+**Web Scrape/Search:** This tool will allow you to enter a url or a search term and scrape the information on the given site/sites.  This information will be called upon when using the Agent mode of Aetherius.
+
+**File Processor:** This tool functions similarly to the webscrape tool, but instead will process files instead of websites.  The supported file types are: .epub, .pdf, .txt, .png, .jpg, .jpeg, .mp4, .mkv, .flv, and .avi
 
 ------
 
@@ -137,6 +134,12 @@ In January 2023, I had my inaugural experience with ChatGPT 3.5 and LLMs in gene
 • Launch Ai Tutorial YouTube Channel
 
 # Changelog:
+
+**0.045b**
+
+• Added Video Processing to the Llama 2 file scrape tool. 
+
+• Added Voice Cloning with coqui TTS.
 
 **0.045a**
 

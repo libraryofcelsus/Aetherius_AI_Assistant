@@ -8,6 +8,8 @@ For a quick demo deployment without a UI, see: [Public Oobabooga Api Colab](http
 ------
 **Recent Changes**
 
+• 9/3 Updated Installer.bat with update Numpy to fix errors.  Run: **.\venv\Scripts\activate** and **pip install --upgrade numpy=1.24** to fix Numpy not available error.
+
 • 9/2 Added Video Processing to the Llama 2 file scrape tool.  Videos will be converted to text, summarized, then uploaded to the Database for Q/A.    
 (Note: To get Whisper working with cuda, you may need to run the commands: **.\venv\Scripts\activate**    and    **python -m pip install torch torchvision torchaudio --index-url.https://download.pytorch.org/whl/cu118**
 
@@ -342,11 +344,13 @@ Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aethe
 
 9. Install the required packages: **pip install -r requirements.txt**
 
-10. Install FFmpeg: **https://www.gyan.dev/ffmpeg/builds/**
+10. Update Numpy version: **pip install --upgrade numpy==1.24**
 
-11. Update Cuda: **python -m pip install torch torchvision torchaudio --index-url.https://download.pytorch.org/whl/cu118**
+11. Install FFmpeg: **https://www.gyan.dev/ffmpeg/builds/**
 
-12. Copy your OpenAI api key to key_openai.txt (If using Oobabooga, you may skip this.)
+12. Update Cuda: **python -m pip install torch torchvision torchaudio --index-url.https://download.pytorch.org/whl/cu118**
+
+13. Copy your OpenAI api key to key_openai.txt (If using Oobabooga, you may skip this.)
 
 16. If using Qdrant Cloud copy their Api key and Url to their respective .txt files in the ./api_keys folder.  Qdrant Cloud: https://qdrant.to/cloud
 

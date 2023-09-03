@@ -11,7 +11,7 @@ For a quick demo deployment without a UI, see: [Public Oobabooga Api Colab](http
 • 9/3 Updated Installer.bat with update Numpy to fix errors.  Run: **.\venv\Scripts\activate** and **pip install --upgrade numpy=1.24** to fix Numpy not available error.
 
 • 9/2 Added Video Processing to the Llama 2 file scrape tool.  Videos will be converted to text, summarized, then uploaded to the Database for Q/A.    
-(Note: To get Whisper working with cuda, you may need to run the commands: **.\venv\Scripts\activate**    and    **python -m pip install torch torchvision torchaudio --index-url.https://download.pytorch.org/whl/cu118**
+(Note: To get Whisper working with cuda, you may need to run the commands: **.\venv\Scripts\activate**  **pip uninstall torch torchaudio**    **pip install torch torchvision torchaudio -f https://download.pytorch.org/whl/cu118/torch_stable.html**
 
 • 9/1 Added Voice Cloning with coqui TTS.  Place the recording of the voice you want cloned in the folder ./cloning and change the name to "audio.wav"
 
@@ -348,7 +348,7 @@ Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aethe
 
 11. Install FFmpeg: **https://www.gyan.dev/ffmpeg/builds/**
 
-12. Update Cuda: **python -m pip install torch torchvision torchaudio --index-url.https://download.pytorch.org/whl/cu118**
+12. Install Torch with Cuda: **pip uninstall torch torchvision**  **pip install torch torchvision torchaudio -f https://download.pytorch.org/whl/cu118/torch_stable.html**
 
 13. Copy your OpenAI api key to key_openai.txt (If using Oobabooga, you may skip this.)
 

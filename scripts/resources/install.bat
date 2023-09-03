@@ -66,6 +66,7 @@ python -m venv "venv"
 
 :: Install project dependencies
 "venv\Scripts\python" -m pip install -r requirements.txt
+"venv\Scripts\python" -m pip install --upgrade numpy==1.24
 
 :: Run the project
 "venv\Scripts\python" main.py

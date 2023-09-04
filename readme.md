@@ -8,6 +8,8 @@ For a quick demo deployment without a UI, see: [Public Oobabooga Api Colab](http
 ------
 **Recent Changes**
 
+• 9/4 Updated Llama 2 Internal Prompts
+
 • 9/3 Updated Installer.bat with update Numpy to fix errors.  Run: **.\venv\Scripts\activate** and **pip install --upgrade numpy=1.24** to fix Numpy not available error.
 
 • 9/2 Added Video Processing to the Llama 2 file scrape tool.  Videos will be converted to text, summarized, then uploaded to the Database for Q/A.    

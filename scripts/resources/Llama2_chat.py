@@ -77,7 +77,7 @@ def oobabooga_terms(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -142,7 +142,7 @@ def oobabooga_inner_monologue(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -208,7 +208,7 @@ def oobabooga_intuition(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -269,7 +269,7 @@ def oobabooga_episodicmem(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -329,7 +329,7 @@ def oobabooga_flashmem(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -390,7 +390,7 @@ def oobabooga_implicitmem(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -450,7 +450,7 @@ def oobabooga_explicitmem(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -510,7 +510,7 @@ def oobabooga_consolidationmem(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -570,7 +570,7 @@ def oobabooga_associativemem(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -630,7 +630,7 @@ def oobabooga_250(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -691,7 +691,7 @@ def oobabooga_500(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -751,7 +751,7 @@ def oobabooga_800(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -818,7 +818,7 @@ def oobabooga_response(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -878,7 +878,7 @@ def oobabooga_auto(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -939,7 +939,7 @@ def oobabooga_memyesno(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -999,7 +999,7 @@ def oobabooga_selector(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -1059,7 +1059,7 @@ def scrape_oobabooga_terms(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -1124,7 +1124,7 @@ def scrape_oobabooga_inner_monologue(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -1190,7 +1190,7 @@ def scrape_oobabooga_intuition(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -1251,7 +1251,7 @@ def scrape_oobabooga_episodicmem(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -1311,7 +1311,7 @@ def scrape_oobabooga_flashmem(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -1372,7 +1372,7 @@ def scrape_oobabooga_implicitmem(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -1432,7 +1432,7 @@ def scrape_oobabooga_explicitmem(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -1492,7 +1492,7 @@ def scrape_oobabooga_consolidationmem(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -1552,7 +1552,7 @@ def scrape_oobabooga_associativemem(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -1612,7 +1612,7 @@ def scrape_oobabooga_250(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -1673,7 +1673,7 @@ def scrape_oobabooga_500(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -1733,7 +1733,7 @@ def scrape_oobabooga_800(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -1793,7 +1793,7 @@ def scrape_oobabooga_scrape(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -1860,7 +1860,7 @@ def scrape_oobabooga_response(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -1920,7 +1920,7 @@ def scrape_oobabooga_auto(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -1981,7 +1981,7 @@ def scrape_oobabooga_memyesno(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -2041,7 +2041,7 @@ def scrape_oobabooga_selector(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -2101,7 +2101,7 @@ def agent_oobabooga_terms(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -2165,7 +2165,7 @@ def agent_oobabooga_inner_monologue(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -2230,7 +2230,7 @@ def agent_oobabooga_intuition(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -2291,7 +2291,7 @@ def agent_oobabooga_episodicmem(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -2351,7 +2351,7 @@ def agent_oobabooga_flashmem(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -2412,7 +2412,7 @@ def agent_oobabooga_implicitmem(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -2472,7 +2472,7 @@ def agent_oobabooga_explicitmem(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -2532,7 +2532,7 @@ def agent_oobabooga_consolidationmem(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -2592,7 +2592,7 @@ def agent_oobabooga_associativemem(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -2652,7 +2652,7 @@ def agent_oobabooga_250(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -2713,7 +2713,7 @@ def agent_oobabooga_500(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -2773,7 +2773,7 @@ def agent_oobabooga_800(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -2833,7 +2833,7 @@ def agent_oobabooga_scrape(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -2899,7 +2899,7 @@ def agent_oobabooga_response(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -2964,7 +2964,7 @@ def agent_oobabooga_line_response(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -3024,7 +3024,7 @@ def agent_oobabooga_auto(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -3085,7 +3085,7 @@ def agent_oobabooga_memyesno(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -3145,7 +3145,7 @@ def agent_oobabooga_webcheckyesno(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -3205,7 +3205,7 @@ def agent_oobabooga_webyesno(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -3265,7 +3265,7 @@ def agent_oobabooga_selector(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -3325,7 +3325,7 @@ def File_Processor_oobabooga_terms(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -3384,7 +3384,7 @@ def File_Processor_oobabooga_inner_monologue(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -3444,7 +3444,7 @@ def File_Processor_oobabooga_intuition(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -3505,7 +3505,7 @@ def File_Processor_oobabooga_episodicmem(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -3565,7 +3565,7 @@ def File_Processor_oobabooga_flashmem(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -3626,7 +3626,7 @@ def File_Processor_oobabooga_implicitmem(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -3686,7 +3686,7 @@ def File_Processor_oobabooga_explicitmem(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -3746,7 +3746,7 @@ def File_Processor_oobabooga_consolidationmem(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -3806,7 +3806,7 @@ def File_Processor_oobabooga_associativemem(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -3866,7 +3866,7 @@ def File_Processor_oobabooga_250(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -3927,7 +3927,7 @@ def File_Processor_oobabooga_500(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -3987,7 +3987,7 @@ def File_Processor_oobabooga_800(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -4047,7 +4047,7 @@ def File_Processor_oobabooga_scrape(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -4109,7 +4109,7 @@ def File_Processor_oobabooga_response(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -4169,7 +4169,7 @@ def File_Processor_oobabooga_auto(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -4230,7 +4230,7 @@ def File_Processor_oobabooga_memyesno(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
@@ -4290,7 +4290,7 @@ def File_Processor_oobabooga_selector(prompt):
         'truncation_length': 4096,
         'ban_eos_token': False,
         'skip_special_tokens': True,
-        'stopping_strings': []
+        'stopping_strings': ['[/']
     }
 
     response = requests.post(f"{open_file('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)

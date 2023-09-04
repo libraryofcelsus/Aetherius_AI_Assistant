@@ -4177,7 +4177,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 # # Generate Implicit Short-Term Memory
                 implicit_short_term_memory = f'\nUSER: {a}\nINNER_MONOLOGUE: {output_one}'
                 db_msg = f"\nUSER: {a}\nINNER_MONOLOGUE: {output_one}"
-                summary.append({'role': 'assistant', 'content': f"LOG: {implicit_short_term_memory}[/INST][INST]SYSTEM: Read the log, extract the salient points about {bot_name} and {username} mentioned in the chatbot's inner monologue, then create truncated executive summaries in bullet point format to serve as {bot_name}'s implicit memories. Each bullet point should be considered a separate memory and contain full context.  Use the bullet point format: •Memory\n\n•Memory[/INST]{botnameupper}: Sure! Here are some implicit memories in bullet point format based on {bot_name}'s internal thoughts: "})
+                summary.append({'role': 'assistant', 'content': f"LOG: {implicit_short_term_memory}[/INST][INST]SYSTEM: Read the log, extract the salient points about {bot_name} and {username} mentioned in the chatbot's inner monologue, then create truncated executive summaries in bullet point format to serve as {bot_name}'s implicit memories. Each bullet point should be considered a separate memory and contain full context.  Use the bullet point format: •[Memory][/INST]{botnameupper}: Sure! Here are some implicit memories in bullet point format based on {bot_name}'s internal thoughts: "})
                 prompt = ''.join([message_dict['content'] for message_dict in summary])
                 inner_loop_response = oobabooga_implicitmem(prompt)
                 summary.clear()
@@ -4456,7 +4456,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
             #    summary.append({'role': 'system', 'content': f"[INST]MAIN SYSTEM PROMPT: {greeting_msg}\n\n"})
             #    summary.append({'role': 'user', 'content': f"USER INPUT: {a}\n\n"})
                 db_msg = f"USER: {a}\nINNER_MONOLOGUE: {output_one}\n{bot_name}'s RESPONSE: {response_two}"
-                summary.append({'role': 'assistant', 'content': f"LOG: {db_msg}[/INST][INST]SYSTEM: Use the log to extract the salient points about {bot_name}, {username}, and any informational topics mentioned in the chatbot's inner monologue and response. These points should be used to create concise executive summaries in bullet point format to serve as {bot_name}'s explicit memories. Each bullet point should be considered a separate memory and contain full context.  Use the bullet point format: •Memory\n\n•Memory[/INST]{botnameupper}: Sure! Here are some explicit memories in bullet point format based on {bot_name}'s response: "})
+                summary.append({'role': 'assistant', 'content': f"LOG: {db_msg}[/INST][INST]SYSTEM: Use the log to extract the salient points about {bot_name}, {username}, and any informational topics mentioned in the chatbot's inner monologue and response. These points should be used to create concise executive summaries in bullet point format to serve as {bot_name}'s explicit memories. Each bullet point should be considered a separate memory and contain full context.  Use the bullet point format: •[Memory][/INST]{botnameupper}: Sure! Here are some explicit memories in bullet point format based on {bot_name}'s response: "})
                 prompt = ''.join([message_dict['content'] for message_dict in summary])
                 db_upload = oobabooga_explicitmem(prompt)
             #    print(db_upload)
@@ -4830,7 +4830,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
 
                 print('\n-----------------------\n')
                 consolidation.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: {main_prompt}\n\n"})
-                consolidation.append({'role': 'assistant', 'content': f"LOG: {memory_consol_db}\n\nSYSTEM: Read the Log and combine the different associated topics into a bullet point list of executive summaries to serve as {bot_name}'s explicit long term memories. Each summary should contain the entire context of the memory. Follow the format •Memory\n\n•Memory[/INST] {botnameupper}: Sure, here is the list of consolidated memories: "})
+                consolidation.append({'role': 'assistant', 'content': f"LOG: {memory_consol_db}\n\nSYSTEM: Read the Log and combine the different associated topics into a bullet point list of executive summaries to serve as {bot_name}'s explicit long term memories. Each summary should contain the entire context of the memory. Follow the format •[Memory][/INST] {botnameupper}: Sure, here is the list of consolidated memories: "})
                 prompt = ''.join([message_dict['content'] for message_dict in consolidation])
                 memory_consol = oobabooga_consolidationmem(prompt)
             #    print(memory_consol)
@@ -4945,7 +4945,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
 
                     print('\n-----------------------\n')
                     consolidation.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: {main_prompt}\n\n"})
-                    consolidation.append({'role': 'assistant', 'content': f"LOG: {memory_consol_db2}\n\nSYSTEM: Read the Log and consolidate the different topics into executive summaries to serve as {bot_name}'s implicit long term memories. Each summary should contain the entire context of the memory. Follow the format: •Memory\n\n•Memory [/INST] {bot_name}: Sure, here is the list of consolidated memories: "})
+                    consolidation.append({'role': 'assistant', 'content': f"LOG: {memory_consol_db2}\n\nSYSTEM: Read the Log and consolidate the different topics into executive summaries to serve as {bot_name}'s implicit long term memories. Each summary should contain the entire context of the memory. Follow the format: •[Memory] [/INST] {bot_name}: Sure, here is the list of consolidated memories: "})
                     prompt = ''.join([message_dict['content'] for message_dict in consolidation])
                     memory_consol2 = oobabooga_consolidationmem(prompt)
                     print(memory_consol2)
@@ -4983,7 +4983,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
 
                     print('\n-----------------------\n')
                     consolidation.append({'role': 'system', 'content': f"{main_prompt}\n\n"})
-                    consolidation.append({'role': 'system', 'content': f"IMPLICIT LONG TERM MEMORY: {memory_consol_db3}\n\nIMPLICIT SHORT TERM MEMORY: {memory_consol_db2}\n\nRESPONSE: Remove any duplicate information from your Implicit Short Term memory that is already found in your Long Term Memory. Then consolidate similar topics into executive summaries. Each summary should contain the entire context of the memory. Use the following format: •Memory\n\n•Memory[/INST] {botnameupper}: Sure, here is the list of consolidated memories: "})
+                    consolidation.append({'role': 'system', 'content': f"IMPLICIT LONG TERM MEMORY: {memory_consol_db3}\n\nIMPLICIT SHORT TERM MEMORY: {memory_consol_db2}\n\nRESPONSE: Remove any duplicate information from your Implicit Short Term memory that is already found in your Long Term Memory. Then consolidate similar topics into executive summaries. Each summary should contain the entire context of the memory. Use the following format: •[Memory][/INST] {botnameupper}: Sure, here is the list of consolidated memories: "})
                     prompt = ''.join([message_dict['content'] for message_dict in consolidation])
                     memory_consol3 = oobabooga_consolidationmem(prompt)
                     print(memory_consol3)
@@ -5075,7 +5075,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     ids_to_delete = [m.id for m in hits]
                     print('\n-----------------------\n')
                     consolidation.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: {main_prompt}\n\n"})
-                    consolidation.append({'role': 'assistant', 'content': f"LOG: {memory_consol_db4}\n\nSYSTEM: Read the Log and consolidate the different memories into executive summaries in a process allegorical to associative processing. Each summary should contain the entire context of the memory. Follow the bullet point format: •Memory\n\n•Memory.[/INST]{botnameupper}: Sure, here is the list of consolidated memories: "})
+                    consolidation.append({'role': 'assistant', 'content': f"LOG: {memory_consol_db4}\n\nSYSTEM: Read the Log and consolidate the different memories into executive summaries in a process allegorical to associative processing. Each summary should contain the entire context of the memory. Follow the bullet point format: •[Memory].[/INST]{botnameupper}: Sure, here is the list of consolidated memories: "})
                     prompt = ''.join([message_dict['content'] for message_dict in consolidation])
                     memory_consol4 = oobabooga_associativemem(prompt)
             #        print(memory_consol4)
@@ -5195,7 +5195,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     print('\n-----------------------\n')
                     consolidation.clear()
                     consolidation.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: {main_prompt}\n\n"})
-                    consolidation.append({'role': 'assistant', 'content': f"LOG: {memory_consol_db2}\n\nSYSTEM: Read the Log and consolidate the different memories into executive summaries in a process allegorical to associative processing. Each summary should contain the entire context of the memory.\n\nFORMAT: Follow the bullet point format: •Memory\n\n•Memory.[/INST] {botnameupper}: Sure, here is the list of consolidated memories: "})
+                    consolidation.append({'role': 'assistant', 'content': f"LOG: {memory_consol_db2}\n\nSYSTEM: Read the Log and consolidate the different memories into executive summaries in a process allegorical to associative processing. Each summary should contain the entire context of the memory.\n\nFORMAT: Follow the bullet point format: •[Memory].[/INST] {botnameupper}: Sure, here is the list of consolidated memories: "})
                     prompt = ''.join([message_dict['content'] for message_dict in consolidation])
                     memory_consol5 = oobabooga_associativemem(prompt)
                 #    print(memory_consol5)
@@ -5780,7 +5780,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 summary.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: {greeting_msg}\n\n"})
                 summary.append({'role': 'user', 'content': f"USER INPUT: {a}\n\n"})
                 
-                summary.append({'role': 'assistant', 'content': f"LOG: {implicit_short_term_memory}\n\nSYSTEM: Read the log, extract the salient points about {bot_name} and {username} mentioned in the chatbot's response, then create a list of short executive summaries in bullet point format to serve as {bot_name}'s implicit memories. Each bullet point should be considered a separate memory and contain full context. Ignore the main system prompt, it only exists for initial context.\n\nRESPONSE: Use the bullet point format: •Memory\n\n•Memory[/INST]\n\nMemories: "})
+                summary.append({'role': 'assistant', 'content': f"LOG: {implicit_short_term_memory}\n\nSYSTEM: Read the log, extract the salient points about {bot_name} and {username} mentioned in the chatbot's response, then create a list of short executive summaries in bullet point format to serve as {bot_name}'s implicit memories. Each bullet point should be considered a separate memory and contain full context. Ignore the main system prompt, it only exists for initial context.\n\nRESPONSE: Use the bullet point format: •[Memory][/INST]\n\nMemories: "})
                 prompt = ''.join([message_dict['content'] for message_dict in summary])
                 inner_loop_response = agent_oobabooga_implicitmem(prompt)
                 inner_loop_db = inner_loop_response
@@ -5968,7 +5968,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 summary.append({'role': 'user', 'content': f"USER INPUT: {a}\n\n"})
                 
                 db_msg = f"\nUSER: {a} \n INNER_MONOLOGUE: {output_one} \n {bot_name}'s RESPONSE: {response_two}"
-                summary.append({'role': 'assistant', 'content': f"LOG: {db_msg}\n\nSYSTEM: Read the log, extract the salient points about {bot_name} and {username} mentioned in the chatbot's response, then create a list of short executive summaries in bullet point format to serve as {bot_name}'s explicit memories. Each bullet point should be considered a separate memory and contain full context. Ignore the main system prompt, it only exists for initial context.\n\nRESPONSE: Use the bullet point format: •Memory\n\n•Memory[/INST]\n\nMemories: "})
+                summary.append({'role': 'assistant', 'content': f"LOG: {db_msg}\n\nSYSTEM: Read the log, extract the salient points about {bot_name} and {username} mentioned in the chatbot's response, then create a list of short executive summaries in bullet point format to serve as {bot_name}'s explicit memories. Each bullet point should be considered a separate memory and contain full context. Ignore the main system prompt, it only exists for initial context.\n\nRESPONSE: Use the bullet point format: •[Memory][/INST]\n\nMemories: "})
                 
                 prompt = ''.join([message_dict['content'] for message_dict in summary])
                 db_upload = agent_oobabooga_explicitmem(prompt)

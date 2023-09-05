@@ -3014,7 +3014,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
         top.title("Set TTS Model")
 
         # Replace label with a read-only Text widget to allow selection
-        label_text = "Options: gTTS(Google), elevenTTS(Elevenlabs), barkTTS(Suno-ai)\nEnter what TTS provider you wish to use:"
+        label_text = "Options: gTTS(Google), elevenTTS(Elevenlabs), barkTTS(Suno-ai), coquiaiTTS(Voice Cloning)\nEnter what TTS provider you wish to use:"
         
         # Adjust the appearance of the Text widget
         label = tk.Text(top, height=3, wrap=tk.WORD, bg=dark_bg_color, fg=light_text_color, bd=0, padx=10, pady=10, relief=tk.FLAT, highlightthickness=0)
@@ -4684,8 +4684,8 @@ class ChatBotApplication(customtkinter.CTkFrame):
             # # Flashbulb Memory Generation
             collection_name = f"Flash_Counter_Bot_{bot_name}"
             collection_info = client.get_collection(collection_name=collection_name)
-        #    if collection_info.vectors_count > 7:
-            if collection_info.vectors_count > 1:
+            if collection_info.vectors_count > 7:
+        #    if collection_info.vectors_count > 1:
                 flash_db = None
                 try:
                     hits = client.search(
@@ -4742,9 +4742,9 @@ class ChatBotApplication(customtkinter.CTkFrame):
                         print(f"An unexpected error occurred: {str(e)}")
                 print('\n-----------------------\n')
                 # # Generate Flashbulb Memory
-                consolidation.append({'role': 'system', 'content': "Main System Prompt: As a data extractor, your role is to read the provided episodic memories and emotional reactions. Extract emotional information corresponding to each memory and then combine these to form flashbulb memories. Only include memories strongly tied to emotions, excluding redundant or irrelevant information. Format the flashbulb memories as bullet points using the template: •{Flashbulb Memory}. Then, create and present the final list of flashbulb memories.\n\n"})
+                consolidation.append({'role': 'system', 'content': "Main System Prompt: As a data extractor, your role is to read the provided episodic memories and emotional reactions. Extract emotional information corresponding to each memory and then combine these to form flashbulb memories. Only include memories strongly tied to emotions. Format the flashbulb memories as bullet points using the template: •{Flashbulb Memory}. Then, create and present the final list of flashbulb memories.\n\n"})
                 consolidation.append({'role': 'user', 'content': f"EMOTIONAL REACTIONS: {flash_db}\n\nEPISODIC MEMORIES: {flash_db1}[/INST]\n\n"})
-                consolidation.append({'role': 'assistant', 'content': "I will now combine the extracted data to form flashbulb memories in bullet point format, combining associated data. I will only include memories with a strong emotion attached, excluding redundant or irrelevant information."})
+                consolidation.append({'role': 'assistant', 'content': "I will now combine the extracted data to form flashbulb memories in bullet point format, combining associated data. I will only include memories with a strong emotion attached:"})
                 consolidation.append({'role': 'user', 'content': "[INST]FORMAT: Use the format: •{Flashbulb Memory}[/INST]"})
                 consolidation.append({'role': 'assistant', 'content': f"RESPONSE: I will now create {bot_name}'s flashbulb memories using the given format above.\n{botnameupper}: "})
                 prompt = ''.join([message_dict['content'] for message_dict in consolidation])
@@ -4800,8 +4800,8 @@ class ChatBotApplication(customtkinter.CTkFrame):
             # # Short Term Memory Consolidation based on amount of vectors in namespace    
             collection_name = f"Bot_{bot_name}_Explicit_Short_Term"
             collection_info = client.get_collection(collection_name=collection_name)
-        #    if collection_info.vectors_count > 20:
-            if collection_info.vectors_count > 5:
+            if collection_info.vectors_count > 15:
+        #    if collection_info.vectors_count > 5:
                 consolidation.clear()
                 memory_consol_db = None
                         
@@ -4983,7 +4983,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
 
                     print('\n-----------------------\n')
                     consolidation.append({'role': 'system', 'content': f"{main_prompt}\n\n"})
-                    consolidation.append({'role': 'system', 'content': f"IMPLICIT LONG TERM MEMORY: {memory_consol_db3}\n\nIMPLICIT SHORT TERM MEMORY: {memory_consol_db2}\n\nRESPONSE: Remove any duplicate information from your Implicit Short Term memory that is already found in your Long Term Memory. Then consolidate similar topics into executive summaries. Each summary should contain the entire context of the memory. Use the following format: •[Memory][/INST] {botnameupper}: Sure, here is the list of consolidated memories: "})
+                    consolidation.append({'role': 'system', 'content': f"IMPLICIT LONG TERM MEMORY: {memory_consol_db3}\n\nIMPLICIT SHORT TERM MEMORY: {memory_consol_db2}\n\nRESPONSE: Compare your short-term memories and the given Long Term Memories, then, remove any duplicate information from your Implicit Short Term memory that is already found in your Long Term Memory. After this is done, consolidate similar topics into a new set of memories. Each summary should contain the entire context of the memory. Use the following format: •[Memory][/INST] {botnameupper}: Sure, here is the list of consolidated memories: "})
                     prompt = ''.join([message_dict['content'] for message_dict in consolidation])
                     memory_consol3 = oobabooga_consolidationmem(prompt)
                     print(memory_consol3)
@@ -5041,8 +5041,8 @@ class ChatBotApplication(customtkinter.CTkFrame):
             # # Implicit Associative Processing/Pruning based on amount of vectors in namespace   
                 collection_name = f"Consol_Counter_Bot_{bot_name}"
                 collection_info = client.get_collection(collection_name=collection_name)
-             #   if collection_info.vectors_count % 4 == 0:
-                if collection_info.vectors_count % 2 == 0:
+                if collection_info.vectors_count % 4 == 0:
+            #    if collection_info.vectors_count % 2 == 0:
                     consolidation.clear()
                     print('Running Associative Processing/Pruning of Implicit Memory')
                     memory_consol_db4 = None
@@ -5125,8 +5125,8 @@ class ChatBotApplication(customtkinter.CTkFrame):
             # # Explicit Long-Term Memory Associative Processing/Pruning based on amount of vectors in namespace
                 collection_name = f"Consol_Counter_Bot_{bot_name}"
                 collection_info = client.get_collection(collection_name=collection_name)
-           #     if collection_info.vectors_count > 5:
-                if collection_info.vectors_count > 2:
+                if collection_info.vectors_count > 5:
+           #     if collection_info.vectors_count > 2:
                     consolidation.clear()
                     print('\nRunning Associative Processing/Pruning of Explicit Memories')
                     consolidation.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a data extractor. Your job is to read the user's input and provide a single semantic search query representative of a habit of {bot_name}.\n\n"})
@@ -5600,7 +5600,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
         main_conversation = MainConversation(conv_length, main_prompt, greeting_msg)
      #   r = sr.Recognizer()
         while True:
-            conversation_history = main_conversation.get_conversation_history()
+            conversation_history = main_conversation.get_last_entry()
             con_hist = f'{conversation_history}'
             # # Get Timestamp
             timestamp = time()

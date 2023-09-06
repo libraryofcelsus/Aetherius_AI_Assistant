@@ -8,7 +8,7 @@ For a quick demo deployment without a UI, see: [Public Oobabooga Api Colab](http
 ------
 **Recent Changes**
 
-• 9/6 Continued to improve Llama 2 internal prompts
+• 9/6 Continued to improve Llama 2 internal prompts.  It should now work much better with the 7B model.
 
 • 9/4 Updated Llama 2 Internal Prompts
 

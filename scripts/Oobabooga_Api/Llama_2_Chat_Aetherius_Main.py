@@ -1557,7 +1557,7 @@ class MainConversation:
     def append(self, timestring, username, usernameupper, a, bot_name, botnameupper, response_two):
         # Append new entry to the running conversation
         entry = []
-        entry.append(f"{usernameupper}-{timestring}: {a}")
+        entry.append(f"[{timestring}] - {usernameupper}: {a}")
         entry.append(f"{botnameupper}: {response_two}")
         self.running_conversation.append("\n\n".join(entry))  # Join the entry with "\n\n"
 
@@ -2517,7 +2517,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
         subprocess.run(['ffmpeg', '-i', 'audio.wav', 'audio.mp3'])
         print(f"Saved as {filename}.mp3")
         
-        model_stt = whisper.load_model("small")
+        model_stt = whisper.load_model("base")
         result = model_stt.transcribe("audio.mp3")
         a = result["text"]
         os.remove("audio.wav")
@@ -2854,7 +2854,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
         top.configure(bg=dark_bg_color)
         top.title("Set Converation Length")
 
-        label = customtkinter.CTkLabel(top, text="(Lengths longer than 3 tend to break smaller models.)\nEnter desired conversation length:")
+        label = customtkinter.CTkLabel(top, text="(Lengths longer than 3 tend to break smaller models. Use 2 if using a 7B parameter.)\nEnter desired conversation length:")
         label.pack()
 
         self.font_size_entry = tk.Entry(top, bg=dark_bg_color, fg=light_text_color)
@@ -4766,14 +4766,13 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 consolidation.append({'role': 'assistant', 'content': f"RESPONSE: I will now create {bot_name}'s flashbulb memories using the given format above.\n{botnameupper}: "})
                 prompt = ''.join([message_dict['content'] for message_dict in consolidation])
                 flash_response = oobabooga_flashmem(prompt)
-                print(flash_response)
-                print('\n-----------------------\n')
             #    memories = results
                 segments = re.split(r'•|\n\s*\n', flash_response)
                 for segment in segments:
                     if segment.strip() == '':  # This condition checks for blank segments
                         continue  # This condition checks for blank lines
                     else:
+                        print('\n-----------------------\n')
                         print(segment)
                         # Define the collection name
                         collection_name = f"Bot_{bot_name}"
@@ -4797,6 +4796,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                         importance_score.append({'role': 'system', 'content': f"{botnameupper}: Sure thing! Here's the memory rated on a scale of 1-20:\nRating: "})
                         prompt = ''.join([message_dict['content'] for message_dict in importance_score])
                         score = oobabooga_episodicmem(prompt)
+                        print(score)
                         importance_score.clear()
                         metadata = {
                             'bot': bot_name,
@@ -4858,7 +4858,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
 
                 print('\n-----------------------\n')
                 consolidation.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: {main_prompt}\n\n"})
-                consolidation.append({'role': 'assistant', 'content': f"LOG: {memory_consol_db}\n\nSYSTEM: Read the Log and combine the different associated topics into a bullet point list of executive summaries to serve as {bot_name}'s explicit long term memories. Each summary should contain the entire context of the memory. Follow the format •[Memory][/INST] {botnameupper}: Sure, here is the list of consolidated memories: "})
+                consolidation.append({'role': 'assistant', 'content': f"LOG: {memory_consol_db}\n\nSYSTEM: Read the Log and combine the different associated topics into a bullet point list of executive summaries to serve as {bot_name}'s explicit long term memories. Each summary should contain the entire context of the memory. Follow the format •Memory [/INST] {botnameupper}: Sure, here is the list of consolidated memories: "})
                 prompt = ''.join([message_dict['content'] for message_dict in consolidation])
                 memory_consol = oobabooga_consolidationmem(prompt)
             #    print(memory_consol)
@@ -4881,10 +4881,22 @@ class ChatBotApplication(customtkinter.CTkFrame):
                             )
                         vector1 = embeddings(segment)
                         unique_id = str(uuid4())
+                        importance_score.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a sub-module of {bot_name}, an autonomous AI entity. Your function is to process a given memory and rate its importance to personal development and/or its ability to impact the greater world.  You are to give the rating on a scale of 1-10.\n"})
+                        importance_score.append({'role': 'system', 'content': f"{botnameupper}'S MAIN PROMPT: {main_prompt}\n"})
+                        importance_score.append({'role': 'system', 'content': f"{botnameupper}'S SECONDARY PROMPT: {second_prompt}\n"})
+                        importance_score.append({'role': 'system', 'content': f"{botnameupper}'S GREETING MESSAGE: {greeting_msg}\n"})
+                        importance_score.append({'role': 'system', 'content': f"MEMORY TO RATE: {segment}\n"})
+                        importance_score.append({'role': 'system', 'content': f"{usernameupper}: Please now rate the given memory on a scale of 1-20. Only print the numerical rating as a digit. [/INST]"})
+                        importance_score.append({'role': 'system', 'content': f"{botnameupper}: Sure thing! Here's the memory rated on a scale of 1-20:\nRating: "})
+                        prompt = ''.join([message_dict['content'] for message_dict in importance_score])
+                        score = oobabooga_episodicmem(prompt)
+                        print(score)
+                        importance_score.clear()
                         metadata = {
                             'bot': bot_name,
                             'user': username,
                             'time': timestamp,
+                            'rating': score,
                             'message': segment,
                             'timestring': timestring,
                             'uuid': unique_id,
@@ -4966,14 +4978,10 @@ class ChatBotApplication(customtkinter.CTkFrame):
                             print("Collection does not exist.")
                         else:
                             print(f"An unexpected error occurred: {str(e)}") 
-                            
-                            
-                            
-                            
 
                     print('\n-----------------------\n')
                     consolidation.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: {main_prompt}\n\n"})
-                    consolidation.append({'role': 'assistant', 'content': f"LOG: {memory_consol_db2}\n\nSYSTEM: Read the Log and consolidate the different topics into executive summaries to serve as {bot_name}'s implicit long term memories. Each summary should contain the entire context of the memory. Follow the format: •[Memory] [/INST] {bot_name}: Sure, here is the list of consolidated memories: "})
+                    consolidation.append({'role': 'assistant', 'content': f"LOG: {memory_consol_db2}\n\nSYSTEM: Read the Log and consolidate the different topics into executive summaries to serve as {bot_name}'s implicit long term memories. Each summary should contain the entire context of the memory. Follow the format: •Memory [/INST] {bot_name}: Sure, here is the list of consolidated memories: "})
                     prompt = ''.join([message_dict['content'] for message_dict in consolidation])
                     memory_consol2 = oobabooga_consolidationmem(prompt)
                     print(memory_consol2)
@@ -5011,7 +5019,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
 
                     print('\n-----------------------\n')
                     consolidation.append({'role': 'system', 'content': f"{main_prompt}\n\n"})
-                    consolidation.append({'role': 'system', 'content': f"IMPLICIT LONG TERM MEMORY: {memory_consol_db3}\n\nIMPLICIT SHORT TERM MEMORY: {memory_consol_db2}\n\nRESPONSE: Compare your short-term memories and the given Long Term Memories, then, remove any duplicate information from your Implicit Short Term memory that is already found in your Long Term Memory. After this is done, consolidate similar topics into a new set of memories. Each summary should contain the entire context of the memory. Use the following format: •[Memory][/INST] {botnameupper}: Sure, here is the list of consolidated memories: "})
+                    consolidation.append({'role': 'system', 'content': f"IMPLICIT LONG TERM MEMORY: {memory_consol_db3}\n\nIMPLICIT SHORT TERM MEMORY: {memory_consol_db2}\n\nRESPONSE: Compare your short-term memories and the given Long Term Memories, then, remove any duplicate information from your Implicit Short Term memory that is already found in your Long Term Memory. After this is done, consolidate similar topics into a new set of memories. Each summary should contain the entire context of the memory. Use the following format: •Memory [/INST] {botnameupper}: Sure, here is the list of consolidated memories: "})
                     prompt = ''.join([message_dict['content'] for message_dict in consolidation])
                     memory_consol3 = oobabooga_consolidationmem(prompt)
                     print(memory_consol3)
@@ -5034,10 +5042,22 @@ class ChatBotApplication(customtkinter.CTkFrame):
                                 )
                             vector1 = embeddings(segment)
                             unique_id = str(uuid4())
+                            importance_score.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a sub-module of {bot_name}, an autonomous AI entity. Your function is to process a given memory and rate its importance to personal development and/or its ability to impact the greater world.  You are to give the rating on a scale of 1-10.\n"})
+                            importance_score.append({'role': 'system', 'content': f"{botnameupper}'S MAIN PROMPT: {main_prompt}\n"})
+                            importance_score.append({'role': 'system', 'content': f"{botnameupper}'S SECONDARY PROMPT: {second_prompt}\n"})
+                            importance_score.append({'role': 'system', 'content': f"{botnameupper}'S GREETING MESSAGE: {greeting_msg}\n"})
+                            importance_score.append({'role': 'system', 'content': f"MEMORY TO RATE: {segment}\n"})
+                            importance_score.append({'role': 'system', 'content': f"{usernameupper}: Please now rate the given memory on a scale of 1-20. Only print the numerical rating as a digit. [/INST]"})
+                            importance_score.append({'role': 'system', 'content': f"{botnameupper}: Sure thing! Here's the memory rated on a scale of 1-20:\nRating: "})
+                            prompt = ''.join([message_dict['content'] for message_dict in importance_score])
+                            score = oobabooga_episodicmem(prompt)
+                            print(score)
+                            importance_score.clear()
                             metadata = {
                                 'bot': bot_name,
                                 'user': username,
                                 'time': timestamp,
+                                'rating': score,
                                 'message': segment,
                                 'timestring': timestring,
                                 'uuid': unique_id,
@@ -5103,7 +5123,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     ids_to_delete = [m.id for m in hits]
                     print('\n-----------------------\n')
                     consolidation.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: {main_prompt}\n\n"})
-                    consolidation.append({'role': 'assistant', 'content': f"LOG: {memory_consol_db4}\n\nSYSTEM: Read the Log and consolidate the different memories into executive summaries in a process allegorical to associative processing. Each summary should contain the entire context of the memory. Follow the bullet point format: •[Memory].[/INST]{botnameupper}: Sure, here is the list of consolidated memories: "})
+                    consolidation.append({'role': 'assistant', 'content': f"LOG: {memory_consol_db4}\n\nSYSTEM: Read the Log and consolidate the different memories into executive summaries in a process allegorical to associative processing. Each summary should contain the entire context of the memory. Follow the bullet point format: •Memory [/INST] {botnameupper}: Sure, here is the list of consolidated memories: "})
                     prompt = ''.join([message_dict['content'] for message_dict in consolidation])
                     memory_consol4 = oobabooga_associativemem(prompt)
             #        print(memory_consol4)
@@ -5126,10 +5146,22 @@ class ChatBotApplication(customtkinter.CTkFrame):
                                 )
                             vector1 = embeddings(segment)
                             unique_id = str(uuid4())
+                            importance_score.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a sub-module of {bot_name}, an autonomous AI entity. Your function is to process a given memory and rate its importance to personal development and/or its ability to impact the greater world.  You are to give the rating on a scale of 1-10.\n"})
+                            importance_score.append({'role': 'system', 'content': f"{botnameupper}'S MAIN PROMPT: {main_prompt}\n"})
+                            importance_score.append({'role': 'system', 'content': f"{botnameupper}'S SECONDARY PROMPT: {second_prompt}\n"})
+                            importance_score.append({'role': 'system', 'content': f"{botnameupper}'S GREETING MESSAGE: {greeting_msg}\n"})
+                            importance_score.append({'role': 'system', 'content': f"MEMORY TO RATE: {segment}\n"})
+                            importance_score.append({'role': 'system', 'content': f"{usernameupper}: Please now rate the given memory on a scale of 1-20. Only print the numerical rating as a digit. [/INST]"})
+                            importance_score.append({'role': 'system', 'content': f"{botnameupper}: Sure thing! Here's the memory rated on a scale of 1-20:\nRating: "})
+                            prompt = ''.join([message_dict['content'] for message_dict in importance_score])
+                            score = oobabooga_episodicmem(prompt)
+                            print(score)
+                            importance_score.clear()
                             metadata = {
                                 'bot': bot_name,
                                 'user': username,
                                 'time': timestamp,
+                                'rating': score,
                                 'message': segment,
                                 'timestring': timestring,
                                 'uuid': unique_id,
@@ -5247,10 +5279,22 @@ class ChatBotApplication(customtkinter.CTkFrame):
                                 )
                             vector1 = embeddings(segment)
                             unique_id = str(uuid4())
+                            importance_score.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a sub-module of {bot_name}, an autonomous AI entity. Your function is to process a given memory and rate its importance to personal development and/or its ability to impact the greater world.  You are to give the rating on a scale of 1-10.\n"})
+                            importance_score.append({'role': 'system', 'content': f"{botnameupper}'S MAIN PROMPT: {main_prompt}\n"})
+                            importance_score.append({'role': 'system', 'content': f"{botnameupper}'S SECONDARY PROMPT: {second_prompt}\n"})
+                            importance_score.append({'role': 'system', 'content': f"{botnameupper}'S GREETING MESSAGE: {greeting_msg}\n"})
+                            importance_score.append({'role': 'system', 'content': f"MEMORY TO RATE: {segment}\n"})
+                            importance_score.append({'role': 'system', 'content': f"{usernameupper}: Please now rate the given memory on a scale of 1-20. Only print the numerical rating as a digit. [/INST]"})
+                            importance_score.append({'role': 'system', 'content': f"{botnameupper}: Sure thing! Here's the memory rated on a scale of 1-20:\nRating: "})
+                            prompt = ''.join([message_dict['content'] for message_dict in importance_score])
+                            score = oobabooga_episodicmem(prompt)
+                            print(score)
+                            importance_score.clear()
                             metadata = {
                                 'bot': bot_name,
                                 'user': username,
                                 'time': timestamp,
+                                'rating': score,
                                 'message': segment,
                                 'timestring': timestring,
                                 'uuid': unique_id,

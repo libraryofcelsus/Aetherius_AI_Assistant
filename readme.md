@@ -1,5 +1,5 @@
 # Aetherius
-Version .045b of the Aetherius Ai Personal Assistant/Agent/Companion by LibraryofCelsus.com
+Version .045c of the Aetherius Ai Personal Assistant/Agent/Companion by LibraryofCelsus.com
 
 Aetherius is in a state of constant iterative development.  If you like the version you are using, keep a backup.  Expect Bugs.
 
@@ -7,6 +7,8 @@ For a quick demo deployment without a UI, see: [Public Oobabooga Api Colab](http
 
 ------
 **Recent Changes**
+
+• 9/6 Continued to improve Llama 2 internal prompts
 
 • 9/4 Updated Llama 2 Internal Prompts
 
@@ -138,6 +140,11 @@ In January 2023, I had my inaugural experience with ChatGPT 3.5 and LLMs in gene
 • Launch Ai Tutorial YouTube Channel
 
 # Changelog:
+**0.045c**
+
+• Improved Llama 2 Internal Prompts
+
+• Added Important Score to some memory types (Still a work in progress)
 
 **0.045b**
 

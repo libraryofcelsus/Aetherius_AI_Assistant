@@ -1557,7 +1557,7 @@ class MainConversation:
     def append(self, timestring, username, usernameupper, a, bot_name, botnameupper, response_two):
         # Append new entry to the running conversation
         entry = []
-        entry.append(f"{timestring}-{usernameupper}: {a}")
+        entry.append(f"{usernameupper}-{timestring}: {a}")
         entry.append(f"{botnameupper}: {response_two}")
         self.running_conversation.append("\n\n".join(entry))  # Join the entry with "\n\n"
 
@@ -3750,8 +3750,8 @@ class ChatBotApplication(customtkinter.CTkFrame):
             vector_input = embeddings(message_input)
             conversation.append({'role': 'user', 'content': f"USER INPUT: {a}\n\n\n"})        
             # # Generate Semantic Search Terms
-            tasklist.append({'role': 'system', 'content': "SYSTEM: You are a semantic rephraser. Your role is to interpret the original user query and generate 2-4 synonymous search terms that will guide the exploration of the chatbot's memory database. Each alternative term should reflect the essence of the user's initial search input. Please list your results using a hyphenated bullet point structure.[/INST]\n\n"})
-            tasklist.append({'role': 'user', 'content': "[INST]USER: %s[/INST]\n\nASSISTANT: Sure, I'd be happy to help! Here are 2-5 synonymous search terms:\n" % a})
+            tasklist.append({'role': 'system', 'content': "SYSTEM: You are a search query corrdinator. Your role is to interpret the original user query and generate 2-4 synonymous search terms that will guide the exploration of the chatbot's memory database. Each alternative term should reflect the essence of the user's initial search input. Please list your results using bullet point format.\n"})
+            tasklist.append({'role': 'user', 'content': "USER: %s [/INST] ASSISTANT: Sure, I'd be happy to help! Here are 2-5 synonymous search terms: " % a})
             prompt = ''.join([message_dict['content'] for message_dict in tasklist])
             tasklist_output = oobabooga_terms(prompt)
             print(tasklist_output)
@@ -3763,8 +3763,10 @@ class ChatBotApplication(customtkinter.CTkFrame):
             tasklist_counter = 0
             tasklist_counter2 = 0
             vector_input1 = embeddings(message_input)
-            conversation.append({'role': 'system', 'content': f"{main_prompt} [/INST]"})
-            conversation.append({'role': 'system', 'content': f"{botnameupper}'S LONG TERM CHATBOT MEMORIES:"})
+            conversation.append({'role': 'system', 'content': f"{main_prompt} Now return your most relevant memories: [/INST]"})
+            conversation.append({'role': 'system', 'content': f"{botnameupper}'S LONG TERM CHATBOT MEMORIES: "})
+            int_conversation.append({'role': 'system', 'content': f"{main_prompt} Now return your most relevant memories: [/INST]"})
+            int_conversation.append({'role': 'system', 'content': f"{botnameupper}'S LONG TERM CHATBOT MEMORIES: "})
             for line in lines:            
                 try:
                     hits = client.search(
@@ -3785,10 +3787,10 @@ class ChatBotApplication(customtkinter.CTkFrame):
                         limit=3
                     )
                     db_search_1 = [hit.payload['message'] for hit in hits]
-                    conversation.append({'role': 'assistant', 'content': f"{db_search_1}"})
+                    conversation.append({'role': 'assistant', 'content': f"{db_search_1}  "})
                     tasklist_counter + 1
                     if tasklist_counter < 3:
-                        int_conversation.append({'role': 'assistant', 'content': f"{db_search_1}"})
+                        int_conversation.append({'role': 'assistant', 'content': f"{db_search_1}  "})
                     print(db_search_1)
                 except Exception as e:
                     if "Not found: Collection" in str(e):
@@ -3815,10 +3817,10 @@ class ChatBotApplication(customtkinter.CTkFrame):
                         limit=3
                     )
                     db_search_2 = [hit.payload['message'] for hit in hits]
-                    conversation.append({'role': 'assistant', 'content': f"{db_search_2}"})
+                    conversation.append({'role': 'assistant', 'content': f"{db_search_2}  "})
                     tasklist_counter2 + 1
                     if tasklist_counter2 < 3:
-                        int_conversation.append({'role': 'assistant', 'content': f"{db_search_2}"})
+                        int_conversation.append({'role': 'assistant', 'content': f"{db_search_2}  "})
                     print(db_search_2)
                 except Exception as e:
                     if "Not found: Collection" in str(e):
@@ -4005,7 +4007,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                         else:
                             print(f"An unexpected error occurred: {str(e)}")
             # # Inner Monologue Generation
-            conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S EPISODIC MEMORIES: {db_search_3}\n{db_search_5}\n{botnameupper}'S SHORT-TERM MEMORIES: {db_search_4}\n{botnameupper}'s HEURISTICS: {db_search_6}[INST]SYSTEM:Compose a truncated silent soliloquy to serve as {bot_name}'s internal monologue/narrative.  Ensure it includes {bot_name}'s contemplations in relation to {username}'s request.[/INST] CURRENT CONVERSATION HISTORY: {con_hist} [INST] {usernameupper}/USER: {a}\nPlease directly provide a brief internal monologue as {bot_name} reflecting upon how to best respond to the user's most recent message. [/INST] {botnameupper}: "})
+            conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S EPISODIC MEMORIES: {db_search_3}\n{db_search_5}\n{botnameupper}'S SHORT-TERM MEMORIES: {db_search_4}\n{botnameupper}'s HEURISTICS: {db_search_6}[INST] Now return and analyze the current conversation history. [/INST] CURRENT CONVERSATION HISTORY: {con_hist} [INST] SYSTEM:Compose a truncated silent soliloquy to serve as {bot_name}'s internal monologue/narrative.  Ensure it includes {bot_name}'s contemplations in relation to {username}'s request.\n{usernameupper}/USER: {a} [/INST] {botnameupper}: "})
             prompt = ''.join([message_dict['content'] for message_dict in conversation])
             output_one = oobabooga_inner_monologue(prompt)
             inner_output = (f'{output_one}\n\n')
@@ -4104,7 +4106,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                             ),
                         ]
                     ),
-                    limit=4
+                    limit=3
                 )
                 db_search_8 = [hit.payload['message'] for hit in hits]
                 print(db_search_8)
@@ -4165,7 +4167,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     print(f"An unexpected error occurred: {str(e)}")
             print('\n-----------------------\n')
             # # Intuition Generation
-            int_conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S FLASHBULB MEMORIES: {db_search_9}\n{botnameupper}'S EXPLICIT MEMORIES: {db_search_8}\n{botnameupper}'s HEURISTICS: {db_search_10}\n{botnameupper}'S INNER THOUGHTS: {output_one}\n{botnameupper}'S EPISODIC MEMORIES: {db_search_7}[/INST] [INST]PREVIOUS CONVERSATION HISTORY: {con_hist}[/INST] [INST]SYSTEM: Transmute the user, {username}'s message as {bot_name} by devising a truncated predictive action plan in the third person point of view on how to best respond to {username}'s most recent message. You do not have access to external resources.  If the user's message is casual conversation, print 'No Plan Needed'. Only create an action plan for informational requests or if requested to complete a complex task.  If the user is requesting information on a subjector asking a question, predict what information needs to be provided.[/INST] [INST]{usernameupper}: {a}\nPlease only provide the third person action plan as your response.  The action plan should both be terse and in a tasklist form. [/INST] {botnameupper}: Sure, here is an action plan for how to respond to {username}: "}) 
+            int_conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S FLASHBULB MEMORIES: {db_search_9}\n{botnameupper}'S EXPLICIT MEMORIES: {db_search_8}\n{botnameupper}'s HEURISTICS: {db_search_10}\n{botnameupper}'S INNER THOUGHTS: {output_one}\n{botnameupper}'S EPISODIC MEMORIES: {db_search_7} [INST] Now return and analyze the previous conversation history. [/INST] PREVIOUS CONVERSATION HISTORY: {con_hist} [INST] SYSTEM: Transmute the user, {username}'s message as {bot_name} by devising a truncated predictive action plan in the third person point of view on how to best respond to {username}'s most recent message. You do not have access to external resources.  If the user's message is casual conversation, print 'No Plan Needed'. Only create an action plan for informational requests or if requested to complete a complex task.  If the user is requesting information on a subjector asking a question, predict what information needs to be provided. {usernameupper}: {a} [/INST] {botnameupper}: "}) 
 
             inner_loop_response = 'None'
             prompt = ''.join([message_dict['content'] for message_dict in int_conversation])
@@ -4315,7 +4317,8 @@ class ChatBotApplication(customtkinter.CTkFrame):
             print('\n-----------------------\n')
             print('\n%s is thinking...\n' % bot_name)
             con_hist = f'{conversation_history}'
-            conversation2.append({'role': 'system', 'content': f"PERSONALITY PROMPT: {main_prompt}\n\n"})
+            conversation2.append({'role': 'system', 'content': f"{main_prompt} Now return your most relevant memories: [/INST]"})
+            conversation2.append({'role': 'system', 'content': f"{botnameupper}'S LONG TERM CHATBOT MEMORIES: "})
             # # Generate Cadence
             try:
                 hits = client.search(
@@ -4336,7 +4339,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     limit=2
                 )
                 db_search_11 = [hit.payload['message'] for hit in hits]
-                conversation2.append({'role': 'assistant', 'content': f"CADENCE: I will extract the cadence from the following messages and mimic it to the best of my ability: {db_search_11}[/INST]"})
+                conversation2.append({'role': 'assistant', 'content': f"CADENCE: I will extract the cadence from the following messages and mimic it to the best of my ability: {db_search_11}"})
                 print(db_search_11)
             except:
                 print(f"No Cadence Uploaded")
@@ -4422,7 +4425,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
             print('\n-----------------------\n')
             tts_model = open_file('./config/Settings/TTS.txt')
             # # Generate Aetherius's Response
-            conversation2.append({'role': 'assistant', 'content': f"CHATBOT'S MEMORIES: {db_search_12}\n{db_search_13}\n\n{bot_name}'s HEURISTICS: {db_search_14}\n\nCHATBOT'S INNER THOUGHTS: {output_one}\n{second_prompt}[/INST] CONVERSATION HISTORY: {con_hist} [INST] {usernameupper}: We are currently in the middle of a conversation, please review your action plan for your response. [/INST] {botnameupper}: I will now review my action plan, using it as a framework to construct my upcoming response: {output_two}\nI will proceed by reviewing our previous conversation to ensure I respond in a manner that is both informative and emotionally attuned. [INST]{usernameupper}: Deliver a response to the user that feels natural and entirely satisfies the user's latest request. You are responding directly to the user's message of: {a}. [/INST] {botnameupper}: "})
+            conversation2.append({'role': 'assistant', 'content': f"CHATBOT'S MEMORIES: {db_search_12}\n{db_search_13}\n{bot_name}'s HEURISTICS: {db_search_14}\nCHATBOT'S INNER THOUGHTS: {output_one}\n{second_prompt} [INST] Now return and analyze the previous conversation history. [/INST] CONVERSATION HISTORY: {con_hist} [INST] {usernameupper}: We are currently in the middle of a conversation, please review your action plan for your response. [/INST] {botnameupper}: I will now review my action plan, using it as a framework to construct my upcoming response: {output_two}\nI will proceed by reviewing our previous conversation to ensure I respond in a manner that is both informative and emotionally attuned. [INST] {usernameupper}: Deliver a response to the user that feels natural and entirely satisfies my latest request. You are giving a direct response to the message of: {a} [/INST] {botnameupper}: Sure, here is my response to {username}'s message: "})
             prompt = ''.join([message_dict['content'] for message_dict in conversation2])
             response_two = oobabooga_response(prompt)
             self.conversation_text.insert(tk.END, "Response: {}".format(response_two.replace('\\n', '\n')) + "\n\n")
@@ -4567,9 +4570,9 @@ class ChatBotApplication(customtkinter.CTkFrame):
                         if index == total_segments - 1 and not segment[-1] in ['.', '!', '?']:
                             continue
                         upload_explicit_short_term_memories(segment)
+                    t = threading.Thread(target=self.GPT_Memories, args=(a, vector_input, vector_monologue, output_one, response_two))
+                    t.start()
                 write_to_dataset(a, response_two, bot_name, username, main_prompt)
-                t = threading.Thread(target=self.GPT_Memories, args=(a, vector_input, vector_monologue, output_one, response_two))
-                t.start()
             if self.memory_mode == 'Auto':        
                 t = threading.Thread(target=self.GPT_Memories, args=(a, vector_input, vector_monologue, output_one, response_two))
                 t.start()
@@ -4600,6 +4603,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
         consolidation  = list()
         counter = 0
         counter2 = 0
+        importance_score = list()
         mem_counter = 0
         length_config = open_file('./config/Conversation_Length.txt')
         conv_length = 3
@@ -4618,20 +4622,20 @@ class ChatBotApplication(customtkinter.CTkFrame):
             counter += 1
             conversation.clear()
             print('Generating Episodic Memories')
-            conversation.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a sub-module of {bot_name}, an autonomous AI entity. Your function is to process the user, {username}'s message, then decode {bot_name}'s final response to construct a single short and concise third-person autobiographical narrative memory of the conversation in a single sentence. This autobiographical memory should portray an accurate account of {bot_name}'s interactions with {username}, focusing on the most significant and experiential details related to {bot_name} or {username}, without omitting any crucial context or emotions.\n\n"})
-            conversation.append({'role': 'user', 'content': f"USER: {a}[/INST]"})
-            conversation.append({'role': 'user', 'content': f"{botnameupper}'s INNER MONOLOGUE: {output_one}\n\n"})
+            conversation.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a sub-module of {bot_name}, an autonomous AI entity. Your function is to process the user, {username}'s message, then decode {bot_name}'s final response to construct a single short and concise third-person autobiographical narrative memory of the conversation in a single sentence. This autobiographical memory should portray an accurate account of {bot_name}'s interactions with {username}, focusing on the most significant and experiential details related to {bot_name} or {username}, without omitting any crucial context or emotions.\nNow, print the user's inquiry and your response. [/INST]"})
+            conversation.append({'role': 'user', 'content': f"USER: {a}\n"})
+            conversation.append({'role': 'user', 'content': f"{botnameupper}'s INNER MONOLOGUE: {output_one}\n"})
     #        print(output_one)
             conversation.append({'role': 'user', 'content': f"{botnameupper}'S FINAL RESPONSE: {response_two}"})
     #        print(response_two)
-            conversation.append({'role': 'assistant', 'content': f"[INST]Please now generate an episodic memory for {bot_name}.[/INST] THIRD-PERSON AUTOBIOGRAPHICAL MEMORY: "})
+            conversation.append({'role': 'assistant', 'content': f"[INST] Please now generate an episodic memory for {bot_name}.[/INST] THIRD-PERSON AUTOBIOGRAPHICAL MEMORY: "})
             prompt = ''.join([message_dict['content'] for message_dict in conversation])
             conv_summary = oobabooga_episodicmem(prompt)
             print(conv_summary)
             print('\n-----------------------\n')
             # Define the collection name
             collection_name = f"Bot_{bot_name}"
-            # Create the collection only if it doesn't exist
+            # Create the collection only if it doesn't exist   
             try:
                 collection_info = client.get_collection(collection_name=collection_name)
             except:
@@ -4642,10 +4646,23 @@ class ChatBotApplication(customtkinter.CTkFrame):
             episodic_msg = f'{timestring} - {conv_summary}'
             vector1 = embeddings(episodic_msg)
             unique_id = str(uuid4())
+            importance_score.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a sub-module of {bot_name}, an autonomous AI entity. Your function is to process a given memory and rate its importance to personal development and/or its ability to impact the greater world.  You are to give the rating on a scale of 1-10.\n"})
+            importance_score.append({'role': 'system', 'content': f"{botnameupper}'S MAIN PROMPT: {main_prompt}\n"})
+            importance_score.append({'role': 'system', 'content': f"{botnameupper}'S SECONDARY PROMPT: {second_prompt}\n"})
+            importance_score.append({'role': 'system', 'content': f"{botnameupper}'S GREETING MESSAGE: {greeting_msg}\n"})
+            importance_score.append({'role': 'system', 'content': f"MEMORY TO RATE: {episodic_msg}\n"})
+            importance_score.append({'role': 'system', 'content': f"{usernameupper}: Please now rate the given memory on a scale of 1-20. Only print the numerical rating as a digit. [/INST]"})
+            importance_score.append({'role': 'system', 'content': f"{botnameupper}: Sure thing! Here's the memory rated on a scale of 1-20:\nRating: "})
+            prompt = ''.join([message_dict['content'] for message_dict in importance_score])
+            score = oobabooga_episodicmem(prompt)
+            importance_score.clear()
+            print(score)
+            print('\n-----------------------\n')
             metadata = {
                 'bot': bot_name,
                 'user': username,
                 'time': timestamp,
+                'rating': score,
                 'message': episodic_msg,
                 'timestring': timestring,
                 'uuid': unique_id,
@@ -4771,10 +4788,21 @@ class ChatBotApplication(customtkinter.CTkFrame):
                         vector1 = embeddings(segment)
                         unique_id = str(uuid4())
                         flash_mem = f'{timestring} - {segment}'
+                        importance_score.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a sub-module of {bot_name}, an autonomous AI entity. Your function is to process a given memory and rate its importance to personal development and/or its ability to impact the greater world.  You are to give the rating on a scale of 1-10.\n"})
+                        importance_score.append({'role': 'system', 'content': f"{botnameupper}'S MAIN PROMPT: {main_prompt}\n"})
+                        importance_score.append({'role': 'system', 'content': f"{botnameupper}'S SECONDARY PROMPT: {second_prompt}\n"})
+                        importance_score.append({'role': 'system', 'content': f"{botnameupper}'S GREETING MESSAGE: {greeting_msg}\n"})
+                        importance_score.append({'role': 'system', 'content': f"MEMORY TO RATE: {flash_mem}\n"})
+                        importance_score.append({'role': 'system', 'content': f"{usernameupper}: Please now rate the given memory on a scale of 1-20. Only print the numerical rating as a digit. [/INST]"})
+                        importance_score.append({'role': 'system', 'content': f"{botnameupper}: Sure thing! Here's the memory rated on a scale of 1-20:\nRating: "})
+                        prompt = ''.join([message_dict['content'] for message_dict in importance_score])
+                        score = oobabooga_episodicmem(prompt)
+                        importance_score.clear()
                         metadata = {
                             'bot': bot_name,
                             'user': username,
                             'time': timestamp,
+                            'rating': score,
                             'message': flash_mem,
                             'timestring': timestring,
                             'uuid': unique_id,
@@ -5884,7 +5912,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
             master_tasklist.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a stateless task list coordinator for {bot_name}, an autonomous Ai chatbot. Your job is to combine the user's input and the user facing chatbots action plan, then transform it into a bullet point list of independent research queries for {bot_name}'s response that can be executed by separate AI agents in a cluster computing environment. The other asynchronous Ai agents are stateless and cannot communicate with each other or the user during task execution, however the agents do have access to {bot_name}'s memories and an information Database. Exclude tasks involving final product production, user communication, or checking work with other entities. Respond using bullet point format following: '•[task]'[/INST]"})
             master_tasklist.append({'role': 'user', 'content': f"USER FACING CHATBOT'S INTUITIVE ACTION PLAN: {output_two}"})
             master_tasklist.append({'role': 'user', 'content': f"[INST]USER INQUIRY: {a}\n\n"})
-            master_tasklist.append({'role': 'assistant', 'content': f"RESPONSE FORMAT: You may only print the task list in hyphenated bullet point format. Please limit the tasklist to three to eight items maximum. Use the format: '•[task]'[/INST]ASSISTANT: "})
+            master_tasklist.append({'role': 'assistant', 'content': f"RESPONSE FORMAT: You may only print the task list in hyphenated bullet point format. Please limit the tasklist to three to eight items maximum. Use the format: '•[task]\n\n•[task]\n\n•[task]'[/INST]ASSISTANT: "})
             
             prompt = ''.join([message_dict['content'] for message_dict in master_tasklist])
             master_tasklist_output = agent_oobabooga_500(prompt)

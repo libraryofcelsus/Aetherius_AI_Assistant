@@ -8,6 +8,8 @@ For a quick demo deployment without a UI, see: [Public Oobabooga Api Colab](http
 ------
 **Recent Changes**
 
+• 9/7 Improved Llama 2 Agent internal prompts.
+
 • 9/6 Continued to improve Llama 2 internal prompts.  It should now work much better with the 7B model.
 
 • 9/4 Updated Llama 2 Internal Prompts
@@ -307,7 +309,7 @@ To run Aetherius Locally using Oobabooga, first install the web-ui at: https://g
 
 Then, under the "Interface Mode" tab, enable the api checkbox in both fields. Then click apply and restart the interface.
 
-Next, navigate to the models tab. Uncheck the autoload models box and then input "TheBloke/Llama-2-13B-chat-GPTQ" into the downloads box (7B model can be used for faster results, but it occasionally breaks format). Other models may work, but this is the one that is tested.
+Next, navigate to the models tab. Uncheck the autoload models box and then input "TheBloke/Llama-2-13B-chat-GPTQ" into the downloads box (7B model can be used for faster results, but it occasionally breaks format and has a tendency to make things up.  Wouldn't recommend if you need factual data). Other models may work, but this is the one that is tested.
 
 Once the download is completed, reload the model selection menu and then select the model. Change the model loader to Exllama and set the max_seq_len to "4096".  Set the "gpu_split" to 1 GB under your Gpu's max Vram.
 

@@ -31,41 +31,55 @@ For a quick demo deployment without a UI, see: [Public Oobabooga Api Colab](http
 
 • 8/29 Added Bark TTS
 
-• 8/28 OpenAi version of Aetherius should no longer print it's name.
+------
 
-• 8/28 Added Voice input using Whisper and TTS using gTTS or Eleven Labs.  Bark TTS still a work in progress.
+### Your Personal AI, Your Control
 
-• 8/27 Updated usage guide with explanations of Ui's functions.
-
-• 8/27 Removed Username from collection name and switched to using Metadata.
+Aetherius is your locally operated AI companion, meticulously crafted to grant you ultimate control. No external forces can alter it without your consent, ensuring your privacy and autonomy are paramount. Say goodbye to limitations imposed by others and take charge of your digital interactions.
 
 ------
 
-## Aetherius's Current Modes
+### Aetherius - Your Digital Mindmate
 
-All modes upload to the main chatbot's memories, so it's knowledgebase will grow on whatever external data you want!
+At the heart of Aetherius lies a groundbreaking Long-Term Memory (LLM) Retrieval Framework, fueled by the Llama 2 and Oobabooga API (Free Tier Colab Available) or OpenAi's ChatGPT.  Qdrant is used for a robust, efficient database, ensuring Aetherius evolves with you.
 
-**Main Chatbot:** A chatbot with realistic long term memory to serve as your personal Ai companion!  This is the default mode.   
--*Auto Memory Mode:* Aetherius autonomously decides if it should upload the generated memories to its database.   
--*Manual Memory Mode:* User will be asked if memories should be uploaded at the end after response generation.   
--*Training Memory Mode:* User will be asked if the memories should be uploaded for each type of memory. (Implicit and Explicit Short Term)   
--*None:* No memories will be uploaded.
+Unlock the Potential
 
-**Agent Mode** This mode enables the Agent Architecture.  This will allow Aetherius autonomously generate a research tasklist, as well as connect with external data.  The memories created from this mode are uploaded to the main chatbot, allowing Aetherius’s knowledge base to expand over time.
+Aetherius is a versatile, modular AI assistant that adapts to your needs. Its capabilities extend far beyond conventional chatbots:
 
-**Web DB:** This checkmark will let you talk to data scraped with the Web Search/Scrape Tool.
+**Reflective Therapist and Journal**: Speak your mind freely and receive thoughtful feedback without judgment or fear.
 
-**File DB:** This check mark will let you talk to data scraped from files with the File Processing Tool.
+**Learning Tool**: Dive deep into your favorite topics and enhance your knowledge effortlessly.
 
-**Memory DB:** This checkmark will have Aetherius choose it's most relevant memory database and then search it.
+**Data Analysis Companion**: Harness the power of your data with Aetherius by your side.
+
+**Cognitive Offload**: A second brain that's entirely private, aiding you in organizing thoughts and ideas.
+
+**Content Generation**: Easily Generate Content based off of files or webscrapes.
 
 ------
 
-## Aetherius's Current Tools
+### Customize Your Experience
 
-**Web Scrape/Search:** This tool will allow you to enter a url or a search term and scrape the information on the given site/sites.  This information will be called upon when using the Agent mode of Aetherius.
+Aetherius offers multiple modes tailored to your preferences:
 
-**File Processor:** This tool functions similarly to the webscrape tool, but instead will process files instead of websites.  The supported file types are: .epub, .pdf, .txt, .png, .jpg, .jpeg, .mp4, .mkv, .flv, and .avi
+- **Main Chatbot**: Your personal companion with realistic long-term memory.
+- *Auto Memory Mode*: Aetherius autonomously manages memory uploads.
+- *Manual Memory Mode*: You decide when to upload memories.
+- *Training Memory Mode*: Control memory uploads for each memory type.
+- **Agent Mode**: Unleash Aetherius's research prowess and connect to external data sources.
+- *Web DB*: Access web-scraped data effortlessly.
+- *File DB*: Extract insights from various file formats.
+- *Memory DB*: Efficiently search the most relevant memories.
+
+------
+
+### Current Tools
+
+With Aetherius, you have an arsenal of tools to explore and use:
+
+- **Web Scrape/Search**: Gather information from websites with ease.
+- **File Processor**: Process a variety of file types for insights and knowledge.  The supported file types are: .epub, .pdf, .txt, .png, .jpg, .jpeg, .mp4, .mkv, .flv, and .av
 
 ------
 
@@ -76,8 +90,6 @@ Aetherius's development is self-funded by my day job, consider supporting me if 
 ------
 
 [Aetherius Usage Guide](https://www.libraryofcelsus.com/research/aetherius-usage-guide/)
-
-[Skip to Aetherius General Information](#current-version-information)
 
 [Skip to installation guide](#installation-guide)
 
@@ -99,6 +111,8 @@ Made by: https://github.com/libraryofcelsus
 
 Inspired by https://github.com/daveshap/
 
+------
+
 ## Example
 (Uses Llama2-Chat-13B and a webscrape of this Github page.)
 
@@ -111,15 +125,6 @@ Inspired by https://github.com/daveshap/
 ## Agent Architecture
 
 ![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/07/AetheriusArch.png)
-
-# Current Version Information
-
-**What is Aetherius?**   
-Aetherius is an Ai LLM Retrieval Framework focused on bringing realistic long-term memory and thought formation to a customizable chatbot/companion. 
-My goal is to create a locally run Ai Assistant that you actually have control over and own. One that cannot be changed or limited by an external force without consent.  
-Aetherius aims to provide a modular, personalized AI assistant using Retrieval Augmented Generation and Tools. If all goes as planned, Aetherius will support integration with other open-source projects.
-
-In January 2023, I had my inaugural experience with ChatGPT 3.5 and LLMs in general. Since that moment, I've been deeply obsessed with AI, dedicating countless hours each day to studying it and to hands-on experimentation. The Aetherius AI Assistant is the culmination of that research.
 
 ## Future Plans
 
@@ -274,13 +279,15 @@ In January 2023, I had my inaugural experience with ChatGPT 3.5 and LLMs in gene
 
 To run Aetherius on Google Colab, first run the Oobabooga Public Api: <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Oobabooga_Public_Api.ipynb">
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
-</a>
+</a>  
+(Note: There is a bug currently when using the public api colab and Aetherius with the Agent mode, I think the problem comes from Oobabooga, but I am unsure. (Responses will Return "None" before they are finished Generating.))
 
 Then, go to Qdrant and get an API key and URL: https://qdrant.to/cloud
 
 The final step will be to run the actual Aetherius Script.  You can install it locally or run it on a colab notebook found here: <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Aetherius_Colab_Edition_Oobabooga.ipynb">
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
-</a>
+</a>   
+(Note: The colab version of Aetherius is rarely updated and is more meant as a demo.)
 
 ## Installer bat
 
@@ -290,7 +297,21 @@ Run the Installer Bat as admin, it is located at: https://github.com/libraryofce
 
 ![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/05/Capture11111111.png)
 
-Copy your OpenAi and Qdrant API/URL keys to the api_key folder inside of the created Aetherius_Ai_Assistant folder
+Copy your OpenAi and Qdrant API/URL keys to the api_key folder inside of the created Aetherius_Ai_Assistant folder if you are using the OpenAi version.
+
+To run Aetherius on Google Colab with Oobabooga using a public Api, use the Notebook file in the "./Colab Notebooks" Folder.  To use the Public Api with Aetherius, change the "Set Oobabooga Host" in the Config Menu to the given non-streaming Url. <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Oobabooga_Public_Api.ipynb">
+  <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
+</a>
+
+To run Aetherius Locally using Oobabooga, first install the web-ui at: https://github.com/oobabooga/text-generation-webui
+
+Then, under the "Interface Mode" tab, enable the api checkbox in both fields. Then click apply and restart the interface.
+
+Next, navigate to the models tab. Uncheck the autoload models box and then input "TheBloke/Llama-2-13B-chat-GPTQ" into the downloads box (7B model can be used for faster results, but it occasionally breaks format). Other models may work, but this is the one that is tested.
+
+Once the download is completed, reload the model selection menu and then select the model. Change the model loader to Exllama and set the max_seq_len to "4096".  Set the "gpu_split" to 1 GB under your Gpu's max Vram.
+
+Click the "load" button and load the model. The Aetherius should now work!
 
 Qdrant Cloud: https://qdrant.to/cloud
 
@@ -304,25 +325,8 @@ If No Qdrant server is running, Aetherius will save to disk.
 
 Launch Aetherius with **run.bat**
 
-Photo OCR (jpg, jpeg, png) requires tesseract: https://github.com/UB-Mannheim/tesseract/wiki   
-Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aetherius_Ai_Assistant" Folder.
-
 Upload heuristics to DB and change the Bot and User name to start chatting with Aetherius!  
 Heuristic examples, and files to modify prompts can be found in the config folder.  Prompts can also be edited through the Config Menu.
-
-To run Aetherius on Google Colab with Oobabooga using a public Api, use the Notebook file in the "./Colab Notebooks" Folder.  To use the Public Api with Aetherius, change the "Set Oobabooga Host" in the Config Menu to the given non-streaming Url. <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Oobabooga_Public_Api.ipynb">
-  <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
-</a>
-
-To run Aetherius Locally using Oobabooga, first install the web-ui at: https://github.com/oobabooga/text-generation-webui
-
-Then, under the "Interface Mode" tab, enable the api checkbox in both fields. Then click apply and restart the interface.
-
-Next, navigate to the models tab. Uncheck the autoload models box and then input "TheBloke/Llama-2-13B-chat-GPTQ" into the downloads box. Other models may work, but this is the one that is tested.
-
-Once the download is completed, reload the model selection menu and then select the model. Change the model loader to Exllama and set the max_seq_len to "4096".  Set the "gpu_split" to .5 under your Gpu's max Vram.
-
-Click the "load" button and load the model. The Aetherius should now work!
 
 Photo OCR (jpg, jpeg, png) requires tesseract: https://github.com/UB-Mannheim/tesseract/wiki
 Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aetherius_Ai_Assistant" Folder.
@@ -407,7 +411,11 @@ Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aethe
 
 34. Click the "load" button and load the model.  The Oobabooga API bots should now work!
 
+-----
 
+## About Me
+
+In January 2023, I had my inaugural experience with ChatGPT 3.5 and LLMs in general. Since that moment, I've been deeply obsessed with AI, dedicating countless hours each day to studying it and to hands-on experimentation. The Aetherius AI Assistant is the culmination of that research.
 
 # Contact
 Discord: libraryofcelsus      -> Old Username Style: Celsus#0262

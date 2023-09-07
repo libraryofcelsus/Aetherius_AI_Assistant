@@ -321,6 +321,8 @@ To use a local Qdrant server, first install Docker: https://www.docker.com.
 Next type: **docker pull qdrant/qdrant:latest** in the command prompt.  
 After it is finished downloading, type **docker run -p 6333:6333 qdrant/qdrant:latest**  
 
+See: https://docs.docker.com/desktop/backup-and-restore/ for how to make backups.
+
 Once the local Qdrant server is running, it should be auto detected by Aetherius.
 
 If No Qdrant server is running, Aetherius will save to disk.
@@ -375,7 +377,8 @@ Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aethe
 
 19. Next run: **docker run -p 6333:6333 qdrant/qdrant:latest**
 
-20. Once the local Qdrant server is running, it should be auto detected by Aetherius.  If No Qdrant server is running, Aetherius will save to disk.
+20. Once the local Qdrant server is running, it should be auto detected by Aetherius.  If No Qdrant server is running, Aetherius will save to disk.   
+(See: https://docs.docker.com/desktop/backup-and-restore/ for how to make backups.)
 
 21. Copy your Google Api key to key_google.txt  (Google Keys only needed if using AetherSearch's websearch.)
 

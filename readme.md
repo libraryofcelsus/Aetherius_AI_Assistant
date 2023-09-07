@@ -43,19 +43,19 @@ Aetherius is your locally operated AI companion, meticulously crafted to grant y
 
 At the heart of Aetherius lies a groundbreaking Long-Term Memory (LLM) Retrieval Framework, fueled by the Llama 2 and Oobabooga API (Free Tier Colab Available) or OpenAi's ChatGPT.  Qdrant is used for a robust, efficient database, ensuring Aetherius evolves with you.
 
-Unlock the Potential
+**Unlock the Potential**
 
 Aetherius is a versatile, modular AI assistant that adapts to your needs. Its capabilities extend far beyond conventional chatbots:
 
-**Reflective Therapist and Journal**: Speak your mind freely and receive thoughtful feedback without judgment or fear.
+***Reflective Therapist and Journal***: Speak your mind freely and receive thoughtful feedback without judgment or fear.
 
-**Learning Tool**: Dive deep into your favorite topics and enhance your knowledge effortlessly.
+***Learning Tool***: Dive deep into your favorite topics and enhance your knowledge effortlessly.
 
-**Data Analysis Companion**: Harness the power of your data with Aetherius by your side.
+***Data Analysis Companion***: Harness the power of your data with Aetherius by your side.
 
-**Cognitive Offload**: A second brain that's entirely private, aiding you in organizing thoughts and ideas.
+***Cognitive Offload***: A second brain that's entirely private, aiding you in organizing thoughts and ideas.
 
-**Content Generation**: Easily Generate Content based off of files or webscrapes.
+***Content Generation***: Easily Generate Content based off of files or webscrapes.
 
 ------
 

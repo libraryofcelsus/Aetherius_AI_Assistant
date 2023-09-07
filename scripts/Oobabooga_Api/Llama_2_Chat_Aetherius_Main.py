@@ -333,7 +333,7 @@ def chunk_text_from_url(url, chunk_size=380, overlap=40, results_callback=None):
         #    paragraphs = text.split('\n\n')  # Split into paragraphs
         #    for paragraph in paragraphs:  # Process each paragraph individually, add a check to see if paragraph contained actual information.
             webcheck = list()
-            webcheck.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a sub-agent for an automated webscraping tool. Your task is to decide if the previous Ai sub-agent scraped legible information. The scraped text should contain some form of article, if it does, print 'YES'.  If the webscrape failed or is illegible, print: 'NO'."})
+            webcheck.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a sub-agent for an automated webscraping tool. Your task is to decide if the previous Ai sub-agent scraped legible information. The scraped text should contain some form of text, if it does, print 'YES'.  If the webscrape failed or is illegible, print: 'NO'."})
             webcheck.append({'role': 'user', 'content': f"ORIGINAL TEXT FROM SCRAPE: {chunk}[/INST]"})
             webcheck.append({'role': 'user', 'content': f"PROCESSED WEBSCRAPE: {text}\n\n"})
             webcheck.append({'role': 'user', 'content': f"[INST]SYSTEM: You are responding for a Yes or No input field. You are only capible of printing Yes or No. Use the format: [AI AGENT: <'Yes'/'No'>][/INST]\n\nASSISTANT: "})
@@ -492,12 +492,12 @@ def chunk_text_from_file(file_path, chunk_size=400, overlap=40):
             text = File_Processor_oobabooga_scrape(prompt)
             if len(text) < 20:
                 text = "No File available"
-            paragraphs = text.split('\n\n')  # Split into paragraphs
-            for paragraph in paragraphs:  # Process each paragraph individually, add a check to see if paragraph contained actual information.
-                filecheck = list()
-                filelist.append(file_path + ' ' + paragraph)
-                filecheck.append({'role': 'system', 'content': f"You are an agent for an automated text-processing tool. You are one of many agents in a chain. Your task is to decide if the given text from a file was processed successfully. The processed text should contain factual data or opinions. If the given data only consists of an error message or a single question, skip it.  If the article was processed successfully, print: YES.  If a file-process is not needed, print: NO."})
-                filecheck.append({'role': 'user', 'content': f"Is the processed information useful to an end-user? YES/NO: {paragraph}"})
+        #    paragraphs = text.split('\n\n')  # Split into paragraphs
+        #    for paragraph in paragraphs:  # Process each paragraph individually, add a check to see if paragraph contained actual information.
+        #        filecheck = list()
+        #        filelist.append(file_path + ' ' + paragraph)
+        #        filecheck.append({'role': 'system', 'content': f"You are an agent for an automated text-processing tool. You are one of many agents in a chain. Your task is to decide if the given text from a file was processed successfully. The processed text should contain factual data or opinions. If the given data only consists of an error message or a single question, skip it.  If the article was processed successfully, print: YES.  If a file-process is not needed, print: NO."})
+        #        filecheck.append({'role': 'user', 'content': f"Is the processed information useful to an end-user? YES/NO: {paragraph}"})
                 
             filecheck = list()
             filecheck.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are an agent for an automated text scraping tool. Your task is to decide if the previous Ai Agent scraped the text successfully. The scraped text should contain some form of article, if it does, print 'YES'. If the article was scraped successfully, print: 'YES'.  If the text scrape failed or is a response from the first agent, print: 'NO'.\n\n"})
@@ -5430,12 +5430,13 @@ class ChatBotApplication(customtkinter.CTkFrame):
             vector_input = embeddings(message_input)
             # # Check for Commands
             # # Check for "Clear Memory"
-            conversation.append({'role': 'system', 'content': f"MAIN CHATBOT SYSTEM PROMPT: {main_prompt}[/INST]"})
-            int_conversation.append({'role': 'system', 'content': f"MAIN CHATBOT SYSTEM PROMPT: {main_prompt}[/INST]"})
-            # # Check for Exit, summarize the conversation, and then upload to episodic_memories
-            tasklist.append({'role': 'system', 'content': "SYSTEM: You are a semantic rephraser. Your role is to interpret the original user query and generate 2-3 synonymous search terms that will guide the exploration of the chatbot's memory database. Each alternative term should reflect the essence of the user's initial search input. Please list your results using a hyphenated bullet point structure.\n\n"})
-            tasklist.append({'role': 'user', 'content': "USER: USER INQUIRY: %s\n\n" % a})
-            tasklist.append({'role': 'assistant', 'content': "TASK COORDINATOR: List of synonymous Semantic Terms:\n"})
+            conversation.append({'role': 'system', 'content': f"{main_prompt}\nNow return your most relevant memories: [/INST]"})
+            conversation.append({'role': 'system', 'content': f"{botnameupper}'S LONG TERM CHATBOT MEMORIES: "})
+            int_conversation.append({'role': 'system', 'content': f"{main_prompt}\nNow return your most relevant memories: [/INST]"})
+            int_conversation.append({'role': 'system', 'content': f"{botnameupper}'S LONG TERM CHATBOT MEMORIES: "})
+            # # Generate Semantic Search Terms
+            tasklist.append({'role': 'system', 'content': "SYSTEM: You are a search query corrdinator. Your role is to interpret the original user query and generate 2-4 synonymous search terms that will guide the exploration of the chatbot's memory database. Each alternative term should reflect the essence of the user's initial search input. Please list your results using bullet point format.\n"})
+            tasklist.append({'role': 'user', 'content': "USER: %s [/INST] ASSISTANT: Sure, I'd be happy to help! Here are 1-3 synonymous search terms: " % a})
             prompt = ''.join([message_dict['content'] for message_dict in tasklist])
             tasklist_output = agent_oobabooga_terms(prompt)
             print(tasklist_output)
@@ -5449,32 +5450,88 @@ class ChatBotApplication(customtkinter.CTkFrame):
             tasklist_counter2 = 0
             vector_input1 = embeddings(message_input)
             # # Split bullet points into separate lines to be used as individual queries during a parallel db search     
-            for line in lines:            
-                try:
-                    hits = client.search(
-                        collection_name=f"Bot_{bot_name}",
-                        query_vector=vector_input1,
-                        query_filter=Filter(
-                            must=[
-                                FieldCondition(
-                                    key="memory_type",
-                                    match=MatchValue(value="Explicit_Long_Term")
-                                )
-                            ]
-                        ),
-                        limit=2
-                    )
-                    # Print the result
-                #    for hit in hits:
-                #        print(hit.payload['message'])
-                    db_search_16 = [hit.payload['message'] for hit in hits]
-                    conversation.append({'role': 'assistant', 'content': f"LONG TERM CHATBOT MEMORIES: {db_search_16}\n"})
-                    tasklist_counter + 1
-                    if tasklist_counter < 3:
-                        int_conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S LONG TERM MEMORIES: {db_search_16}\n"})
-                    print(db_search_16)
-                except Exception as e:
-                    print(f"An unexpected error occurred: {str(e)}")
+            for line in lines:   
+
+
+                if self.are_both_web_and_file_db_checked():
+                    try:
+                        hits = client.search(
+                            collection_name=f"Bot_{bot_name}_External_Knowledgebase",
+                            query_vector=vector_input1,
+                            limit=2
+                        )
+                        external_scrape = [hit.payload['message'] for hit in hits]
+                        print(external_scrape)
+                    except Exception as e:
+                        print(f"An unexpected error occurred: {str(e)}")
+                else:      
+                    if self.is_web_db_checked():
+                        try:
+                            hits = client.search(
+                                collection_name=f"Bot_{bot_name}_External_Knowledgebase",
+                                query_vector=vector_input1,
+                                query_filter=Filter(
+                                    must=[
+                                        FieldCondition(
+                                            key="memory_type",
+                                            match=MatchValue(value="Web_Scrape")
+                                        )
+                                    ]
+                                ),
+                                limit=2
+                            )
+                            external_scrape = [hit.payload['message'] for hit in hits]
+                            print(external_scrape)
+                        except Exception as e:
+                            print(f"An unexpected error occurred: {str(e)}")
+                    elif self.is_file_db_checked():
+                        try:
+                            hits = client.search(
+                                collection_name=f"Bot_{bot_name}_External_Knowledgebase",
+                                query_vector=vector_input1,
+                                query_filter=Filter(
+                                    must=[
+                                        FieldCondition(
+                                            key="memory_type",
+                                            match=MatchValue(value="File_Scrape")
+                                        )
+                                    ]
+                                ),
+                                limit=2
+                            )
+                            external_scrape = [hit.payload['message'] for hit in hits]
+                            print(external_scrape)
+                        except Exception as e:
+                            print(f"An unexpected error occurred: {str(e)}")
+                    else:
+                        external_scrape = "No External Resources Selected"
+                        print(external)
+
+                    try:
+                        hits = client.search(
+                            collection_name=f"Bot_{bot_name}",
+                            query_vector=vector_input1,
+                            query_filter=Filter(
+                                must=[
+                                    FieldCondition(
+                                        key="memory_type",
+                                        match=MatchValue(value="Explicit_Long_Term")
+                                    )
+                                ]
+                            ),
+                            limit=2
+                        )
+                        # Print the result
+                    #    for hit in hits:
+                    #        print(hit.payload['message'])
+                        db_search_16 = [hit.payload['message'] for hit in hits]
+                        conversation.append({'role': 'assistant', 'content': f"{db_search_16}\n"})
+                        tasklist_counter + 1
+                        if tasklist_counter < 2:
+                            int_conversation.append({'role': 'assistant', 'content': f"{db_search_16}\n"})
+                        print(db_search_16)
+                    except Exception as e:
+                        print(f"An unexpected error occurred: {str(e)}")
                 try:
                     hits = client.search(
                         collection_name=f"Bot_{bot_name}",
@@ -5493,10 +5550,14 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 #    for hit in hits:
                 #        print(hit.payload['message'])
                     db_search_17 = [hit.payload['message'] for hit in hits]
-                    conversation.append({'role': 'assistant', 'content': f"LONG TERM CHATBOT MEMORIES: {db_search_17}\n"})
+                    conversation.append({'role': 'assistant', 'content': f"{db_search_17}\n"})
+                    if external_scrape != 'No External Resources Selected':
+                        conversation.append({'role': 'assistant', 'content': f"{external_scrape}\n"})
                     tasklist_counter2 + 1
-                    if tasklist_counter2 < 3:
-                        int_conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S LONG TERM MEMORIES: {db_search_17}\n"})
+                    if tasklist_counter2 < 2:
+                        int_conversation.append({'role': 'assistant', 'content': f"{db_search_17}\n"})
+                        if external_scrape != 'No External Resources Selected':
+                            int_conversation.append({'role': 'assistant', 'content': f"EXTERNAL RESOURCES: {external_scrape}\n"})
                     print(db_search_17)
                 except Exception as e:
                     print(f"An unexpected error occurred: {str(e)}")
@@ -5529,24 +5590,6 @@ class ChatBotApplication(customtkinter.CTkFrame):
                         must=[
                             FieldCondition(
                                 key="memory_type",
-                                match=MatchValue(value="Flashbulb")
-                            )
-                        ]
-                    ),
-                    limit=1
-                )  
-                db_search_3 = [hit.payload['message'] for hit in hits]
-                print(db_search_3)
-            except Exception as e:
-                print(f"An unexpected error occurred: {str(e)}")
-            try:
-                hits = client.search(
-                    collection_name=f"Bot_{bot_name}",
-                    query_vector=vector_input1,
-                    query_filter=Filter(
-                        must=[
-                            FieldCondition(
-                                key="memory_type",
                                 match=MatchValue(value="Heuristics")
                             )
                         ]
@@ -5564,7 +5607,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     hits = client.search(
                         collection_name=f"Bot_{bot_name}_External_Knowledgebase",
                         query_vector=vector_input1,
-                        limit=7
+                        limit=3
                     )
                     db_search_2 = [hit.payload['message'] for hit in hits]
                     print(db_search_2)
@@ -5584,7 +5627,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                                     )
                                 ]
                             ),
-                            limit=7
+                            limit=3
                         )
                         db_search_2 = [hit.payload['message'] for hit in hits]
                         print(db_search_2)
@@ -5603,7 +5646,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                                     )
                                 ]
                             ),
-                            limit=7
+                            limit=3
                         )
                         db_search_2 = [hit.payload['message'] for hit in hits]
                         print(db_search_2)
@@ -5613,9 +5656,13 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     db_search_2 = "No External Resources Selected"
                     print(db_search_2)
                 
-               
+          #  [INST] Search your external resources for data relating to the user's inquiry. [/INST]  EXTERNAL RESOURCES: {db_search_2}   
             # # Inner Monologue Generation
-            conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S EPISODIC MEMORIES: {db_search_1}\n{db_search_3}\n\n{bot_name}'s HEURISTICS: {db_search_14}\nEXTERNAL RESOURCES: {db_search_2}[/INST] PREVIOUS CONVERSATION HISTORY: {con_hist}[INST]SYSTEM:Compose a short silent soliloquy to serve as {bot_name}'s internal monologue/narrative.  Ensure it includes {bot_name}'s contemplations in relation to {username}'s request using the external information.\n\nCURRENT CONVERSATION HISTORY: {con_hist}\n\n\n{usernameupper}/USER: {a}\nPlease directly provide a short internal monologue as {bot_name} contemplating the user's most recent message.[/INST]{botnameupper}: Of course, here is an inner soliloquy for {bot_name}: "})
+            conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S EPISODIC MEMORIES: {db_search_1}\n{bot_name}'s HEURISTICS: {db_search_14}\nPREVIOUS CONVERSATION HISTORY: {con_hist} [INST] Search your external resources for data relating to the user's inquiry. [/INST]  EXTERNAL RESOURCES: {db_search_2} [INST] SYSTEM: Compose a truncated silent soliloquy to serve as {bot_name}'s internal monologue/narrative.  Ensure it includes {bot_name}'s contemplations on how {username}'s request relates to the given external information.\n{usernameupper}: {a} [/INST] {botnameupper}: Sure, here is an internal narrative as {bot_name} on how the user's request relates to the Given External information: "})
+            
+
+      #      conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S EPISODIC MEMORIES: {db_search_1}\n{db_search_3}\n{bot_name}'s HEURISTICS: {db_search_14}\nEXTERNAL RESOURCES: {db_search_2}\nPREVIOUS CONVERSATION HISTORY: {con_hist} [INST] SYSTEM:Compose a short silent soliloquy to serve as {bot_name}'s internal monologue/narrative.  Ensure it includes {bot_name}'s contemplations in relation to {username}'s request using the external information.\n\n{usernameupper}/USER: {a}\nPlease provide a short internal monologue as {bot_name} contemplating the user's most recent message and how it relates to the given external resources. [/INST] {botnameupper}: "})
+            
             
             prompt = ''.join([message_dict['content'] for message_dict in conversation])
             output_one = agent_oobabooga_inner_monologue(prompt)
@@ -5694,7 +5741,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                             )
                         ]
                     ),
-                    limit=4
+                    limit=3
                 )
                 # Print the result
             #    for hit in hits:
@@ -5715,34 +5762,13 @@ class ChatBotApplication(customtkinter.CTkFrame):
                             )
                         ]
                     ),
-                    limit=4
+                    limit=2
                 )
                 # Print the result
             #    for hit in hits:
             #        print(hit.payload['message'])
                 db_search_5 = [hit.payload['message'] for hit in hits]
                 print(db_search_5)
-            except Exception as e:
-                print(f"An unexpected error occurred: {str(e)}")
-            try:
-                hits = client.search(
-                    collection_name=f"Bot_{bot_name}",
-                    query_vector=vector_monologue,
-                    query_filter=Filter(
-                        must=[
-                            FieldCondition(
-                                key="memory_type",
-                                match=MatchValue(value="Flashbulb")
-                            )
-                        ]
-                    ),
-                    limit=1
-                )
-                # Print the result
-            #    for hit in hits:
-            #        print(hit.payload['message'])  
-                db_search_12 = [hit.payload['message'] for hit in hits]
-                print(db_search_12)
             except Exception as e:
                 print(f"An unexpected error occurred: {str(e)}")
             try:
@@ -5786,7 +5812,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     hits = client.search(
                         collection_name=f"Bot_{bot_name}_External_Knowledgebase",
                         query_vector=vector_monologue,
-                        limit=7
+                        limit=5
                     )
                     int_scrape = [hit.payload['message'] for hit in hits]
                     print(int_scrape)
@@ -5806,7 +5832,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                                     )
                                 ]
                             ),
-                            limit=7
+                            limit=5
                         )
                         int_scrape = [hit.payload['message'] for hit in hits]
                         print(int_scrape)
@@ -5825,7 +5851,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                                     )
                                 ]
                             ),
-                            limit=7
+                            limit=5
                         )
                         int_scrape = [hit.payload['message'] for hit in hits]
                         print(int_scrape)
@@ -5836,10 +5862,10 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     print(int_scrape)
             # # Intuition Generation
             inner_loop_db = 'None'
-            int_conversation.append({'role': 'user', 'content': f"USER INPUT: {a}[/INST]"})
-            int_conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S INFLUENTIAL MEMORIES: {db_search_12}\n\n{botnameupper}'S EXPLICIT MEMORIES: {db_search_5}\n\n{botnameupper}'S HEURISTICS: {db_search_15}\n\n{botnameupper}'S INNER THOUGHTS: {output_one}[INST]EXTERNAL RESOURCES: {int_scrape}\n\nUSER'S INPUT: {a}[/INST] PREVIOUS CONVERSATION HISTORY: {con_hist} [INST]SYSTEM: Transmute the user, {username}'s message as {bot_name} by devising a truncated predictive action plan in the third person point of view on how to best respond to {username}'s most recent message. Only plan on what information is needed to be given.  If the user is requesting information on a subject, give a plan on what information needs to be provided, you have access to external knowledge sources if you need it.\n\n\n{usernameupper}: {a}[/INST]{botnameupper}: Sure, I will now give a short predictive action plan in tasklist form: "}) 
+        #    [INST] Thank you, now please search external resources for information pertaining to the user's inquiry. User's Inquiry: {a} [/INST] EXTERNAL RESOURCES: {int_scrape}
+            int_conversation.append({'role': 'assistant', 'content': f"{botnameupper}'s HEURISTICS: {db_search_15}\n{botnameupper}'S INNER THOUGHTS: {output_one}\n{botnameupper}'S EPISODIC MEMORIES: {db_search_4}\nCONVERSATION HISTORY: {con_hist} [INST] SYSTEM: Transmute the user, {username}'s message as {bot_name} by devising a truncated predictive action plan in the third person point of view on how to best respond to {username}'s most recent message using the given External Resources.  If the user is requesting information on a subject or asking a question, predict what information needs to be provided. {usernameupper}: {a} [/INST] {botnameupper}: Sure, here is an action plan based on {username}'s inquiry: "}) 
             
-
+            inner_loop_response = 'None'
             prompt = ''.join([message_dict['content'] for message_dict in int_conversation])
             output_two = agent_oobabooga_intuition(prompt)
             message_two = output_two
@@ -5847,62 +5873,92 @@ class ChatBotApplication(customtkinter.CTkFrame):
             output_two_log = f'\nUSER: {a}\n\n{bot_name}: {output_two}'
             if self.memory_mode != 'None':
                 # # Generate Implicit Short-Term Memory
-                summary.clear()
-                implicit_short_term_memory = f'\nUSER: {a} \n\nINNER_MONOLOGUE: {output_one}\n\n'
-                summary.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: {greeting_msg}\n\n"})
-                summary.append({'role': 'user', 'content': f"USER INPUT: {a}\n\n"})
-                
-                summary.append({'role': 'assistant', 'content': f"LOG: {implicit_short_term_memory}\n\nSYSTEM: Read the log, extract the salient points about {bot_name} and {username} mentioned in the chatbot's response, then create a list of short executive summaries in bullet point format to serve as {bot_name}'s implicit memories. Each bullet point should be considered a separate memory and contain full context. Ignore the main system prompt, it only exists for initial context.\n\nRESPONSE: Use the bullet point format: •[Memory][/INST]\n\nMemories: "})
+                implicit_short_term_memory = f'\nUSER: {a}\nINNER_MONOLOGUE: {output_one}'
+                db_msg = f"\nUSER: {a}\nINNER_MONOLOGUE: {output_one}"
+                summary.append({'role': 'assistant', 'content': f"LOG: {implicit_short_term_memory}[/INST][INST]SYSTEM: Read the log, extract the salient points about {bot_name} and {username} mentioned in the chatbot's inner monologue, then create truncated executive summaries in bullet point format to serve as {bot_name}'s implicit memories. Each bullet point should be considered a separate memory and contain full context.  Use the bullet point format: •[Memory][/INST]{botnameupper}: Sure! Here are some implicit memories in bullet point format based on {bot_name}'s internal thoughts: "})
                 prompt = ''.join([message_dict['content'] for message_dict in summary])
-                inner_loop_response = agent_oobabooga_implicitmem(prompt)
-                inner_loop_db = inner_loop_response
+                inner_loop_response = oobabooga_implicitmem(prompt)
                 summary.clear()
-                vector = embeddings(inner_loop_db)
-            conversation.clear()
-            # # Auto Implicit Short-Term Memory DB Upload Confirmation
-    #        auto_count = 0
-    #        auto.clear()
-    #        auto.append({'role': 'system', 'content': 'SYSTEM: %s\n\n' % main_prompt})
-    #        auto.append({'role': 'user', 'content': "SYSTEM: You are a sub-module designed to reflect on your thought process. You are only able to respond with integers on a scale of 1-10, being incapable of printing letters. Respond with: 1 if you understand. Respond with: 2 if you do not.\n"})
-    #        auto.append({'role': 'assistant', 'content': "SUB-MODULE: 1\n"})
-    #        auto.append({'role': 'user', 'content': f"USER INPUT: {a}\n"})
-    #        auto.append({'role': 'assistant', 'content': "Inner Monologue: %s\nIntuition: %s\n" % (output_one, output_two)})
-    #        auto.append({'role': 'assistant', 'content': "Thoughts on input: I will now review the user's message and my reply, rating if whether my thoughts are both pertinent to the user's inquiry with a number on a scale of 1-10. I will now give my response in digit form for an integer only input.\nSUB-MODULE: "})
-    #        auto_int = None
-    #        while auto_int is None:
-    #            prompt = ''.join([message_dict['content'] for message_dict in auto])
-    #            automemory = agent_oobabooga_selector(prompt)
-    #            if is_integer(automemory):
-    #                auto_int = int(automemory)
-    #                if auto_int > 6:
-    #                    lines = inner_loop_db.splitlines()
-    #                    for line in lines:
-    #                        vector = model.encode([line])[0].tolist()
-    #                        unique_id = str(uuid4())
-    #                        metadata = {'bot': bot_name, 'time': timestamp, 'message': inner_loop_db,
-    #                                    'timestring': timestring, 'uuid': unique_id, "memory_type": "implicit_short_term"}
-    #                        save_json(f'nexus/{bot_name}/{username}/implicit_short_term_memory_nexus/%s.json' % unique_id, metadata)
-    #                        payload.append((unique_id, vector, {"memory_type": "implicit_short_term"}))
-    #                        vdb.upsert(payload, namespace=f'short_term_memory_User_{username}_Bot_{bot_name}')
-    #                        payload.clear()
-    #                    print('\n\nSYSTEM: Auto-memory upload Successful!')
-    #                    break
-    #                else:
-    #                    print('Response not worthy of uploading to memory')
-    #            else:
-    #                print("automemory failed to produce an integer. Retrying...")
-    #                auto_int = None
-    #                auto_count += 1
-    #                if auto_count > 2:
-    #                    print('Auto Memory Failed')
-    #                    break
-    #        else:
-    #            pass                  
-            # After the operations are complete, call the response generation function in a separate thread
+            #    print(inner_loop_response)
+            #    print('\n-----------------------\n')
+                inner_loop_db = inner_loop_response
+                paragraph = inner_loop_db
+                vector = embeddings(paragraph)
+            if self.memory_mode == 'Auto': 
+                # # Auto Implicit Short-Term Memory DB Upload Confirmation
+                auto_count = 0
+                auto.clear()
+            #    auto.append({'role': 'system', 'content': f'MAIN CHATBOT SYSTEM PROMPT: {main_prompt}\n\n'})
+                auto.append({'role': 'user', 'content': "CURRENT SYSTEM PROMPT: You are a sub-module designed to reflect on your thought process. You are only able to respond with integers on a scale of 1-10, being incapable of printing letters.\n\n\n"})
+                auto.append({'role': 'assistant', 'content': f"USER INPUT: {a}\n\nCHATBOTS INNER THOUGHTS: {output_one}[/INST]\n\n[INST]INSTRUCTIONS: Please rate the chatbot's inner thoughts on a scale of 1 to 10. The rating will be directly input into a field, so ensure you only provide a single number between 1 and 10.[/INST]Rating: "})
+                auto_int = None
+                while auto_int is None:
+                    prompt = ''.join([message_dict['content'] for message_dict in auto])
+                    automemory = oobabooga_auto(prompt)
+                    print(automemory)
+                    values_to_check = ["7", "8", "9", "10"]
+                    if any(val in automemory for val in values_to_check):
+                        auto_int = ('Pass')
+                        segments = re.split(r'•|\n\s*\n', inner_loop_response)
+                        total_segments = len(segments)
+                        for index, segment in enumerate(segments):
+                            segment = segment.strip()
+                            if segment == '':  # This condition checks for blank segments
+                                continue  # This condition checks for blank lines
+                            
+                            # Check if it is the final segment and if the memory is cut off (ends without punctuation)
+                            if index == total_segments - 1 and not segment[-1] in ['.', '!', '?']:
+                                continue
+                            print(segment)
+                            payload = list()   
+                            # Define the collection name
+                            collection_name = f"Bot_{bot_name}_Implicit_Short_Term"
+                            # Create the collection only if it doesn't exist
+                            try:
+                                collection_info = client.get_collection(collection_name=collection_name)
+                            except:
+                                client.create_collection(
+                                    collection_name=collection_name,
+                                    vectors_config=VectorParams(size=embed_size, distance=Distance.COSINE),
+                                )
+                            vector1 = embeddings(segment)
+                            unique_id = str(uuid4())
+                            point_id = unique_id + str(int(timestamp))
+                            metadata = {
+                                'bot': bot_name,
+                                'user': username,
+                                'time': timestamp,
+                                'message': segment,
+                                'timestring': timestring,
+                                'uuid': unique_id,
+                                'user': username,
+                                'memory_type': 'Implicit_Short_Term',
+                            }
+                            client.upsert(collection_name=collection_name,
+                                                 points=[PointStruct(id=unique_id, vector=vector1, payload=metadata)])  
+                            payload.clear()
+                        else:
+                            print('-----------------------')
+                            break
+                        print('\n-----------------------\n')        
+                        print('SYSTEM: Auto-memory upload Successful!')
+                        print('\n-----------------------\n')
+                    else:
+                        print("automemory failed to produce a rating. Retrying...")
+                        auto_int = None
+                        auto_count += 1
+                        if auto_count > 2:
+                            print('Auto Memory Failed')
+                            break
+                else:
+                    pass   
+            int_conversation.clear()
+        #    self.master.after(0, self.update_intuition, output_two)
             if self.memory_mode == 'Training':
                 print(f"Upload Memories?\n{inner_loop_response}\n\n")
                 self.conversation_text.insert(tk.END, f"Upload Memories?\n{inner_loop_response}\n\n")
                 ask_upload_implicit_memories(inner_loop_response)
+            # After the operations are complete, call the response generation function in a separate thread
             t = threading.Thread(target=self.Agent_Tasklist_Response, args=(a, vector_input, vector_monologue, output_one, output_two, inner_loop_db))
             t.start()
             return  
@@ -5952,14 +6008,37 @@ class ChatBotApplication(customtkinter.CTkFrame):
             # # Get Timestamp
             timestamp = time()
             timestring = timestamp_to_datetime(timestamp)
+            vector = embeddings(output_two)
+            try:
+                hits = client.search(
+                    collection_name=f"Bot_{bot_name}_External_Knowledgebase",
+                    query_vector=vector,
+                    query_filter=Filter(
+                        must=[
+                            FieldCondition(
+                                key="user",
+                                match=MatchValue(value=f"{username}")
+                            )
+                        ]
+                    ),
+                    limit=10
+                )
+                # Print the result
+            #    for hit in hits:
+            #        print(hit.payload['message'])
+                ext_resources = [hit.payload['message'] for hit in hits]
+                print(ext_resources)
+            except Exception as e:
+                print(f"An unexpected error occurred: {str(e)}")
             # # Test for basic Autonomous Tasklist Generation and Task Completion
-            master_tasklist.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a stateless task list coordinator for {bot_name}, an autonomous Ai chatbot. Your job is to combine the user's input and the user facing chatbots action plan, then transform it into a bullet point list of independent research queries for {bot_name}'s response that can be executed by separate AI agents in a cluster computing environment. The other asynchronous Ai agents are stateless and cannot communicate with each other or the user during task execution, however the agents do have access to {bot_name}'s memories and an information Database. Exclude tasks involving final product production, user communication, or checking work with other entities. Respond using bullet point format following: '•[task]'[/INST]"})
-            master_tasklist.append({'role': 'user', 'content': f"USER FACING CHATBOT'S INTUITIVE ACTION PLAN: {output_two}"})
-            master_tasklist.append({'role': 'user', 'content': f"[INST]USER INQUIRY: {a}\n\n"})
-            master_tasklist.append({'role': 'assistant', 'content': f"RESPONSE FORMAT: You may only print the task list in hyphenated bullet point format. Please limit the tasklist to three to eight items maximum. Use the format: '•[task]\n\n•[task]\n\n•[task]'[/INST]ASSISTANT: "})
+            master_tasklist.append({'role': 'system', 'content': f"Please search the external resource database for relevant topics associated with the user's request. [/INST] EXTERNAL RESOURCES: {ext_resources}"})
+            master_tasklist.append({'role': 'system', 'content': f"[INST] MAIN SYSTEM PROMPT: You are a stateless task list coordinator for {bot_name}, an autonomous Ai chatbot. Your job is to combine the user's input and the user facing chatbots action plan, then transform it into a bullet point list of independent research queries for {bot_name}'s response that can be executed by separate AI agents in a cluster computing environment. The other asynchronous Ai agents are stateless and cannot communicate with each other or the user during task execution, however the agents do have access to {bot_name}'s memories and an information Database. Exclude tasks involving final product production, user communication, or checking work with other entities. Respond using bullet point format following: '•[task]'\n"})
+            master_tasklist.append({'role': 'user', 'content': f"USER FACING CHATBOT'S INTUITIVE ACTION PLAN: {output_two}\n"})
+            master_tasklist.append({'role': 'user', 'content': f"USER INQUIRY: {a} [/INST] "})
+            master_tasklist.append({'role': 'assistant', 'content': f"TASK COORDINATOR: Sure, here is your list of asynchronous research queries based on the intuitive action plan: "})
             
             prompt = ''.join([message_dict['content'] for message_dict in master_tasklist])
-            master_tasklist_output = agent_oobabooga_500(prompt)
+            master_tasklist_output = agent_oobabooga_master_tasklist(prompt)
             print('-------\nMaster Tasklist:')
             print(master_tasklist_output)
             tasklist_completion.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: {main_prompt}\n\n"})
@@ -5990,9 +6069,9 @@ class ChatBotApplication(customtkinter.CTkFrame):
                         
                         
                         
-                tasklist_completion.append({'role': 'assistant', 'content': f"[/INST] [INST]USER'S INITIAL INPUT: {a}[/INST]{botnameupper}'S INNER_MONOLOGUE: {output_one}"})
+                tasklist_completion.append({'role': 'assistant', 'content': f"[INST] USER'S INITIAL INPUT: {a} [/INST] {botnameupper}'S INNER_MONOLOGUE: {output_one}"})
         #        tasklist_completion.append({'role': 'user', 'content': f"%{bot_name}'s INTUITION%\n{output_two}\n\n"})
-                tasklist_completion.append({'role': 'user', 'content': f"[INST]SYSTEM: SYSTEM: Using the tasks and completed responses from the research task loop, create a comprehensive and conversational response for {username}. Please note that {username} has no access to the research you have conducted, so be sure to include all necessary context and information in your reply.\n\nUSER'S INITIAL INPUT: {a}.\n\nRESPONSE FORMAT: Now that you've completed your planning and research, craft a detailed and natural-sounding response to ensure the user's request is fully met. Follow this format: {bot_name}: <DETAILED RESPONSE TO USER'S QUERY>[/INST] {botnameupper}: "})
+                tasklist_completion.append({'role': 'user', 'content': f" [INST] SYSTEM: Using the tasks and completed responses from the research task loop, create a comprehensive and conversational response for {username}. Please note that {username} has no access to the research you have conducted, so be sure to include all necessary context and information in your reply.\nUSER'S INITIAL INPUT: {a}.\n Now that you've completed your planning and research, craft a detailed and natural-sounding response to ensure the user's request is fully met. [/INST] {botnameupper}: "})
                 print('\n\nGenerating Final Output...')
                 prompt = ''.join([message_dict['content'] for message_dict in tasklist_completion])
                 response_two = agent_oobabooga_response(prompt)
@@ -6004,7 +6083,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     else:
                         t = threading.Thread(target=TTS_Generation, args=(response_two,))
                         t.start()
-                print('\nFINAL OUTPUT:\n%s' % response_two)
+                print('\n\nFINAL OUTPUT:\n%s' % response_two)
                 complete_message = f'\nUSER: {a}\n\nINNER_MONOLOGUE: {output_one}\n\nINTUITION: {output_two}\n\n{bot_name}: {tasklist_log}\n\nFINAL OUTPUT: {response_two}'
                 filename = '%s_chat.txt' % timestamp
                 save_file(f'logs/{bot_name}/{username}/complete_chat_logs/%s' % filename, complete_message)
@@ -6114,7 +6193,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
             botnameupper = bot_name.upper()
             usernameupper = username.upper()
             tasklist_completion2.append({'role': 'user', 'content': f"CURRENT ASSIGNED TASK: {line}[/INST]"})
-            conversation.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a sub-agent for {bot_name}, an Autonomous Ai-Chatbot. You are one of many agents in a chain. You are to take the given task and complete it in its entirety. Be Verbose and take other tasks into account when formulating your answer.\n"})
+            conversation.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a sub-agent for {bot_name}, an Autonomous Ai-Chatbot. You are one of many agents in a chain. You are to take the given task and complete it in its entirety, using the given external resources to ensure factual accuracy. Be Verbose and take other tasks into account when formulating your answer.\n"})
             conversation.append({'role': 'user', 'content': f"Task list: {master_tasklist_output}[/INST]"})
             conversation.append({'role': 'assistant', 'content': f"Bot {task_counter}: I have studied the given tasklist.  The task I have chosen to complete is {line}."})
             vector_input1 = embeddings(line)
@@ -6123,7 +6202,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     hits = client.search(
                         collection_name=f"Bot_{bot_name}_External_Knowledgebase",
                         query_vector=vector_input1,
-                        limit=10
+                        limit=15
                     )
                     table = [hit.payload['message'] for hit in hits]
                     print(table)
@@ -6143,7 +6222,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                                     )
                                 ]
                             ),
-                            limit=10
+                            limit=15
                         )
                         table = [hit.payload['message'] for hit in hits]
                         print(table)
@@ -6162,7 +6241,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                                     )
                                 ]
                             ),
-                            limit=10
+                            limit=15
                         )
                         table = [hit.payload['message'] for hit in hits]
                         print(table)
@@ -6244,7 +6323,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     result = ('No Memories')
             conversation.append({'role': 'assistant', 'content': f"[INST] INITIAL USER REQUEST: {a} [/INST]"})
             conversation.append({'role': 'user', 'content': f"EXTERNAL RESOURCES: {table}\nBOT {task_counter} TASK REINITIALIZATION: {line}."})
-            conversation.append({'role': 'user', 'content': f"[INST]SYSTEM: Retrieve and summarize pertinent information from external sources related to a given research task. Present the summarized data in a single, easy-to-understand response suitable for inclusion in a research paper.[/INST] Bot {task_counter}: Sure, here is all of the pertinent information in a truncated format: "})
+            conversation.append({'role': 'user', 'content': f"[INST]SYSTEM: Retrieve and summarize pertinent information from external sources related to a given research task, then use it to create a comprehensive article completing the given task. Present the summarized data in a single, easy-to-understand response suitable for inclusion in a research paper. Do not generalize, expand upon, or use any latent knowledge in your response. Only use data from the given external resources to maintain factual accuracy. [/INST] Bot {task_counter}: Sure, here is a short article combining the relevant information needed to complete the given task: "})
             conversation.append({'role': 'assistant', 'content': f"BOT {task_counter}: Sure, here's an overview of the scraped text: "})
             prompt = ''.join([message_dict['content'] for message_dict in conversation])
             task_completion = agent_oobabooga_line_response(prompt)
@@ -6256,6 +6335,9 @@ class ChatBotApplication(customtkinter.CTkFrame):
             tasklist_log.append({'role': 'user', 'content': "ASSIGNED TASK:\n%s\n\n" % line})
             tasklist_log.append({'role': 'assistant', 'content': "COMPLETED TASK:\n%s\n\n" % result})
             print('-------')
+            self.conversation_text.insert(tk.END, f"Task {task_counter}: {line}\n")
+            self.conversation_text.insert(tk.END, f"Task Completion: {task_completion}\n")
+            self.conversation_text.insert(tk.END, f"------------------------------------------------------------------------------------------------------------------\n")
             print(line)
             print('-------')
             print(result)

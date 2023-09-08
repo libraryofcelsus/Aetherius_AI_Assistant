@@ -327,6 +327,9 @@ def chunk_text_from_url(url, chunk_size=380, overlap=40, results_callback=None):
             websum.append({'role': 'user', 'content': f"SCRAPED ARTICLE: {chunk}\n\nINSTRUCTIONS: Summarize the article without losing any factual data or semantic meaning.  Ensure to maintain full context and information. Only print the truncated article, do not include any additional text or comments. [/INST] SUMMARIZER BOT: Sure! Here is the summarized article based on the scraped text: "})
             prompt = ''.join([message_dict['content'] for message_dict in websum])
             text = scrape_oobabooga_scrape(prompt)
+            if text.startswith("Sure! Here is the summarized article based on the scraped text:"):
+                # Remove the specified text from the variable
+                text = text[len("Sure! Here is the summarized article based on the scraped text:"):]
             if len(text) < 20:
                 text = "No Webscrape available"
         #    text = chatgpt35_completion(websum)
@@ -337,28 +340,32 @@ def chunk_text_from_url(url, chunk_size=380, overlap=40, results_callback=None):
             webcheck.append({'role': 'user', 'content': f"ORIGINAL TEXT FROM SCRAPE: {chunk}[/INST]"})
             webcheck.append({'role': 'user', 'content': f"PROCESSED WEBSCRAPE: {text}\n\n"})
             webcheck.append({'role': 'user', 'content': f"[INST]SYSTEM: You are responding for a Yes or No input field. You are only capible of printing Yes or No. Use the format: [AI AGENT: <'Yes'/'No'>][/INST]\n\nASSISTANT: "})
-       
-            
+
             prompt = ''.join([message_dict['content'] for message_dict in webcheck])
-            webyescheck = agent_oobabooga_webcheckyesno(prompt)
-            
+        #    webyescheck = agent_oobabooga_webcheckyesno(prompt)
+            webyescheck = 'yes'
             if 'no webscrape' in text.lower():
+                text = chunk
                 print('---------')
                 print('Summarization Failed')
                 pass
             if 'no article' in text.lower():
+                text = chunk
                 print('---------')
                 print('Summarization Failed')
                 pass
             if 'you are a text' in text.lower():
+                text = chunk
                 print('---------')
                 print('Summarization Failed')
                 pass
             if 'no summary' in text.lower():
+                text = chunk
                 print('---------')
                 print('Summarization Failed')
                 pass  
             if 'i am an ai' in text.lower():
+                text = chunk
                 print('---------')
                 print('Summarization Failed')
                 pass                

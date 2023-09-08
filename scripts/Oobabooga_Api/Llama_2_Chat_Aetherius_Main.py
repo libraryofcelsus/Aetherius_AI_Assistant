@@ -5440,7 +5440,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
             vector_input = embeddings(message_input)
             # # Check for Commands
             # # Check for "Clear Memory"
-            conversation.append({'role': 'system', 'content': f"{main_prompt}\nNow return your most relevant memories: [/INST]"})
+            conversation.append({'role': 'system', 'content': f"SYSTEM: {main_prompt}\n\nUSER: Now return your most relevant memories: [/INST]"})
             conversation.append({'role': 'system', 'content': f"{botnameupper}'S LONG TERM CHATBOT MEMORIES: "})
             int_conversation.append({'role': 'system', 'content': f"{main_prompt}\nNow return your most relevant memories: [/INST]"})
             int_conversation.append({'role': 'system', 'content': f"{botnameupper}'S LONG TERM CHATBOT MEMORIES: "})
@@ -5470,7 +5470,9 @@ class ChatBotApplication(customtkinter.CTkFrame):
                             query_vector=vector_input1,
                             limit=2
                         )
-                        external_scrape = [hit.payload['message'] for hit in hits]
+                        unsorted_table = [(hit.payload['tag'], hit.payload['message']) for hit in hits]
+                        sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'tag' field
+                        external_scrape = "\n".join([f"{tag} - {message}" for tag, message in sorted_table])
                         print(external_scrape)
                     except Exception as e:
                         print(f"An unexpected error occurred: {str(e)}")
@@ -5488,9 +5490,11 @@ class ChatBotApplication(customtkinter.CTkFrame):
                                         )
                                     ]
                                 ),
-                                limit=2
+                                limit=3
                             )
-                            external_scrape = [hit.payload['message'] for hit in hits]
+                            unsorted_table = [(hit.payload['tag'], hit.payload['message']) for hit in hits]
+                            sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'tag' field
+                            external_scrape = "\n".join([f"{tag} - {message}" for tag, message in sorted_table])
                             print(external_scrape)
                         except Exception as e:
                             print(f"An unexpected error occurred: {str(e)}")
@@ -5507,9 +5511,11 @@ class ChatBotApplication(customtkinter.CTkFrame):
                                         )
                                     ]
                                 ),
-                                limit=2
+                                limit=3
                             )
-                            external_scrape = [hit.payload['message'] for hit in hits]
+                            unsorted_table = [(hit.payload['tag'], hit.payload['message']) for hit in hits]
+                            sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'tag' field
+                            external_scrape = "\n".join([f"{tag} - {message}" for tag, message in sorted_table])
                             print(external_scrape)
                         except Exception as e:
                             print(f"An unexpected error occurred: {str(e)}")
@@ -5529,12 +5535,14 @@ class ChatBotApplication(customtkinter.CTkFrame):
                                     )
                                 ]
                             ),
-                            limit=2
+                            limit=3
                         )
                         # Print the result
                     #    for hit in hits:
                     #        print(hit.payload['message'])
-                        db_search_16 = [hit.payload['message'] for hit in hits]
+                        unsorted_table = [hit.payload['message'] for hit in hits]
+                        sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'tag' field
+                        db_search_16 = "\n".join([f"{message}" for message in sorted_table])
                         conversation.append({'role': 'assistant', 'content': f"{db_search_16}\n"})
                         tasklist_counter + 1
                         if tasklist_counter < 2:
@@ -5559,10 +5567,12 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     # Print the result
                 #    for hit in hits:
                 #        print(hit.payload['message'])
-                    db_search_17 = [hit.payload['message'] for hit in hits]
+                    unsorted_table = [hit.payload['message'] for hit in hits]
+                    sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'tag' field
+                    db_search_17 = "\n".join([f"{message}" for message in sorted_table])
                     conversation.append({'role': 'assistant', 'content': f"{db_search_17}\n"})
                     if external_scrape != 'No External Resources Selected':
-                        conversation.append({'role': 'assistant', 'content': f"{external_scrape}\n"})
+                        conversation.append({'role': 'assistant', 'content': f"EXTERNAL RESOURCES: {external_scrape}\n"})
                     tasklist_counter2 + 1
                     if tasklist_counter2 < 2:
                         int_conversation.append({'role': 'assistant', 'content': f"{db_search_17}\n"})
@@ -5588,7 +5598,9 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     ),
                     limit=4
                 )
-                db_search_1 = [hit.payload['message'] for hit in hits]
+                unsorted_table = [hit.payload['message'] for hit in hits]
+                sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'tag' field
+                db_search_1 = "\n".join([f"{message}" for message in sorted_table])
                 print(db_search_1)
             except Exception as e:
                 print(f"An unexpected error occurred: {str(e)}")
@@ -5604,9 +5616,11 @@ class ChatBotApplication(customtkinter.CTkFrame):
                             )
                         ]
                     ),
-                    limit=3
+                    limit=5
                 )
-                db_search_14 = [hit.payload['message'] for hit in hits]
+                unsorted_table = [hit.payload['message'] for hit in hits]
+                sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'tag' field
+                db_search_14 = "\n".join([f"{message}" for message in sorted_table])
                 print(db_search_14)
             except Exception as e:
                 print(f"An unexpected error occurred: {str(e)}")
@@ -5619,7 +5633,9 @@ class ChatBotApplication(customtkinter.CTkFrame):
                         query_vector=vector_input1,
                         limit=3
                     )
-                    db_search_2 = [hit.payload['message'] for hit in hits]
+                    unsorted_table = [(hit.payload['tag'], hit.payload['message']) for hit in hits]
+                    sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'tag' field
+                    db_search_2 = "\n".join([f"{tag} - {message}" for tag, message in sorted_table])
                     print(db_search_2)
                 except Exception as e:
                     print(f"An unexpected error occurred: {str(e)}")
@@ -5639,7 +5655,9 @@ class ChatBotApplication(customtkinter.CTkFrame):
                             ),
                             limit=3
                         )
-                        db_search_2 = [hit.payload['message'] for hit in hits]
+                        unsorted_table = [(hit.payload['tag'], hit.payload['message']) for hit in hits]
+                        sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'tag' field
+                        db_search_2 = "\n".join([f"{tag} - {message}" for tag, message in sorted_table])
                         print(db_search_2)
                     except Exception as e:
                         print(f"An unexpected error occurred: {str(e)}")
@@ -5658,7 +5676,9 @@ class ChatBotApplication(customtkinter.CTkFrame):
                             ),
                             limit=3
                         )
-                        db_search_2 = [hit.payload['message'] for hit in hits]
+                        unsorted_table = [(hit.payload['tag'], hit.payload['message']) for hit in hits]
+                        sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'tag' field
+                        db_search_2 = "\n".join([f"{tag} - {message}" for tag, message in sorted_table])
                         print(db_search_2)
                     except Exception as e:
                         print(f"An unexpected error occurred: {str(e)}")
@@ -5668,7 +5688,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 
           #  [INST] Search your external resources for data relating to the user's inquiry. [/INST]  EXTERNAL RESOURCES: {db_search_2}   
             # # Inner Monologue Generation
-            conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S EPISODIC MEMORIES: {db_search_1}\n{bot_name}'s HEURISTICS: {db_search_14}\nPREVIOUS CONVERSATION HISTORY: {con_hist} [INST] Search your external resources for data relating to the user's inquiry. [/INST]  EXTERNAL RESOURCES: {db_search_2} [INST] SYSTEM: Compose a truncated silent soliloquy to serve as {bot_name}'s internal monologue/narrative.  Ensure it includes {bot_name}'s contemplations on how {username}'s request relates to the given external information.\n{usernameupper}: {a} [/INST] {botnameupper}: Sure, here is an internal narrative as {bot_name} on how the user's request relates to the Given External information: "})
+            conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S EPISODIC MEMORIES: {db_search_1}\n{bot_name}'s HEURISTICS: {db_search_14}\nPREVIOUS CONVERSATION HISTORY: {con_hist} [INST] Search your external resources and find relevant information to help form your thoughts. [/INST]  EXTERNAL RESOURCES: {db_search_2} [INST] SYSTEM: Compose a truncated silent soliloquy to serve as {bot_name}'s internal monologue/narrative using the external resources.  Ensure it includes {bot_name}'s contemplations on how {username}'s request relates to the given external information.\n{usernameupper}: {a} [/INST] {botnameupper}: Sure, here is an internal narrative as {bot_name} on how the user's request relates to the Given External information: "})
             
 
       #      conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S EPISODIC MEMORIES: {db_search_1}\n{db_search_3}\n{bot_name}'s HEURISTICS: {db_search_14}\nEXTERNAL RESOURCES: {db_search_2}\nPREVIOUS CONVERSATION HISTORY: {con_hist} [INST] SYSTEM:Compose a short silent soliloquy to serve as {bot_name}'s internal monologue/narrative.  Ensure it includes {bot_name}'s contemplations in relation to {username}'s request using the external information.\n\n{usernameupper}/USER: {a}\nPlease provide a short internal monologue as {bot_name} contemplating the user's most recent message and how it relates to the given external resources. [/INST] {botnameupper}: "})
@@ -5873,7 +5893,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
             # # Intuition Generation
             inner_loop_db = 'None'
         #    [INST] Thank you, now please search external resources for information pertaining to the user's inquiry. User's Inquiry: {a} [/INST] EXTERNAL RESOURCES: {int_scrape}
-            int_conversation.append({'role': 'assistant', 'content': f"{botnameupper}'s HEURISTICS: {db_search_15}\n{botnameupper}'S INNER THOUGHTS: {output_one}\n{botnameupper}'S EPISODIC MEMORIES: {db_search_4}\nCONVERSATION HISTORY: {con_hist} [INST] SYSTEM: Transmute the user, {username}'s message as {bot_name} by devising a truncated predictive action plan in the third person point of view on how to best respond to {username}'s most recent message using the given External Resources.  If the user is requesting information on a subject or asking a question, predict what information needs to be provided. {usernameupper}: {a} [/INST] {botnameupper}: Sure, here is an action plan based on {username}'s inquiry: "}) 
+            int_conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S EPISODIC MEMORIES: {db_search_4}\n{botnameupper}'s HEURISTICS: {db_search_15}\n{botnameupper}'S INNER THOUGHTS: {output_one}\nCONVERSATION HISTORY: {con_hist} [INST] SYSTEM: Transmute the user, {username}'s message as {bot_name} by devising a truncated predictive action plan in the third person point of view on how to best respond to {username}'s most recent message using the given External Resources.  If the user is requesting information on a subject or asking a question, predict what information needs to be provided. {usernameupper}: {a} [/INST] {botnameupper}: Sure, here is an action plan based on {username}'s inquiry: "}) 
             
             inner_loop_response = 'None'
             prompt = ''.join([message_dict['content'] for message_dict in int_conversation])
@@ -6042,10 +6062,10 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 print(f"An unexpected error occurred: {str(e)}")
             # # Test for basic Autonomous Tasklist Generation and Task Completion
             master_tasklist.append({'role': 'system', 'content': f"Please search the external resource database for relevant topics associated with the user's request. [/INST] EXTERNAL RESOURCES: {ext_resources}"})
-            master_tasklist.append({'role': 'system', 'content': f"[INST] MAIN SYSTEM PROMPT: You are a stateless task list coordinator for {bot_name}, an autonomous Ai chatbot. Your job is to combine the user's input and the user facing chatbots action plan, then, use them and the given external resources to make a bullet point list of three to six independent research queries for {bot_name}'s response that can be executed by separate AI agents in a cluster computing environment. The other asynchronous Ai agents are stateless and cannot communicate with each other or the user during task execution, however the agents do have access to {bot_name}'s memories and an information Database. Exclude tasks involving final product production, user communication, or checking work with other entities. Respond using bullet point format following: '•[task]'\n"})
+            master_tasklist.append({'role': 'system', 'content': f"[INST] MAIN SYSTEM PROMPT: You are a stateless task list coordinator for {bot_name}, an autonomous Ai chatbot. Your job is to combine the user's input and the user facing chatbots action plan, then, use them and the given external resources to make a bullet point list of three to six independent research search queries for {bot_name}'s response that can be executed by separate AI agents in a cluster computing environment. The other asynchronous Ai agents are stateless and cannot communicate with each other or the user during task execution, however the agents do have access to a set External Resource Database. Exclude tasks involving final product production, user communication, seeking outside help, seeking external validation, or checking work with other entities. Respond using the following bullet point format: '•[task]'\n"})
             master_tasklist.append({'role': 'user', 'content': f"USER FACING CHATBOT'S INTUITIVE ACTION PLAN: {output_two}\n"})
             master_tasklist.append({'role': 'user', 'content': f"USER INQUIRY: {a} [/INST] "})
-            master_tasklist.append({'role': 'assistant', 'content': f"TASK COORDINATOR: Sure, here is your list of 3-6 asynchronous research queries based on the intuitive action plan and external resources: "})
+            master_tasklist.append({'role': 'assistant', 'content': f"TASK COORDINATOR: Sure, here is your bullet point list of 3-6 asynchronous search queries based on the intuitive action plan and external resources: "})
             
             prompt = ''.join([message_dict['content'] for message_dict in master_tasklist])
             master_tasklist_output = agent_oobabooga_master_tasklist(prompt)
@@ -6081,7 +6101,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                         
                 tasklist_completion.append({'role': 'assistant', 'content': f"[INST] USER'S INITIAL INPUT: {a} [/INST] {botnameupper}'S INNER_MONOLOGUE: {output_one}"})
         #        tasklist_completion.append({'role': 'user', 'content': f"%{bot_name}'s INTUITION%\n{output_two}\n\n"})
-                tasklist_completion.append({'role': 'user', 'content': f" [INST] SYSTEM: Using the tasks and completed responses from the research task loop, create a comprehensive and conversational response for {username}. Please note that {username} has no access to the research you have conducted, so be sure to include all necessary context and information in your reply.\nUSER'S INITIAL INPUT: {a}.\n Now that you've completed your planning and research, craft a detailed and natural-sounding response to ensure the user's request is fully met. [/INST] {botnameupper}: "})
+                tasklist_completion.append({'role': 'user', 'content': f" [INST] SYSTEM: Using the tasks and completed responses from the research task loop, create a comprehensive response for {username}. Please note that {username} has no access to the research you have conducted, so be sure to compile all necessary context and information and include it in your reply.  Do not expand upon the research or include any of your own knowledge, keeping factual accuracy should be paramount.\nUSER'S INITIAL INPUT: {a}\nYour given time for research and planning has finished, now craft a detailed and natural-sounding response to ensure the user's request is fully met. [/INST] {botnameupper}: "})
                 print('\n\nGenerating Final Output...')
                 prompt = ''.join([message_dict['content'] for message_dict in tasklist_completion])
                 response_two = agent_oobabooga_response(prompt)
@@ -6202,10 +6222,10 @@ class ChatBotApplication(customtkinter.CTkFrame):
             username = open_file('./config/prompt_username.txt')
             botnameupper = bot_name.upper()
             usernameupper = username.upper()
-            tasklist_completion2.append({'role': 'user', 'content': f"CURRENT ASSIGNED TASK: {line}[/INST]"})
+            tasklist_completion2.append({'role': 'user', 'content': f"TASK: {line} [/INST] "})
             conversation.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a sub-agent for {bot_name}, an Autonomous Ai-Chatbot. You are one of many agents in a chain. You are to take the given task and complete it in its entirety, using the given external resources to ensure factual accuracy. Be Verbose and take other tasks into account when formulating your answer.\n"})
-            conversation.append({'role': 'user', 'content': f"Task list: {master_tasklist_output}[/INST]"})
-            conversation.append({'role': 'assistant', 'content': f"Bot {task_counter}: I have studied the given tasklist.  The task I have chosen to complete is {line}."})
+            conversation.append({'role': 'user', 'content': f"Task list: {master_tasklist_output}\nNow, choose a task to research.[/INST]"})
+            conversation.append({'role': 'assistant', 'content': f"Bot {task_counter}: I have studied the given tasklist. The task I have chosen to complete is: {line}."})
             vector_input1 = embeddings(line)
             if self.are_both_web_and_file_db_checked():
                 try:
@@ -6214,7 +6234,9 @@ class ChatBotApplication(customtkinter.CTkFrame):
                         query_vector=vector_input1,
                         limit=15
                     )
-                    table = [hit.payload['message'] for hit in hits]
+                    unsorted_table = [(hit.payload['tag'], hit.payload['message']) for hit in hits]
+                    sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'tag' field
+                    table = "\n".join([f"{tag} - {message}" for tag, message in sorted_table])
                     print(table)
                 except Exception as e:
                     print(f"An unexpected error occurred: {str(e)}")
@@ -6234,7 +6256,9 @@ class ChatBotApplication(customtkinter.CTkFrame):
                             ),
                             limit=15
                         )
-                        table = [hit.payload['message'] for hit in hits]
+                        unsorted_table = [(hit.payload['tag'], hit.payload['message']) for hit in hits]
+                        sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'tag' field
+                        table = "\n".join([f"{tag} - {message}" for tag, message in sorted_table])
                         print(table)
                     except Exception as e:
                         print(f"An unexpected error occurred: {str(e)}")
@@ -6253,7 +6277,9 @@ class ChatBotApplication(customtkinter.CTkFrame):
                             ),
                             limit=15
                         )
-                        table = [hit.payload['message'] for hit in hits]
+                        unsorted_table = [(hit.payload['tag'], hit.payload['message']) for hit in hits]
+                        sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'tag' field
+                        table = "\n".join([f"{tag} - {message}" for tag, message in sorted_table])
                         print(table)
                     except Exception as e:
                         print(f"An unexpected error occurred: {str(e)}")
@@ -6331,9 +6357,9 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     conversation.append({'role': 'assistant', 'content': f"MEMORIES: {result}\n\n"})
                 else:
                     result = ('No Memories')
-            conversation.append({'role': 'assistant', 'content': f"[INST] INITIAL USER REQUEST: {a} [/INST]"})
-            conversation.append({'role': 'user', 'content': f"EXTERNAL RESOURCES: {table}\nBOT {task_counter} TASK REINITIALIZATION: {line}."})
-            conversation.append({'role': 'user', 'content': f"[INST]SYSTEM: Retrieve and summarize pertinent information from external sources related to a given research task, then use it to create a comprehensive article completing the given task. Present the summarized data in a single, easy-to-understand response suitable for inclusion in a research paper. Do not generalize, expand upon, or use any latent knowledge in your response. Only use the previously given information in your response to maintain factual accuracy. [/INST] Bot {task_counter}: Sure, here is a short article combining the relevant information needed to complete the given task: "})
+            conversation.append({'role': 'assistant', 'content': f"[INST] INITIAL USER REQUEST: {a}\n Now please provide relevant external resources to answer the query. [/INST]"})
+            conversation.append({'role': 'user', 'content': f"Bot {task_counter}: EXTERNAL RESOURCES: {table}"})
+            conversation.append({'role': 'user', 'content': f"[INST] SYSTEM: Summarize the pertinent information from the given external sources related to the given task. Present the summarized data in a single, easy-to-understand paragraph. Do not generalize, expand upon, or use any latent knowledge in your summary, only return a truncated version of previously given information. [/INST] Bot {task_counter}: Sure, here is a short summary combining the relevant information needed to complete the given task: "})
             conversation.append({'role': 'assistant', 'content': f"BOT {task_counter}: Sure, here's an overview of the scraped text: "})
             prompt = ''.join([message_dict['content'] for message_dict in conversation])
             task_completion = agent_oobabooga_line_response(prompt)
@@ -6341,7 +6367,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
             # conversation.clear(),
             # tasklist_completion.append({'role': 'assistant', 'content': f"MEMORIES: {memories}\n\n"}),
             # tasklist_completion.append({'role': 'assistant', 'content': f"WEBSCRAPE: {table}\n\n"}),
-            tasklist_completion2.append({'role': 'assistant', 'content': f"COMPLETED TASK: {task_completion}[INST]"})
+            tasklist_completion2.append({'role': 'assistant', 'content': f"COMPLETED TASK: {task_completion} [INST] "})
             tasklist_log.append({'role': 'user', 'content': "ASSIGNED TASK:\n%s\n\n" % line})
             tasklist_log.append({'role': 'assistant', 'content': "COMPLETED TASK:\n%s\n\n" % result})
             print('-------')

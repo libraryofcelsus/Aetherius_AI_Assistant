@@ -37,13 +37,13 @@ For a quick demo deployment without a UI, see: [Public Oobabooga Api Colab](http
 
 ### Your Personal AI, Your Control
 
-Aetherius is your locally operated AI companion, meticulously crafted to grant you ultimate control. No external forces can alter it without your consent, ensuring your privacy and autonomy are paramount. Say goodbye to limitations imposed by others and take charge of your digital interactions.
+Aetherius is your locally operated AI companion, designed to grant you ultimate control. No external forces can alter it without your consent, ensuring your privacy and autonomy are paramount. Say goodbye to limitations imposed by others and take charge of your digital interactions.
 
 ------
 
 ### Aetherius - Your Digital Mindmate
 
-At the heart of Aetherius lies a groundbreaking Long-Term Memory (LLM) Retrieval Framework, fueled by the Llama 2 and Oobabooga API (Free Tier Colab Available) or OpenAi's ChatGPT.  Qdrant is used for a robust, efficient database, ensuring Aetherius evolves with you.
+At the heart of Aetherius lies a custom Long-Term Memory (LLM) Retrieval Framework, fueled by the Llama 2 and Oobabooga API (Free Tier Colab Available) or OpenAi's ChatGPT.  Qdrant is used for a robust, efficient database, ensuring Aetherius evolves with you.
 
 **Unlock the Potential**
 

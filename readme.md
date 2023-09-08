@@ -35,9 +35,9 @@ For a quick demo deployment without a UI, see: [Public Oobabooga Api Colab](http
 
 ------
 
-### Your Personal AI, Your Control
+### What is Aetherius?
 
-Aetherius is your locally operated AI companion, designed to grant you ultimate control. No external forces can alter it without your consent, ensuring your privacy and autonomy are paramount. Say goodbye to limitations imposed by others and take charge of your digital interactions.
+Aetherius is a locally operated AI Assistant, designed to grant you ultimate control. No external force can alter it without your consent, ensuring your privacy. Say goodbye to limitations imposed by others and take charge of your digital interactions.
 
 ------
 
@@ -49,7 +49,7 @@ At the heart of Aetherius lies a custom Long-Term Memory (LLM) Retrieval Framewo
 
 Aetherius is a versatile, modular AI assistant that adapts to your needs. Its capabilities extend far beyond conventional chatbots:
 
-***Reflective Therapist and Journal***: Speak your mind freely and receive thoughtful feedback without judgment or fear.
+***Reflective Journal***: Speak your mind freely and receive thoughtful feedback without judgment or fear.
 
 ***Learning Tool***: Dive deep into your favorite topics and enhance your knowledge effortlessly.
 

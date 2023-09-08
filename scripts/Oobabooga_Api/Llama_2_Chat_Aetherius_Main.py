@@ -534,6 +534,8 @@ def chunk_text_from_file(file_path, chunk_size=400, overlap=40):
                 print('Summarization Failed')
                 pass                
             else:
+                if 'cannot provide a summary of' in text.lower():
+                    text = chunk
                 if 'yes' in fileyescheck.lower():
                     semanticterm = list()
                     semanticterm.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a bot responsible for taging articles with a title for database queries.  Your job is to read the given text, then create a title in question form representative of what the article is about.  The title should be semantically identical to the overview of the article and not include extraneous info. Use the format: [<TITLE IN QUESTION FORM>].\n\n"})
@@ -543,7 +545,8 @@ def chunk_text_from_file(file_path, chunk_size=400, overlap=40):
                     semantic_db_term = File_Processor_oobabooga_scrape(prompt)
                     filename = os.path.basename(file_path)
                     print('---------')
-
+                    if 'cannot provide a summary of' in semantic_db_term.lower():
+                        semantic_db_term = 'Tag Censored by Model'
                     # Generate and append filename and paragraph to filelist
                     filelist.append(filename + ' ' + paragraph)
                     print(filename + '\n' + semantic_db_term + '\n' + paragraph)
@@ -6039,10 +6042,10 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 print(f"An unexpected error occurred: {str(e)}")
             # # Test for basic Autonomous Tasklist Generation and Task Completion
             master_tasklist.append({'role': 'system', 'content': f"Please search the external resource database for relevant topics associated with the user's request. [/INST] EXTERNAL RESOURCES: {ext_resources}"})
-            master_tasklist.append({'role': 'system', 'content': f"[INST] MAIN SYSTEM PROMPT: You are a stateless task list coordinator for {bot_name}, an autonomous Ai chatbot. Your job is to combine the user's input and the user facing chatbots action plan, then, use them and the given external resources to make a bullet point list of independent research queries for {bot_name}'s response that can be executed by separate AI agents in a cluster computing environment. The other asynchronous Ai agents are stateless and cannot communicate with each other or the user during task execution, however the agents do have access to {bot_name}'s memories and an information Database. Exclude tasks involving final product production, user communication, or checking work with other entities. Respond using bullet point format following: '•[task]'\n"})
+            master_tasklist.append({'role': 'system', 'content': f"[INST] MAIN SYSTEM PROMPT: You are a stateless task list coordinator for {bot_name}, an autonomous Ai chatbot. Your job is to combine the user's input and the user facing chatbots action plan, then, use them and the given external resources to make a bullet point list of three to six independent research queries for {bot_name}'s response that can be executed by separate AI agents in a cluster computing environment. The other asynchronous Ai agents are stateless and cannot communicate with each other or the user during task execution, however the agents do have access to {bot_name}'s memories and an information Database. Exclude tasks involving final product production, user communication, or checking work with other entities. Respond using bullet point format following: '•[task]'\n"})
             master_tasklist.append({'role': 'user', 'content': f"USER FACING CHATBOT'S INTUITIVE ACTION PLAN: {output_two}\n"})
             master_tasklist.append({'role': 'user', 'content': f"USER INQUIRY: {a} [/INST] "})
-            master_tasklist.append({'role': 'assistant', 'content': f"TASK COORDINATOR: Sure, here is your list of asynchronous research queries based on the intuitive action plan: "})
+            master_tasklist.append({'role': 'assistant', 'content': f"TASK COORDINATOR: Sure, here is your list of 3-6 asynchronous research queries based on the intuitive action plan and external resources: "})
             
             prompt = ''.join([message_dict['content'] for message_dict in master_tasklist])
             master_tasklist_output = agent_oobabooga_master_tasklist(prompt)

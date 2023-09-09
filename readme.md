@@ -8,6 +8,8 @@ For a quick demo deployment without a UI, see: [Public Oobabooga Api Colab](http
 ------
 **Recent Changes**
 
+• 9/9 Updated Llama 2 Memory prompts to better extract information representative of the respective memory type.
+
 • 9/7 Improved Llama 2 Agent internal prompts.
 
 • 9/6 Continued to improve Llama 2 internal prompts.  It should now work much better with the 7B model.

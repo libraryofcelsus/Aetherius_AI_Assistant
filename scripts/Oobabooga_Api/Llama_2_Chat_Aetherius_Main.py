@@ -2898,7 +2898,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
         top.title("Set Oobabooga Host")
 
         # Replace label with a read-only Text widget to allow selection
-        label_text = "(Default Localhost: http://localhost:5000/api)\nEnter the Non-Streaming URL from the Oobabooga Public Api Google Colab:"
+        label_text = "(Default Localhost: http://localhost:5000/api)\nEnter the Non-Streaming URL from the Oobabooga Public Api Google Colab.  To use multiple hosts, separate them with a space.  The fastest Host should be first:"
         
         # Adjust the appearance of the Text widget
         label = tk.Text(top, height=3, wrap=tk.WORD, bg=dark_bg_color, fg=light_text_color, bd=0, padx=10, pady=10, relief=tk.FLAT, highlightthickness=0)
@@ -3761,7 +3761,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
             conversation.append({'role': 'user', 'content': f"USER INPUT: {a}\n\n\n"})        
             # # Generate Semantic Search Terms
             tasklist.append({'role': 'system', 'content': "SYSTEM: You are a search query corrdinator. Your role is to interpret the original user query and generate 2-4 synonymous search terms that will guide the exploration of the chatbot's memory database. Each alternative term should reflect the essence of the user's initial search input. Please list your results using bullet point format.\n"})
-            tasklist.append({'role': 'user', 'content': "USER: %s [/INST] ASSISTANT: Sure, I'd be happy to help! Here are 2-5 synonymous search terms: " % a})
+            tasklist.append({'role': 'user', 'content': "USER: %s\nUse the format: •Search Query [/INST] ASSISTANT: Sure, I'd be happy to help! Here are 2-4 synonymous search terms: " % a})
             prompt = ''.join([message_dict['content'] for message_dict in tasklist])
             tasklist_output = oobabooga_terms(prompt)
             print(tasklist_output)
@@ -3777,66 +3777,67 @@ class ChatBotApplication(customtkinter.CTkFrame):
             conversation.append({'role': 'system', 'content': f"{botnameupper}'S LONG TERM CHATBOT MEMORIES: "})
             int_conversation.append({'role': 'system', 'content': f"{main_prompt} Now return your most relevant memories: [/INST]"})
             int_conversation.append({'role': 'system', 'content': f"{botnameupper}'S LONG TERM CHATBOT MEMORIES: "})
-            for line in lines:            
-                try:
-                    hits = client.search(
-                        collection_name=f"Bot_{bot_name}",
-                        query_vector=vector_input1,
-                        query_filter=Filter(
-                            must=[
-                                FieldCondition(
-                                    key="memory_type",
-                                    match=MatchValue(value="Explicit_Long_Term"),
-                                ),
-                                FieldCondition(
-                                    key="user",
-                                    match=models.MatchValue(value=f"{username}"),
-                                ),
-                            ]
-                        ),
-                        limit=3
-                    )
-                    db_search_1 = [hit.payload['message'] for hit in hits]
-                    conversation.append({'role': 'assistant', 'content': f"{db_search_1}  "})
-                    tasklist_counter + 1
-                    if tasklist_counter < 3:
-                        int_conversation.append({'role': 'assistant', 'content': f"{db_search_1}  "})
-                    print(db_search_1)
-                except Exception as e:
-                    if "Not found: Collection" in str(e):
-                        print("Collection does not exist.")
-                    else:
-                        print(f"An unexpected error occurred: {str(e)}")
+            for line in lines:
+                if line.startswith("•"):
+                    try:
+                        hits = client.search(
+                            collection_name=f"Bot_{bot_name}",
+                            query_vector=vector_input1,
+                            query_filter=Filter(
+                                must=[
+                                    FieldCondition(
+                                        key="memory_type",
+                                        match=MatchValue(value="Explicit_Long_Term"),
+                                    ),
+                                    FieldCondition(
+                                        key="user",
+                                        match=models.MatchValue(value=f"{username}"),
+                                    ),
+                                ]
+                            ),
+                            limit=3
+                        )
+                        db_search_1 = [hit.payload['message'] for hit in hits]
+                        conversation.append({'role': 'assistant', 'content': f"{db_search_1}  "})
+                        tasklist_counter + 1
+                        if tasklist_counter < 3:
+                            int_conversation.append({'role': 'assistant', 'content': f"{db_search_1}  "})
+                        print(db_search_1)
+                    except Exception as e:
+                        if "Not found: Collection" in str(e):
+                            print("Collection does not exist.")
+                        else:
+                            print(f"An unexpected error occurred: {str(e)}")
 
-                try:
-                    hits = client.search(
-                        collection_name=f"Bot_{bot_name}",
-                        query_vector=vector_input1,
-                        query_filter=Filter(
-                            must=[
-                                FieldCondition(
-                                    key="memory_type",
-                                    match=MatchValue(value="Implicit_Long_Term"),
-                                ),
-                                FieldCondition(
-                                    key="user",
-                                    match=models.MatchValue(value=f"{username}"),
-                                ),
-                            ]
-                        ),
-                        limit=3
-                    )
-                    db_search_2 = [hit.payload['message'] for hit in hits]
-                    conversation.append({'role': 'assistant', 'content': f"{db_search_2}  "})
-                    tasklist_counter2 + 1
-                    if tasklist_counter2 < 3:
-                        int_conversation.append({'role': 'assistant', 'content': f"{db_search_2}  "})
-                    print(db_search_2)
-                except Exception as e:
-                    if "Not found: Collection" in str(e):
-                        print("Collection does not exist.")
-                    else:
-                        print(f"An unexpected error occurred: {str(e)}")
+                    try:
+                        hits = client.search(
+                            collection_name=f"Bot_{bot_name}",
+                            query_vector=vector_input1,
+                            query_filter=Filter(
+                                must=[
+                                    FieldCondition(
+                                        key="memory_type",
+                                        match=MatchValue(value="Implicit_Long_Term"),
+                                    ),
+                                    FieldCondition(
+                                        key="user",
+                                        match=models.MatchValue(value=f"{username}"),
+                                    ),
+                                ]
+                            ),
+                            limit=3
+                        )
+                        db_search_2 = [hit.payload['message'] for hit in hits]
+                        conversation.append({'role': 'assistant', 'content': f"{db_search_2}  "})
+                        tasklist_counter2 + 1
+                        if tasklist_counter2 < 3:
+                            int_conversation.append({'role': 'assistant', 'content': f"{db_search_2}  "})
+                        print(db_search_2)
+                    except Exception as e:
+                        if "Not found: Collection" in str(e):
+                            print("Collection does not exist.")
+                        else:
+                            print(f"An unexpected error occurred: {str(e)}")
 
             print('\n-----------------------\n')
             db_search_3, db_search_4, db_search_5, db_search_6 = None, None, None, None
@@ -4179,7 +4180,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
             # # Intuition Generation
             int_conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S FLASHBULB MEMORIES: {db_search_9}\n{botnameupper}'S EXPLICIT MEMORIES: {db_search_8}\n{botnameupper}'s HEURISTICS: {db_search_10}\n{botnameupper}'S INNER THOUGHTS: {output_one}\n{botnameupper}'S EPISODIC MEMORIES: {db_search_7} [INST] Now return and analyze the previous conversation history. [/INST] PREVIOUS CONVERSATION HISTORY: {con_hist} [INST] SYSTEM: Transmute the user, {username}'s message as {bot_name} by devising a truncated predictive action plan in the third person point of view on how to best respond to {username}'s most recent message. You do not have access to external resources.  If the user's message is casual conversation, print 'No Plan Needed'. Only create an action plan for informational requests or if requested to complete a complex task.  If the user is requesting information on a subjector asking a question, predict what information needs to be provided. {usernameupper}: {a} [/INST] {botnameupper}: "}) 
 
-            inner_loop_response = 'None'
+            prompt_implicit = []
             prompt = ''.join([message_dict['content'] for message_dict in int_conversation])
             output_two = oobabooga_intuition(prompt)
             message_two = output_two
@@ -4190,16 +4191,31 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 implicit_short_term_memory = f'\nUSER: {a}\nINNER_MONOLOGUE: {output_one}'
                 db_msg = f"\nUSER: {a}\nINNER_MONOLOGUE: {output_one}"
           #      summary.append({'role': 'assistant', 'content': f"LOG: {implicit_short_term_memory}[/INST][INST]SYSTEM: Read the log, extract the salient points about {bot_name} and {username} mentioned in the chatbot's inner monologue, then create truncated executive summaries in bullet point format to serve as {bot_name}'s implicit memories. Each bullet point should be considered a separate memory and contain full context.  Use the bullet point format: •[Memory][/INST]{botnameupper}: Sure! Here are some implicit memories in bullet point format based on {bot_name}'s internal thoughts: "})
-                summary.append({'role': 'assistant', 'content': f"LOG: {implicit_short_term_memory}[INST]SYSTEM: Read the log to identify key interactions between {bot_name} and {username} from the chatbot's inner monologue. Create bullet-point summaries that will serve as automatic, unconscious memories for {bot_name}'s future interactions. These memories should not be easily verbalized but should capture the essence of skills, habits, or associations learned during interactions. Each bullet point should contain enough context to understand the significance without tying to explicit reasoning or verbal explanation. Use the following bullet point format: •Memory[/INST]{botnameupper}: Sure! Here are the bullet-point summaries which will serve as memories based on {bot_name}'s internal thoughts:"})
+                summary.append({'role': 'assistant', 'content': f"LOG: {implicit_short_term_memory} [INST] SYSTEM: Read the log to identify key interactions between {bot_name} and {username} from the chatbot's inner monologue. Create 1-5 bullet-point summaries that will serve as automatic, unconscious memories for {bot_name}'s future interactions. These memories should not be easily verbalized but should capture the essence of skills, habits, or associations learned during interactions. Each bullet point should contain enough context to understand the significance without tying to explicit reasoning or verbal explanation. Use the following bullet point format: •[memory] [/INST] {botnameupper}: Sure! Here are the bullet-point summaries which will serve as memories based on {bot_name}'s internal thoughts:"})
 
-                prompt = ''.join([message_dict['content'] for message_dict in summary])
-                inner_loop_response = oobabooga_implicitmem(prompt)
-                summary.clear()
-            #    print(inner_loop_response)
-            #    print('\n-----------------------\n')
-                inner_loop_db = inner_loop_response
-                paragraph = inner_loop_db
-                vector = embeddings(paragraph)
+                prompt_implicit = ''.join([message_dict['content'] for message_dict in summary])
+
+                if self.memory_mode != 'Manual':
+                    thread = threading.Thread(target=self.implicit_mem_gen, args=(a, output_one, bot_name, username, prompt_implicit))
+
+                    thread.start()
+                
+                
+            int_conversation.clear()
+            # After the operations are complete, call the response generation function in a separate thread
+            t = threading.Thread(target=self.GPT_Response, args=(a, output_one, output_two, prompt_implicit))
+            t.start()
+            return   
+            
+    def implicit_mem_gen(self, a, output_one, bot_name, username, prompt_implicit):
+        try:
+            timestamp = time()
+            timestring = timestamp_to_datetime(timestamp)
+            auto = list()
+            inner_loop_response = oobabooga_implicitmem(prompt_implicit)
+            inner_loop_db = inner_loop_response
+            paragraph = inner_loop_db
+            vector = embeddings(paragraph)
             if self.memory_mode == 'Auto': 
                 # # Auto Implicit Short-Term Memory DB Upload Confirmation
                 auto_count = 0
@@ -4268,24 +4284,21 @@ class ChatBotApplication(customtkinter.CTkFrame):
                             break
                 else:
                     pass   
-            int_conversation.clear()
         #    self.master.after(0, self.update_intuition, output_two)
             if self.memory_mode == 'Training':
-                print(f"Upload Memories?\n{inner_loop_response}\n\n")
-                self.conversation_text.insert(tk.END, f"Upload Memories?\n{inner_loop_response}\n\n")
+                print(f"Upload Implicit Memories?\n{inner_loop_response}\n\n")
+                self.conversation_text.insert(tk.END, f"Upload Implicit Memories?\n{inner_loop_response}\n\n")
                 ask_upload_implicit_memories(inner_loop_response)
-            # After the operations are complete, call the response generation function in a separate thread
-            t = threading.Thread(target=self.GPT_Response, args=(a, output_one, output_two, inner_loop_response))
-            t.start()
-            return   
-                
+        except Exception as e:
+            print(e)
+        
                 
     def update_intuition(self, output_two):
         self.conversation_text.insert(tk.END, f"Intuition: {output_two}\n\n")
         self.conversation_text.yview(tk.END)
         
         
-    def GPT_Response(self, a, output_one, output_two, inner_loop_response):
+    def GPT_Response(self, a, output_one, output_two, prompt_implicit):
         # # Number of Messages before conversation is summarized, higher number, higher api cost. Change to 3 when using GPT 3.5 due to token usage.
         m = multiprocessing.Manager()
         lock = m.Lock()
@@ -4472,12 +4485,83 @@ class ChatBotApplication(customtkinter.CTkFrame):
             #    summary.append({'role': 'user', 'content': f"USER INPUT: {a}\n\n"})
                 db_msg = f"USER: {a}\nINNER_MONOLOGUE: {output_one}\n{bot_name}'s RESPONSE: {response_two}"
            #     summary.append({'role': 'assistant', 'content': f"LOG: {db_msg}[/INST][INST]SYSTEM: Use the log to extract the salient points about {bot_name}, {username}, and any informational topics mentioned in the chatbot's inner monologue and response. These points should be used to create concise executive summaries in bullet point format to serve as {bot_name}'s explicit memories. Each bullet point should be considered a separate memory and contain full context.  Use the bullet point format: •[Memory][/INST]{botnameupper}: Sure! Here are some explicit memories in bullet point format based on {bot_name}'s response: "})
-                summary.append({'role': 'assistant', 'content': f"LOG: {db_msg}[INST]SYSTEM: Use the log to extract salient points about interactions between {bot_name} and {username}, as well as any informational topics mentioned in the chatbot's inner monologue and responses. These points should be used to create concise executive summaries in bullet point format, intended to serve as explicit memories for {bot_name}'s future interactions. These memories should be consciously recollected and easily talked about, focusing on general knowledge and facts discussed or learned. Each bullet point should be rich in detail, providing all the essential context for full recollection and articulation. Each bullet point should be considered a separate memory and contain full context. Use the following bullet point format: •Memory[/INST]{botnameupper}: Sure! Here are bullet-point summaries that will serve as detailed, consciously recollected memories based on {bot_name}'s responses:"})
-                prompt = ''.join([message_dict['content'] for message_dict in summary])
-                db_upload = oobabooga_explicitmem(prompt)
+                summary.append({'role': 'assistant', 'content': f"LOG: {db_msg} [INST] SYSTEM: Use the log to extract salient points about interactions between {bot_name} and {username}, as well as any informational topics mentioned in the chatbot's inner monologue and responses. These points should be used to create concise executive summaries in bullet point format, intended to serve as explicit memories for {bot_name}'s future interactions. These memories should be consciously recollected and easily talked about, focusing on general knowledge and facts discussed or learned. Each bullet point should be rich in detail, providing all the essential context for full recollection and articulation. Each bullet point should be considered a separate memory and contain full context. Use the following bullet point format: •[memory] [/INST] {botnameupper}: Sure! Here are 1-5 bullet-point summaries that will serve as detailed, consciously recollected memories based on {bot_name}'s responses:"})
+                
+                
+                prompt_explicit = ''.join([message_dict['content'] for message_dict in summary])
+                
+                
+                if self.memory_mode != 'Manual':
+                    thread = threading.Thread(target=self.explicit_mem_gen, args=(a, output_one, response_two, bot_name, username, prompt_explicit))
+
+                    thread.start()
+                
+                
+
+                
+            summary.clear()
+            conversation2.clear()    
+            
+            
+            # need to add implicit generation to this.    
+            if self.memory_mode == 'Manual':
+                inner_loop_response = oobabooga_implicitmem(prompt_implicit)
+                db_upsert = oobabooga_episodicmem(prompt_explicit)
+                self.conversation_text.insert(tk.END, f"Upload Memories?\n-------------\nIMPLICIT\n-------------\n{inner_loop_response}\n-------------\nEXPLICIT\n-------------\n{db_upsert}\n")
+                mem_upload_yescheck = ask_upload_memories(inner_loop_response, db_upsert)
+                if mem_upload_yescheck == "yes":
+                    segments = re.split(r'•|\n\s*\n', inner_loop_response)
+                    total_segments = len(segments)
+
+                    for index, segment in enumerate(segments):
+                        segment = segment.strip()
+                        if segment == '':  # This condition checks for blank segments
+                            continue  # This condition checks for blank lines      
+                        # Check if it is the final segment and if the memory is cut off (ends without punctuation)
+                        if index == total_segments - 1 and not segment[-1] in ['.', '!', '?']:
+                            continue
+                        upload_implicit_short_term_memories(segment)
+                    segments = re.split(r'•|\n\s*\n', db_upsert)
+                    total_segments = len(segments)
+
+                    for index, segment in enumerate(segments):
+                        segment = segment.strip()
+                        if segment == '':  # This condition checks for blank segments
+                            continue  # This condition checks for blank lines      
+                        # Check if it is the final segment and if the memory is cut off (ends without punctuation)
+                        if index == total_segments - 1 and not segment[-1] in ['.', '!', '?']:
+                            continue
+                        upload_explicit_short_term_memories(segment)
+                    t = threading.Thread(target=self.GPT_Memories, args=(a, vector_input, vector_monologue, output_one, response_two))
+                    t.start()
+                write_to_dataset(a, response_two, bot_name, username, main_prompt)
+            if self.memory_mode != 'Manual':        
+                t = threading.Thread(target=self.GPT_Memories, args=(a, vector_input, vector_monologue, output_one, response_two))
+                t.start()
+            self.conversation_text.yview(tk.END)
+            self.user_input.delete(0, tk.END)
+            self.user_input.focus()
+            self.user_input.configure(state=tk.NORMAL)
+            self.user_input.delete("1.0", tk.END)
+            self.is_recording = False 
+            self.send_button.configure(state=tk.NORMAL)
+            self.voice_button.configure(state=tk.NORMAL)
+            self.thinking_label.pack_forget()
+        #    self.user_input.delete(0, tk.END)
+            self.bind_right_alt_key()
+            self.bind_enter_key()
+            return
+            
+    def explicit_mem_gen(self, a, output_one, response_two, bot_name, username, prompt_explicit):
+        try:
+            main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+            timestamp = time()
+            timestring = timestamp_to_datetime(timestamp)
+            auto = list()
+            db_upload = oobabooga_explicitmem(prompt_explicit)
             #    print(db_upload)
             #    print('\n-----------------------\n')
-                db_upsert = db_upload
+            db_upsert = db_upload
             if self.memory_mode == 'Auto': 
                 # # Auto Implicit Short-Term Memory DB Upload Confirmation
                 auto_count = 0
@@ -4547,61 +4631,17 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 else:
                     pass
             # # Clear Logs for Summary
-            conversation2.clear()
-            summary.clear()
+            
             if self.memory_mode == 'Training':
-                self.conversation_text.insert(tk.END, f"Upload Memories?\n{db_upload}\n\n")
-                print(f"Upload Memories?\n{db_upload}\n\n")
+                self.conversation_text.insert(tk.END, f"Upload Explicit Memories?\n{db_upload}\n\n")
+                print(f"Upload Explicit Memories?\n{db_upload}\n\n")
                 db_upload_yescheck = ask_upload_explicit_memories(db_upsert)
                 if db_upload_yescheck == 'yes':
                     t = threading.Thread(target=self.GPT_Memories, args=(a, vector_input, vector_monologue, output_one, response_two))
                     t.start()
                 write_to_dataset(a, response_two, bot_name, username, main_prompt)
-            if self.memory_mode == 'Manual':
-                self.conversation_text.insert(tk.END, f"Upload Memories?\n-------------\nIMPLICIT\n-------------\n{inner_loop_response}\n-------------\nEXPLICIT\n-------------\n{db_upload}\n")
-                mem_upload_yescheck = ask_upload_memories(inner_loop_response, db_upsert)
-                if mem_upload_yescheck == "yes":
-                    segments = re.split(r'•|\n\s*\n', inner_loop_response)
-                    total_segments = len(segments)
-
-                    for index, segment in enumerate(segments):
-                        segment = segment.strip()
-                        if segment == '':  # This condition checks for blank segments
-                            continue  # This condition checks for blank lines      
-                        # Check if it is the final segment and if the memory is cut off (ends without punctuation)
-                        if index == total_segments - 1 and not segment[-1] in ['.', '!', '?']:
-                            continue
-                        upload_implicit_short_term_memories(segment)
-                    segments = re.split(r'•|\n\s*\n', db_upsert)
-                    total_segments = len(segments)
-
-                    for index, segment in enumerate(segments):
-                        segment = segment.strip()
-                        if segment == '':  # This condition checks for blank segments
-                            continue  # This condition checks for blank lines      
-                        # Check if it is the final segment and if the memory is cut off (ends without punctuation)
-                        if index == total_segments - 1 and not segment[-1] in ['.', '!', '?']:
-                            continue
-                        upload_explicit_short_term_memories(segment)
-                    t = threading.Thread(target=self.GPT_Memories, args=(a, vector_input, vector_monologue, output_one, response_two))
-                    t.start()
-                write_to_dataset(a, response_two, bot_name, username, main_prompt)
-            if self.memory_mode == 'Auto':        
-                t = threading.Thread(target=self.GPT_Memories, args=(a, vector_input, vector_monologue, output_one, response_two))
-                t.start()
-            self.conversation_text.yview(tk.END)
-            self.user_input.delete(0, tk.END)
-            self.user_input.focus()
-            self.user_input.configure(state=tk.NORMAL)
-            self.user_input.delete("1.0", tk.END)
-            self.is_recording = False 
-            self.send_button.configure(state=tk.NORMAL)
-            self.voice_button.configure(state=tk.NORMAL)
-            self.thinking_label.pack_forget()
-        #    self.user_input.delete(0, tk.END)
-            self.bind_right_alt_key()
-            self.bind_enter_key()
-            return
+        except Exception as e:
+            print(e)
             
             
     def GPT_Memories(self, a, vector_input, vector_monologue, output_one, response_two):
@@ -4635,13 +4675,16 @@ class ChatBotApplication(customtkinter.CTkFrame):
             counter += 1
             conversation.clear()
             print('Generating Episodic Memories')
-            conversation.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a sub-module of {bot_name}, an autonomous AI entity. Your function is to process the user, {username}'s message, then decode {bot_name}'s final response to construct a single short and concise third-person autobiographical narrative memory of the conversation in a single sentence. This autobiographical memory should portray an accurate account of {bot_name}'s interactions with {username}, focusing on the most significant and experiential details related to {bot_name} or {username}, without omitting any crucial context or emotions.\nNow, print the user's inquiry and your response. [/INST]"})
+        #    conversation.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a sub-module of {bot_name}, an autonomous AI entity. Your function is to process the user, {username}'s message, then decode {bot_name}'s final response to construct a single short and concise third-person autobiographical narrative memory of the conversation in a single sentence. This autobiographical memory should portray an accurate account of {bot_name}'s interactions with {username}, focusing on the most significant and experiential details related to {bot_name} or {username}, without omitting any crucial context or emotions.\nNow, print the user's inquiry and your response. [/INST]"})
+            
+            conversation.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a sub-module of {bot_name}, an AI entity designed for autonomous interaction. Your specialized function is to distill each conversation with {username} into a single, short and concise narrative sentence. This sentence should serve as Aetherius's autobiographical memory of the conversation, capturing the most significant events, context, and emotions experienced by either {bot_name} or {username}. Note that 'autobiographical memory' refers to a detailed recollection of a specific event, often including emotions and sensory experiences. Your task is to focus on preserving the most crucial elements without omitting key context or feelings. After that, please print the user's message followed by your response. [/INST]"})
+
             conversation.append({'role': 'user', 'content': f"USER: {a}\n"})
             conversation.append({'role': 'user', 'content': f"{botnameupper}'s INNER MONOLOGUE: {output_one}\n"})
     #        print(output_one)
             conversation.append({'role': 'user', 'content': f"{botnameupper}'S FINAL RESPONSE: {response_two}"})
     #        print(response_two)
-            conversation.append({'role': 'assistant', 'content': f"[INST] Please now generate an episodic memory for {bot_name}.[/INST] THIRD-PERSON AUTOBIOGRAPHICAL MEMORY: "})
+            conversation.append({'role': 'assistant', 'content': f"[INST] Please now generate an autobiographical memory for {bot_name}. [/INST] THIRD-PERSON AUTOBIOGRAPHICAL MEMORY: "})
             prompt = ''.join([message_dict['content'] for message_dict in conversation])
             conv_summary = oobabooga_episodicmem(prompt)
             print(conv_summary)
@@ -4659,7 +4702,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
             episodic_msg = f'{timestring} - {conv_summary}'
             vector1 = embeddings(episodic_msg)
             unique_id = str(uuid4())
-            importance_score.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a sub-module of {bot_name}, an autonomous AI entity. Your function is to process a given memory and rate its importance to personal development and/or its ability to impact the greater world.  You are to give the rating on a scale of 1-10.\n"})
+            importance_score.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a sub-module of {bot_name}, an autonomous AI entity. Your function is to process a given memory and rate its importance to personal development and/or its ability to impact the greater world.  You are to give the rating on a scale of 1-100.\n"})
             importance_score.append({'role': 'system', 'content': f"{botnameupper}'S MAIN PROMPT: {main_prompt}\n"})
             importance_score.append({'role': 'system', 'content': f"{botnameupper}'S SECONDARY PROMPT: {second_prompt}\n"})
             importance_score.append({'role': 'system', 'content': f"{botnameupper}'S GREETING MESSAGE: {greeting_msg}\n"})
@@ -4667,7 +4710,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
             importance_score.append({'role': 'system', 'content': f"{usernameupper}: Please now rate the given memory on a scale of 1-100. Only print the numerical rating as a digit. [/INST]"})
             importance_score.append({'role': 'system', 'content': f"{botnameupper}: Sure thing! Here's the memory rated on a scale of 1-100:\nRating: "})
             prompt = ''.join([message_dict['content'] for message_dict in importance_score])
-            score = oobabooga_episodicmem(prompt)
+            score = 75
             importance_score.clear()
             print(score)
             print('\n-----------------------\n')
@@ -4772,11 +4815,11 @@ class ChatBotApplication(customtkinter.CTkFrame):
                         print(f"An unexpected error occurred: {str(e)}")
                 print('\n-----------------------\n')
                 # # Generate Flashbulb Memory
-                consolidation.append({'role': 'system', 'content': "Main System Prompt: As a data extractor, your role is to read the provided episodic memories and emotional reactions. Extract emotional information corresponding to each memory and then combine these to form flashbulb memories. Only include memories strongly tied to emotions. Format the flashbulb memories as bullet points using the template: •{Flashbulb Memory}. Then, create and present the final list of flashbulb memories.\n\n"})
-                consolidation.append({'role': 'user', 'content': f"EMOTIONAL REACTIONS: {flash_db}\n\nEPISODIC MEMORIES: {flash_db1}[/INST]\n\n"})
-                consolidation.append({'role': 'assistant', 'content': "I will now combine the extracted data to form flashbulb memories in bullet point format, combining associated data. I will only include memories with a strong emotion attached:"})
+                consolidation.append({'role': 'system', 'content': "Main System Prompt: As a data extractor, your role is to read the provided episodic memories and emotional reactions. Extract emotional information corresponding to each memory and then combine these to form flashbulb memories. Only include memories strongly tied to emotions. Format the flashbulb memories as bullet points using the template: •[flashbulb memory]. Then, create and present the final list of flashbulb memories.\n"})
+                consolidation.append({'role': 'user', 'content': f"EMOTIONAL REACTIONS: {flash_db}\nEPISODIC MEMORIES: {flash_db1}[/INST]"})
+          #      consolidation.append({'role': 'assistant', 'content': ""})
                 consolidation.append({'role': 'user', 'content': "[INST]FORMAT: Use the format: •{Flashbulb Memory}[/INST]"})
-                consolidation.append({'role': 'assistant', 'content': f"RESPONSE: I will now create {bot_name}'s flashbulb memories using the given format above.\n{botnameupper}: "})
+                consolidation.append({'role': 'assistant', 'content': f"{botnameupper}: I will now combine the extracted data to form flashbulb memories in bullet point format, combining associated data. I will only include memories with a strong emotion attached: "})
                 prompt = ''.join([message_dict['content'] for message_dict in consolidation])
                 flash_response = oobabooga_flashmem(prompt)
             #    memories = results
@@ -4800,7 +4843,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                         vector1 = embeddings(segment)
                         unique_id = str(uuid4())
                         flash_mem = f'{timestring} - {segment}'
-                        importance_score.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a sub-module of {bot_name}, an autonomous AI entity. Your function is to process a given memory and rate its importance to personal development and/or its ability to impact the greater world.  You are to give the rating on a scale of 1-10.\n"})
+                        importance_score.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a sub-module of {bot_name}, an autonomous AI entity. Your function is to process a given memory and rate its importance to personal development and/or its ability to impact the greater world.  You are to give the rating on a scale of 1-100.\n"})
                         importance_score.append({'role': 'system', 'content': f"{botnameupper}'S MAIN PROMPT: {main_prompt}\n"})
                         importance_score.append({'role': 'system', 'content': f"{botnameupper}'S SECONDARY PROMPT: {second_prompt}\n"})
                         importance_score.append({'role': 'system', 'content': f"{botnameupper}'S GREETING MESSAGE: {greeting_msg}\n"})
@@ -4808,7 +4851,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                         importance_score.append({'role': 'system', 'content': f"{usernameupper}: Please now rate the given memory on a scale of 1-100. Only print the numerical rating as a digit. [/INST]"})
                         importance_score.append({'role': 'system', 'content': f"{botnameupper}: Sure thing! Here's the memory rated on a scale of 1-100:\nRating: "})
                         prompt = ''.join([message_dict['content'] for message_dict in importance_score])
-                        score = oobabooga_episodicmem(prompt)
+                        score = 75
                         print(score)
                         importance_score.clear()
                         metadata = {
@@ -4841,7 +4884,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
             # # Short Term Memory Consolidation based on amount of vectors in namespace    
             collection_name = f"Bot_{bot_name}_Explicit_Short_Term"
             collection_info = client.get_collection(collection_name=collection_name)
-            if collection_info.vectors_count > 15:
+            if collection_info.vectors_count > 20:
         #    if collection_info.vectors_count > 5:
                 consolidation.clear()
                 memory_consol_db = None
@@ -4871,7 +4914,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
 
                 print('\n-----------------------\n')
                 consolidation.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: {main_prompt}\n\n"})
-                consolidation.append({'role': 'assistant', 'content': f"LOG: {memory_consol_db}\n\nSYSTEM: Read the Log and combine the different associated topics into a bullet point list of executive summaries to serve as {bot_name}'s explicit long term memories. Each summary should contain the entire context of the memory. Follow the format •Memory [/INST] {botnameupper}: Sure, here is the list of consolidated memories: "})
+                consolidation.append({'role': 'assistant', 'content': f"LOG: {memory_consol_db}\n\nSYSTEM: Read the Log and combine the similar topics from the given short term memories into a bullet point list to serve as {bot_name}'s long term memories. Each summary should contain the entire context of the memory. Follow the format •[memory] [/INST] {botnameupper}: Sure, here is the list of consolidated memories: "})
                 prompt = ''.join([message_dict['content'] for message_dict in consolidation])
                 memory_consol = oobabooga_consolidationmem(prompt)
             #    print(memory_consol)
@@ -4894,7 +4937,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                             )
                         vector1 = embeddings(segment)
                         unique_id = str(uuid4())
-                        importance_score.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a sub-module of {bot_name}, an autonomous AI entity. Your function is to process a given memory and rate its importance to personal development and/or its ability to impact the greater world.  You are to give the rating on a scale of 1-10.\n"})
+                        importance_score.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a sub-module of {bot_name}, an autonomous AI entity. Your function is to process a given memory and rate its importance to personal development and/or its ability to impact the greater world.  You are to give the rating on a scale of 1-100.\n"})
                         importance_score.append({'role': 'system', 'content': f"{botnameupper}'S MAIN PROMPT: {main_prompt}\n"})
                         importance_score.append({'role': 'system', 'content': f"{botnameupper}'S SECONDARY PROMPT: {second_prompt}\n"})
                         importance_score.append({'role': 'system', 'content': f"{botnameupper}'S GREETING MESSAGE: {greeting_msg}\n"})
@@ -4902,7 +4945,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                         importance_score.append({'role': 'system', 'content': f"{usernameupper}: Please now rate the given memory on a scale of 1-100. Only print the numerical rating as a digit. [/INST]"})
                         importance_score.append({'role': 'system', 'content': f"{botnameupper}: Sure thing! Here's the memory rated on a scale of 1-100:\nRating: "})
                         prompt = ''.join([message_dict['content'] for message_dict in importance_score])
-                        score = oobabooga_episodicmem(prompt)
+                        score = 75
                         print(score)
                         importance_score.clear()
                         metadata = {
@@ -4994,7 +5037,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
 
                     print('\n-----------------------\n')
                     consolidation.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: {main_prompt}\n\n"})
-                    consolidation.append({'role': 'assistant', 'content': f"LOG: {memory_consol_db2}\n\nSYSTEM: Read the Log and consolidate the different topics into executive summaries to serve as {bot_name}'s implicit long term memories. Each summary should contain the entire context of the memory. Follow the format: •Memory [/INST] {bot_name}: Sure, here is the list of consolidated memories: "})
+                    consolidation.append({'role': 'assistant', 'content': f"LOG: {memory_consol_db2}\n\nSYSTEM:  Read the Log and combine the similar topics from the given short term memories into a bullet point list to serve as {bot_name}'s long term memories. Each summary should contain the entire context of the memory. Follow the format: •[memory] [/INST] {bot_name}: Sure, here is the list of consolidated memories: "})
                     prompt = ''.join([message_dict['content'] for message_dict in consolidation])
                     memory_consol2 = oobabooga_consolidationmem(prompt)
                     print(memory_consol2)
@@ -5032,7 +5075,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
 
                     print('\n-----------------------\n')
                     consolidation.append({'role': 'system', 'content': f"{main_prompt}\n\n"})
-                    consolidation.append({'role': 'system', 'content': f"IMPLICIT LONG TERM MEMORY: {memory_consol_db3}\n\nIMPLICIT SHORT TERM MEMORY: {memory_consol_db2}\n\nRESPONSE: Compare your short-term memories and the given Long Term Memories, then, remove any duplicate information from your Implicit Short Term memory that is already found in your Long Term Memory. After this is done, consolidate similar topics into a new set of memories. Each summary should contain the entire context of the memory. Use the following format: •Memory [/INST] {botnameupper}: Sure, here is the list of consolidated memories: "})
+                    consolidation.append({'role': 'system', 'content': f"IMPLICIT LONG TERM MEMORY: {memory_consol_db3}\n\nIMPLICIT SHORT TERM MEMORY: {memory_consol_db2}\n\nRESPONSE: Compare your short-term memories and the given Long Term Memories, then, remove any duplicate information from your Implicit Short Term memory that is already found in your Long Term Memory. After this is done, consolidate similar topics into a new set of memories. Each summary should contain the entire context of the memory. Use the following format: •[memory] [/INST] {botnameupper}: Sure, here is the list of consolidated memories: "})
                     prompt = ''.join([message_dict['content'] for message_dict in consolidation])
                     memory_consol3 = oobabooga_consolidationmem(prompt)
                     print(memory_consol3)
@@ -5055,7 +5098,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                                 )
                             vector1 = embeddings(segment)
                             unique_id = str(uuid4())
-                            importance_score.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a sub-module of {bot_name}, an autonomous AI entity. Your function is to process a given memory and rate its importance to personal development and/or its ability to impact the greater world.  You are to give the rating on a scale of 1-10.\n"})
+                            importance_score.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a sub-module of {bot_name}, an autonomous AI entity. Your function is to process a given memory and rate its importance to personal development and/or its ability to impact the greater world.  You are to give the rating on a scale of 1-100.\n"})
                             importance_score.append({'role': 'system', 'content': f"{botnameupper}'S MAIN PROMPT: {main_prompt}\n"})
                             importance_score.append({'role': 'system', 'content': f"{botnameupper}'S SECONDARY PROMPT: {second_prompt}\n"})
                             importance_score.append({'role': 'system', 'content': f"{botnameupper}'S GREETING MESSAGE: {greeting_msg}\n"})
@@ -5063,7 +5106,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                             importance_score.append({'role': 'system', 'content': f"{usernameupper}: Please now rate the given memory on a scale of 1-100. Only print the numerical rating as a digit. [/INST]"})
                             importance_score.append({'role': 'system', 'content': f"{botnameupper}: Sure thing! Here's the memory rated on a scale of 1-100:\nRating: "})
                             prompt = ''.join([message_dict['content'] for message_dict in importance_score])
-                            score = oobabooga_episodicmem(prompt)
+                            score = 75
                             print(score)
                             importance_score.clear()
                             metadata = {
@@ -5135,8 +5178,8 @@ class ChatBotApplication(customtkinter.CTkFrame):
 
                     ids_to_delete = [m.id for m in hits]
                     print('\n-----------------------\n')
-                    consolidation.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: {main_prompt}\n\n"})
-                    consolidation.append({'role': 'assistant', 'content': f"LOG: {memory_consol_db4}\n\nSYSTEM: Read the Log and consolidate the different memories into executive summaries in a process allegorical to associative processing. Each summary should contain the entire context of the memory. Follow the bullet point format: •Memory [/INST] {botnameupper}: Sure, here is the list of consolidated memories: "})
+           #         consolidation.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: {main_prompt}\n\n"})
+                    consolidation.append({'role': 'assistant', 'content': f"LOG: {memory_consol_db4}\n\nSYSTEM: Read the Log and consolidate the different memories into executive summaries in a process allegorical to associative memory processing. Each summary should contain the entire context of the memory. Follow the bullet point format: •[memory] [/INST] {botnameupper}: Sure, here is the list of consolidated memories: "})
                     prompt = ''.join([message_dict['content'] for message_dict in consolidation])
                     memory_consol4 = oobabooga_associativemem(prompt)
             #        print(memory_consol4)
@@ -5159,7 +5202,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                                 )
                             vector1 = embeddings(segment)
                             unique_id = str(uuid4())
-                            importance_score.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a sub-module of {bot_name}, an autonomous AI entity. Your function is to process a given memory and rate its importance to personal development and/or its ability to impact the greater world.  You are to give the rating on a scale of 1-10.\n"})
+                            importance_score.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a sub-module of {bot_name}, an autonomous AI entity. Your function is to process a given memory and rate its importance to personal development and/or its ability to impact the greater world.  You are to give the rating on a scale of 1-100.\n"})
                             importance_score.append({'role': 'system', 'content': f"{botnameupper}'S MAIN PROMPT: {main_prompt}\n"})
                             importance_score.append({'role': 'system', 'content': f"{botnameupper}'S SECONDARY PROMPT: {second_prompt}\n"})
                             importance_score.append({'role': 'system', 'content': f"{botnameupper}'S GREETING MESSAGE: {greeting_msg}\n"})
@@ -5167,7 +5210,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                             importance_score.append({'role': 'system', 'content': f"{usernameupper}: Please now rate the given memory on a scale of 1-100. Only print the numerical rating as a digit. [/INST]"})
                             importance_score.append({'role': 'system', 'content': f"{botnameupper}: Sure thing! Here's the memory rated on a scale of 1-100:\nRating: "})
                             prompt = ''.join([message_dict['content'] for message_dict in importance_score])
-                            score = oobabooga_episodicmem(prompt)
+                            score = 75
                             print(score)
                             importance_score.clear()
                             metadata = {
@@ -5267,8 +5310,8 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     ids_to_delete2 = [m.id for m in hits]
                     print('\n-----------------------\n')
                     consolidation.clear()
-                    consolidation.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: {main_prompt}\n\n"})
-                    consolidation.append({'role': 'assistant', 'content': f"LOG: {memory_consol_db2}\n\nSYSTEM: Read the Log and consolidate the different memories into executive summaries in a process allegorical to associative processing. Each summary should contain the entire context of the memory.\n\nFORMAT: Follow the bullet point format: •[Memory].[/INST] {botnameupper}: Sure, here is the list of consolidated memories: "})
+            #        consolidation.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: {main_prompt}\n\n"})
+                    consolidation.append({'role': 'assistant', 'content': f"LOG: {memory_consol_db2}\n\nSYSTEM: Read the Log and consolidate the different memories into executive summaries in a process allegorical to associative memory processing. Each summary should contain the entire context of the memory.\n\nFORMAT: Follow the bullet point format: •[memory] [/INST] {botnameupper}: Sure, here is the list of consolidated memories: "})
                     prompt = ''.join([message_dict['content'] for message_dict in consolidation])
                     memory_consol5 = oobabooga_associativemem(prompt)
                 #    print(memory_consol5)
@@ -5292,7 +5335,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                                 )
                             vector1 = embeddings(segment)
                             unique_id = str(uuid4())
-                            importance_score.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a sub-module of {bot_name}, an autonomous AI entity. Your function is to process a given memory and rate its importance to personal development and/or its ability to impact the greater world.  You are to give the rating on a scale of 1-10.\n"})
+                            importance_score.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a sub-module of {bot_name}, an autonomous AI entity. Your function is to process a given memory and rate its importance to personal development and/or its ability to impact the greater world.  You are to give the rating on a scale of 1-100.\n"})
                             importance_score.append({'role': 'system', 'content': f"{botnameupper}'S MAIN PROMPT: {main_prompt}\n"})
                             importance_score.append({'role': 'system', 'content': f"{botnameupper}'S SECONDARY PROMPT: {second_prompt}\n"})
                             importance_score.append({'role': 'system', 'content': f"{botnameupper}'S GREETING MESSAGE: {greeting_msg}\n"})
@@ -5300,7 +5343,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                             importance_score.append({'role': 'system', 'content': f"{usernameupper}: Please now rate the given memory on a scale of 1-100. Only print the numerical rating as a digit. [/INST]"})
                             importance_score.append({'role': 'system', 'content': f"{botnameupper}: Sure thing! Here's the memory rated on a scale of 1-100:\nRating: "})
                             prompt = ''.join([message_dict['content'] for message_dict in importance_score])
-                            score = oobabooga_episodicmem(prompt)
+                            score = 75
                             print(score)
                             importance_score.clear()
                             metadata = {
@@ -5473,9 +5516,9 @@ class ChatBotApplication(customtkinter.CTkFrame):
                             query_vector=vector_input1,
                             limit=2
                         )
-                        unsorted_table = [(hit.payload['tag'], hit.payload['message']) for hit in hits]
-                        sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'tag' field
-                        external_scrape = "\n".join([f"{tag} - {message}" for tag, message in sorted_table])
+                        unsorted_table = [(hit.payload['timestring'], hit.payload['tag'], hit.payload['message']) for hit in hits]
+                        sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'timestring' field
+                        external_scrape = "\n".join([f"{tag} - {message}" for timestring, tag, message in sorted_table])
                         print(external_scrape)
                     except Exception as e:
                         print(f"An unexpected error occurred: {str(e)}")
@@ -5495,9 +5538,9 @@ class ChatBotApplication(customtkinter.CTkFrame):
                                 ),
                                 limit=3
                             )
-                            unsorted_table = [(hit.payload['tag'], hit.payload['message']) for hit in hits]
-                            sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'tag' field
-                            external_scrape = "\n".join([f"{tag} - {message}" for tag, message in sorted_table])
+                            unsorted_table = [(hit.payload['timestring'], hit.payload['tag'], hit.payload['message']) for hit in hits]
+                            sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'timestring' field
+                            external_scrape = "\n".join([f"{tag} - {message}" for timestring, tag, message in sorted_table])
                             print(external_scrape)
                         except Exception as e:
                             print(f"An unexpected error occurred: {str(e)}")
@@ -5516,9 +5559,9 @@ class ChatBotApplication(customtkinter.CTkFrame):
                                 ),
                                 limit=3
                             )
-                            unsorted_table = [(hit.payload['tag'], hit.payload['message']) for hit in hits]
-                            sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'tag' field
-                            external_scrape = "\n".join([f"{tag} - {message}" for tag, message in sorted_table])
+                            unsorted_table = [(hit.payload['timestring'], hit.payload['tag'], hit.payload['message']) for hit in hits]
+                            sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'timestring' field
+                            external_scrape = "\n".join([f"{tag} - {message}" for timestring, tag, message in sorted_table])
                             print(external_scrape)
                         except Exception as e:
                             print(f"An unexpected error occurred: {str(e)}")
@@ -5543,9 +5586,9 @@ class ChatBotApplication(customtkinter.CTkFrame):
                         # Print the result
                     #    for hit in hits:
                     #        print(hit.payload['message'])
-                        unsorted_table = [hit.payload['message'] for hit in hits]
-                        sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'tag' field
-                        db_search_16 = "\n".join([f"{message}" for message in sorted_table])
+                        unsorted_table = [(hit.payload['timestring'], hit.payload['message']) for hit in hits]
+                        sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'timestring' field
+                        db_search_16 = "\n".join([f"{message}" for timestring, message in sorted_table])
                         conversation.append({'role': 'assistant', 'content': f"{db_search_16}\n"})
                         tasklist_counter + 1
                         if tasklist_counter < 2:
@@ -5570,9 +5613,9 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     # Print the result
                 #    for hit in hits:
                 #        print(hit.payload['message'])
-                    unsorted_table = [hit.payload['message'] for hit in hits]
-                    sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'tag' field
-                    db_search_17 = "\n".join([f"{message}" for message in sorted_table])
+                    unsorted_table = [(hit.payload['timestring'], hit.payload['message']) for hit in hits]
+                    sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'timestring' field
+                    db_search_17 = "\n".join([f"{message}" for timestring, message in sorted_table])
                     conversation.append({'role': 'assistant', 'content': f"{db_search_17}\n"})
                     if external_scrape != 'No External Resources Selected':
                         conversation.append({'role': 'assistant', 'content': f"EXTERNAL RESOURCES: {external_scrape}\n"})
@@ -5601,9 +5644,9 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     ),
                     limit=4
                 )
-                unsorted_table = [hit.payload['message'] for hit in hits]
-                sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'tag' field
-                db_search_1 = "\n".join([f"{message}" for message in sorted_table])
+                unsorted_table = [(hit.payload['timestring'], hit.payload['message']) for hit in hits]
+                sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'timestring' field
+                db_search_1 = "\n".join([f"{message}" for timestring, message in sorted_table])
                 print(db_search_1)
             except Exception as e:
                 print(f"An unexpected error occurred: {str(e)}")
@@ -5621,9 +5664,9 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     ),
                     limit=5
                 )
-                unsorted_table = [hit.payload['message'] for hit in hits]
-                sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'tag' field
-                db_search_14 = "\n".join([f"{message}" for message in sorted_table])
+                unsorted_table = [(hit.payload['timestring'], hit.payload['tag'], hit.payload['message']) for hit in hits]
+                sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'timestring' field
+                db_search_14 = "\n".join([f"{tag} - {message}" for timestring, tag, message in sorted_table])
                 print(db_search_14)
             except Exception as e:
                 print(f"An unexpected error occurred: {str(e)}")
@@ -5636,9 +5679,9 @@ class ChatBotApplication(customtkinter.CTkFrame):
                         query_vector=vector_input1,
                         limit=3
                     )
-                    unsorted_table = [(hit.payload['tag'], hit.payload['message']) for hit in hits]
-                    sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'tag' field
-                    db_search_2 = "\n".join([f"{tag} - {message}" for tag, message in sorted_table])
+                    unsorted_table = [(hit.payload['timestring'], hit.payload['tag'], hit.payload['message']) for hit in hits]
+                    sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'timestring' field
+                    db_search_2 = "\n".join([f"{tag} - {message}" for timestring, tag, message in sorted_table])
                     print(db_search_2)
                 except Exception as e:
                     print(f"An unexpected error occurred: {str(e)}")
@@ -5658,9 +5701,9 @@ class ChatBotApplication(customtkinter.CTkFrame):
                             ),
                             limit=3
                         )
-                        unsorted_table = [(hit.payload['tag'], hit.payload['message']) for hit in hits]
-                        sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'tag' field
-                        db_search_2 = "\n".join([f"{tag} - {message}" for tag, message in sorted_table])
+                        unsorted_table = [(hit.payload['timestring'], hit.payload['tag'], hit.payload['message']) for hit in hits]
+                        sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'timestring' field
+                        db_search_2 = "\n".join([f"{tag} - {message}" for timestring, tag, message in sorted_table])
                         print(db_search_2)
                     except Exception as e:
                         print(f"An unexpected error occurred: {str(e)}")
@@ -5679,9 +5722,9 @@ class ChatBotApplication(customtkinter.CTkFrame):
                             ),
                             limit=3
                         )
-                        unsorted_table = [(hit.payload['tag'], hit.payload['message']) for hit in hits]
-                        sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'tag' field
-                        db_search_2 = "\n".join([f"{tag} - {message}" for tag, message in sorted_table])
+                        unsorted_table = [(hit.payload['timestring'], hit.payload['tag'], hit.payload['message']) for hit in hits]
+                        sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'timestring' field
+                        db_search_2 = "\n".join([f"{tag} - {message}" for timestring, tag, message in sorted_table])
                         print(db_search_2)
                     except Exception as e:
                         print(f"An unexpected error occurred: {str(e)}")
@@ -5779,7 +5822,9 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 # Print the result
             #    for hit in hits:
             #        print(hit.payload['message'])
-                db_search_4 = [hit.payload['message'] for hit in hits]
+                unsorted_table = [(hit.payload['timestring'], hit.payload['message']) for hit in hits]
+                sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'timestring' field
+                db_search_4 = "\n".join([f"{message}" for timestring, message in sorted_table])
                 print(db_search_4)
             except Exception as e:
                 print(f"An unexpected error occurred: {str(e)}")

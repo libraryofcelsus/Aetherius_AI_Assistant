@@ -8,6 +8,10 @@ For a quick demo deployment without a UI, see: [Public Oobabooga Api Colab](http
 ------
 **Recent Changes**
 
+• 9/11 Added the ability to use multiple Hosts.  To use more than one, separate them with a space.  The first host should be the fastest, as it will be used for the main chat loops.  The second fastest should be second, this will be used for the Memory Loops.  Any additional hosts will only be used for Agent mode.
+
+• 9/11 Worked on Llama 2 Memory Loop
+
 • 9/9 Updated Llama 2 Memory prompts to better extract information representative of the respective memory type.
 
 • 9/7 Improved Llama 2 Agent internal prompts.

@@ -4526,9 +4526,6 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     t = threading.Thread(target=self.GPT_Memories, args=(a, vector_input, vector_monologue, output_one, response_two))
                     t.start()
                 write_to_dataset(a, response_two, bot_name, username, main_prompt)
-            if self.memory_mode != 'Manual':        
-                t = threading.Thread(target=self.GPT_Memories, args=(a, vector_input, vector_monologue, output_one, response_two))
-                t.start()
             self.conversation_text.yview(tk.END)
             self.user_input.delete(0, tk.END)
             self.user_input.focus()
@@ -4612,6 +4609,8 @@ class ChatBotApplication(customtkinter.CTkFrame):
                         print('\n-----------------------\n')        
                         print('SYSTEM: Auto-memory upload Successful!')
                         print('\n-----------------------\n')
+                        t = threading.Thread(target=self.GPT_Memories, args=(a, vector_input, vector_monologue, output_one, response_two))
+                        t.start()
                     else:
                         print("automemory failed to produce an integer. Retrying...")
                         auto_int = None

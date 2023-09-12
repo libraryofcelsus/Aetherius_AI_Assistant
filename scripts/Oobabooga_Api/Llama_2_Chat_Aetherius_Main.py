@@ -1148,7 +1148,7 @@ def ask_upload_implicit_memories(memories):
     timestamp = time()
     timestring = timestamp_to_datetime(timestamp)
     payload = list()
-    result = messagebox.askyesno("Upload Memories", "Do you want to upload memories?")
+    result = messagebox.askyesno("Upload Memories", "Do you want to upload the implicit memories?")
     if result:
         # User clicked "Yes"
         segments = re.split(r'•|\n\s*\n', memories)
@@ -1202,7 +1202,7 @@ def ask_upload_explicit_memories(memories):
     timestamp = time()
     timestring = timestamp_to_datetime(timestamp)
     payload = list()
-    result = messagebox.askyesno("Upload Memories", "Do you want to upload memories?")
+    result = messagebox.askyesno("Upload Memories", "Do you want to upload the explicit memories?")
     if result:
         # User clicked "Yes"
         segments = re.split(r'•|\n\s*\n', memories)
@@ -1260,7 +1260,7 @@ def ask_upload_memories(memories, memories2):
     print(memories)
     print(f'\nEXPLICIT MEMORIES\n-------------')
     print(memories2)
-    result = messagebox.askyesno("Upload Memories", "Do you want to upload memories?")
+    result = messagebox.askyesno("Upload Memories", "Do you want to upload the memories?")
     if result: 
         return 'yes'
     else:
@@ -4486,22 +4486,13 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 db_msg = f"USER: {a}\nINNER_MONOLOGUE: {output_one}\n{bot_name}'s RESPONSE: {response_two}"
            #     summary.append({'role': 'assistant', 'content': f"LOG: {db_msg}[/INST][INST]SYSTEM: Use the log to extract the salient points about {bot_name}, {username}, and any informational topics mentioned in the chatbot's inner monologue and response. These points should be used to create concise executive summaries in bullet point format to serve as {bot_name}'s explicit memories. Each bullet point should be considered a separate memory and contain full context.  Use the bullet point format: •[Memory][/INST]{botnameupper}: Sure! Here are some explicit memories in bullet point format based on {bot_name}'s response: "})
                 summary.append({'role': 'assistant', 'content': f"LOG: {db_msg} [INST] SYSTEM: Use the log to extract salient points about interactions between {bot_name} and {username}, as well as any informational topics mentioned in the chatbot's inner monologue and responses. These points should be used to create concise executive summaries in bullet point format, intended to serve as explicit memories for {bot_name}'s future interactions. These memories should be consciously recollected and easily talked about, focusing on general knowledge and facts discussed or learned. Each bullet point should be rich in detail, providing all the essential context for full recollection and articulation. Each bullet point should be considered a separate memory and contain full context. Use the following bullet point format: •[memory] [/INST] {botnameupper}: Sure! Here are 1-5 bullet-point summaries that will serve as detailed, consciously recollected memories based on {bot_name}'s responses:"})
-                
-                
                 prompt_explicit = ''.join([message_dict['content'] for message_dict in summary])
                 
-                
                 if self.memory_mode != 'Manual':
-                    thread = threading.Thread(target=self.explicit_mem_gen, args=(a, output_one, response_two, bot_name, username, prompt_explicit))
-
+                    thread = threading.Thread(target=self.explicit_mem_gen, args=(a, vector_input, vector_monologue, output_one, response_two, bot_name, username, prompt_explicit))
                     thread.start()
-                
-                
-
-                
             summary.clear()
             conversation2.clear()    
-            
             
             # need to add implicit generation to this.    
             if self.memory_mode == 'Manual':
@@ -4552,7 +4543,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
             self.bind_enter_key()
             return
             
-    def explicit_mem_gen(self, a, output_one, response_two, bot_name, username, prompt_explicit):
+    def explicit_mem_gen(self, a, vector_input, vector_monologue, output_one, response_two, bot_name, username, prompt_explicit):
         try:
             main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
             timestamp = time()
@@ -4687,6 +4678,11 @@ class ChatBotApplication(customtkinter.CTkFrame):
             conversation.append({'role': 'assistant', 'content': f"[INST] Please now generate an autobiographical memory for {bot_name}. [/INST] THIRD-PERSON AUTOBIOGRAPHICAL MEMORY: "})
             prompt = ''.join([message_dict['content'] for message_dict in conversation])
             conv_summary = oobabooga_episodicmem(prompt)
+            sentences = re.split(r'(?<=[.!?])\s+', conv_summary)
+            if sentences and not re.search(r'[.!?]$', sentences[-1]):
+                sentences.pop()
+            conv_summary = ' '.join(sentences)
+
             print(conv_summary)
             print('\n-----------------------\n')
             # Define the collection name
@@ -6033,8 +6029,8 @@ class ChatBotApplication(customtkinter.CTkFrame):
             int_conversation.clear()
         #    self.master.after(0, self.update_intuition, output_two)
             if self.memory_mode == 'Training':
-                print(f"Upload Memories?\n{inner_loop_response}\n\n")
-                self.conversation_text.insert(tk.END, f"Upload Memories?\n{inner_loop_response}\n\n")
+                print(f"Upload Implicit Memories?\n{inner_loop_response}\n\n")
+                self.conversation_text.insert(tk.END, f"Upload Implicit Memories?\n{inner_loop_response}\n\n")
                 ask_upload_implicit_memories(inner_loop_response)
             # After the operations are complete, call the response generation function in a separate thread
             t = threading.Thread(target=self.Agent_Tasklist_Response, args=(a, vector_input, vector_monologue, output_one, output_two, inner_loop_db))
@@ -6210,8 +6206,8 @@ class ChatBotApplication(customtkinter.CTkFrame):
             conversation.clear()
             summary.clear()
             if self.memory_mode == 'Training':
-                self.conversation_text.insert(tk.END, f"Upload Memories?\n{db_upload}\n\n")
-                print(f"Upload Memories?\n{db_upload}\n\n")
+                self.conversation_text.insert(tk.END, f"Upload Explicit Memories?\n{db_upload}\n\n")
+                print(f"Upload Explicit Memories?\n{db_upload}\n\n")
                 db_upload_yescheck = ask_upload_explicit_memories(db_upsert)
                 if db_upload_yescheck == 'yes':
                     t = threading.Thread(target=self.GPT_Memories, args=(a, vector_input, vector_monologue, output_one, response_two))

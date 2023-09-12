@@ -155,6 +155,8 @@ Inspired by https://github.com/daveshap/
 # Changelog:
 **0.045c**
 
+• Added Ability to use Multiple Hosts with Oobabooga.
+
 • Improved Llama 2 Internal Prompts
 
 • Added Important Score to some memory types (Still a work in progress)

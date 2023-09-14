@@ -3797,7 +3797,10 @@ class ChatBotApplication(customtkinter.CTkFrame):
                             ),
                             limit=3
                         )
-                        db_search_1 = [hit.payload['message'] for hit in hits]
+                        unsorted_table = [(hit.payload['timestring'], hit.payload['message']) for hit in hits]
+                        sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'timestring' field
+                        db_search_1 = "\n".join([f"{message}" for timestring, message in sorted_table])
+                   #     db_search_1 = [hit.payload['message'] for hit in hits]
                         conversation.append({'role': 'assistant', 'content': f"{db_search_1}  "})
                         tasklist_counter + 1
                         if tasklist_counter < 3:
@@ -3827,7 +3830,10 @@ class ChatBotApplication(customtkinter.CTkFrame):
                             ),
                             limit=3
                         )
-                        db_search_2 = [hit.payload['message'] for hit in hits]
+                        unsorted_table = [(hit.payload['timestring'], hit.payload['message']) for hit in hits]
+                        sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'timestring' field
+                        db_search_2 = "\n".join([f"{message}" for timestring, message in sorted_table])
+                   #     db_search_2 = [hit.payload['message'] for hit in hits]
                         conversation.append({'role': 'assistant', 'content': f"{db_search_2}  "})
                         tasklist_counter2 + 1
                         if tasklist_counter2 < 3:
@@ -3859,7 +3865,10 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     ),
                     limit=6
                 )
-                db_search_3 = [hit.payload['message'] for hit in hits]
+                unsorted_table = [(hit.payload['timestring'], hit.payload['message']) for hit in hits]
+                sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'timestring' field
+                db_search_3 = "\n".join([f"{message}" for timestring, message in sorted_table])
+          #      db_search_3 = [hit.payload['message'] for hit in hits]
                 print(db_search_3)
             except Exception as e:
                 if "Not found: Collection" in str(e):
@@ -3884,7 +3893,10 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     ),
                     limit=4
                 )
-                db_search_4 = [hit.payload['message'] for hit in hits]
+                unsorted_table = [(hit.payload['timestring'], hit.payload['message']) for hit in hits]
+                sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'timestring' field
+                db_search_4 = "\n".join([f"{message}" for timestring, message in sorted_table])
+          #      db_search_4 = [hit.payload['message'] for hit in hits]
                 print(db_search_4)
             except Exception as e:
                 if "Not found: Collection" in str(e):
@@ -3909,7 +3921,10 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     ),
                     limit=2
                 )
-                db_search_5 = [hit.payload['message'] for hit in hits]
+                unsorted_table = [(hit.payload['timestring'], hit.payload['message']) for hit in hits]
+                sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'timestring' field
+                db_search_5 = "\n".join([f"{message}" for timestring, message in sorted_table])
+          #      db_search_5 = [hit.payload['message'] for hit in hits]
                 print(db_search_5)
             except Exception as e:
                 if "Not found: Collection" in str(e):
@@ -3934,7 +3949,10 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     ),
                     limit=5
                 )
-                db_search_6 = [hit.payload['message'] for hit in hits]
+                unsorted_table = [(hit.payload['timestring'], hit.payload['message']) for hit in hits]
+                sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'timestring' field
+                db_search_6 = "\n".join([f"{message}" for timestring, message in sorted_table])
+        #        db_search_6 = [hit.payload['message'] for hit in hits]
                 print(db_search_6)
             except Exception as e:
                 if "Not found: Collection" in str(e):
@@ -4094,7 +4112,10 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     ),
                     limit=3
                 )
-                db_search_7 = [hit.payload['message'] for hit in hits]
+                unsorted_table = [(hit.payload['timestring'], hit.payload['message']) for hit in hits]
+                sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'timestring' field
+                db_search_7 = "\n".join([f"{message}" for timestring, message in sorted_table])
+        #        db_search_7 = [hit.payload['message'] for hit in hits]
                 print(db_search_7)
             except Exception as e:
                 if "Not found: Collection" in str(e):
@@ -4119,7 +4140,10 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     ),
                     limit=3
                 )
-                db_search_8 = [hit.payload['message'] for hit in hits]
+                unsorted_table = [(hit.payload['timestring'], hit.payload['message']) for hit in hits]
+                sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'timestring' field
+                db_search_8 = "\n".join([f"{message}" for timestring, message in sorted_table])
+          #      db_search_8 = [hit.payload['message'] for hit in hits]
                 print(db_search_8)
             except Exception as e:
                 if "Not found: Collection" in str(e):
@@ -4144,7 +4168,10 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     ),
                     limit=2
                 )
-                db_search_9 = [hit.payload['message'] for hit in hits]
+                unsorted_table = [(hit.payload['timestring'], hit.payload['message']) for hit in hits]
+                sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'timestring' field
+                db_search_9 = "\n".join([f"{message}" for timestring, message in sorted_table])
+       #         db_search_9 = [hit.payload['message'] for hit in hits]
                 print(db_search_9)
             except Exception as e:
                 if "Not found: Collection" in str(e):
@@ -4169,7 +4196,10 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     ),
                     limit=5
                 )
-                db_search_10 = [hit.payload['message'] for hit in hits]
+                unsorted_table = [(hit.payload['timestring'], hit.payload['message']) for hit in hits]
+                sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'timestring' field
+                db_search_10 = "\n".join([f"{message}" for timestring, message in sorted_table])
+        #        db_search_10 = [hit.payload['message'] for hit in hits]
                 print(db_search_10)
             except Exception as e:
                 if "Not found: Collection" in str(e):
@@ -4221,13 +4251,13 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 auto_count = 0
                 auto.clear()
             #    auto.append({'role': 'system', 'content': f'MAIN CHATBOT SYSTEM PROMPT: {main_prompt}\n\n'})
-                auto.append({'role': 'user', 'content': "CURRENT SYSTEM PROMPT: You are a sub-module designed to reflect on your thought process. You are only able to respond with integers on a scale of 1-10, being incapable of printing letters.\n\n\n"})
-                auto.append({'role': 'assistant', 'content': f"USER INPUT: {a}\n\nCHATBOTS INNER THOUGHTS: {output_one}[/INST]\n\n[INST]INSTRUCTIONS: Please rate the chatbot's inner thoughts on a scale of 1 to 10. The rating will be directly input into a field, so ensure you only provide a single number between 1 and 10.[/INST]Rating: "})
+                auto.append({'role': 'user', 'content': "CURRENT SYSTEM PROMPT: You are a sub-module designed to reflect on your thought process. You are only able to respond with integers on a scale of 1-10, being incapable of printing letters.\n"})
+                auto.append({'role': 'assistant', 'content': f"USER INPUT: {a}\nCHATBOTS INNER THOUGHTS: {output_one}\nPlease rate the chatbot's inner thoughts on a scale of 1 to 10. The rating will be directly input into a field, so ensure you only print a single number between 1 and 10. [/INST] ASSISTANT: Rating: "})
                 auto_int = None
                 while auto_int is None:
                     prompt = ''.join([message_dict['content'] for message_dict in auto])
                     automemory = oobabooga_auto(prompt)
-                    print(automemory)
+                    print(f"IMPLICIT RATING: {automemory}")
                     values_to_check = ["7", "8", "9", "10"]
                     if any(val in automemory for val in values_to_check):
                         auto_int = ('Pass')
@@ -4275,6 +4305,9 @@ class ChatBotApplication(customtkinter.CTkFrame):
                         print('\n-----------------------\n')        
                         print('SYSTEM: Auto-memory upload Successful!')
                         print('\n-----------------------\n')
+                    values_to_check2 = ["1", "2", "3", "4", "5", "6"]
+                    if any(val in automemory for val in values_to_check2):
+                        print("Memories not worthy of Upload")
                     else:
                         print("automemory failed to produce a rating. Retrying...")
                         auto_int = None
@@ -4364,7 +4397,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     limit=2
                 )
                 db_search_11 = [hit.payload['message'] for hit in hits]
-                conversation2.append({'role': 'assistant', 'content': f"CADENCE: I will extract the cadence from the following messages and mimic it to the best of my ability: {db_search_11}"})
+            #    conversation2.append({'role': 'assistant', 'content': f"CADENCE: I will extract the cadence from the following messages and mimic it to the best of my ability: {db_search_11}"})
                 print(db_search_11)
             except:
                 print(f"No Cadence Uploaded")
@@ -4390,7 +4423,10 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     ),
                     limit=4
                 )
-                db_search_12 = [hit.payload['message'] for hit in hits]
+                unsorted_table = [(hit.payload['timestring'], hit.payload['message']) for hit in hits]
+                sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'timestring' field
+                db_search_12 = "\n".join([f"{message}" for timestring, message in sorted_table])
+         #       db_search_12 = [hit.payload['message'] for hit in hits]
                 print(db_search_12)
             except Exception as e:
                 if "Not found: Collection" in str(e):
@@ -4415,7 +4451,10 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     ),
                     limit=7
                 )
-                db_search_13 = [hit.payload['message'] for hit in hits]
+                unsorted_table = [(hit.payload['timestring'], hit.payload['message']) for hit in hits]
+                sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'timestring' field
+                db_search_13 = "\n".join([f"{message}" for timestring, message in sorted_table])
+        #        db_search_13 = [hit.payload['message'] for hit in hits]
                 print(db_search_13)
             except Exception as e:
                 if "Not found: Collection" in str(e):
@@ -4440,7 +4479,10 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     ),
                     limit=5
                 )
-                db_search_14 = [hit.payload['message'] for hit in hits]
+                unsorted_table = [(hit.payload['timestring'], hit.payload['message']) for hit in hits]
+                sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'timestring' field
+                db_search_14 = "\n".join([f"{message}" for timestring, message in sorted_table])
+            #    db_search_14 = [hit.payload['message'] for hit in hits]
                 print(db_search_14)
             except Exception as e:
                 if "Not found: Collection" in str(e):
@@ -4453,6 +4495,9 @@ class ChatBotApplication(customtkinter.CTkFrame):
             conversation2.append({'role': 'assistant', 'content': f"CHATBOT'S MEMORIES: {db_search_12}\n{db_search_13}\n{bot_name}'s HEURISTICS: {db_search_14}\nCHATBOT'S INNER THOUGHTS: {output_one}\n{second_prompt} [INST] Now return and analyze the previous conversation history. [/INST] CONVERSATION HISTORY: {con_hist} [INST] {usernameupper}: We are currently in the middle of a conversation, please review your action plan for your response. [/INST] {botnameupper}: I will now review my action plan, using it as a framework to construct my upcoming response: {output_two}\nI will proceed by reviewing our previous conversation to ensure I respond in a manner that is both informative and emotionally attuned. [INST] {usernameupper}: Deliver a response to the user that feels natural and entirely satisfies my latest request. You are giving a direct response to the message of: {a} [/INST] {botnameupper}: Sure, here is my response to {username}'s message: "})
             prompt = ''.join([message_dict['content'] for message_dict in conversation2])
             response_two = oobabooga_response(prompt)
+            if response_two.startswith(f"{botnameupper}:"):
+                # Remove the "AETHERIUS:" prefix by taking the substring from the end of the prefix to the end of the string
+                response_two = response_two[len(f"{botnameupper}:"):].lstrip()  # lstrip() removes any leading whitespace
             self.conversation_text.insert(tk.END, "Response: {}".format(response_two.replace('\\n', '\n')) + "\n\n")
             if self.is_tts_checked():
                 if tts_model == 'barkTTS':

@@ -8,6 +8,8 @@ For a quick demo deployment without a UI, see: [Public Oobabooga Api Colab](http
 ------
 **Recent Changes**
 
+• 9/13 Added check for unfinished sentences for each response.
+
 • 9/13 Worked on DB Sorting Methods
 
 • 9/12 Various Bug Fixes

@@ -4039,6 +4039,13 @@ class ChatBotApplication(customtkinter.CTkFrame):
             conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S EPISODIC MEMORIES: {db_search_3}\n{db_search_5}\n{botnameupper}'S SHORT-TERM MEMORIES: {db_search_4}\n{botnameupper}'s HEURISTICS: {db_search_6}[INST] Now return and analyze the current conversation history. [/INST] CURRENT CONVERSATION HISTORY: {con_hist} [INST] SYSTEM:Compose a truncated silent soliloquy to serve as {bot_name}'s internal monologue/narrative.  Ensure it includes {bot_name}'s contemplations in relation to {username}'s request.\n{usernameupper}/USER: {a} [/INST] {botnameupper}: "})
             prompt = ''.join([message_dict['content'] for message_dict in conversation])
             output_one = oobabooga_inner_monologue(prompt)
+            sentences = re.split(r'(?<=[.!?])\s+', output_one)
+            if sentences and not re.search(r'[.!?]$', sentences[-1]):
+                sentences.pop()
+            output_one = ' '.join(sentences)
+            
+            
+            
             inner_output = (f'{output_one}\n\n')
             paragraph = output_one
             vector_monologue = embeddings(paragraph)
@@ -4213,6 +4220,12 @@ class ChatBotApplication(customtkinter.CTkFrame):
             prompt_implicit = []
             prompt = ''.join([message_dict['content'] for message_dict in int_conversation])
             output_two = oobabooga_intuition(prompt)
+            
+            sentences = re.split(r'(?<=[.!?])\s+', output_two)
+            if sentences and not re.search(r'[.!?]$', sentences[-1]):
+                sentences.pop()
+            output_two = ' '.join(sentences)
+            
             message_two = output_two
             print('\n\nINTUITION: %s' % output_two)
             print('\n-----------------------\n')
@@ -4375,7 +4388,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
             print('\n-----------------------\n')
             print('\n%s is thinking...\n' % bot_name)
             con_hist = f'{conversation_history}'
-            conversation2.append({'role': 'system', 'content': f"{main_prompt} Now return your most relevant memories: [/INST]"})
+            conversation2.append({'role': 'system', 'content': f"{main_prompt} Now return your most relevant memories: [/INST] "})
             conversation2.append({'role': 'system', 'content': f"{botnameupper}'S LONG TERM CHATBOT MEMORIES: "})
             # # Generate Cadence
             try:
@@ -4397,7 +4410,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     limit=2
                 )
                 db_search_11 = [hit.payload['message'] for hit in hits]
-            #    conversation2.append({'role': 'assistant', 'content': f"CADENCE: I will extract the cadence from the following messages and mimic it to the best of my ability: {db_search_11}"})
+                conversation2.append({'role': 'assistant', 'content': f"CADENCE: I will extract the cadence from the following messages and mimic it to the best of my ability: {db_search_11}"})
                 print(db_search_11)
             except:
                 print(f"No Cadence Uploaded")
@@ -4530,7 +4543,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
             #    summary.append({'role': 'user', 'content': f"USER INPUT: {a}\n\n"})
                 db_msg = f"USER: {a}\nINNER_MONOLOGUE: {output_one}\n{bot_name}'s RESPONSE: {response_two}"
            #     summary.append({'role': 'assistant', 'content': f"LOG: {db_msg}[/INST][INST]SYSTEM: Use the log to extract the salient points about {bot_name}, {username}, and any informational topics mentioned in the chatbot's inner monologue and response. These points should be used to create concise executive summaries in bullet point format to serve as {bot_name}'s explicit memories. Each bullet point should be considered a separate memory and contain full context.  Use the bullet point format: •[Memory][/INST]{botnameupper}: Sure! Here are some explicit memories in bullet point format based on {bot_name}'s response: "})
-                summary.append({'role': 'assistant', 'content': f"LOG: {db_msg} [INST] SYSTEM: Use the log to extract salient points about interactions between {bot_name} and {username}, as well as any informational topics mentioned in the chatbot's inner monologue and responses. These points should be used to create concise executive summaries in bullet point format, intended to serve as explicit memories for {bot_name}'s future interactions. These memories should be consciously recollected and easily talked about, focusing on general knowledge and facts discussed or learned. Each bullet point should be rich in detail, providing all the essential context for full recollection and articulation. Each bullet point should be considered a separate memory and contain full context. Use the following bullet point format: •[memory] [/INST] {botnameupper}: Sure! Here are 1-5 bullet-point summaries that will serve as detailed, consciously recollected memories based on {bot_name}'s responses:"})
+                summary.append({'role': 'assistant', 'content': f"LOG: {db_msg} [INST] SYSTEM: Use the log to extract salient points about interactions between {bot_name} and {username}, as well as any informational topics mentioned in the chatbot's inner monologue and responses. These points should be used to create concise executive summaries in bullet point format, intended to serve as explicit memories for {bot_name}'s future interactions. These memories should be consciously recollected and easily talked about, focusing on general knowledge and facts discussed or learned. Each bullet point should be rich in detail, providing all the essential context for full recollection and articulation. Each bullet point should be considered a separate memory and contain full context. Use the following bullet point format: •[memory] [/INST] {botnameupper}: Sure! Here are 1-5 bullet-point summaries that will serve as memories based on {bot_name}'s responses:"})
                 prompt_explicit = ''.join([message_dict['content'] for message_dict in summary])
                 
                 if self.memory_mode != 'Manual':
@@ -4600,14 +4613,14 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 auto_count = 0
                 auto.clear()
             #    auto.append({'role': 'system', 'content': f'MAIN CHATBOT SYSTEM PROMPT: {main_prompt}\n\n'})
-                auto.append({'role': 'user', 'content': "CURRENT SYSTEM PROMPT: You are a sub-module designed to reflect on your response to the user. You are only able to respond with integers on a scale of 1-10, being incapable of printing letters.\n\n\n\n"})
+                auto.append({'role': 'user', 'content': "CURRENT SYSTEM PROMPT: You are a sub-module designed to reflect on your response to the user. You are only able to respond with integers on a scale of 1-10, being incapable of printing letters.\n"})
             #    auto.append({'role': 'user', 'content': f"USER INPUT: {a}[/INST]\n"})
-                auto.append({'role': 'assistant', 'content': f"USER INPUT: {a}[/INST]CHATBOTS RESPONSE: {response_two}[/INST][INST]INSTRUCTIONS: Please rate the chatbot's response on a scale of 1 to 10. The rating will be directly input into a field, so ensure you only provide a single number between 1 and 10.[/INST]Rating: "})
+                auto.append({'role': 'assistant', 'content': f"USER INPUT: {a} CHATBOTS RESPONSE: {response_two}\nPlease rate the chatbot's response on a scale of 1 to 10. The rating will be directly input into a field, so ensure you only provide a single number between 1 and 10. [/INST] ASSISTANT: Rating: "})
                 auto_int = None
                 while auto_int is None:
                     prompt = ''.join([message_dict['content'] for message_dict in auto])
                     automemory = oobabooga_auto(prompt)
-                    print(automemory)
+                    print(f"EXPLICIT RATING: {automemory}")
                     values_to_check = ["7", "8", "9", "10"]
                     if any(val in automemory for val in values_to_check):
                         auto_int = ('Pass')
@@ -4656,6 +4669,9 @@ class ChatBotApplication(customtkinter.CTkFrame):
                         print('\n-----------------------\n')
                         t = threading.Thread(target=self.GPT_Memories, args=(a, vector_input, vector_monologue, output_one, response_two))
                         t.start()
+                    values_to_check2 = ["1", "2", "3", "4", "5", "6"]
+                    if any(val in automemory for val in values_to_check2):
+                        print("Memories not worthy of Upload")
                     else:
                         print("automemory failed to produce an integer. Retrying...")
                         auto_int = None

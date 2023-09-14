@@ -311,6 +311,8 @@ Install Python 3.10.6, Make sure you add it to PATH: **https://www.python.org/do
 
 Run the Installer Bat as admin, it is located at: https://github.com/libraryofcelsus/Aetherius_AI_Assistant/blob/main/scripts/resources/install.bat
 
+(If you get an error when installing requirements run: **python -m pip cache purge** after activating the venv)
+
 ![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/05/Capture11111111.png)
 
 Copy your OpenAi and Qdrant API/URL keys to the api_key folder inside of the created Aetherius_Ai_Assistant folder if you are using the OpenAi version.
@@ -373,7 +375,8 @@ Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aethe
 
 8. Activate the environment: **.\venv\scripts\activate**   (This must be done before running Aetherius each time. The run.bat will also automatically do this.)
 
-9. Install the required packages: **pip install -r requirements.txt**
+9. Install the required packages: **pip install -r requirements.txt**   
+(If you get an error when installing requirements run: **python -m pip cache purge** after activating the venv)
 
 10. Update Numpy version: **pip install --upgrade numpy==1.24**
 

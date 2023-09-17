@@ -8,6 +8,8 @@ For a quick demo deployment without a UI, see: [Public Oobabooga Api Colab](http
 ------
 **Recent Changes**
 
+• 9/16 Worked on internal prompts and fixed the auto memory not triggering the memory loop bug.
+
 • 9/13 Added check for unfinished sentences for each response.
 
 • 9/13 Worked on DB Sorting Methods

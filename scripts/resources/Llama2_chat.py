@@ -21,6 +21,7 @@ import numpy as np
 import re
 import requests
 import html
+import random
 
 # For a locally hosted Oobabooga Client use "http://localhost:5000/api"
 # For a Google Colab hosted Oobabooga Client use the given Public Non-Streaming Url:
@@ -922,7 +923,7 @@ def oobabooga_auto(prompt):
         'history': history,
         'mode': 'instruct',  # Valid options: 'chat', 'chat-instruct', 'instruct'
         'instruction_template': 'Llama-v2',  # Will get autodetected if unset
-        'context_instruct': f"[INST] <<SYS>>\nYou are a sub-module of {bot_name}. Your purpose is to rate the given memory on a scale of 1-10. Only print a single number between one and ten.\n<</SYS>>",  # Optional
+        'context_instruct': f"[INST] <<SYS>>\nYou are a sub-module designed to reflect on the given text.  You are only able to respond with integers on a scale of 1-10, being incapable of printing letters.\n<</SYS>>",  # Optional
         'your_name': f'{username}',
 
         'regenerate': False,
@@ -933,7 +934,7 @@ def oobabooga_auto(prompt):
         # in presets/preset-name.yaml are used instead of the individual numbers.
         'preset': 'None',  
         'do_sample': True,
-        'temperature': 0.6,
+        'temperature': 0.4,
         'top_p': 0.3,
         'typical_p': 1,
         'epsilon_cutoff': 0,  # In units of 1e-4

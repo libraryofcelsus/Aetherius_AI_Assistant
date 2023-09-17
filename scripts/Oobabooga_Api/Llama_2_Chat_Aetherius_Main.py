@@ -4036,7 +4036,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                         else:
                             print(f"An unexpected error occurred: {str(e)}")
             # # Inner Monologue Generation
-            conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S EPISODIC MEMORIES: {db_search_3}\n{db_search_5}\n{botnameupper}'S SHORT-TERM MEMORIES: {db_search_4}\n{botnameupper}'s HEURISTICS: {db_search_6}[INST] Now return and analyze the current conversation history. [/INST] CURRENT CONVERSATION HISTORY: {con_hist} [INST] SYSTEM:Compose a truncated silent soliloquy to serve as {bot_name}'s internal monologue/narrative.  Ensure it includes {bot_name}'s contemplations in relation to {username}'s request.\n{usernameupper}/USER: {a} [/INST] {botnameupper}: "})
+            conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S EPISODIC MEMORIES: {db_search_3}\n{db_search_5}\n{botnameupper}'S SHORT-TERM MEMORIES: {db_search_4}\n{botnameupper}'s HEURISTICS: {db_search_6} [INST] Now return and analyze the current conversation history. [/INST] CURRENT CONVERSATION HISTORY: {con_hist} [INST] SYSTEM: Compose a short silent soliloquy to serve as {bot_name}'s internal monologue/narrative.  Ensure it includes {bot_name}'s contemplations in relation to {username}'s request and does not exceed a paragraph in length.\n{usernameupper}/USER'S REQUEST: {a} [/INST] {botnameupper}: "})
             prompt = ''.join([message_dict['content'] for message_dict in conversation])
             output_one = oobabooga_inner_monologue(prompt)
             sentences = re.split(r'(?<=[.!?])\s+', output_one)
@@ -4667,8 +4667,6 @@ class ChatBotApplication(customtkinter.CTkFrame):
                         print('\n-----------------------\n')        
                         print('SYSTEM: Auto-memory upload Successful!')
                         print('\n-----------------------\n')
-                        t = threading.Thread(target=self.GPT_Memories, args=(a, vector_input, vector_monologue, output_one, response_two))
-                        t.start()
                     values_to_check2 = ["1", "2", "3", "4", "5", "6"]
                     if any(val in automemory for val in values_to_check2):
                         print("Memories not worthy of Upload")
@@ -4681,6 +4679,8 @@ class ChatBotApplication(customtkinter.CTkFrame):
                             break
                 else:
                     pass
+                t = threading.Thread(target=self.GPT_Memories, args=(a, vector_input, vector_monologue, output_one, response_two))
+                t.start()
             # # Clear Logs for Summary
             
             if self.memory_mode == 'Training':

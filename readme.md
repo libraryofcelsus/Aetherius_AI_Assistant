@@ -8,7 +8,7 @@ For a quick demo deployment without a UI, see: [Public Oobabooga Api Colab](http
 ------
 **Recent Changes**
 
-• 9/18 Worked on Memory Loop
+• 9/18 Worked on Memory Loop and added better sorting of Hosts during parallel task loop.
 
 • 9/16 Worked on internal prompts and fixed the auto memory not triggering the memory loop bug.
 

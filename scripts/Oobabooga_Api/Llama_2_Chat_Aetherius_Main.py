@@ -40,6 +40,7 @@ from scipy.io.wavfile import write
 from pydub.playback import play as pydub_play
 from gtts import gTTS
 import pandas as pd
+from queue import Queue
 
 
 embed_size = open_file('./config/embed_size.txt')
@@ -6170,6 +6171,14 @@ class ChatBotApplication(customtkinter.CTkFrame):
         self.conversation_text.insert(tk.END, f"Intuition: {output_two}\n\nSearching DBs and Generating Final Response\nPlease Wait...\n\n")
         self.conversation_text.yview(tk.END)
         
+    def wrapped_process_line(self, *args):
+        # get a host
+        host = self.host_queue.get()
+        result = self.process_line(host, *args)
+        # release the host
+        self.host_queue.put(host)
+        return result
+        
         
     def Agent_Tasklist_Response(self, a, vector_input, vector_monologue, output_one, output_two, inner_loop_db):
         my_api_key = open_file('api_keys/key_google.txt')
@@ -6250,27 +6259,49 @@ class ChatBotApplication(customtkinter.CTkFrame):
             task_result = {}
             task_result2 = {}
             task_counter = 1
-            # # Split bullet points into separate lines to be used as individual queries
+
+            # Read hosts and set max_workers
+            try:
+                with open('api_keys/HOST_Oobabooga.txt', 'r') as f:
+                    host_data = f.read().strip()
+                hosts = host_data.split(' ')
+                num_hosts = len(hosts)
+            except Exception as e:
+                print(f"An error occurred while reading the host file: {e}")
+                num_hosts = 1
+
+            self.host_queue = Queue()
+            for host in hosts:
+                self.host_queue.put(host)
+
+            # Split lines for processing
             try:
                 lines = re.split(r'\n\s*•\s*|\n\n', master_tasklist_output)
-                lines = [line.strip() for line in lines if line.strip()]  # Remove any empty lines or lines with only whitespace
+                lines = [line.strip() for line in lines if line.strip()]
             except Exception as e:
                 print(f"An error occurred: {e}")
                 lines = [master_tasklist_output]
+
             try:
-                with concurrent.futures.ThreadPoolExecutor() as executor:
-                    futures = [
-                        executor.submit(
-                            self.process_line, 
-                            line, task_counter, memcheck.copy(), memcheck2.copy(), webcheck.copy(), tasklist_log, output_one, master_tasklist_output, a
-                        )
-                        for task_counter, line in enumerate(lines) if line != "None"
-                    ]
+                with concurrent.futures.ThreadPoolExecutor(max_workers=num_hosts) as executor:
+                    futures = []
+                    for task_counter, line in enumerate(lines, start=1):
+                        if line != "None":
+                            future = executor.submit(
+                                self.wrapped_process_line,
+                                line, task_counter, memcheck.copy(), memcheck2.copy(),
+                                webcheck.copy(), tasklist_log, output_one,
+                                master_tasklist_output, a
+                            )
+                            futures.append(future)
                     for future in concurrent.futures.as_completed(futures):
                         tasklist_completion.extend(future.result())
+            except Exception as e:
+                print(f"An error occurred while executing threads: {e}")
                         
                         
                         
+            try:            
                 tasklist_completion.append({'role': 'assistant', 'content': f"[INST] USER'S INITIAL INPUT: {a} [/INST] {botnameupper}'S INNER_MONOLOGUE: {output_one}"})
         #        tasklist_completion.append({'role': 'user', 'content': f"%{bot_name}'s INTUITION%\n{output_two}\n\n"})
                 tasklist_completion.append({'role': 'user', 'content': f" [INST] SYSTEM: Using the tasks and completed responses from the research task loop, create a comprehensive response for {username}. Please note that {username} has no access to the research you have conducted, so be sure to compile all necessary context and information and include it in your reply.  Do not expand upon the research or include any of your own knowledge, keeping factual accuracy should be paramount.\nUSER'S INITIAL INPUT: {a}\nYour given time for research and planning has finished, now craft a detailed and natural-sounding response to ensure the user's request is fully met. [/INST] {botnameupper}: "})
@@ -6386,7 +6417,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
             return
             
             
-    def process_line(self, line, task_counter, memcheck, memcheck2, webcheck, tasklist_log, output_one, master_tasklist_output, a):
+    def process_line(self, host, line, task_counter, memcheck, memcheck2, webcheck, tasklist_log, output_one, master_tasklist_output, a):
         try:
             tasklist_completion2 = list()
             conversation = list()
@@ -6550,7 +6581,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
             conversation.append({'role': 'user', 'content': f"[INST] SYSTEM: Summarize the pertinent information from the given external sources related to the given task. Present the summarized data in a single, easy-to-understand paragraph. Do not generalize, expand upon, or use any latent knowledge in your summary, only return a truncated version of previously given information. [/INST] Bot {task_counter}: Sure, here is a short summary combining the relevant information needed to complete the given task: "})
             conversation.append({'role': 'assistant', 'content': f"BOT {task_counter}: Sure, here's an overview of the scraped text: "})
             prompt = ''.join([message_dict['content'] for message_dict in conversation])
-            task_completion = agent_oobabooga_line_response(prompt)
+            task_completion = agent_oobabooga_process_line_response(host, prompt)
             # chatgpt35_completion(conversation),
             # conversation.clear(),
             # tasklist_completion.append({'role': 'assistant', 'content': f"MEMORIES: {memories}\n\n"}),

@@ -8,6 +8,8 @@ For a quick demo deployment without a UI, see: [Public Oobabooga Api Colab](http
 ------
 **Recent Changes**
 
+• 9/18 Worked on Memory Loop
+
 • 9/16 Worked on internal prompts and fixed the auto memory not triggering the memory loop bug.
 
 • 9/13 Added check for unfinished sentences for each response.
@@ -36,16 +38,6 @@ For a quick demo deployment without a UI, see: [Public Oobabooga Api Colab](http
 • 9/1 Added Voice Cloning with coqui TTS.  Place the recording of the voice you want cloned in the folder ./cloning and change the name to "audio.wav"
 
 • 8/30 Added Experimental Dataset generator, available when using the Manual or Training Mode.  Datasets are output to ./logs/Datasets
-
-• 8/30 Various Bug Fixes
-
-• 8/30 Improved Internal Prompts for Llama 2 Version of Aetherius
-
-• 8/30 Added Delete buttons for external resources in DB management Deletion Menu in Llama 2 chatbot.
-
-• 8/30 Added check for punctuation for memory uploads to avoid cut off memories from being uploaded in the Llama 2 chatbot.
-
-• 8/29 Added Bark TTS
 
 ------
 

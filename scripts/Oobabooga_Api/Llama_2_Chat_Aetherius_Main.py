@@ -4215,7 +4215,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     print(f"An unexpected error occurred: {str(e)}")
             print('\n-----------------------\n')
             # # Intuition Generation
-            int_conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S FLASHBULB MEMORIES: {db_search_9}\n{botnameupper}'S EXPLICIT MEMORIES: {db_search_8}\n{botnameupper}'s HEURISTICS: {db_search_10}\n{botnameupper}'S INNER THOUGHTS: {output_one}\n{botnameupper}'S EPISODIC MEMORIES: {db_search_7} [INST] Now return and analyze the previous conversation history. [/INST] PREVIOUS CONVERSATION HISTORY: {con_hist} [INST] SYSTEM: Transmute the user, {username}'s message as {bot_name} by devising a truncated predictive action plan in the third person point of view on how to best respond to {username}'s most recent message. You do not have access to external resources.  If the user's message is casual conversation, print 'No Plan Needed'. Only create an action plan for informational requests or if requested to complete a complex task.  If the user is requesting information on a subjector asking a question, predict what information needs to be provided. {usernameupper}: {a} [/INST] {botnameupper}: "}) 
+            int_conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S FLASHBULB MEMORIES: {db_search_9}\n{botnameupper}'S EXPLICIT MEMORIES: {db_search_8}\n{botnameupper}'s HEURISTICS: {db_search_10}\n{botnameupper}'S INNER THOUGHTS: {output_one}\n{botnameupper}'S EPISODIC MEMORIES: {db_search_7} [INST] Now return and analyze the previous conversation history. [/INST] PREVIOUS CONVERSATION HISTORY: {con_hist} [INST] SYSTEM: Transmute the user, {username}'s message as {bot_name} by devising a truncated predictive action plan in the third person point of view on how to best respond to {username}'s most recent message. You do not have access to external resources.  If the user's message is casual conversation, print 'No Plan Needed'. Only create an action plan for informational requests or if requested to complete a complex task.  If the user is requesting information on a subjector asking a question, predict what information needs to be provided. Do not give examples, only the action plan. {usernameupper}: {a} [/INST] {botnameupper}: "}) 
 
             prompt_implicit = []
             prompt = ''.join([message_dict['content'] for message_dict in int_conversation])
@@ -4505,7 +4505,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
             print('\n-----------------------\n')
             tts_model = open_file('./config/Settings/TTS.txt')
             # # Generate Aetherius's Response
-            conversation2.append({'role': 'assistant', 'content': f"CHATBOT'S MEMORIES: {db_search_12}\n{db_search_13}\n{bot_name}'s HEURISTICS: {db_search_14}\nCHATBOT'S INNER THOUGHTS: {output_one}\n{second_prompt} [INST] Now return and analyze the previous conversation history. [/INST] CONVERSATION HISTORY: {con_hist} [INST] {usernameupper}: We are currently in the middle of a conversation, please review your action plan for your response. [/INST] {botnameupper}: I will now review my action plan, using it as a framework to construct my upcoming response: {output_two}\nI will proceed by reviewing our previous conversation to ensure I respond in a manner that is both informative and emotionally attuned. [INST] {usernameupper}: Deliver a response to the user that feels natural and entirely satisfies my latest request. You are giving a direct response to the message of: {a} [/INST] {botnameupper}: Sure, here is my response to {username}'s message: "})
+            conversation2.append({'role': 'assistant', 'content': f"CHATBOT'S MEMORIES: {db_search_12}\n{db_search_13}\n{bot_name}'s HEURISTICS: {db_search_14}\nCHATBOT'S INNER THOUGHTS: {output_one}\n{second_prompt} [INST] Now return and analyze the previous conversation history. [/INST] CONVERSATION HISTORY: {con_hist} [INST] {usernameupper}: We are currently in the middle of a conversation, please review your action plan for your response. [/INST] {botnameupper}: I will now review my action plan, using it as a framework to construct my upcoming response: {output_two}\nI will proceed by reviewing our previous conversation to ensure I respond in a manner that is both informative and emotionally attuned. [INST] {usernameupper}: Deliver a response to the user that entirely satisfies my latest request. You are giving a direct response to the message of: {a} [/INST] {botnameupper}: Sure, here is my response to {username}'s message: "})
             prompt = ''.join([message_dict['content'] for message_dict in conversation2])
             response_two = oobabooga_response(prompt)
             if response_two.startswith(f"{botnameupper}:"):
@@ -4813,7 +4813,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
             # # Flashbulb Memory Generation
             collection_name = f"Flash_Counter_Bot_{bot_name}"
             collection_info = client.get_collection(collection_name=collection_name)
-            if collection_info.vectors_count > 7:
+            if collection_info.vectors_count > 8:
         #    if collection_info.vectors_count > 1:
                 flash_db = None
                 try:
@@ -4884,7 +4884,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     if segment.strip() == '':  # This condition checks for blank segments
                         continue  # This condition checks for blank lines
                     else:
-                        print('\n-----------------------\n')
+                        print('\n----------------------\n')
                         print(segment)
                         # Define the collection name
                         collection_name = f"Bot_{bot_name}"
@@ -4940,7 +4940,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
             # # Short Term Memory Consolidation based on amount of vectors in namespace    
             collection_name = f"Bot_{bot_name}_Explicit_Short_Term"
             collection_info = client.get_collection(collection_name=collection_name)
-            if collection_info.vectors_count > 20:
+            if collection_info.vectors_count > 23:
         #    if collection_info.vectors_count > 5:
                 consolidation.clear()
                 memory_consol_db = None
@@ -5338,8 +5338,8 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     memory_consol_db2 = None
                     try:
                         hits = client.search(
-                            collection_name=f"Explicit_Long_Term_Memory_Bot_{bot_name}",
-                            query_vector=vector_monologue,
+                            collection_name=f"Bot_{bot_name}",
+                            query_vector=consol_vector,
                             query_filter=Filter(
                                 must=[
                                     FieldCondition(
@@ -5367,7 +5367,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     print('\n-----------------------\n')
                     consolidation.clear()
             #        consolidation.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: {main_prompt}\n\n"})
-                    consolidation.append({'role': 'assistant', 'content': f"LOG: {memory_consol_db2}\n\nSYSTEM: Read the Log and consolidate the different memories into executive summaries in a process allegorical to associative memory processing. Each summary should contain the entire context of the memory.\n\nFORMAT: Follow the bullet point format: •[memory] [/INST] {botnameupper}: Sure, here is the list of consolidated memories: "})
+                    consolidation.append({'role': 'assistant', 'content': f"LOG: {memory_consol_db2}\n\nSYSTEM: Read the Log and consolidate the different memories in a process allegorical to associative memory processing. Each summary should contain full context.\n\nFORMAT: Follow the bullet point format: •[memory] [/INST] {botnameupper}: Sure, here is the list of consolidated memories: "})
                     prompt = ''.join([message_dict['content'] for message_dict in consolidation])
                     memory_consol5 = oobabooga_associativemem(prompt)
                 #    print(memory_consol5)
@@ -5586,10 +5586,14 @@ class ChatBotApplication(customtkinter.CTkFrame):
                                 query_vector=vector_input1,
                                 query_filter=Filter(
                                     must=[
-                                        FieldCondition(
+                                        models.FieldCondition(
                                             key="memory_type",
-                                            match=MatchValue(value="Web_Scrape")
-                                        )
+                                            match=models.MatchValue(value="Web_Scrape"),
+                                        ),
+                                        models.FieldCondition(
+                                            key="user",
+                                            match=models.MatchValue(value=f"{username}"),
+                                        ),
                                     ]
                                 ),
                                 limit=3
@@ -5607,10 +5611,14 @@ class ChatBotApplication(customtkinter.CTkFrame):
                                 query_vector=vector_input1,
                                 query_filter=Filter(
                                     must=[
-                                        FieldCondition(
+                                        models.FieldCondition(
                                             key="memory_type",
-                                            match=MatchValue(value="File_Scrape")
-                                        )
+                                            match=models.MatchValue(value="File_Scrape"),
+                                        ),
+                                        models.FieldCondition(
+                                            key="user",
+                                            match=models.MatchValue(value=f"{username}"),
+                                        ),
                                     ]
                                 ),
                                 limit=3
@@ -5631,10 +5639,14 @@ class ChatBotApplication(customtkinter.CTkFrame):
                             query_vector=vector_input1,
                             query_filter=Filter(
                                 must=[
-                                    FieldCondition(
+                                    models.FieldCondition(
                                         key="memory_type",
-                                        match=MatchValue(value="Explicit_Long_Term")
-                                    )
+                                        match=models.MatchValue(value="Explicit_Long_Term"),
+                                    ),
+                                    models.FieldCondition(
+                                        key="user",
+                                        match=models.MatchValue(value=f"{username}"),
+                                    ),
                                 ]
                             ),
                             limit=3
@@ -5658,10 +5670,14 @@ class ChatBotApplication(customtkinter.CTkFrame):
                         query_vector=vector_input1,
                         query_filter=Filter(
                             must=[
-                                FieldCondition(
+                                models.FieldCondition(
                                     key="memory_type",
-                                    match=MatchValue(value="Implicit_Long_Term")
-                                )
+                                    match=models.MatchValue(value="Implicit_Long_Term"),
+                                ),
+                                models.FieldCondition(
+                                    key="user",
+                                    match=models.MatchValue(value=f"{username}"),
+                                ),
                             ]
                         ),
                         limit=1
@@ -5692,10 +5708,14 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     query_vector=vector_input1,
                     query_filter=Filter(
                         must=[
-                            FieldCondition(
+                            models.FieldCondition(
                                 key="memory_type",
-                                match=MatchValue(value="Episodic")
-                            )
+                                match=models.MatchValue(value="Episodic"),
+                            ),
+                            models.FieldCondition(
+                                key="user",
+                                match=models.MatchValue(value=f"{username}"),
+                            ),
                         ]
                     ),
                     limit=4
@@ -5712,10 +5732,14 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     query_vector=vector_input1,
                     query_filter=Filter(
                         must=[
-                            FieldCondition(
+                            models.FieldCondition(
                                 key="memory_type",
-                                match=MatchValue(value="Heuristics")
-                            )
+                                match=models.MatchValue(value="Heuristics"),
+                            ),
+                            models.FieldCondition(
+                                key="user",
+                                match=models.MatchValue(value=f"{username}"),
+                            ),
                         ]
                     ),
                     limit=5
@@ -5733,6 +5757,14 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     hits = client.search(
                         collection_name=f"Bot_{bot_name}_External_Knowledgebase",
                         query_vector=vector_input1,
+                        query_filter=Filter(
+                            must=[
+                                models.FieldCondition(
+                                    key="user",
+                                    match=models.MatchValue(value=f"{username}"),
+                                ),
+                            ]
+                        ),
                         limit=3
                     )
                     unsorted_table = [(hit.payload['timestring'], hit.payload['tag'], hit.payload['message']) for hit in hits]
@@ -5749,10 +5781,14 @@ class ChatBotApplication(customtkinter.CTkFrame):
                             query_vector=vector_input1,
                             query_filter=Filter(
                                 must=[
-                                    FieldCondition(
+                                    models.FieldCondition(
                                         key="memory_type",
-                                        match=MatchValue(value="Web_Scrape")
-                                    )
+                                        match=models.MatchValue(value="Web_Scrape"),
+                                    ),
+                                    models.FieldCondition(
+                                        key="user",
+                                        match=models.MatchValue(value=f"{username}"),
+                                    ),
                                 ]
                             ),
                             limit=3
@@ -5770,10 +5806,14 @@ class ChatBotApplication(customtkinter.CTkFrame):
                             query_vector=vector_input1,
                             query_filter=Filter(
                                 must=[
-                                    FieldCondition(
+                                    models.FieldCondition(
                                         key="memory_type",
-                                        match=MatchValue(value="File_Scrape")
-                                    )
+                                        match=models.MatchValue(value="File_Scrape"),
+                                    ),
+                                    models.FieldCondition(
+                                        key="user",
+                                        match=models.MatchValue(value=f"{username}"),
+                                    ),
                                 ]
                             ),
                             limit=3
@@ -5863,14 +5903,18 @@ class ChatBotApplication(customtkinter.CTkFrame):
             db_search_4, db_search_5, db_search_12, db_search_15 = None, None, None, None
             try:
                 hits = client.search(
-                    collection_name=f"Episodic_Memory_Bot_{bot_name}",
+                    collection_name=f"Bot_{bot_name}",
                     query_vector=vector_monologue,
                     query_filter=Filter(
                         must=[
-                            FieldCondition(
+                            models.FieldCondition(
                                 key="memory_type",
-                                match=MatchValue(value="Episodic")
-                            )
+                                match=models.MatchValue(value="Episodic"),
+                            ),
+                            models.FieldCondition(
+                                key="user",
+                                match=models.MatchValue(value=f"{username}"),
+                            ),
                         ]
                     ),
                     limit=3
@@ -5890,13 +5934,17 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     query_vector=vector_monologue,
                     query_filter=Filter(
                         must=[
-                            FieldCondition(
+                            models.FieldCondition(
                                 key="memory_type",
-                                match=MatchValue(value="Explicit_Short_Term")
-                            )
+                                match=models.MatchValue(value="Explicit_Short_Term"),
+                            ),
+                            models.FieldCondition(
+                                key="user",
+                                match=models.MatchValue(value=f"{username}"),
+                            ),
                         ]
                     ),
-                    limit=2
+                    limit=3
                 )
                 # Print the result
             #    for hit in hits:
@@ -5911,13 +5959,17 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     query_vector=vector_monologue,
                     query_filter=Filter(
                         must=[
-                            FieldCondition(
+                            models.FieldCondition(
                                 key="memory_type",
-                                match=MatchValue(value="Heuristics")
-                            )
+                                match=models.MatchValue(value="Heuristics"),
+                            ),
+                            models.FieldCondition(
+                                key="user",
+                                match=models.MatchValue(value=f"{username}"),
+                            ),
                         ]
                     ),
-                    limit=3
+                    limit=5
                 )
                 # Print the result
             #    for hit in hits:
@@ -5946,6 +5998,14 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     hits = client.search(
                         collection_name=f"Bot_{bot_name}_External_Knowledgebase",
                         query_vector=vector_monologue,
+                        query_filter=Filter(
+                            must=[
+                                models.FieldCondition(
+                                    key="user",
+                                    match=models.MatchValue(value=f"{username}"),
+                                ),
+                            ]
+                        ),
                         limit=5
                     )
                     int_scrape = [hit.payload['message'] for hit in hits]
@@ -5960,10 +6020,14 @@ class ChatBotApplication(customtkinter.CTkFrame):
                             query_vector=vector_monologue,
                             query_filter=Filter(
                                 must=[
-                                    FieldCondition(
+                                    models.FieldCondition(
                                         key="memory_type",
-                                        match=MatchValue(value="Web_Scrape")
-                                    )
+                                        match=models.MatchValue(value="Web_Scrape"),
+                                    ),
+                                    models.FieldCondition(
+                                        key="user",
+                                        match=models.MatchValue(value=f"{username}"),
+                                    ),
                                 ]
                             ),
                             limit=5
@@ -5979,10 +6043,14 @@ class ChatBotApplication(customtkinter.CTkFrame):
                             query_vector=vector_monologue,
                             query_filter=Filter(
                                 must=[
-                                    FieldCondition(
+                                    models.FieldCondition(
                                         key="memory_type",
-                                        match=MatchValue(value="File_Scrape")
-                                    )
+                                        match=models.MatchValue(value="File_Scrape"),
+                                    ),
+                                    models.FieldCondition(
+                                        key="user",
+                                        match=models.MatchValue(value=f"{username}"),
+                                    ),
                                 ]
                             ),
                             limit=5
@@ -6336,6 +6404,14 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     hits = client.search(
                         collection_name=f"Bot_{bot_name}_External_Knowledgebase",
                         query_vector=vector_input1,
+                        query_filter=Filter(
+                            must=[
+                                FieldCondition(
+                                    key="user",
+                                    match=MatchValue(value=f"{username}")
+                                )
+                            ]
+                        ),
                         limit=15
                     )
                     unsorted_table = [(hit.payload['tag'], hit.payload['message']) for hit in hits]
@@ -6352,10 +6428,14 @@ class ChatBotApplication(customtkinter.CTkFrame):
                             query_vector=vector_input1,
                             query_filter=Filter(
                                 must=[
-                                    FieldCondition(
+                                    models.FieldCondition(
                                         key="memory_type",
-                                        match=MatchValue(value="Web_Scrape")
-                                    )
+                                        match=models.MatchValue(value="Web_Scrape"),
+                                    ),
+                                    models.FieldCondition(
+                                        key="user",
+                                        match=models.MatchValue(value=f"{username}"),
+                                    ),
                                 ]
                             ),
                             limit=15
@@ -6373,10 +6453,14 @@ class ChatBotApplication(customtkinter.CTkFrame):
                             query_vector=vector_input1,
                             query_filter=Filter(
                                 must=[
-                                    FieldCondition(
+                                    models.FieldCondition(
                                         key="memory_type",
-                                        match=MatchValue(value="File_Scrape")
-                                    )
+                                        match=models.MatchValue(value="File_Scrape"),
+                                    ),
+                                    models.FieldCondition(
+                                        key="user",
+                                        match=models.MatchValue(value=f"{username}"),
+                                    ),
                                 ]
                             ),
                             limit=15

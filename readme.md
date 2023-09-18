@@ -8,6 +8,8 @@ For a quick demo deployment without a UI, see: [Public Oobabooga Api Colab](http
 ------
 **Recent Changes**
 
+• 9/18 Converted Llama 2 Chatbot to use Json for settings.
+
 • 9/18 Worked on Memory Loop and added better sorting of Hosts during parallel task loop.
 
 • 9/16 Worked on internal prompts and fixed the auto memory not triggering the memory loop bug.
@@ -47,7 +49,7 @@ Aetherius is a locally operated AI Assistant, designed to grant you ultimate con
 
 ------
 
-### Aetherius - Your Digital Mindmate
+### Aetherius - Your Personal Digital Assistant
 
 At the heart of Aetherius lies a custom Long-Term Memory (LLM) Retrieval Framework, fueled by the Llama 2 and Oobabooga API (Free Tier Colab Available) or OpenAi's ChatGPT.  Qdrant is used for a robust, efficient database, ensuring Aetherius evolves with you.
 

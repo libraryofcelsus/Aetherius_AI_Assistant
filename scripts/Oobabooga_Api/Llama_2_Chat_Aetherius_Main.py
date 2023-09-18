@@ -43,7 +43,12 @@ import pandas as pd
 from queue import Queue
 
 
-embed_size = open_file('./config/embed_size.txt')
+# Read the JSON file
+with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+    settings = json.load(f)
+
+# Extract the embed_size value
+embed_size = settings['embed_size']
 
 def check_local_server_running():
     try:
@@ -102,32 +107,38 @@ def import_functions_from_script(script_path, custom_name="custom_module"):
     spec.loader.exec_module(custom_module)
     globals().update(vars(custom_module))
 
-def get_script_path_from_file(file_path, base_folder='./scripts/resources/'):
+
+
+
+def get_script_path_from_file(json_path, key, base_folder='./scripts/resources/'):
     """
-    Get the script path from a text file.
+    Get the script path from a JSON file.
 
     Parameters:
-    - file_path: The path to the text file containing the script name.
+    - json_path: The path to the JSON file containing the settings.
+    - key: The key for the particular setting.
     - base_folder: The base folder where the script is located.
     """
-    with open(file_path, 'r') as file:
-        script_name = file.read().strip()
+    with open(json_path, 'r', encoding='utf-8') as file:
+        settings = json.load(file)
+    script_name = settings.get(key, "").strip()
     return f'{base_folder}{script_name}.py'
 
+# Path to the JSON settings file
+json_file_path = './config/chatbot_settings.json'
+
 # Import for model
-file_path1 = './config/model.txt'
-script_path1 = get_script_path_from_file(file_path1)
+script_path1 = get_script_path_from_file(json_file_path, "model")
 import_functions_from_script(script_path1, "model_module")
 
 # Import for embedding model
-file_path2 = './config/Settings/embedding_model.txt'
-script_path2 = get_script_path_from_file(file_path2)
+script_path2 = get_script_path_from_file(json_file_path, "embedding_model")
 import_functions_from_script(script_path2, "embedding_module")
 
 # Import for TTS
-file_path3 = './config/Settings/TTS.txt'
-script_path3 = get_script_path_from_file(file_path3, base_folder='./scripts/resources/TTS/')
+script_path3 = get_script_path_from_file(json_file_path, "TTS", base_folder='./scripts/resources/TTS/')
 import_functions_from_script(script_path3, "TTS_module")
+
 
 
 # Set the Theme for the Chatbot
@@ -299,11 +310,13 @@ def chunk_text(text, chunk_size, overlap):
 
 
 def chunk_text_from_url(url, chunk_size=380, overlap=40, results_callback=None):
-    bot_name = open_file('./config/prompt_bot_name.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+        
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     try:
         print("Scraping given URL, please wait...")
-        bot_name = open_file('./config/prompt_bot_name.txt')
-        username = open_file('./config/prompt_username.txt')
         html = requests.get(url).text
         soup = BeautifulSoup(html, 'html.parser')
         texttemp = soup.get_text().strip()
@@ -425,10 +438,13 @@ def chunk_text_from_url(url, chunk_size=380, overlap=40, results_callback=None):
         
         
 def chunk_text_from_file(file_path, chunk_size=400, overlap=40):
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+        
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     try:
         print("Reading given file, please wait...")
-        username = open_file('./config/prompt_username.txt')
-        bot_name = open_file('./config/prompt_bot_name.txt')
         pytesseract.pytesseract.tesseract_cmd = '.\\Tesseract-ocr\\tesseract.exe'
         textemp = None
         file_extension = os.path.splitext(file_path)[1].lower()
@@ -632,8 +648,11 @@ def GPT_4_Tasklist_Web_Scrape(query, results_callback):
     counter = 0
     counter2 = 0
     mem_counter = 0
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+        
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     second_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_secondary.txt')
     greeting_msg = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_greeting.txt').replace('<<NAME>>', bot_name)
@@ -721,8 +740,11 @@ def GPT_4_Text_Extract():
     counter = 0
     counter2 = 0
     mem_counter = 0
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+        
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     if not os.path.exists(f'nexus/{bot_name}/{username}/web_scrape_memory_nexus'):
         os.makedirs(f'nexus/{bot_name}/{username}/web_scrape_memory_nexus')
     if not os.path.exists(f'nexus/{bot_name}/{username}/episodic_memory_nexus'):
@@ -814,8 +836,11 @@ def GPT_4_Tasklist_Web_Search(query, results_callback):
     payload = list()
     master_tasklist = list()
     counter = 0
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+        
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     greeting_msg = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_greeting.txt').replace('<<NAME>>', bot_name)
     if not os.path.exists(f'nexus/{bot_name}/{username}/web_scrape_memory_nexus'):
@@ -917,8 +942,11 @@ def fail():
 # Function for Uploading Cadence, called in the create widgets function.
 def DB_Upload_Cadence(query):
     # key = input("Enter OpenAi API KEY:")
-    username = open_file('./config/prompt_username.txt')
-    bot_name = open_file('./config/prompt_bot_name.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+        
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     if not os.path.exists(f'nexus/{bot_name}/{username}/cadence_nexus'):
         os.makedirs(f'nexus/{bot_name}/{username}/cadence_nexus')
     while True:
@@ -926,8 +954,6 @@ def DB_Upload_Cadence(query):
     #    a = input(f'\n\nUSER: ')        
         timestamp = time()
         timestring = timestamp_to_datetime(timestamp)
-        bot_name = open_file('./config/prompt_bot_name.txt')
-        username = open_file('./config/prompt_username.txt')
         # Define the collection name
         collection_name = f"Bot_{bot_name}"
         # Create the collection only if it doesn't exist
@@ -959,8 +985,11 @@ def DB_Upload_Cadence(query):
         
 # Function for Uploading Heuristics, called in the create widgets function.
 def DB_Upload_Heuristics(query):
-    username = open_file('./config/prompt_username.txt')
-    bot_name = open_file('./config/prompt_bot_name.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+        
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     if not os.path.exists(f'nexus/{bot_name}/{username}/heuristics_nexus'):
         os.makedirs(f'nexus/{bot_name}/{username}/heuristics_nexus')
     while True:
@@ -968,8 +997,6 @@ def DB_Upload_Heuristics(query):
     #    a = input(f'\n\nUSER: ')        
         timestamp = time()
         timestring = timestamp_to_datetime(timestamp)
-        bot_name = open_file('./config/prompt_bot_name.txt')
-        username = open_file('./config/prompt_username.txt')
         # Define the collection name
         collection_name = f"Bot_{bot_name}"
         try:
@@ -998,8 +1025,11 @@ def DB_Upload_Heuristics(query):
         
         
 def upload_implicit_long_term_memories(query):
-    username = open_file('./config/prompt_username.txt')
-    bot_name = open_file('./config/prompt_bot_name.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+        
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     timestamp = time()
     timestring = timestamp_to_datetime(timestamp)
     payload = list()
@@ -1035,8 +1065,11 @@ def upload_implicit_long_term_memories(query):
         
         
 def upload_explicit_long_term_memories(query):
-    username = open_file('./config/prompt_username.txt')
-    bot_name = open_file('./config/prompt_bot_name.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+        
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     timestamp = time()
     timestring = timestamp_to_datetime(timestamp)
     payload = list()
@@ -1072,8 +1105,11 @@ def upload_explicit_long_term_memories(query):
     
     
 def upload_implicit_short_term_memories(query):
-    username = open_file('./config/prompt_username.txt')
-    bot_name = open_file('./config/prompt_bot_name.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+        
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     timestamp = time()
     timestring = timestamp_to_datetime(timestamp)
     payload = list()
@@ -1108,8 +1144,11 @@ def upload_implicit_short_term_memories(query):
         
         
 def upload_explicit_short_term_memories(query):
-    username = open_file('./config/prompt_username.txt')
-    bot_name = open_file('./config/prompt_bot_name.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+        
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     timestamp = time()
     timestring = timestamp_to_datetime(timestamp)
     payload = list()
@@ -1144,8 +1183,11 @@ def upload_explicit_short_term_memories(query):
     
     
 def ask_upload_implicit_memories(memories):
-    username = open_file('./config/prompt_username.txt')
-    bot_name = open_file('./config/prompt_bot_name.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+        
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     timestamp = time()
     timestring = timestamp_to_datetime(timestamp)
     payload = list()
@@ -1198,8 +1240,11 @@ def ask_upload_implicit_memories(memories):
         
         
 def ask_upload_explicit_memories(memories):
-    username = open_file('./config/prompt_username.txt')
-    bot_name = open_file('./config/prompt_bot_name.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+        
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     timestamp = time()
     timestring = timestamp_to_datetime(timestamp)
     payload = list()
@@ -1252,8 +1297,11 @@ def ask_upload_explicit_memories(memories):
         
         
 def ask_upload_memories(memories, memories2):
-    username = open_file('./config/prompt_username.txt')
-    bot_name = open_file('./config/prompt_bot_name.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+        
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     timestamp = time()
     timestring = timestamp_to_datetime(timestamp)
     payload = list()
@@ -1271,8 +1319,11 @@ def ask_upload_memories(memories, memories2):
         
         
 def upload_implicit_short_term_memories(query):
-    username = open_file('./config/prompt_username.txt')
-    bot_name = open_file('./config/prompt_bot_name.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+        
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     timestamp = time()
     timestring = timestamp_to_datetime(timestamp)
     payload = list()
@@ -1307,8 +1358,11 @@ def upload_implicit_short_term_memories(query):
         
         
 def upload_explicit_short_term_memories(query):
-    username = open_file('./config/prompt_username.txt')
-    bot_name = open_file('./config/prompt_bot_name.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+        
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     timestamp = time()
     timestring = timestamp_to_datetime(timestamp)
     payload = list()
@@ -1345,8 +1399,11 @@ def upload_explicit_short_term_memories(query):
 def search_implicit_db(line_vec):
     m = multiprocessing.Manager()
     lock = m.Lock()
-    username = open_file('./config/prompt_username.txt')
-    bot_name = open_file('./config/prompt_bot_name.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+        
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     try:
         with lock:
             memories1 = None
@@ -1411,8 +1468,11 @@ def search_implicit_db(line_vec):
 def search_episodic_db(line_vec):
     m = multiprocessing.Manager()
     lock = m.Lock()
-    username = open_file('./config/prompt_username.txt')
-    bot_name = open_file('./config/prompt_bot_name.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+        
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     try:
         with lock:
             memories = None
@@ -1448,8 +1508,11 @@ def search_episodic_db(line_vec):
 def search_flashbulb_db(line_vec):
     m = multiprocessing.Manager()
     lock = m.Lock()
-    username = open_file('./config/prompt_username.txt')
-    bot_name = open_file('./config/prompt_bot_name.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+        
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     try:
         with lock:
             memories = None
@@ -1485,8 +1548,11 @@ def search_flashbulb_db(line_vec):
 def search_explicit_db(line_vec):
     m = multiprocessing.Manager()
     lock = m.Lock()
-    username = open_file('./config/prompt_username.txt')
-    bot_name = open_file('./config/prompt_bot_name.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+        
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     try:
         with lock:
             memories1 = None
@@ -1548,8 +1614,11 @@ def search_explicit_db(line_vec):
 # Running Conversation List
 class MainConversation:
     def __init__(self, max_entries, prompt, greeting):
-        bot_name = open_file('./config/prompt_bot_name.txt')
-        username = open_file('./config/prompt_username.txt')
+        with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+            settings = json.load(f)
+            
+        bot_name = settings.get('prompt_bot_name', '')
+        username = settings.get('prompt_username', '')
         botnameupper = bot_name.upper()
         usernameupper = username.upper()
         self.max_entries = max_entries
@@ -1640,8 +1709,11 @@ class ChatBotApplication(customtkinter.CTkFrame):
         
     def display_conversation_history(self):
         # Load the conversation history from the JSON file
-        bot_name = open_file('./config/prompt_bot_name.txt')
-        username = open_file('./config/prompt_username.txt')
+        with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+            settings = json.load(f)
+            
+        bot_name = settings.get('prompt_bot_name', '')
+        username = settings.get('prompt_username', '')
         
         file_path = f'./history/{username}/{bot_name}_main_conversation_history.json'
         try:
@@ -1666,14 +1738,12 @@ class ChatBotApplication(customtkinter.CTkFrame):
     # #  Login Menu 
     # Edit Bot Name
     def choose_bot_name(self):
-        username = open_file('./config/prompt_username.txt')
-
-        # Check if the prompt_bot_name.txt file exists and read the current bot name
-        file_path = "./config/prompt_bot_name.txt"
-        current_bot_name = ""
-        if os.path.exists(file_path):
-            with open(file_path, 'r') as file:
-                current_bot_name = file.readline().strip()
+        # Read the JSON configuration file
+        with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+            settings = json.load(f)
+            
+        username = settings.get('prompt_username', '')  # Load username from JSON
+        current_bot_name = settings.get('prompt_bot_name', '')  # Load bot_name from JSON
 
         dark_bg_color = "#2B2B2B"
         light_text_color = "#ffffff"
@@ -1681,9 +1751,11 @@ class ChatBotApplication(customtkinter.CTkFrame):
         # Use current_bot_name as the initialvalue for the simpledialog
         bot_name = simpledialog.askstring("Choose Bot Name", "Type a Bot Name:", initialvalue=current_bot_name)
         if bot_name:
-            file_path = "./config/prompt_bot_name.txt"
-            with open(file_path, 'w') as file:
-                file.write(bot_name)
+            # Update the bot name in the JSON settings file
+            settings['prompt_bot_name'] = bot_name
+            with open('./config/chatbot_settings.json', 'w', encoding='utf-8') as f:
+                json.dump(settings, f, indent=4, ensure_ascii=False)
+            
             base_path = "./config/Chatbot_Prompts"
             base_prompts_path = os.path.join(base_path, "Base")
             user_bot_path = os.path.join(base_path, username, bot_name)
@@ -1703,34 +1775,36 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     else:
                         print(f'Source file not found: {src}')
             else:
-                print(f'Directory already exists at: {user_bot_path}') 
+                print(f'Directory already exists at: {user_bot_path}')
             self.conversation_text.delete("1.0", tk.END)
-            self.display_conversation_history() 
+            self.display_conversation_history()
             self.master.destroy()
             Llama_2_Chat_Aetherius_Main()
         
 
     # Edit User Name
     def choose_username(self):
-        bot_name = open_file('./config/prompt_bot_name.txt')
+        # Load settings from JSON file
+        json_file_path = "./config/chatbot_settings.json"  # Replace with the actual path of your JSON file
+        with open(json_file_path, 'r', encoding='utf-8') as f:
+            settings = json.load(f)
+        
+        bot_name = settings.get('prompt_bot_name', '')
         dark_bg_color = "#2B2B2B"
         light_text_color = "#ffffff"
 
-        # Check if the prompt_username.txt file exists and read the current username
-        file_path = "./config/prompt_username.txt"
-        current_username = ""
-        if os.path.exists(file_path):
-            with open(file_path, 'r') as file:
-                current_username = file.readline().strip()
+        # Get the current_username from JSON settings
+        current_username = settings.get('prompt_username', '')
 
         # Use current_username as the initialvalue for the simpledialog
         username = simpledialog.askstring("Choose Username", "Type a Username:", initialvalue=current_username)
 
-        
         if username:
-            file_path = "./config/prompt_username.txt"
-            with open(file_path, 'w') as file:
-                file.write(username)
+            # Update username in the JSON settings
+            settings['prompt_username'] = username
+            with open(json_file_path, 'w', encoding='utf-8') as f:
+                json.dump(settings, f, indent=4, ensure_ascii=False)
+
             base_path = "./config/Chatbot_Prompts"
             base_prompts_path = os.path.join(base_path, "Base")
             user_bot_path = os.path.join(base_path, username, bot_name)
@@ -1760,8 +1834,11 @@ class ChatBotApplication(customtkinter.CTkFrame):
         
     # Edits Main Chatbot System Prompt
     def Edit_Main_Prompt(self):
-        bot_name = open_file('./config/prompt_bot_name.txt')
-        username = open_file('./config/prompt_username.txt')
+        with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+            settings = json.load(f)
+            
+        bot_name = settings.get('prompt_bot_name', '')
+        username = settings.get('prompt_username', '')
         file_path = f"./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt"
         dark_bg_color = "#2B2B2B"
         light_text_color = "#ffffff"
@@ -1791,8 +1868,11 @@ class ChatBotApplication(customtkinter.CTkFrame):
         
     # Edit secondary prompt (Less priority than main prompt)    
     def Edit_Secondary_Prompt(self):
-        bot_name = open_file('./config/prompt_bot_name.txt')
-        username = open_file('./config/prompt_username.txt')
+        with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+            settings = json.load(f)
+            
+        bot_name = settings.get('prompt_bot_name', '')
+        username = settings.get('prompt_username', '')
         file_path = f"./config/Chatbot_Prompts/{username}/{bot_name}/prompt_secondary.txt"
         dark_bg_color = "#2B2B2B"
         light_text_color = "#ffffff"
@@ -1821,8 +1901,11 @@ class ChatBotApplication(customtkinter.CTkFrame):
         
     # Edits initial chatbot greeting, called in create widgets
     def Edit_Greeting_Prompt(self):
-        bot_name = open_file('./config/prompt_bot_name.txt')
-        username = open_file('./config/prompt_username.txt')
+        with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+            settings = json.load(f)
+            
+        bot_name = settings.get('prompt_bot_name', '')
+        username = settings.get('prompt_username', '')
         file_path = f"./config/Chatbot_Prompts/{username}/{bot_name}/prompt_greeting.txt"
         dark_bg_color = "#2B2B2B"
         light_text_color = "#ffffff"
@@ -1851,8 +1934,11 @@ class ChatBotApplication(customtkinter.CTkFrame):
         
     # Edits running conversation list
     def Edit_Conversation(self):
-        bot_name = open_file('./config/prompt_bot_name.txt')
-        username = open_file('./config/prompt_username.txt')
+        with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+            settings = json.load(f)
+            
+        bot_name = settings.get('prompt_bot_name', '')
+        username = settings.get('prompt_username', '')
         file_path = f"./history/{username}/{bot_name}_main_conversation_history.json"
         dark_bg_color = "#2B2B2B"
         light_text_color = "#ffffff"
@@ -1973,8 +2059,11 @@ class ChatBotApplication(customtkinter.CTkFrame):
     def open_cadence_window(self):
         dark_bg_color = "#2B2B2B"
         light_text_color = "#ffffff"
-        bot_name = open_file('./config/prompt_bot_name.txt')
-        username = open_file('./config/prompt_username.txt')
+        with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+            settings = json.load(f)
+            
+        bot_name = settings.get('prompt_bot_name', '')
+        username = settings.get('prompt_username', '')
         cadence_window = tk.Toplevel(self)
         cadence_window.configure(bg=dark_bg_color)
         cadence_window.title("Cadence DB Upload")
@@ -2009,7 +2098,11 @@ class ChatBotApplication(customtkinter.CTkFrame):
         def delete_cadence():
             # Replace 'username' and 'bot_name' with appropriate variables if available.
             # You may need to adjust 'vdb' based on how your database is initialized.
-            username = open_file('./config/prompt_username.txt')
+            with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+                settings = json.load(f)
+                
+            bot_name = settings.get('prompt_bot_name', '')
+            username = settings.get('prompt_username', '')
             confirm = messagebox.askyesno("Confirmation", "Are you sure you want to delete saved cadence?")
             if confirm:
                 client.delete(
@@ -2043,8 +2136,11 @@ class ChatBotApplication(customtkinter.CTkFrame):
     def open_heuristics_window(self):
         dark_bg_color = "#2B2B2B"
         light_text_color = "#ffffff"
-        bot_name = open_file('./config/prompt_bot_name.txt')
-        username = open_file('./config/prompt_username.txt')
+        with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+            settings = json.load(f)
+            
+        bot_name = settings.get('prompt_bot_name', '')
+        username = settings.get('prompt_username', '')
         heuristics_window = tk.Toplevel(self)
         heuristics_window.configure(bg=dark_bg_color)
         heuristics_window.title("Heuristics DB Upload")
@@ -2083,7 +2179,11 @@ class ChatBotApplication(customtkinter.CTkFrame):
         def delete_heuristics():
             # Replace 'username' and 'bot_name' with appropriate variables if available.
             # You may need to adjust 'vdb' based on how your database is initialized.
-            username = open_file('./config/prompt_username.txt')
+            with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+                settings = json.load(f)
+                
+            bot_name = settings.get('prompt_bot_name', '')
+            username = settings.get('prompt_username', '')
             confirm = messagebox.askyesno("Confirmation", "Are you sure you want to delete heuristics?")
             if confirm:
                 client.delete(
@@ -2117,8 +2217,11 @@ class ChatBotApplication(customtkinter.CTkFrame):
     def open_long_term_window(self):
         dark_bg_color = "#2B2B2B"
         light_text_color = "#ffffff"
-        bot_name = open_file('./config/prompt_bot_name.txt')
-        username = open_file('./config/prompt_username.txt')
+        with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+            settings = json.load(f)
+            
+        bot_name = settings.get('prompt_bot_name', '')
+        username = settings.get('prompt_username', '')
         long_term_window = tk.Toplevel(self)
         long_term_window.configure(bg=dark_bg_color)
         long_term_window.title("Long Term Memory DB Upload")
@@ -2186,8 +2289,11 @@ class ChatBotApplication(customtkinter.CTkFrame):
     def open_deletion_window(self):
         dark_bg_color = "#2B2B2B"
         light_text_color = "#ffffff"
-        bot_name = open_file('./config/prompt_bot_name.txt')
-        username = open_file('./config/prompt_username.txt')
+        with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+            settings = json.load(f)
+            
+        bot_name = settings.get('prompt_bot_name', '')
+        username = settings.get('prompt_username', '')
         deletion_window = tk.Toplevel(self)
         deletion_window.configure(bg=dark_bg_color)
         deletion_window.title("DB Deletion Menu")
@@ -2196,7 +2302,11 @@ class ChatBotApplication(customtkinter.CTkFrame):
         def delete_cadence():
                 # Replace 'username' and 'bot_name' with appropriate variables if available.
                 # You may need to adjust 'vdb' based on how your database is initialized.
-            username = open_file('./config/prompt_username.txt')
+            with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+                settings = json.load(f)
+                
+            bot_name = settings.get('prompt_bot_name', '')
+            username = settings.get('prompt_username', '')
             confirm = messagebox.askyesno("Confirmation", "Are you sure you want to delete saved cadence?")
             if confirm:
                 client.delete(
@@ -2221,8 +2331,11 @@ class ChatBotApplication(customtkinter.CTkFrame):
         def delete_heuristics():
                 # Replace 'username' and 'bot_name' with appropriate variables if available.
                 # You may need to adjust 'vdb' based on how your database is initialized.
-            username = open_file('./config/prompt_username.txt')
-            bot_name = open_file('./config/prompt_bot_name.txt')
+            with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+                settings = json.load(f)
+                
+            bot_name = settings.get('prompt_bot_name', '')
+            username = settings.get('prompt_username', '')
             confirm = messagebox.askyesno("Confirmation", "Are you sure you want to delete heuristics?")
             if confirm:
                 client.delete(
@@ -2247,8 +2360,11 @@ class ChatBotApplication(customtkinter.CTkFrame):
         def delete_counters():
                 # Replace 'username' and 'bot_name' with appropriate variables if available.
                 # You may need to adjust 'vdb' based on how your database is initialized.
-            username = open_file('./config/prompt_username.txt')
-            bot_name = open_file('./config/prompt_bot_name.txt')
+            with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+                settings = json.load(f)
+                
+            bot_name = settings.get('prompt_bot_name', '')
+            username = settings.get('prompt_username', '')
             confirm = messagebox.askyesno("Confirmation", "Are you sure you want to delete memory consolidation counters?")
             if confirm:
                 client.delete(
@@ -2281,8 +2397,11 @@ class ChatBotApplication(customtkinter.CTkFrame):
         def delete_webscrape():
                 # Replace 'username' and 'bot_name' with appropriate variables if available.
                 # You may need to adjust 'vdb' based on how your database is initialized.
-            username = open_file('./config/prompt_username.txt')
-            bot_name = open_file('./config/prompt_bot_name.txt')
+            with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+                settings = json.load(f)
+                
+            bot_name = settings.get('prompt_bot_name', '')
+            username = settings.get('prompt_username', '')
             confirm = messagebox.askyesno("Confirmation", "Are you sure you want to delete the saved webscrape?")
             if confirm:
                 client.delete(
@@ -2306,8 +2425,11 @@ class ChatBotApplication(customtkinter.CTkFrame):
         def delete_filescrape():
                 # Replace 'username' and 'bot_name' with appropriate variables if available.
                 # You may need to adjust 'vdb' based on how your database is initialized.
-            username = open_file('./config/prompt_username.txt')
-            bot_name = open_file('./config/prompt_bot_name.txt')
+            with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+                settings = json.load(f)
+                
+            bot_name = settings.get('prompt_bot_name', '')
+            username = settings.get('prompt_username', '')
             confirm = messagebox.askyesno("Confirmation", "Are you sure you want to delete the saved scraped files?")
             if confirm:
                 client.delete(
@@ -2333,8 +2455,11 @@ class ChatBotApplication(customtkinter.CTkFrame):
         def delete_bot():
                 # Replace 'username' and 'bot_name' with appropriate variables if available.
                 # You may need to adjust 'vdb' based on how your database is initialized.
-            username = open_file('./config/prompt_username.txt')
-            bot_name = open_file('./config/prompt_bot_name.txt')
+            with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+                settings = json.load(f)
+                
+            bot_name = settings.get('prompt_bot_name', '')
+            username = settings.get('prompt_username', '')
             confirm = messagebox.askyesno("Confirmation", f"Are you sure you want to delete {bot_name} in their entirety?")
             if confirm:
                 try:
@@ -2456,8 +2581,11 @@ class ChatBotApplication(customtkinter.CTkFrame):
         
     def delete_conversation_history(self):
         # Delete the conversation history JSON file
-        bot_name = open_file('./config/prompt_bot_name.txt')
-        username = open_file('./config/prompt_username.txt')
+        with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+            settings = json.load(f)
+            
+        bot_name = settings.get('prompt_bot_name', '')
+        username = settings.get('prompt_username', '')
         file_path = f'./history/{username}/{bot_name}_main_conversation_history.json'
         try:
             os.remove(file_path)
@@ -2781,12 +2909,14 @@ class ChatBotApplication(customtkinter.CTkFrame):
         
     # Change Font Style, called in create widgets
     def Edit_Font(self):
-        file_path = "./config/font.txt"
+        file_path = "./config/chatbot_settings.json"  # Changed from "./config/font.txt"
         dark_bg_color = "#2B2B2B"
         light_text_color = "#ffffff"
 
+        # Read font_value from the JSON file instead of the .txt file
         with open(file_path, 'r', encoding='utf-8') as file:
-            font_value = file.read()
+            settings = json.load(file)
+            font_value = settings.get("font", "")  # Default to an empty string if the key is not found
 
         fonts = font.families()
 
@@ -2809,23 +2939,28 @@ class ChatBotApplication(customtkinter.CTkFrame):
         def save_font():
             new_font = font_entry.get()
             if new_font in fonts:
-                with open(file_path, 'w') as file:
-                    file.write(new_font)
+                # Update the JSON file
+                settings["font"] = new_font
+                with open(file_path, 'w', encoding='utf-8') as file:
+                    json.dump(settings, file, indent=4, ensure_ascii=False)
                 self.update_font_settings()
             top.destroy()
             
         save_button = customtkinter.CTkButton(top, text="Save", command=save_font)
         save_button.pack()
+
         
 
     # Change Font Size, called in create widgets
     def Edit_Font_Size(self):
-        file_path = "./config/font_size.txt"
+        json_file_path = "./config/chatbot_settings.json"  # Change the path to your JSON file
         dark_bg_color = "#2B2B2B"
         light_text_color = "#ffffff"
 
-        with open(file_path, 'r', encoding='utf-8') as file:
-            font_size_value = file.read()
+        # Read the JSON file to get the font size
+        with open(json_file_path, 'r', encoding='utf-8') as file:
+            settings_dict = json.load(file)
+            font_size_value = settings_dict.get("font_size", "")  # Provide a default value if "font_size" is not present
 
         top = tk.Toplevel(self)
         top.configure(bg=dark_bg_color)
@@ -2841,8 +2976,10 @@ class ChatBotApplication(customtkinter.CTkFrame):
         def save_font_size():
             new_font_size = self.font_size_entry.get()
             if new_font_size.isdigit():
-                with open(file_path, 'w') as file:
-                    file.write(new_font_size)
+                # Update the JSON file with the new font size
+                settings_dict["font_size"] = new_font_size
+                with open(json_file_path, 'w', encoding='utf-8') as file:
+                    json.dump(settings_dict, file, indent=4)
                 self.update_font_settings()
             top.destroy()
 
@@ -2854,12 +2991,14 @@ class ChatBotApplication(customtkinter.CTkFrame):
         
     # Change Conversation Length, called in create widgets
     def Set_Conv_Length(self):
-        file_path = "./config/Conversation_Length.txt"
+        file_path = "./config/chatbot_settings.json"  # Point to the JSON file instead of the TXT file
         dark_bg_color = "#2B2B2B"
         light_text_color = "#ffffff"
 
+        # Read the value from the JSON file
         with open(file_path, 'r', encoding='utf-8') as file:
-            font_size_value = file.read()
+            settings = json.load(file)
+            font_size_value = settings.get("Conversation_Length", "Default_value_here")
 
         top = tk.Toplevel(self)
         top.configure(bg=dark_bg_color)
@@ -2875,8 +3014,10 @@ class ChatBotApplication(customtkinter.CTkFrame):
         def save_conv_length():
             new_font_size = self.font_size_entry.get()
             if new_font_size.isdigit():
-                with open(file_path, 'w') as file:
-                    file.write(new_font_size)
+                # Update the JSON file instead of the TXT file
+                settings["Conversation_Length"] = new_font_size
+                with open(file_path, 'w', encoding='utf-8') as file:
+                    json.dump(settings, file, indent=4)
             top.destroy()
 
         save_button = customtkinter.CTkButton(top, text="Save", command=save_conv_length)
@@ -2887,12 +3028,14 @@ class ChatBotApplication(customtkinter.CTkFrame):
         
     # Change Host, called in create widgets
     def Set_Host(self):
-        file_path = "./api_keys/HOST_Oobabooga.txt"
+        file_path = "./config/chatbot_settings.json"  # Point to the JSON file
         dark_bg_color = "#2B2B2B"
         light_text_color = "#ffffff"
 
+        # Use json to read the host value
         with open(file_path, 'r', encoding='utf-8') as file:
-            host_value = file.read()
+            settings = json.load(file)
+            host_value = settings.get("HOST_Oobabooga", "")  # Replace 'HOST_Oobabooga' with the actual key if different
 
         top = tk.Toplevel(self)
         top.configure(bg=dark_bg_color)
@@ -2939,8 +3082,9 @@ class ChatBotApplication(customtkinter.CTkFrame):
 
         def save_host():
             new_host = self.host_entry.get()
-            with open(file_path, 'w') as file:
-                file.write(new_host)
+            settings["HOST_Oobabooga"] = new_host  # Replace 'HOST_Oobabooga' with the actual key if different
+            with open(file_path, 'w', encoding='utf-8') as file:
+                json.dump(settings, file, indent=4)
             top.destroy()
 
         save_button = customtkinter.CTkButton(top, text="Save", command=save_host)
@@ -2950,12 +3094,20 @@ class ChatBotApplication(customtkinter.CTkFrame):
         
         
     def Set_Embed(self):
-        file_path = "./config/Settings/embedding_model.txt"
+        # File path to the JSON settings file
+        json_file_path = "./config/chatbot_settings.json"
+
+        # Load the JSON file
+        with open(json_file_path, 'r', encoding='utf-8') as f:
+            settings_dict = json.load(f)
+
+        # Retrieve the embedding model setting from the JSON object
+        embedding_model = settings_dict.get('embedding_model', 'default_value_if_not_found')
         dark_bg_color = "#2B2B2B"
         light_text_color = "#ffffff"
 
-        with open(file_path, 'r', encoding='utf-8') as file:
-            host_value = file.read()
+        # No need to open the txt file anymore, we have the value from JSON
+        host_value = embedding_model  # The value is now loaded from the JSON file
 
         top = tk.Toplevel(self)
         top.configure(bg=dark_bg_color)
@@ -2963,7 +3115,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
 
         # Replace label with a read-only Text widget to allow selection
         label_text = "Options: sentence_xformers, hf_embeddings\nEnter what embedding provider you wish to use:"
-        
+
         # Adjust the appearance of the Text widget
         label = tk.Text(top, height=3, wrap=tk.WORD, bg=dark_bg_color, fg=light_text_color, bd=0, padx=10, pady=10, relief=tk.FLAT, highlightthickness=0)
         label.insert(tk.END, label_text)
@@ -3013,12 +3165,13 @@ class ChatBotApplication(customtkinter.CTkFrame):
         
         
     def Set_TTS(self):
-        file_path = "./config/Settings/TTS.txt"
+        json_file_path = "./config/chatbot_settings.json"  # Change this to the path of your JSON file
         dark_bg_color = "#2B2B2B"
         light_text_color = "#ffffff"
 
-        with open(file_path, 'r', encoding='utf-8') as file:
-            host_value = file.read()
+        with open(json_file_path, 'r', encoding='utf-8') as file:  # Ensure utf-8 encoding
+            settings = json.load(file)
+            host_value = settings.get('TTS', '')  # Read the TTS value from the JSON object
 
         top = tk.Toplevel(self)
         top.configure(bg=dark_bg_color)
@@ -3076,14 +3229,21 @@ class ChatBotApplication(customtkinter.CTkFrame):
         top.mainloop()
         
 
-    #Fallback to size 10 if no font size
     def update_font_settings(self):
-        font_config = open_file('./config/font.txt')
-        font_size = open_file('./config/font_size.txt')
+        # Load the JSON file
+        with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+            settings_dict = json.load(f)
+            
+        # Extract font and font size from JSON
+        font_config = settings_dict.get('font', '')
+        font_size = settings_dict.get('font_size', '')
+        
+        # Fallback to size 10 if no font size
         try:
             font_size_config = int(font_size)
         except:
             font_size_config = 10
+
         font_style = (f"{font_config}", font_size_config)
 
         self.conversation_text.configure(font=font_style)
@@ -3176,8 +3336,14 @@ class ChatBotApplication(customtkinter.CTkFrame):
             
             
     def create_widgets(self):
-        font_config = open_file('./config/font.txt')
-        font_size = open_file('./config/font_size.txt')
+        # Load settings from JSON file
+        with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+            settings = json.load(f)
+
+        # Get font and font size from the JSON settings
+        font_config = settings.get('font', 'default_font')
+        font_size = settings.get('font_size', 'default_size')
+
         self.memory_mode = "Training"
         try:
             font_size_config = int(font_size)
@@ -3693,9 +3859,14 @@ class ChatBotApplication(customtkinter.CTkFrame):
         counter = 0
         counter2 = 0
         mem_counter = 0
-        conv_length = int(open_file('./config/Conversation_Length.txt').strip())
-        bot_name = open_file('./config/prompt_bot_name.txt')
-        username = open_file('./config/prompt_username.txt')
+        with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+            settings = json.load(f)
+        conv_length = int(settings['Conversation_Length'])
+        with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+            settings = json.load(f)
+            
+        bot_name = settings.get('prompt_bot_name', '')
+        username = settings.get('prompt_username', '')
         botnameupper = bot_name.upper()
         usernameupper = username.upper()
         base_path = "./config/Chatbot_Prompts"
@@ -4082,9 +4253,14 @@ class ChatBotApplication(customtkinter.CTkFrame):
         counter = 0
         counter2 = 0
         mem_counter = 0
-        conv_length = int(open_file('./config/Conversation_Length.txt').strip())
-        bot_name = open_file('./config/prompt_bot_name.txt')
-        username = open_file('./config/prompt_username.txt')
+        with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+            settings = json.load(f)
+        conv_length = int(settings['Conversation_Length'])
+        with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+            settings = json.load(f)
+            
+        bot_name = settings.get('prompt_bot_name', '')
+        username = settings.get('prompt_username', '')
         botnameupper = bot_name.upper()
         usernameupper = username.upper()
         main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
@@ -4359,9 +4535,14 @@ class ChatBotApplication(customtkinter.CTkFrame):
         counter = 0
         counter2 = 0
         mem_counter = 0
-        conv_length = int(open_file('./config/Conversation_Length.txt').strip())
-        bot_name = open_file('./config/prompt_bot_name.txt')
-        username = open_file('./config/prompt_username.txt')
+        with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+            settings = json.load(f)
+        conv_length = int(settings['Conversation_Length'])
+        with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+            settings = json.load(f)
+            
+        bot_name = settings.get('prompt_bot_name', '')
+        username = settings.get('prompt_username', '')
         botnameupper = bot_name.upper()
         usernameupper = username.upper()
         main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
@@ -4504,7 +4685,11 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 else:
                     print(f"An unexpected error occurred: {str(e)}")
             print('\n-----------------------\n')
-            tts_model = open_file('./config/Settings/TTS.txt')
+            with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+                settings_dict = json.load(f)
+
+            # Retrieve the TTS model setting from the dictionary
+            tts_model = settings_dict.get('TTS', 'gTTS') 
             # # Generate Aetherius's Response
             conversation2.append({'role': 'assistant', 'content': f"CHATBOT'S MEMORIES: {db_search_12}\n{db_search_13}\n{bot_name}'s HEURISTICS: {db_search_14}\nCHATBOT'S INNER THOUGHTS: {output_one}\n{second_prompt} [INST] Now return and analyze the previous conversation history. [/INST] CONVERSATION HISTORY: {con_hist} [INST] {usernameupper}: We are currently in the middle of a conversation, please review your action plan for your response. [/INST] {botnameupper}: I will now review my action plan, using it as a framework to construct my upcoming response: {output_two}\nI will proceed by reviewing our previous conversation to ensure I respond in a manner that is both informative and emotionally attuned. [INST] {usernameupper}: Deliver a response to the user that entirely satisfies my latest request. You are giving a direct response to the message of: {a} [/INST] {botnameupper}: Sure, here is my response to {username}'s message: "})
             prompt = ''.join([message_dict['content'] for message_dict in conversation2])
@@ -4710,10 +4895,15 @@ class ChatBotApplication(customtkinter.CTkFrame):
         counter2 = 0
         importance_score = list()
         mem_counter = 0
-        length_config = open_file('./config/Conversation_Length.txt')
-        conv_length = 3
-        bot_name = open_file('./config/prompt_bot_name.txt')
-        username = open_file('./config/prompt_username.txt')
+        with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+            settings = json.load(f)
+        length_config = int(settings['Conversation_Length'])
+        conv_length = int(settings['Conversation_Length'])
+        with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+            settings = json.load(f)
+            
+        bot_name = settings.get('prompt_bot_name', '')
+        username = settings.get('prompt_username', '')
         botnameupper = bot_name.upper()
         usernameupper = username.upper()
         main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
@@ -5473,8 +5663,11 @@ class ChatBotApplication(customtkinter.CTkFrame):
         counter = 0
         counter2 = 0
         mem_counter = 0
-        bot_name = open_file('./config/prompt_bot_name.txt')
-        username = open_file('./config/prompt_username.txt')
+        with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+            settings = json.load(f)
+            
+        bot_name = settings.get('prompt_bot_name', '')
+        username = settings.get('prompt_username', '')
         botnameupper = bot_name.upper()
         usernameupper = username.upper()
         main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
@@ -5880,8 +6073,11 @@ class ChatBotApplication(customtkinter.CTkFrame):
         counter = 0
         counter2 = 0
         mem_counter = 0
-        bot_name = open_file('./config/prompt_bot_name.txt')
-        username = open_file('./config/prompt_username.txt')
+        with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+            settings = json.load(f)
+            
+        bot_name = settings.get('prompt_bot_name', '')
+        username = settings.get('prompt_username', '')
         botnameupper = bot_name.upper()
         usernameupper = username.upper()
         main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
@@ -6204,8 +6400,11 @@ class ChatBotApplication(customtkinter.CTkFrame):
         counter = 0
         counter2 = 0
         mem_counter = 0
-        bot_name = open_file('./config/prompt_bot_name.txt')
-        username = open_file('./config/prompt_username.txt')
+        with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+            settings = json.load(f)
+            
+        bot_name = settings.get('prompt_bot_name', '')
+        username = settings.get('prompt_username', '')
         botnameupper = bot_name.upper()
         usernameupper = username.upper()
         main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
@@ -6260,15 +6459,22 @@ class ChatBotApplication(customtkinter.CTkFrame):
             task_result2 = {}
             task_counter = 1
 
-            # Read hosts and set max_workers
             try:
-                with open('api_keys/HOST_Oobabooga.txt', 'r') as f:
-                    host_data = f.read().strip()
+                # Open and read the JSON file with utf-8 encoding
+                with open('config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+                    settings = json.load(f)
+                    
+                # Retrieve host data from the JSON dictionary
+                host_data = settings.get('HOST_Oobabooga', '').strip()
+                
+                # Split the host data into individual hosts
                 hosts = host_data.split(' ')
+                
+                # Count the number of hosts
                 num_hosts = len(hosts)
+                
             except Exception as e:
                 print(f"An error occurred while reading the host file: {e}")
-                num_hosts = 1
 
             self.host_queue = Queue()
             for host in hosts:
@@ -6309,7 +6515,11 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 prompt = ''.join([message_dict['content'] for message_dict in tasklist_completion])
                 response_two = agent_oobabooga_response(prompt)
                 self.conversation_text.insert(tk.END, f"Response: {response_two}\n\n")
-                tts_model = open_file('./config/Settings/TTS.txt')
+                with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+                    settings_dict = json.load(f)
+
+                # Retrieve the TTS model setting from the dictionary
+                tts_model = settings_dict.get('TTS', 'gTTS') 
                 if self.is_tts_checked():
                     if tts_model == 'barkTTS':
                         TTS_Generation(response_two)
@@ -6421,8 +6631,11 @@ class ChatBotApplication(customtkinter.CTkFrame):
         try:
             tasklist_completion2 = list()
             conversation = list()
-            bot_name = open_file('./config/prompt_bot_name.txt')
-            username = open_file('./config/prompt_username.txt')
+            with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+                settings = json.load(f)
+                
+            bot_name = settings.get('prompt_bot_name', '')
+            username = settings.get('prompt_username', '')
             botnameupper = bot_name.upper()
             usernameupper = username.upper()
             tasklist_completion2.append({'role': 'user', 'content': f"TASK: {line} [/INST] "})
@@ -6608,24 +6821,37 @@ class ChatBotApplication(customtkinter.CTkFrame):
             
             
 def Llama_2_Chat_Aetherius_Main():
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     base_path = "./config/Chatbot_Prompts"
     base_prompts_path = os.path.join(base_path, "Base")
     user_bot_path = os.path.join(base_path, username, bot_name)
+    # Path to the JSON settings file
+    json_file_path = './config/chatbot_settings.json'
+    
+    with open(json_file_path, 'r', encoding='utf-8') as file:
+        settings = json.load(file)
+    
+    bot_name = settings.get('prompt_bot_name', "")
+    username = settings.get('prompt_username', "")
+    
+    base_path = "./config/Chatbot_Prompts"
+    base_prompts_path = os.path.join(base_path, "Base")
+    user_bot_path = os.path.join(base_path, username, bot_name)
+
     # Import for model
-    file_path1 = './config/model.txt'
-    script_path1 = get_script_path_from_file(file_path1)
+    script_path1 = get_script_path_from_file(json_file_path, "model")
     import_functions_from_script(script_path1, "model_module")
 
     # Import for embedding model
-    file_path2 = './config/Settings/embedding_model.txt'
-    script_path2 = get_script_path_from_file(file_path2)
+    script_path2 = get_script_path_from_file(json_file_path, "embedding_model")
     import_functions_from_script(script_path2, "embedding_module")
 
     # Import for TTS
-    file_path3 = './config/Settings/TTS.txt'
-    script_path3 = get_script_path_from_file(file_path3, base_folder='./scripts/resources/TTS/')
+    script_path3 = get_script_path_from_file(json_file_path, "TTS", base_folder='./scripts/resources/TTS/')
     import_functions_from_script(script_path3, "TTS_module")
     # Check if user_bot_path exists
     if not os.path.exists(user_bot_path):
@@ -6680,7 +6906,10 @@ def Llama_2_Chat_Aetherius_Main():
         os.makedirs(f'logs/{bot_name}/{username}/Llama2_Dataset/Complete_Response')
     if not os.path.exists(f'history/{username}'):
         os.makedirs(f'history/{username}')
-    HOST = open_file('api_keys/HOST_Oobabooga.txt')
+    with open('config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+
+    HOST = settings.get('HOST_Oobabooga', 'default_value_if_not_found')
 
     # For a Google Colab hosted Oobabooga Client use the given Public Non-Streaming Url:
     #HOST = 'ENTER-NON-STREAMING-SERVER-PUBLIC-URL'

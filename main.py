@@ -6,6 +6,7 @@ sys.path.insert(0, './scripts')
 import platform
 import tkinter as tk
 import customtkinter
+import json
 
 
 
@@ -39,8 +40,12 @@ class SubApplication(tk.Toplevel):
 
 
     def create_widgets(self):
-        font_config = open_file('./config/font.txt')
-        font_size = open_file('./config/font_size.txt')
+        with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+            settings = json.load(f)
+
+        # Extract the font and font_size settings from the dictionary
+        font_config = settings.get('font', 'Arial')  # Provide a default value if the key doesn't exist
+        font_size = settings.get('font_size', '12')  # Provide a default value if the key doesn't exist
 
         self.label = customtkinter.CTkLabel(self, text="Select a script:", font=(font_config, 16, "bold"))
         self.label.pack(side="top", pady=10)
@@ -74,8 +79,12 @@ class Application(customtkinter.CTk):
         customtkinter.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
 
     def create_widgets(self):
-        font_config = open_file('./config/font.txt')
-        font_size = open_file('./config/font_size.txt')
+        with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+            settings = json.load(f)
+
+        # Extract the font and font_size settings from the dictionary
+        font_config = settings.get('font', '')  # Provide a default value if the key doesn't exist
+        font_size = settings.get('font_size', '')  # Provide a default value if the key doesn't exist
         try:
             font_size_config = int(font_size)
         except:
@@ -119,8 +128,11 @@ class Application(customtkinter.CTk):
 
 if __name__ == '__main__':
   #  set_dark_ancient_theme()
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     if not os.path.exists(f'nexus/{bot_name}/{username}/implicit_short_term_memory_nexus'):
         os.makedirs(f'nexus/{bot_name}/{username}/implicit_short_term_memory_nexus')
     if not os.path.exists(f'nexus/{bot_name}/{username}/explicit_short_term_memory_nexus'):

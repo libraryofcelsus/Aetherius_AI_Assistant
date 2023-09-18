@@ -1,0 +1,12 @@
+{
+    "Conversation_Length": "2",
+    "embed_size": "768",
+    "font": "Arial",
+    "font_size": "12",
+    "model": "gpt_35",
+    "prompt_bot_name": "Aetherius",
+    "prompt_username": "User",
+    "embedding_model": "sentence_xformers",
+    "TTS": "gTTS",
+    "HOST_Oobabooga": "http://localhost:5000/api"
+}

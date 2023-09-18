@@ -27,93 +27,104 @@ import random
 # For a Google Colab hosted Oobabooga Client use the given Public Non-Streaming Url:
 
 
+
 def open_file(filepath):
+    json_file_path = './config/chatbot_settings.json'  # Replace with the actual path to your JSON file
+    with open(json_file_path, 'r', encoding='utf-8') as f:
+        settings_dict = json.load(f)
     with open(filepath, 'r', encoding='utf-8') as infile:
         return infile.read().strip()
 
+def open_file_first(key):
+    json_file_path = './config/chatbot_settings.json'  # Replace with the actual path to your JSON file
+    with open(json_file_path, 'r', encoding='utf-8') as f:
+        settings_dict = json.load(f)
 
-def open_file_first(file_path):
-    with open(file_path, 'r') as file:
-        content = file.read()
-        # Splitting the content by space and picking the first host
-        first_host = content.split(' ')[0]
-        return first_host
-        
-        
-def open_file_second(file_path):
-    with open(file_path, 'r') as file:
-        content = file.read()
-        # Splitting the content by space
-        hosts = content.split(' ')
+    content = settings_dict.get(key, '')
+    first_host = content.split(' ')[0]
+    return first_host
 
-        # Checking if a second host is available
-        if len(hosts) >= 2:
-            return hosts[1]
-        else:
-            # If there's no second host, return the first one
-            return hosts[0]
-            
-            
+def open_file_second(key):
+    json_file_path = './config/chatbot_settings.json'  # Replace with the actual path to your JSON file
+    with open(json_file_path, 'r', encoding='utf-8') as f:
+        settings_dict = json.load(f)
+
+    content = settings_dict.get(key, '')
+    hosts = content.split(' ')
+    if len(hosts) >= 2:
+        return hosts[1]
+    else:
+        return hosts[0]
+
 POSITION_FILE = './config/current_position.txt'
-            
-            
+
 def store_position(position):
+    json_file_path = './config/chatbot_settings.json'  # Replace with the actual path to your JSON file
+    with open(json_file_path, 'r', encoding='utf-8') as f:
+        settings_dict = json.load(f)
+
     with open(POSITION_FILE, 'w') as file:
         file.write(str(position))
 
 def read_position():
-    # Ensure the directory exists
+    json_file_path = './config/chatbot_settings.json'  # Replace with the actual path to your JSON file
+    with open(json_file_path, 'r', encoding='utf-8') as f:
+        settings_dict = json.load(f)
+
     if not os.path.exists('./config'):
         os.makedirs('./config')
-    
-    # If the file doesn't exist or is empty, create it and write '0' into it
     if not os.path.exists(POSITION_FILE) or os.path.getsize(POSITION_FILE) == 0:
         with open(POSITION_FILE, 'w') as file:
             file.write('0')
         return 0
-
-    # Otherwise, read the current position from the file
     with open(POSITION_FILE, 'r') as file:
         position_str = file.read().strip()
         if not position_str:
-            # If the file is empty, return 0 and update the file
             with open(POSITION_FILE, 'w') as file:
                 file.write('0')
             return 0
         return int(position_str)
 
-def get_next_host(file_path):
-    with open(file_path, 'r') as file:
-        content = file.read().strip()
-        hosts = content.split(' ')
-        hosts = [host for host in hosts if host]  # Filter out any empty strings
+def get_next_host(key):
+    json_file_path = './config/chatbot_settings.json'  # Replace with the actual path to your JSON file
+    with open(json_file_path, 'r', encoding='utf-8') as f:
+        settings_dict = json.load(f)
 
-    # Get the current position
+    content = settings_dict.get(key, '').strip()
+    hosts = content.split(' ')
+    hosts = [host for host in hosts if host]
     position = read_position()
-
-    # If position exceeds the number of hosts, reset it
     if position >= len(hosts):
         position = 0
-
-    # Get the next host and store the incremented position
     next_host = hosts[position]
     store_position(position + 1)
-
     return next_host
-    
-def open_file_all(file_path):
-    with open(file_path, 'r') as file:
-        content = file.read()
-        hosts = content.split(' ')
 
-    while True:  # This will keep cycling through the hosts indefinitely
+def open_file_all(key):
+    json_file_path = './config/chatbot_settings.json'  # Replace with the actual path to your JSON file
+    with open(json_file_path, 'r', encoding='utf-8') as f:
+        settings_dict = json.load(f)
+
+    content = settings_dict.get(key, '')
+    hosts = content.split(' ')
+    while True:
         for host in hosts:
-            yield host  # This will return the current host and pause execution until the next call
+            yield host
+            
+            
+
+            
+            
+            
+            
 
 
 def oobabooga_terms(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -160,7 +171,7 @@ def oobabooga_terms(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_first('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_first('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -171,8 +182,11 @@ def oobabooga_terms(prompt):
 
 
 def oobabooga_inner_monologue(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     temperature = open_file(f'./config/Generation_Settings/Inner_Monologue/temperature.txt')
@@ -225,7 +239,7 @@ def oobabooga_inner_monologue(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_first('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_first('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -237,8 +251,11 @@ def oobabooga_inner_monologue(prompt):
         
         
 def oobabooga_intuition(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     temperature = open_file(f'./config/Generation_Settings/Intuition/temperature.txt')
@@ -291,7 +308,7 @@ def oobabooga_intuition(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_first('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_first('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -304,8 +321,11 @@ def oobabooga_intuition(prompt):
 
         
 def oobabooga_episodicmem(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -352,7 +372,7 @@ def oobabooga_episodicmem(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_second('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_second('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -364,8 +384,11 @@ def oobabooga_episodicmem(prompt):
         
         
 def oobabooga_flashmem(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -412,7 +435,7 @@ def oobabooga_flashmem(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_second('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_second('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -425,8 +448,11 @@ def oobabooga_flashmem(prompt):
         
         
 def oobabooga_implicitmem(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -473,7 +499,7 @@ def oobabooga_implicitmem(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_second('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_second('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -485,8 +511,11 @@ def oobabooga_implicitmem(prompt):
         
         
 def oobabooga_explicitmem(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -533,7 +562,7 @@ def oobabooga_explicitmem(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_second('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_second('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -545,8 +574,11 @@ def oobabooga_explicitmem(prompt):
         
         
 def oobabooga_consolidationmem(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -593,7 +625,7 @@ def oobabooga_consolidationmem(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_second('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_second('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -605,8 +637,11 @@ def oobabooga_consolidationmem(prompt):
         
         
 def oobabooga_associativemem(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -653,7 +688,7 @@ def oobabooga_associativemem(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_second('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_second('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -665,8 +700,11 @@ def oobabooga_associativemem(prompt):
 
 
 def oobabooga_250(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -713,7 +751,7 @@ def oobabooga_250(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_first('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_first('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -726,8 +764,11 @@ def oobabooga_250(prompt):
 
 
 def oobabooga_500(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -774,7 +815,7 @@ def oobabooga_500(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_first('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_first('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -786,8 +827,11 @@ def oobabooga_500(prompt):
         
         
 def oobabooga_800(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -834,7 +878,7 @@ def oobabooga_800(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_first('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_first('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -847,8 +891,11 @@ def oobabooga_800(prompt):
         
         
 def oobabooga_response(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     temperature = open_file(f'./config/Generation_Settings/Response/temperature.txt')
@@ -901,7 +948,7 @@ def oobabooga_response(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_first('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_first('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -913,8 +960,11 @@ def oobabooga_response(prompt):
         
         
 def oobabooga_auto(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -961,7 +1011,7 @@ def oobabooga_auto(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_second('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_second('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -974,8 +1024,11 @@ def oobabooga_auto(prompt):
         
         
 def oobabooga_memyesno(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -1022,7 +1075,7 @@ def oobabooga_memyesno(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_second('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_second('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -1034,8 +1087,11 @@ def oobabooga_memyesno(prompt):
         
        
 def oobabooga_selector(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -1082,7 +1138,7 @@ def oobabooga_selector(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_second('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_second('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -1094,8 +1150,11 @@ def oobabooga_selector(prompt):
 
 
 def scrape_oobabooga_terms(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -1142,7 +1201,7 @@ def scrape_oobabooga_terms(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_first('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_first('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -1153,8 +1212,11 @@ def scrape_oobabooga_terms(prompt):
 
 
 def scrape_oobabooga_inner_monologue(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     temperature = open_file(f'./config/Generation_Settings/Inner_Monologue/temperature.txt')
@@ -1207,7 +1269,7 @@ def scrape_oobabooga_inner_monologue(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_first('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_first('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -1219,8 +1281,11 @@ def scrape_oobabooga_inner_monologue(prompt):
         
         
 def scrape_oobabooga_intuition(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     temperature = open_file(f'./config/Generation_Settings/Intuition/temperature.txt')
@@ -1273,7 +1338,7 @@ def scrape_oobabooga_intuition(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_first('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_first('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -1286,8 +1351,11 @@ def scrape_oobabooga_intuition(prompt):
 
         
 def scrape_oobabooga_episodicmem(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -1334,7 +1402,7 @@ def scrape_oobabooga_episodicmem(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_second('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_second('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -1346,8 +1414,11 @@ def scrape_oobabooga_episodicmem(prompt):
         
         
 def scrape_oobabooga_flashmem(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -1394,7 +1465,7 @@ def scrape_oobabooga_flashmem(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_second('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_second('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -1407,8 +1478,11 @@ def scrape_oobabooga_flashmem(prompt):
         
         
 def scrape_oobabooga_implicitmem(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -1455,7 +1529,7 @@ def scrape_oobabooga_implicitmem(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_second('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_second('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -1467,8 +1541,11 @@ def scrape_oobabooga_implicitmem(prompt):
         
         
 def scrape_oobabooga_explicitmem(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -1515,7 +1592,7 @@ def scrape_oobabooga_explicitmem(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_second('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_second('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -1527,8 +1604,11 @@ def scrape_oobabooga_explicitmem(prompt):
         
         
 def scrape_oobabooga_consolidationmem(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -1575,7 +1655,7 @@ def scrape_oobabooga_consolidationmem(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_second('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_second('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -1587,8 +1667,11 @@ def scrape_oobabooga_consolidationmem(prompt):
         
         
 def scrape_oobabooga_associativemem(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -1635,7 +1718,7 @@ def scrape_oobabooga_associativemem(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_second('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_second('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -1647,8 +1730,11 @@ def scrape_oobabooga_associativemem(prompt):
 
 
 def scrape_oobabooga_250(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -1695,7 +1781,7 @@ def scrape_oobabooga_250(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_first('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_first('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -1708,8 +1794,11 @@ def scrape_oobabooga_250(prompt):
 
 
 def scrape_oobabooga_500(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -1756,7 +1845,7 @@ def scrape_oobabooga_500(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_first('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_first('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -1768,8 +1857,11 @@ def scrape_oobabooga_500(prompt):
         
         
 def scrape_oobabooga_800(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -1816,7 +1908,7 @@ def scrape_oobabooga_800(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_first('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_first('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -1828,8 +1920,11 @@ def scrape_oobabooga_800(prompt):
         
         
 def scrape_oobabooga_scrape(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -1890,8 +1985,11 @@ def scrape_oobabooga_scrape(prompt):
         
         
 def scrape_oobabooga_response(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     temperature = open_file(f'./config/Generation_Settings/Response/temperature.txt')
@@ -1957,8 +2055,11 @@ def scrape_oobabooga_response(prompt):
         
         
 def scrape_oobabooga_auto(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -2005,7 +2106,7 @@ def scrape_oobabooga_auto(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_second('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_second('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -2018,8 +2119,11 @@ def scrape_oobabooga_auto(prompt):
         
         
 def scrape_oobabooga_memyesno(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -2066,7 +2170,7 @@ def scrape_oobabooga_memyesno(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_second('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_second('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -2078,8 +2182,11 @@ def scrape_oobabooga_memyesno(prompt):
         
        
 def scrape_oobabooga_selector(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -2126,7 +2233,7 @@ def scrape_oobabooga_selector(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_second('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_second('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -2138,8 +2245,11 @@ def scrape_oobabooga_selector(prompt):
 
 
 def agent_oobabooga_terms(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -2186,7 +2296,7 @@ def agent_oobabooga_terms(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_first('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_first('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -2197,8 +2307,11 @@ def agent_oobabooga_terms(prompt):
 
 
 def agent_oobabooga_inner_monologue(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     temperature = open_file(f'./config/Generation_Settings/Inner_Monologue/temperature.txt')
@@ -2250,7 +2363,7 @@ def agent_oobabooga_inner_monologue(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_first('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_first('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -2262,8 +2375,11 @@ def agent_oobabooga_inner_monologue(prompt):
         
         
 def agent_oobabooga_intuition(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     temperature = open_file(f'./config/Generation_Settings/Intuition/temperature.txt')
@@ -2315,7 +2431,7 @@ def agent_oobabooga_intuition(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_first('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_first('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -2328,8 +2444,11 @@ def agent_oobabooga_intuition(prompt):
 
         
 def agent_oobabooga_episodicmem(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -2376,7 +2495,7 @@ def agent_oobabooga_episodicmem(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_second('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_second('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -2388,8 +2507,11 @@ def agent_oobabooga_episodicmem(prompt):
         
         
 def agent_oobabooga_flashmem(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -2436,7 +2558,7 @@ def agent_oobabooga_flashmem(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_second('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_second('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -2449,8 +2571,11 @@ def agent_oobabooga_flashmem(prompt):
         
         
 def agent_oobabooga_implicitmem(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -2497,7 +2622,7 @@ def agent_oobabooga_implicitmem(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_second('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_second('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -2509,8 +2634,11 @@ def agent_oobabooga_implicitmem(prompt):
         
         
 def agent_oobabooga_explicitmem(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -2557,7 +2685,7 @@ def agent_oobabooga_explicitmem(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_second('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_second('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -2569,8 +2697,11 @@ def agent_oobabooga_explicitmem(prompt):
         
         
 def agent_oobabooga_consolidationmem(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -2617,7 +2748,7 @@ def agent_oobabooga_consolidationmem(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_second('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_second('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -2629,8 +2760,11 @@ def agent_oobabooga_consolidationmem(prompt):
         
         
 def agent_oobabooga_associativemem(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -2677,7 +2811,7 @@ def agent_oobabooga_associativemem(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_second('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_second('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -2689,8 +2823,11 @@ def agent_oobabooga_associativemem(prompt):
 
 
 def agent_oobabooga_250(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -2737,7 +2874,7 @@ def agent_oobabooga_250(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_first('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_first('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -2750,8 +2887,11 @@ def agent_oobabooga_250(prompt):
 
 
 def agent_oobabooga_500(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -2798,7 +2938,7 @@ def agent_oobabooga_500(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_first('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_first('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -2810,8 +2950,11 @@ def agent_oobabooga_500(prompt):
         
         
 def agent_oobabooga_800(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -2858,7 +3001,7 @@ def agent_oobabooga_800(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_first('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_first('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -2870,8 +3013,11 @@ def agent_oobabooga_800(prompt):
         
         
 def agent_oobabooga_scrape(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -2932,8 +3078,11 @@ def agent_oobabooga_scrape(prompt):
         
         
 def agent_oobabooga_master_tasklist(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     temperature = open_file(f'./config/Generation_Settings/Response/temperature.txt')
@@ -2985,7 +3134,7 @@ def agent_oobabooga_master_tasklist(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_first('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_first('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -2997,8 +3146,11 @@ def agent_oobabooga_master_tasklist(prompt):
         
         
 def agent_oobabooga_response(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     temperature = open_file(f'./config/Generation_Settings/Response/temperature.txt')
@@ -3050,7 +3202,7 @@ def agent_oobabooga_response(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_first('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_first('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -3062,8 +3214,11 @@ def agent_oobabooga_response(prompt):
         
         
 def agent_oobabooga_line_response(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     temperature = open_file(f'./config/Generation_Settings/Response/temperature.txt')
@@ -3115,7 +3270,7 @@ def agent_oobabooga_line_response(prompt):
         'stopping_strings': ['[/']
     }
 
-    next_host = get_next_host('api_keys/HOST_Oobabooga.txt')
+    next_host = get_next_host('HOST_Oobabooga')
     response = requests.post(f"{next_host}/v1/chat", json=request)
 
     if response.status_code == 200:
@@ -3128,8 +3283,11 @@ def agent_oobabooga_line_response(prompt):
         
         
 def agent_oobabooga_process_line_response(host, prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     temperature = open_file(f'./config/Generation_Settings/Response/temperature.txt')
@@ -3181,7 +3339,6 @@ def agent_oobabooga_process_line_response(host, prompt):
         'stopping_strings': ['[/']
     }
 
-    next_host = get_next_host('api_keys/HOST_Oobabooga.txt')
     response = requests.post(f"{host}/v1/chat", json=request)
 
     if response.status_code == 200:
@@ -3194,8 +3351,11 @@ def agent_oobabooga_process_line_response(host, prompt):
         
         
 def agent_oobabooga_auto(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -3242,7 +3402,7 @@ def agent_oobabooga_auto(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_first('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_first('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -3255,8 +3415,11 @@ def agent_oobabooga_auto(prompt):
         
         
 def agent_oobabooga_memyesno(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -3303,7 +3466,7 @@ def agent_oobabooga_memyesno(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_first('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_first('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -3315,8 +3478,11 @@ def agent_oobabooga_memyesno(prompt):
         
         
 def agent_oobabooga_webcheckyesno(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -3363,7 +3529,7 @@ def agent_oobabooga_webcheckyesno(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_first('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_first('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -3375,8 +3541,11 @@ def agent_oobabooga_webcheckyesno(prompt):
         
         
 def agent_oobabooga_webyesno(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -3423,7 +3592,7 @@ def agent_oobabooga_webyesno(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_first('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_first('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -3435,8 +3604,11 @@ def agent_oobabooga_webyesno(prompt):
         
        
 def agent_oobabooga_selector(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -3483,7 +3655,7 @@ def agent_oobabooga_selector(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_first('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_first('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -3495,8 +3667,11 @@ def agent_oobabooga_selector(prompt):
         
         
 def File_Processor_oobabooga_terms(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -3543,7 +3718,7 @@ def File_Processor_oobabooga_terms(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_first('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_first('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -3554,8 +3729,11 @@ def File_Processor_oobabooga_terms(prompt):
 
 
 def File_Processor_oobabooga_inner_monologue(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -3602,7 +3780,7 @@ def File_Processor_oobabooga_inner_monologue(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_first('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_first('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -3614,8 +3792,11 @@ def File_Processor_oobabooga_inner_monologue(prompt):
         
         
 def File_Processor_oobabooga_intuition(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -3662,7 +3843,7 @@ def File_Processor_oobabooga_intuition(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_first('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_first('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -3675,8 +3856,11 @@ def File_Processor_oobabooga_intuition(prompt):
 
         
 def File_Processor_oobabooga_episodicmem(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -3723,7 +3907,7 @@ def File_Processor_oobabooga_episodicmem(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_first('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_first('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -3735,8 +3919,11 @@ def File_Processor_oobabooga_episodicmem(prompt):
         
         
 def File_Processor_oobabooga_flashmem(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -3783,7 +3970,7 @@ def File_Processor_oobabooga_flashmem(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_first('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_first('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -3796,8 +3983,11 @@ def File_Processor_oobabooga_flashmem(prompt):
         
         
 def File_Processor_oobabooga_implicitmem(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -3844,7 +4034,7 @@ def File_Processor_oobabooga_implicitmem(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_first('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_first('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -3856,8 +4046,11 @@ def File_Processor_oobabooga_implicitmem(prompt):
         
         
 def File_Processor_oobabooga_explicitmem(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -3904,7 +4097,7 @@ def File_Processor_oobabooga_explicitmem(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_first('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_first('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -3916,8 +4109,11 @@ def File_Processor_oobabooga_explicitmem(prompt):
         
         
 def File_Processor_oobabooga_consolidationmem(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -3964,7 +4160,7 @@ def File_Processor_oobabooga_consolidationmem(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_first('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_first('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -3976,8 +4172,11 @@ def File_Processor_oobabooga_consolidationmem(prompt):
         
         
 def File_Processor_oobabooga_associativemem(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -4024,7 +4223,7 @@ def File_Processor_oobabooga_associativemem(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_first('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_first('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -4036,8 +4235,11 @@ def File_Processor_oobabooga_associativemem(prompt):
 
 
 def File_Processor_oobabooga_250(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -4084,7 +4286,7 @@ def File_Processor_oobabooga_250(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_first('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_first('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -4097,8 +4299,11 @@ def File_Processor_oobabooga_250(prompt):
 
 
 def File_Processor_oobabooga_500(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -4145,7 +4350,7 @@ def File_Processor_oobabooga_500(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_first('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_first('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -4157,8 +4362,11 @@ def File_Processor_oobabooga_500(prompt):
         
         
 def File_Processor_oobabooga_800(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -4205,7 +4413,7 @@ def File_Processor_oobabooga_800(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_first('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_first('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -4217,8 +4425,11 @@ def File_Processor_oobabooga_800(prompt):
         
         
 def File_Processor_oobabooga_scrape(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -4265,7 +4476,7 @@ def File_Processor_oobabooga_scrape(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_first('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_first('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -4278,8 +4489,11 @@ def File_Processor_oobabooga_scrape(prompt):
         
         
 def File_Processor_oobabooga_response(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -4327,7 +4541,7 @@ def File_Processor_oobabooga_response(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_first('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_first('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -4339,8 +4553,11 @@ def File_Processor_oobabooga_response(prompt):
         
         
 def File_Processor_oobabooga_auto(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -4387,7 +4604,7 @@ def File_Processor_oobabooga_auto(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_first('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_first('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -4400,8 +4617,11 @@ def File_Processor_oobabooga_auto(prompt):
         
         
 def File_Processor_oobabooga_memyesno(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -4448,7 +4668,7 @@ def File_Processor_oobabooga_memyesno(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_first('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_first('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -4460,8 +4680,11 @@ def File_Processor_oobabooga_memyesno(prompt):
         
        
 def File_Processor_oobabooga_selector(prompt):
-    bot_name = open_file('./config/prompt_bot_name.txt')
-    username = open_file('./config/prompt_username.txt')
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
@@ -4508,7 +4731,7 @@ def File_Processor_oobabooga_selector(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_first('api_keys/HOST_Oobabooga.txt')}/v1/chat", json=request)
+    response = requests.post(f"{open_file_first('HOST_Oobabooga')}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']

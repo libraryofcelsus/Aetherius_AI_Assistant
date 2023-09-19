@@ -4823,7 +4823,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
             # Retrieve the TTS model setting from the dictionary
             tts_model = settings_dict.get('TTS', 'gTTS') 
             # # Generate Aetherius's Response
-            conversation2.append({'role': 'assistant', 'content': f"CHATBOT'S MEMORIES: {db_search_12}\n{db_search_13}\n{bot_name}'s HEURISTICS: {db_search_14}\nCHATBOT'S INNER THOUGHTS: {output_one}\n{second_prompt} [INST] Now return and analyze the previous conversation history. [/INST] CONVERSATION HISTORY: {con_hist} [INST] {usernameupper}: We are currently in the middle of a conversation, please review your action plan for your response. [/INST] {botnameupper}: I will now review my action plan, using it as a framework to construct my upcoming response: {output_two}\nI will proceed by reviewing our previous conversation to ensure I respond in a manner that is both informative and emotionally attuned. [INST] {usernameupper}: Deliver a response to the user that entirely satisfies my latest request. You are giving a direct response to the message of: {a} [/INST] "})
+            conversation2.append({'role': 'assistant', 'content': f"CHATBOT'S MEMORIES: {db_search_12}\n{db_search_13}\n{bot_name}'s HEURISTICS: {db_search_14}\nCHATBOT'S INNER THOUGHTS: {output_one}\n{second_prompt} [INST] Now return and analyze the previous conversation history. [/INST] CONVERSATION HISTORY: {con_hist} [INST] {usernameupper}: We are currently in the middle of a conversation, please review your action plan for your response. [/INST] {botnameupper}: I will now review my action plan, using it as a framework to construct my upcoming response: {output_two}\nI will proceed by reviewing our previous conversation to ensure I respond in a manner that is both informative and emotionally attuned. Please now give me the message I am to respond to. [INST] {usernameupper}: {a} [/INST] {botnameupper}: "})
             prompt = ''.join([message_dict['content'] for message_dict in conversation2])
             response_two = oobabooga_response(prompt)
             if response_two.startswith(f"{botnameupper}:"):
@@ -6632,10 +6632,22 @@ class ChatBotApplication(customtkinter.CTkFrame):
                                 master_tasklist_output, a
                             )
                             futures.append(future)
+
                     for future in concurrent.futures.as_completed(futures):
                         tasklist_completion.extend(future.result())
             except Exception as e:
                 print(f"An error occurred while executing threads: {e}")
+
+            # Create directories if they don't exist
+            directory = f"logs/Datasets/{bot_name}/{username}/Agent"
+            if not os.path.exists(directory):
+                os.makedirs(directory)
+
+            # Write tasklist_completion to a text file
+            file_path = os.path.join(directory, f"{a}.txt")
+            with open(file_path, 'w') as f:
+                for item in tasklist_completion:
+                    f.write(f"{item}\n")
                         
                         
                         

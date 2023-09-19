@@ -324,6 +324,23 @@ def chunk_text_from_url(url, chunk_size=380, overlap=40, results_callback=None):
         texttemp = '\n'.join(line for line in texttemp.splitlines() if line.strip())
         chunks = chunk_text(texttemp, chunk_size, overlap)
         weblist = list()
+        try:
+                # Open and read the JSON file with utf-8 encoding
+            with open('config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+                settings = json.load(f)
+                # Retrieve host data from the JSON dictionary
+            host_data = settings.get('HOST_Oobabooga', '').strip()
+                # Split the host data into individual hosts
+            hosts = host_data.split(' ')
+                # Count the number of hosts
+            num_hosts = len(hosts)
+                
+        except Exception as e:
+            print(f"An error occurred while reading the host file: {e}")
+        host_queue = Queue()
+        for host in hosts:
+            host_queue.put(host)
+            
         # Define the collection name
         collection_name = f"Bot_{bot_name}_External_Knowledgebase"
         try:
@@ -335,102 +352,147 @@ def chunk_text_from_url(url, chunk_size=380, overlap=40, results_callback=None):
             vectors_config=VectorParams(size=embed_size, distance=Distance.COSINE),
         )
         
-        for chunk in chunks:
-            websum = list()
-            websum.append({'role': 'system', 'content': "MAIN SYSTEM PROMPT: You are an ai text summarizer.  Your job is to take the given text from a scraped article, then return the text in a summarized article form.  Do not generalize, rephrase, or add information in your summary, keep the same semantic meaning.  If no article is given, print no article.\n\n\n"})
-            websum.append({'role': 'user', 'content': f"SCRAPED ARTICLE: {chunk}\n\nINSTRUCTIONS: Summarize the article without losing any factual data or semantic meaning.  Ensure to maintain full context and information. Only print the truncated article, do not include any additional text or comments. [/INST] SUMMARIZER BOT: Sure! Here is the summarized article based on the scraped text: "})
-            prompt = ''.join([message_dict['content'] for message_dict in websum])
-            text = scrape_oobabooga_scrape(prompt)
-            if text.startswith("Sure! Here is the summarized article based on the scraped text:"):
+        
+        try:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=num_hosts) as executor:
+                futures = []
+                for chunk in chunks:
+                    future = executor.submit(
+                        wrapped_chunk_from_url,
+                        host_queue, chunk, collection_name, bot_name, username, embeddings, client, url
+                    )
+                    futures.append(future)
+
+                # Gather results
+                results = []
+                for future in concurrent.futures.as_completed(futures):
+                    results.append(future.result())
+
+                # Do something with the results, like appending to `weblist`
+                weblist = []
+                for result in results:
+                    weblist.append(result['url'] + ' ' + result['processed_text'])
+                    print(result['url'] + '\n' + result['semantic_db_term'] + '\n' + result['processed_text'])
+
+        except Exception as e:
+            print(f"An error occurred while executing threads: {e}")
+
+        table = weblist
+        return table
+    except Exception as e:
+        print(e)
+        table = "Error"
+        return table  
+        
+def wrapped_chunk_from_url(host_queue, chunk, collection_name, bot_name, username, embeddings, client, url):
+    try:
+            # get a host
+        host = host_queue.get()
+        result = summarized_chunk_from_url(host, chunk, collection_name, bot_name, username, embeddings, client, url)
+            # release the host
+        host_queue.put(host)
+        return result
+    except Exception as e:
+        print(e)
+
+
+def summarized_chunk_from_url(host, chunk, collection_name, bot_name, username, embeddings, client, url, results_callback=None):
+    try:
+        weblist = list()
+        websum = list()
+        websum.append({'role': 'system', 'content': "MAIN SYSTEM PROMPT: You are an ai text summarizer.  Your job is to take the given text from a scraped article, then return the text in a summarized article form.  Do not generalize, rephrase, or add information in your summary, keep the same semantic meaning.  If no article is given, print no article.\n\n\n"})
+        websum.append({'role': 'user', 'content': f"SCRAPED ARTICLE: {chunk}\n\nINSTRUCTIONS: Summarize the article without losing any factual data or semantic meaning.  Ensure to maintain full context and information. Only print the truncated article, do not include any additional text or comments. [/INST] SUMMARIZER BOT: Sure! Here is the summarized article based on the scraped text: "})
+        prompt = ''.join([message_dict['content'] for message_dict in websum])
+            
+        text = scrape_oobabooga_scrape(host, prompt)
+        if text.startswith("Sure! Here is the summarized article based on the scraped text:"):
                 # Remove the specified text from the variable
-                text = text[len("Sure! Here is the summarized article based on the scraped text:"):]
-            if len(text) < 20:
-                text = "No Webscrape available"
+            text = text[len("Sure! Here is the summarized article based on the scraped text:"):]
+        if len(text) < 20:
+            text = "No Webscrape available"
         #    text = chatgpt35_completion(websum)
         #    paragraphs = text.split('\n\n')  # Split into paragraphs
         #    for paragraph in paragraphs:  # Process each paragraph individually, add a check to see if paragraph contained actual information.
-            webcheck = list()
-            webcheck.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a sub-agent for an automated webscraping tool. Your task is to decide if the previous Ai sub-agent scraped legible information. The scraped text should contain some form of text, if it does, print 'YES'.  If the webscrape failed or is illegible, print: 'NO'."})
-            webcheck.append({'role': 'user', 'content': f"ORIGINAL TEXT FROM SCRAPE: {chunk}[/INST]"})
-            webcheck.append({'role': 'user', 'content': f"PROCESSED WEBSCRAPE: {text}\n\n"})
-            webcheck.append({'role': 'user', 'content': f"[INST]SYSTEM: You are responding for a Yes or No input field. You are only capible of printing Yes or No. Use the format: [AI AGENT: <'Yes'/'No'>][/INST]\n\nASSISTANT: "})
+        webcheck = list()
+        webcheck.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a sub-agent for an automated webscraping tool. Your task is to decide if the previous Ai sub-agent scraped legible information. The scraped text should contain some form of text, if it does, print 'YES'.  If the webscrape failed or is illegible, print: 'NO'."})
+        webcheck.append({'role': 'user', 'content': f"ORIGINAL TEXT FROM SCRAPE: {chunk}[/INST]"})
+        webcheck.append({'role': 'user', 'content': f"PROCESSED WEBSCRAPE: {text}\n\n"})
+        webcheck.append({'role': 'user', 'content': f"[INST]SYSTEM: You are responding for a Yes or No input field. You are only capible of printing Yes or No. Use the format: [AI AGENT: <'Yes'/'No'>][/INST]\n\nASSISTANT: "})
 
-            prompt = ''.join([message_dict['content'] for message_dict in webcheck])
+        prompt = ''.join([message_dict['content'] for message_dict in webcheck])
         #    webyescheck = agent_oobabooga_webcheckyesno(prompt)
-            webyescheck = 'yes'
-            if 'no webscrape' in text.lower():
+        webyescheck = 'yes'
+        if 'no webscrape' in text.lower():
+            text = chunk
+            print('---------')
+            print('Summarization Failed')
+            pass
+        if 'no article' in text.lower():
+            text = chunk
+            print('---------')
+            print('Summarization Failed')
+            pass
+        if 'you are a text' in text.lower():
+            text = chunk
+            print('---------')
+            print('Summarization Failed')
+            pass
+        if 'no summary' in text.lower():
+            text = chunk
+            print('---------')
+            print('Summarization Failed')
+            pass  
+        if 'i am an ai' in text.lower():
+            text = chunk
+            print('---------')
+            print('Summarization Failed')
+            pass                
+        else:
+            if 'cannot provide a summary of' in text.lower():
                 text = chunk
+            if 'yes' in webyescheck.lower():
+                semanticterm = list()
+                semanticterm.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a bot responsible for taging articles with a title for database queries.  Your job is to read the given text, then create a title in question form representative of what the article is about, focusing on its main subject.  The title should be semantically identical to the overview of the article and not include extraneous info.  The article is from the URL: {url}. Use the format: [<TITLE IN QUESTION FORM>].\n\n"})
+                semanticterm.append({'role': 'user', 'content': f"ARTICLE: {text}\n\n"})
+                semanticterm.append({'role': 'user', 'content': f"SYSTEM: Create a short, single question that encapsulates the semantic meaning of the Article.  Use the format: [<QUESTION TITLE>].  Please only print the title, it will be directly input in front of the article.[/INST]\n\nASSISTANT: Sure! Here's the summary of the webscrape: "})
+                prompt = ''.join([message_dict['content'] for message_dict in semanticterm])
+                semantic_db_term = scrape_oobabooga_scrape(host, prompt)
+                if 'cannot provide a summary of' in semantic_db_term.lower():
+                    semantic_db_term = 'Tag Censored by Model'
                 print('---------')
-                print('Summarization Failed')
-                pass
-            if 'no article' in text.lower():
-                text = chunk
-                print('---------')
-                print('Summarization Failed')
-                pass
-            if 'you are a text' in text.lower():
-                text = chunk
-                print('---------')
-                print('Summarization Failed')
-                pass
-            if 'no summary' in text.lower():
-                text = chunk
-                print('---------')
-                print('Summarization Failed')
-                pass  
-            if 'i am an ai' in text.lower():
-                text = chunk
-                print('---------')
-                print('Summarization Failed')
-                pass                
-            else:
-                if 'cannot provide a summary of' in text.lower():
-                    text = chunk
-                if 'yes' in webyescheck.lower():
-                    semanticterm = list()
-                    semanticterm.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a bot responsible for taging articles with a title for database queries.  Your job is to read the given text, then create a title in question form representative of what the article is about, focusing on its main subject.  The title should be semantically identical to the overview of the article and not include extraneous info.  The article is from the URL: {url}. Use the format: [<TITLE IN QUESTION FORM>].\n\n"})
-                    semanticterm.append({'role': 'user', 'content': f"ARTICLE: {text}\n\n"})
-                    semanticterm.append({'role': 'user', 'content': f"SYSTEM: Create a short, single question that encapsulates the semantic meaning of the Article.  Use the format: [<QUESTION TITLE>].  Please only print the title, it will be directly input in front of the article.[/INST]\n\nASSISTANT: Sure! Here's the summary of the webscrape: "})
-                    prompt = ''.join([message_dict['content'] for message_dict in semanticterm])
-                    semantic_db_term = scrape_oobabooga_scrape(prompt)
-                    if 'cannot provide a summary of' in semantic_db_term.lower():
-                        semantic_db_term = 'Tag Censored by Model'
-                    print('---------')
-                    weblist.append(url + ' ' + text)
-                    print(url + '\n' + semantic_db_term + '\n' + text)
-                    if results_callback is not None:
-                        results_callback(url + ' ' + text)
-                    payload = list()
-                    timestamp = time()
-                    timestring = timestamp_to_datetime(timestamp)
+                weblist.append(url + ' ' + text)
+                print(url + '\n' + semantic_db_term + '\n' + text)
+                if results_callback is not None:
+                    results_callback(url + ' ' + text)
+                payload = list()
+                timestamp = time()
+                timestring = timestamp_to_datetime(timestamp)
                     # Create the collection only if it doesn't exist
 
-                    vector1 = embeddings(semantic_db_term + ' ' + text)
+                vector1 = embeddings(semantic_db_term + ' ' + text)
                 #    embedding = model.encode(query)
-                    unique_id = str(uuid4())
-                    point_id = unique_id + str(int(timestamp))
-                    metadata = {
-                        'bot': bot_name,
-                        'user': username,
-                        'time': timestamp,
-                        'source': url,
-                        'tag': semantic_db_term,
-                        'message': text,
-                        'timestring': timestring,
-                        'uuid': unique_id,
-                        'memory_type': 'Web_Scrape',
-                    }
-                    client.upsert(collection_name=collection_name,
-                                         points=[PointStruct(id=unique_id, vector=vector1, payload=metadata)]) 
-                    payload.clear()           
-                    pass  
-                else:
-                    print('---------')
-                    print(f"\n\n\nFAILED ARTICLE: {text}")
-                    print(f'\nERROR MESSAGE FROM BOT: {webyescheck}\n\n\n')                          
+                unique_id = str(uuid4())
+                point_id = unique_id + str(int(timestamp))
+                metadata = {
+                    'bot': bot_name,
+                    'user': username,
+                    'time': timestamp,
+                    'source': url,
+                    'tag': semantic_db_term,
+                    'message': text,
+                    'timestring': timestring,
+                    'uuid': unique_id,
+                    'memory_type': 'Web_Scrape',
+                }
+                client.upsert(collection_name=collection_name,
+                                     points=[PointStruct(id=unique_id, vector=vector1, payload=metadata)]) 
+                payload.clear()           
+            else:
+                print('---------')
+                print(f"\n\n\nFAILED ARTICLE: {text}")
+                print(f'\nERROR MESSAGE FROM BOT: {webyescheck}\n\n\n')  
         table = weblist
-        
-        return table
+        return table                
     except Exception as e:
         print(e)
         table = "Error"
@@ -494,6 +556,22 @@ def chunk_text_from_file(file_path, chunk_size=400, overlap=40):
         texttemp = '\n'.join(line for line in texttemp.splitlines() if line.strip())
         chunks = chunk_text(texttemp, chunk_size, overlap)
         filelist = list()
+        try:
+                # Open and read the JSON file with utf-8 encoding
+            with open('config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+                settings = json.load(f)
+                # Retrieve host data from the JSON dictionary
+            host_data = settings.get('HOST_Oobabooga', '').strip()
+                # Split the host data into individual hosts
+            hosts = host_data.split(' ')
+                # Count the number of hosts
+            num_hosts = len(hosts)
+                
+        except Exception as e:
+            print(f"An error occurred while reading the host file: {e}")
+        host_queue = Queue()
+        for host in hosts:
+            host_queue.put(host)
         # Define the collection name
         collection_name = f"Bot_{bot_name}_External_Knowledgebase"
         try:
@@ -505,17 +583,67 @@ def chunk_text_from_file(file_path, chunk_size=400, overlap=40):
             vectors_config=VectorParams(size=embed_size, distance=Distance.COSINE),
         )
         
-        for chunk in chunks:
-            filesum = list()
-            
-            filesum.append({'role': 'system', 'content': "MAIN SYSTEM PROMPT: You are an ai text summarizer.  Your job is to take the given text from a scraped file, then return the text in a summarized article form.  Do not generalize, rephrase, or add information in your summary, keep the same semantic meaning.  If no article is given, print no article.\n\n\n"})
-            filesum.append({'role': 'user', 'content': f"SCRAPED ARTICLE: {chunk}\n\nINSTRUCTIONS: Summarize the article without losing any factual knowledge and maintaining full context and information. Only print the truncated article, do not include any additional text or comments. [/INST] SUMMARIZER BOT: Sure! Here is the summarized article based on the scraped text: "})
+    #    for chunk in chunks:
+        
+        try:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=num_hosts) as executor:
+                futures = []
+                for chunk in chunks:
+                    future = executor.submit(
+                        wrapped_chunk_from_file,
+                        host_queue, chunk, collection_name, bot_name, username, embeddings, client, file_path
+                    )
+                    futures.append(future)
+
+                # Gather results
+                results = []
+                for future in concurrent.futures.as_completed(futures):
+                    results.append(future.result())
+
+                # Do something with the results, like appending to `weblist`
+                filelist = []
+                for result in results:
+                    filelist.append(result['file_path'] + ' ' + result['processed_text'])
+                    print(result['file_path'] + '\n' + result['semantic_db_term'] + '\n' + result['processed_text'])
+
+        except Exception as e:
+            print(f"An error occurred while executing threads: {e}")
+
+        table = filelist
+        return table
+    except Exception as e:
+        print(e)
+        table = "Error"
+        return table  
+        
+         
+
+        
+        
+def wrapped_chunk_from_file(host_queue, chunk, collection_name, bot_name, username, embeddings, client, file_path):
+    try:
+            # get a host
+        host = host_queue.get()
+        result = summarized_chunk_from_file(host, chunk, collection_name, bot_name, username, embeddings, client, file_path)
+            # release the host
+        host_queue.put(host)
+        return result
+    except Exception as e:
+        print(e)
+        
+        
+def summarized_chunk_from_file(host, chunk, collection_name, bot_name, username, embeddings, client, file_path):
+    try:
+        filesum = list()
+        filelist = list()
+        filesum.append({'role': 'system', 'content': "MAIN SYSTEM PROMPT: You are an ai text summarizer.  Your job is to take the given text from a scraped file, then return the text in a summarized article form.  Do not generalize, rephrase, or add information in your summary, keep the same semantic meaning.  If no article is given, print no article.\n\n\n"})
+        filesum.append({'role': 'user', 'content': f"SCRAPED ARTICLE: {chunk}\n\nINSTRUCTIONS: Summarize the article without losing any factual knowledge and maintaining full context and information. Only print the truncated article, do not include any additional text or comments. [/INST] SUMMARIZER BOT: Sure! Here is the summarized article based on the scraped text: "})
 
 
-            prompt = ''.join([message_dict['content'] for message_dict in filesum])
-            text = File_Processor_oobabooga_scrape(prompt)
-            if len(text) < 20:
-                text = "No File available"
+        prompt = ''.join([message_dict['content'] for message_dict in filesum])
+        text = File_Processor_oobabooga_scrape(host, prompt)
+        if len(text) < 20:
+            text = "No File available"
         #    paragraphs = text.split('\n\n')  # Split into paragraphs
         #    for paragraph in paragraphs:  # Process each paragraph individually, add a check to see if paragraph contained actual information.
         #        filecheck = list()
@@ -523,93 +651,93 @@ def chunk_text_from_file(file_path, chunk_size=400, overlap=40):
         #        filecheck.append({'role': 'system', 'content': f"You are an agent for an automated text-processing tool. You are one of many agents in a chain. Your task is to decide if the given text from a file was processed successfully. The processed text should contain factual data or opinions. If the given data only consists of an error message or a single question, skip it.  If the article was processed successfully, print: YES.  If a file-process is not needed, print: NO."})
         #        filecheck.append({'role': 'user', 'content': f"Is the processed information useful to an end-user? YES/NO: {paragraph}"})
                 
-            filecheck = list()
-            filecheck.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are an agent for an automated text scraping tool. Your task is to decide if the previous Ai Agent scraped the text successfully. The scraped text should contain some form of article, if it does, print 'YES'. If the article was scraped successfully, print: 'YES'.  If the text scrape failed or is a response from the first agent, print: 'NO'.\n\n"})
-            filecheck.append({'role': 'user', 'content': f"ORIGINAL TEXT FROM SCRAPE: {chunk}\n\n"})
-            filecheck.append({'role': 'user', 'content': f"PROCESSED FILE TEXT: {text}\n\n"})
-            filecheck.append({'role': 'user', 'content': f"SYSTEM: You are responding for a Yes or No input field. You are only capible of printing Yes or No. Use the format: [AI AGENT: <'Yes'/'No'>][/INST]\n\nASSISTANT: "})
-            prompt = ''.join([message_dict['content'] for message_dict in filecheck])
-            fileyescheck = 'yes'
-            if 'no file' in text.lower():
+        filecheck = list()
+        filecheck.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are an agent for an automated text scraping tool. Your task is to decide if the previous Ai Agent scraped the text successfully. The scraped text should contain some form of article, if it does, print 'YES'. If the article was scraped successfully, print: 'YES'.  If the text scrape failed or is a response from the first agent, print: 'NO'.\n\n"})
+        filecheck.append({'role': 'user', 'content': f"ORIGINAL TEXT FROM SCRAPE: {chunk}\n\n"})
+        filecheck.append({'role': 'user', 'content': f"PROCESSED FILE TEXT: {text}\n\n"})
+        filecheck.append({'role': 'user', 'content': f"SYSTEM: You are responding for a Yes or No input field. You are only capible of printing Yes or No. Use the format: [AI AGENT: <'Yes'/'No'>][/INST]\n\nASSISTANT: "})
+        prompt = ''.join([message_dict['content'] for message_dict in filecheck])
+        fileyescheck = 'yes'
+        if 'no file' in text.lower():
+            print('---------')
+            print('Summarization Failed')
+            pass
+        if 'no article' in text.lower():
+            print('---------')
+            print('Summarization Failed')
+            pass
+        if 'you are a text' in text.lower():
+            print('---------')
+            print('Summarization Failed')
+            pass
+        if 'no summary' in text.lower():
+            print('---------')
+            print('Summarization Failed')
+            pass  
+        if 'i am an ai' in text.lower():
+            print('---------')
+            print('Summarization Failed')
+            pass                
+        else:
+            if 'cannot provide a summary of' in text.lower():
+                text = chunk
+            if 'yes' in fileyescheck.lower():
+                semanticterm = list()
+                semanticterm.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a bot responsible for taging articles with a title for database queries.  Your job is to read the given text, then create a title in question form representative of what the article is about.  The title should be semantically identical to the overview of the article and not include extraneous info. Use the format: [<TITLE IN QUESTION FORM>].\n\n"})
+                semanticterm.append({'role': 'user', 'content': f"ARTICLE: {text}\n\n"})
+                semanticterm.append({'role': 'user', 'content': f"SYSTEM: Create a short, single question that encapsulates the semantic meaning of the Article.  Use the format: [<QUESTION TITLE>].  Please only print the title, it will be directly input in front of the article.[/INST]\n\nASSISTANT: Sure! Here's the summary of the given article: "})
+                prompt = ''.join([message_dict['content'] for message_dict in semanticterm])
+                semantic_db_term = File_Processor_oobabooga_scrape(host, prompt)
+                filename = os.path.basename(file_path)
                 print('---------')
-                print('Summarization Failed')
-                pass
-            if 'no article' in text.lower():
-                print('---------')
-                print('Summarization Failed')
-                pass
-            if 'you are a text' in text.lower():
-                print('---------')
-                print('Summarization Failed')
-                pass
-            if 'no summary' in text.lower():
-                print('---------')
-                print('Summarization Failed')
-                pass  
-            if 'i am an ai' in text.lower():
-                print('---------')
-                print('Summarization Failed')
-                pass                
-            else:
-                if 'cannot provide a summary of' in text.lower():
-                    text = chunk
-                if 'yes' in fileyescheck.lower():
-                    semanticterm = list()
-                    semanticterm.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a bot responsible for taging articles with a title for database queries.  Your job is to read the given text, then create a title in question form representative of what the article is about.  The title should be semantically identical to the overview of the article and not include extraneous info. Use the format: [<TITLE IN QUESTION FORM>].\n\n"})
-                    semanticterm.append({'role': 'user', 'content': f"ARTICLE: {text}\n\n"})
-                    semanticterm.append({'role': 'user', 'content': f"SYSTEM: Create a short, single question that encapsulates the semantic meaning of the Article.  Use the format: [<QUESTION TITLE>].  Please only print the title, it will be directly input in front of the article.[/INST]\n\nASSISTANT: Sure! Here's the summary of the given article: "})
-                    prompt = ''.join([message_dict['content'] for message_dict in semanticterm])
-                    semantic_db_term = File_Processor_oobabooga_scrape(prompt)
-                    filename = os.path.basename(file_path)
-                    print('---------')
-                    if 'cannot provide a summary of' in semantic_db_term.lower():
-                        semantic_db_term = 'Tag Censored by Model'
+                if 'cannot provide a summary of' in semantic_db_term.lower():
+                    semantic_db_term = 'Tag Censored by Model'
                     # Generate and append filename and paragraph to filelist
-                    filelist.append(filename + ' ' + paragraph)
-                    print(filename + '\n' + semantic_db_term + '\n' + paragraph)
+                filelist.append(filename + ' ' + text)
+                print(filename + '\n' + semantic_db_term + '\n' + text)
 
                     # Create or update the text file in ./Upload
-                    text_file_path = './Upload/' + filename + '.txt'
-                    with open(text_file_path, 'a') as f:  # 'a' means append mode
-                        f.write('<' + filename + '>\n')
-                        f.write('<' + semantic_db_term + '>\n')
-                        f.write('<' + paragraph + '>\n\n')  # Double newline for separation
+                text_file_path = './Upload/' + filename + '.txt'
+                with open(text_file_path, 'a') as f:  # 'a' means append mode
+                    f.write('<' + filename + '>\n')
+                    f.write('<' + semantic_db_term + '>\n')
+                    f.write('<' + text + '>\n\n')  # Double newline for separation
 
-                    payload = list()
-                    timestamp = time()
-                    timestring = timestamp_to_datetime(timestamp)
-                    vector1 = embeddings(filename + '\n' + semantic_db_term + '\n' + paragraph)
-                    unique_id = str(uuid4())
-                    point_id = unique_id + str(int(timestamp))
+                payload = list()
+                timestamp = time()
+                timestring = timestamp_to_datetime(timestamp)
+                vector1 = embeddings(filename + '\n' + semantic_db_term + '\n' + text)
+                unique_id = str(uuid4())
+                point_id = unique_id + str(int(timestamp))
 
-                    metadata = {
-                        'bot': bot_name,
-                        'user': username,
-                        'time': timestamp,
-                        'source': filename,
-                        'tag': semantic_db_term,
-                        'message': paragraph,
-                        'timestring': timestring,
-                        'uuid': unique_id,
-                        'memory_type': 'File_Scrape',
-                    }
+                metadata = {
+                    'bot': bot_name,
+                    'user': username,
+                    'time': timestamp,
+                    'source': filename,
+                    'tag': semantic_db_term,
+                    'message': text,
+                    'timestring': timestring,
+                    'uuid': unique_id,
+                    'memory_type': 'File_Scrape',
+                }
 
-                    client.upsert(collection_name=collection_name,
-                                  points=[PointStruct(id=unique_id, vector=vector1, payload=metadata)])
+                client.upsert(collection_name=collection_name,
+                             points=[PointStruct(id=unique_id, vector=vector1, payload=metadata)])
 
-                    payload.clear()
-                    filecheck.clear()      
-                    pass  
-                else:
-                    print('---------')
-                    print(f'\n\n\nERROR MESSAGE FROM BOT: {fileyescheck}\n\n\n')                          
-        table = 'Done'
-        
+                payload.clear()
+                filecheck.clear()      
+                pass  
+            else:
+                print('---------')
+                print(f'\n\n\nERROR MESSAGE FROM BOT: {fileyescheck}\n\n\n')                          
+        table = filelist
         return table
     except Exception as e:
         print(e)
         table = "Error"
         return table  
+        
         
         
 def search_and_chunk(query, my_api_key, my_cse_id, **kwargs):
@@ -705,12 +833,14 @@ def GPT_4_Tasklist_Web_Scrape(query, results_callback):
         else:
             conversation.append({'role': 'assistant', 'content': "%s" % greeting_msg})
             print("\n%s" % greeting_msg)
-        
+            
+            
+
         # # Check for "Exit"
         if query == 'Skip':   
             pass
         else:
-            urls = urls = chunk_text_from_url(query)
+            urls = chunk_text_from_url(query)
         print('---------')
         return
         
@@ -2695,6 +2825,8 @@ class ChatBotApplication(customtkinter.CTkFrame):
 
         results_text = tk.Text(websearch_window)
         results_text.pack()
+
+
 
         def perform_search():
             query = query_entry.get()

@@ -92,12 +92,19 @@ def get_next_host(key):
 
     content = settings_dict.get(key, '').strip()
     hosts = content.split(' ')
-    hosts = [host for host in hosts if host]
+    hosts = [host for host in hosts if host]  # Remove empty strings
+
+    if not hosts:  # Check if the hosts list is empty
+        return "No hosts available"
+
     position = read_position()
-    if position >= len(hosts):
+
+    if position >= len(hosts) or position < 0:  # Reset position if it's out of range
         position = 0
+
     next_host = hosts[position]
     store_position(position + 1)
+    
     return next_host
 
 def open_file_all(key):
@@ -1919,10 +1926,9 @@ def scrape_oobabooga_800(prompt):
         return decoded_string
         
         
-def scrape_oobabooga_scrape(prompt):
+def scrape_oobabooga_scrape(host, prompt):
     with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
-        settings = json.load(f)
-            
+        settings = json.load(f)   
     bot_name = settings.get('prompt_bot_name', '')
     username = settings.get('prompt_username', '')
     main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
@@ -1971,8 +1977,9 @@ def scrape_oobabooga_scrape(prompt):
         'stopping_strings': ['[/']
     }
 
-    next_host = get_next_host('api_keys/HOST_Oobabooga.txt')
-    response = requests.post(f"{next_host}/v1/chat", json=request)
+    # Load the settings from the JSON file
+    
+    response = requests.post(f"{host}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -1984,7 +1991,7 @@ def scrape_oobabooga_scrape(prompt):
         
         
         
-def scrape_oobabooga_response(prompt):
+def scrape_oobabooga_response(host, prompt):
     with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
         settings = json.load(f)
             
@@ -2042,8 +2049,8 @@ def scrape_oobabooga_response(prompt):
         'stopping_strings': ['[/']
     }
     
-    next_host = get_next_host('api_keys/HOST_Oobabooga.txt')
-    response = requests.post(f"https://{next_host}/v1/chat", json=request)
+    # Load the settings from the JSON file
+    response = requests.post(f"{host}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']
@@ -4424,7 +4431,7 @@ def File_Processor_oobabooga_800(prompt):
         return decoded_string
         
         
-def File_Processor_oobabooga_scrape(prompt):
+def File_Processor_oobabooga_scrape(host, prompt):
     with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
         settings = json.load(f)
             
@@ -4476,7 +4483,7 @@ def File_Processor_oobabooga_scrape(prompt):
         'stopping_strings': ['[/']
     }
 
-    response = requests.post(f"{open_file_first('HOST_Oobabooga')}/v1/chat", json=request)
+    response = requests.post(f"{host}/v1/chat", json=request)
 
     if response.status_code == 200:
         result = response.json()['results'][0]['history']

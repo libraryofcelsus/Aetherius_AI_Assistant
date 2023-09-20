@@ -8,6 +8,8 @@ For a quick demo deployment without a UI, see: [Public Oobabooga Api Colab](http
 ------
 **Recent Changes**
 
+• 9/18 Added Log writing for Agent mode internal research, can be found in ./logs/Datasets folder
+
 • 9/18 Converted Llama 2 Chatbot to use Json for settings.
 
 • 9/18 Worked on Memory Loop and added better sorting of Hosts during parallel task loop.

@@ -1,5 +1,5 @@
 # Aetherius
-Version .045c of the Aetherius Ai Personal Assistant/Agent/Companion by LibraryofCelsus.com
+Version .045d of the Aetherius Ai Personal Assistant/Agent/Companion by LibraryofCelsus.com
 
 Aetherius is in a state of constant iterative development.  If you like the version you are using, keep a backup.  Expect Bugs.
 
@@ -8,7 +8,9 @@ For a quick demo deployment without a UI, see: [Public Oobabooga Api Colab](http
 ------
 **Recent Changes**
 
-• 9/18 Added Log writing for Agent mode internal research, can be found in ./logs/Datasets folder
+• 9/22 Added Rough Draft of Multi-Agent Framework, Ui still needs to be edited to accommodate it.  Ui update and Example Script for Sub-Agent creation coming soon.
+
+• 9/19 Added Log writing for Agent mode internal research, can be found in ./logs/Datasets folder
 
 • 9/18 Converted Llama 2 Chatbot to use Json for settings.
 

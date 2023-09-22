@@ -4245,82 +4245,29 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     print("Collection does not exist.")
                 else:
                     print(f"An unexpected error occurred: {str(e)}")
-            if self.are_both_web_and_file_db_checked():
-                if self.is_web_db_checked():
-                    try:
-                        hits = client.search(
-                            collection_name=f"Bot_{bot_name}_External_Knowledgebase",
-                            query_vector=vector_input1,
-                            query_filter=Filter(
-                                must=[
-                                    FieldCondition(
-                                        key="user",
-                                        match=models.MatchValue(value=f"{username}"),
-                                    ),
-                                ]
-                            ),
-                            limit=5
-                        )
-                        inner_web = [hit.payload['message'] for hit in hits]
-                        print(inner_web)
-                    except Exception as e:
-                        if "Not found: Collection" in str(e):
-                            print("Collection does not exist.")
-                        else:
-                            print(f"An unexpected error occurred: {str(e)}")
-            else:
-                if self.is_web_db_checked():
-                    try:
-                        hits = client.search(
-                            collection_name=f"Bot_{bot_name}_External_Knowledgebase",
-                            query_vector=vector_input1,
-                            query_filter=Filter(
-                                must=[
-                                    FieldCondition(
-                                        key="memory_type",
-                                        match=MatchValue(value="Web_Scrape"),
-                                    ),
-                                    FieldCondition(
-                                        key="user",
-                                        match=models.MatchValue(value=f"{username}"),
-                                    ),
-                                ]
-                            ),
-                            limit=5
-                        )
-                        inner_web = [hit.payload['message'] for hit in hits]
-                        print(inner_web)
-                    except Exception as e:
-                        if "Not found: Collection" in str(e):
-                            print("Collection does not exist.")
-                        else:
-                            print(f"An unexpected error occurred: {str(e)}")
-                if self.is_web_db_checked():
-                    try:
-                        hits = client.search(
-                            collection_name=f"Bot_{bot_name}_External_Knowledgebase",
-                            query_vector=vector_input1,
-                            query_filter=Filter(
-                                must=[
-                                    FieldCondition(
-                                        key="memory_type",
-                                        match=MatchValue(value="File_Scrape"),
-                                    ),
-                                    FieldCondition(
-                                        key="user",
-                                        match=models.MatchValue(value=f"{username}"),
-                                    ),
-                                ]
-                            ),
-                            limit=5
-                        )
-                        inner_file = [hit.payload['message'] for hit in hits]
-                        print(inner_file)
-                    except Exception as e:
-                        if "Not found: Collection" in str(e):
-                            print("Collection does not exist.")
-                        else:
-                            print(f"An unexpected error occurred: {str(e)}")
+            if self.is_external_resources_checked():
+                try:
+                    hits = client.search(
+                        collection_name=f"Bot_{bot_name}_External_Knowledgebase",
+                        query_vector=vector_input1,
+                        query_filter=Filter(
+                            must=[
+                                FieldCondition(
+                                    key="user",
+                                    match=models.MatchValue(value=f"{username}"),
+                                ),
+                            ]
+                        ),
+                        limit=5
+                    )
+                    inner_web = [hit.payload['message'] for hit in hits]
+                    print(inner_web)
+                except Exception as e:
+                    if "Not found: Collection" in str(e):
+                        print("Collection does not exist.")
+                    else:
+                        print(f"An unexpected error occurred: {str(e)}")
+                
             # # Inner Monologue Generation
             conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S EPISODIC MEMORIES: {db_search_3}\n{db_search_5}\n{botnameupper}'S SHORT-TERM MEMORIES: {db_search_4}\n{botnameupper}'s HEURISTICS: {db_search_6} [INST] Now return and analyze the current conversation history. [/INST] CURRENT CONVERSATION HISTORY: {con_hist} [INST] SYSTEM: Compose a short silent soliloquy to serve as {bot_name}'s internal monologue/narrative.  Ensure it includes {bot_name}'s contemplations in relation to {username}'s request and does not exceed a paragraph in length.\n{usernameupper}/USER'S REQUEST: {a} [/INST] {botnameupper}: "})
             prompt = ''.join([message_dict['content'] for message_dict in conversation])

@@ -3428,22 +3428,16 @@ class ChatBotApplication(customtkinter.CTkFrame):
             print("Memory Upload Disabled.")
             
             
+    def is_agent_mode_checked(self):
+        return self.agent_mode_var.get()
+            
+            
     def is_external_resources_checked(self):
         return self.external_resources_var.get()
-
-    def is_web_db_checked(self):
-        return self.web_db_var.get()
-        
         
     def is_tts_checked(self):
         return self.tts_var.get()
         
-
-    def is_file_db_checked(self):
-        return self.file_db_var.get()
-
-    def is_memory_db_checked(self):
-        return self.memory_db_var.get()
         
     def handle_tools_menu_selection(self, choice):
         selection = self.tools_menu.get()
@@ -3909,20 +3903,13 @@ class ChatBotApplication(customtkinter.CTkFrame):
         
         
         def toggle_db_checkboxes():
-            if self.external_resources_var.get() == 1:  # if External Resources is checked
-                self.web_db_check.configure(state=tk.NORMAL)
-                self.file_db_check.configure(state=tk.NORMAL)
-                self.memory_db_check.configure(state=tk.NORMAL)
+            if self.agent_mode_var.get() == 1:  # if External Resources is checked
+                self.external_resources_check.configure(state=tk.NORMAL)
             else:
-                self.web_db_check.configure(state=tk.DISABLED)
-                self.file_db_check.configure(state=tk.DISABLED)
-                self.memory_db_check.configure(state=tk.DISABLED)
-
+                self.external_resources_check.configure(state=tk.DISABLED)
                 # Uncheck the other checkboxes
-                self.web_db_var.set(0)
-                self.file_db_var.set(0)
-                self.memory_db_var.set(0)
-                
+                self.external_resources_var.set(0)
+
         self.tools_frame = customtkinter.CTkFrame(self)
         self.tools_frame.grid(row=2, column=0, sticky=tk.W+tk.N)
         
@@ -3934,23 +3921,16 @@ class ChatBotApplication(customtkinter.CTkFrame):
         self.checkmarks_frame = customtkinter.CTkFrame(self)
         self.checkmarks_frame.grid(row=3, column=0, sticky=tk.W+tk.N)
         
+        self.agent_mode_var = tk.BooleanVar(value=False)
         self.external_resources_var = tk.BooleanVar(value=False)
-        self.web_db_var = tk.BooleanVar(value=False)
-        self.file_db_var = tk.BooleanVar(value=False)
-        self.memory_db_var = tk.BooleanVar(value=False)
 
 
-        self.external_resources_check = customtkinter.CTkCheckBox(self.checkmarks_frame, text="Agent Mode", variable=self.external_resources_var, command=toggle_db_checkboxes)
-        self.external_resources_check.grid(row=0, column=0, sticky=tk.W, padx=25)
+        self.agent_mode_check = customtkinter.CTkCheckBox(self.checkmarks_frame, text="Agent Mode", variable=self.agent_mode_var, command=toggle_db_checkboxes)
+        self.agent_mode_check.grid(row=0, column=0, sticky=tk.W, padx=25)
 
-        self.web_db_check = customtkinter.CTkCheckBox(self.checkmarks_frame, text="Web DB", variable=self.web_db_var, state=tk.DISABLED)
-        self.web_db_check.grid(row=1, column=0, sticky=tk.W, padx=25)
+        self.external_resources_check = customtkinter.CTkCheckBox(self.checkmarks_frame, text="External Resources", variable=self.external_resources_var, state=tk.DISABLED)
+        self.external_resources_check.grid(row=1, column=0, sticky=tk.W, padx=25)
 
-        self.file_db_check = customtkinter.CTkCheckBox(self.checkmarks_frame, text="File DB", variable=self.file_db_var, state=tk.DISABLED)
-        self.file_db_check.grid(row=2, column=0, sticky=tk.W, padx=25)
-
-        self.memory_db_check = customtkinter.CTkCheckBox(self.checkmarks_frame, text="Memory DB", variable=self.memory_db_var, state=tk.DISABLED)
-        self.memory_db_check.grid(row=3, column=0, sticky=tk.W, padx=25)
 
         
 
@@ -5879,9 +5859,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
             vector_input1 = embeddings(message_input)
             # # Split bullet points into separate lines to be used as individual queries during a parallel db search     
             for line in lines:   
-
-
-                if self.are_both_web_and_file_db_checked():
+                if self.is_external_resources_checked():
                     try:
                         hits = client.search(
                             collection_name=f"Bot_{bot_name}_External_Knowledgebase",
@@ -5894,92 +5872,42 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 #        print(external_scrape)
                     except Exception as e:
                         print(f"An unexpected error occurred: {str(e)}")
-                else:      
-                    if self.is_web_db_checked():
-                        try:
-                            hits = client.search(
-                                collection_name=f"Bot_{bot_name}_External_Knowledgebase",
-                                query_vector=vector_input1,
-                                query_filter=Filter(
-                                    must=[
-                                        models.FieldCondition(
-                                            key="memory_type",
-                                            match=models.MatchValue(value="Web_Scrape"),
-                                        ),
-                                        models.FieldCondition(
-                                            key="user",
-                                            match=models.MatchValue(value=f"{username}"),
-                                        ),
-                                    ]
-                                ),
-                                limit=3
-                            )
-                            unsorted_table = [(hit.payload['timestring'], hit.payload['tag'], hit.payload['message']) for hit in hits]
-                            sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'timestring' field
-                            external_scrape = "\n".join([f"{tag} - {message}" for timestring, tag, message in sorted_table])
-                    #        print(external_scrape)
-                        except Exception as e:
-                            print(f"An unexpected error occurred: {str(e)}")
-                    elif self.is_file_db_checked():
-                        try:
-                            hits = client.search(
-                                collection_name=f"Bot_{bot_name}_External_Knowledgebase",
-                                query_vector=vector_input1,
-                                query_filter=Filter(
-                                    must=[
-                                        models.FieldCondition(
-                                            key="memory_type",
-                                            match=models.MatchValue(value="File_Scrape"),
-                                        ),
-                                        models.FieldCondition(
-                                            key="user",
-                                            match=models.MatchValue(value=f"{username}"),
-                                        ),
-                                    ]
-                                ),
-                                limit=3
-                            )
-                            unsorted_table = [(hit.payload['timestring'], hit.payload['tag'], hit.payload['message']) for hit in hits]
-                            sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'timestring' field
-                            external_scrape = "\n".join([f"{tag} - {message}" for timestring, tag, message in sorted_table])
-                    #        print(external_scrape)
-                        except Exception as e:
-                            print(f"An unexpected error occurred: {str(e)}")
-                    else:
                         external_scrape = "No External Resources Selected"
-                        print(external_scrape)
+                else:
+                    external_scrape = "No External Resources Selected"
+                    print(external_scrape)
 
-                    try:
-                        hits = client.search(
-                            collection_name=f"Bot_{bot_name}",
-                            query_vector=vector_input1,
-                            query_filter=Filter(
-                                must=[
-                                    models.FieldCondition(
-                                        key="memory_type",
-                                        match=models.MatchValue(value="Explicit_Long_Term"),
-                                    ),
-                                    models.FieldCondition(
-                                        key="user",
-                                        match=models.MatchValue(value=f"{username}"),
-                                    ),
-                                ]
-                            ),
-                            limit=3
-                        )
+                try:
+                    hits = client.search(
+                        collection_name=f"Bot_{bot_name}",
+                        query_vector=vector_input1,
+                        query_filter=Filter(
+                            must=[
+                                models.FieldCondition(
+                                    key="memory_type",
+                                    match=models.MatchValue(value="Explicit_Long_Term"),
+                                ),
+                                models.FieldCondition(
+                                    key="user",
+                                    match=models.MatchValue(value=f"{username}"),
+                                ),
+                            ]
+                        ),
+                        limit=3
+                   )
                         # Print the result
                     #    for hit in hits:
                     #        print(hit.payload['message'])
-                        unsorted_table = [(hit.payload['timestring'], hit.payload['message']) for hit in hits]
-                        sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'timestring' field
-                        db_search_16 = "\n".join([f"{message}" for timestring, message in sorted_table])
-                        conversation.append({'role': 'assistant', 'content': f"{db_search_16}\n"})
-                        tasklist_counter + 1
-                        if tasklist_counter < 2:
-                            int_conversation.append({'role': 'assistant', 'content': f"{db_search_16}\n"})
+                    unsorted_table = [(hit.payload['timestring'], hit.payload['message']) for hit in hits]
+                    sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'timestring' field
+                    db_search_16 = "\n".join([f"{message}" for timestring, message in sorted_table])
+                    conversation.append({'role': 'assistant', 'content': f"{db_search_16}\n"})
+                    tasklist_counter + 1
+                    if tasklist_counter < 2:
+                        int_conversation.append({'role': 'assistant', 'content': f"{db_search_16}\n"})
                   #      print(db_search_16)
-                    except Exception as e:
-                        print(f"An unexpected error occurred: {str(e)}")
+                except Exception as e:
+                    print(f"An unexpected error occurred: {str(e)}")
                 try:
                     hits = client.search(
                         collection_name=f"Bot_{bot_name}",
@@ -6068,7 +5996,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 print(f"An unexpected error occurred: {str(e)}")
                 
                 
-            if self.are_both_web_and_file_db_checked():
+            if self.is_external_resources_checked():
                 try:
                     hits = client.search(
                         collection_name=f"Bot_{bot_name}_External_Knowledgebase",
@@ -6090,58 +6018,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 except Exception as e:
                     print(f"An unexpected error occurred: {str(e)}")
             else:      
-                if self.is_web_db_checked():
-                    try:
-                        hits = client.search(
-                            collection_name=f"Bot_{bot_name}_External_Knowledgebase",
-                            query_vector=vector_input1,
-                            query_filter=Filter(
-                                must=[
-                                    models.FieldCondition(
-                                        key="memory_type",
-                                        match=models.MatchValue(value="Web_Scrape"),
-                                    ),
-                                    models.FieldCondition(
-                                        key="user",
-                                        match=models.MatchValue(value=f"{username}"),
-                                    ),
-                                ]
-                            ),
-                            limit=3
-                        )
-                        unsorted_table = [(hit.payload['timestring'], hit.payload['tag'], hit.payload['message']) for hit in hits]
-                        sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'timestring' field
-                        db_search_2 = "\n".join([f"{tag} - {message}" for timestring, tag, message in sorted_table])
-                #        print(db_search_2)
-                    except Exception as e:
-                        print(f"An unexpected error occurred: {str(e)}")
-                elif self.is_file_db_checked():
-                    try:
-                        hits = client.search(
-                            collection_name=f"Bot_{bot_name}_External_Knowledgebase",
-                            query_vector=vector_input1,
-                            query_filter=Filter(
-                                must=[
-                                    models.FieldCondition(
-                                        key="memory_type",
-                                        match=models.MatchValue(value="File_Scrape"),
-                                    ),
-                                    models.FieldCondition(
-                                        key="user",
-                                        match=models.MatchValue(value=f"{username}"),
-                                    ),
-                                ]
-                            ),
-                            limit=3
-                        )
-                        unsorted_table = [(hit.payload['timestring'], hit.payload['tag'], hit.payload['message']) for hit in hits]
-                        sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'timestring' field
-                        db_search_2 = "\n".join([f"{tag} - {message}" for timestring, tag, message in sorted_table])
-                #        print(db_search_2)
-                    except Exception as e:
-                        print(f"An unexpected error occurred: {str(e)}")
-                else:
-                    db_search_2 = "No External Resources Selected"
+                db_search_2 = "No External Resources Selected"
                 #    print(db_search_2)
                 
           #  [INST] Search your external resources for data relating to the user's inquiry. [/INST]  EXTERNAL RESOURCES: {db_search_2}   
@@ -6312,7 +6189,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
         #        print(f"An unexpected error occurred: {str(e)}")
 
 
-            if self.are_both_web_and_file_db_checked():
+            if self.is_external_resources_checked():
                 try:
                     hits = client.search(
                         collection_name=f"Bot_{bot_name}_External_Knowledgebase",
@@ -6332,55 +6209,8 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 except Exception as e:
                     print(f"An unexpected error occurred: {str(e)}")
             else:      
-                if self.is_web_db_checked():
-                    try:
-                        hits = client.search(
-                            collection_name=f"Bot_{bot_name}_External_Knowledgebase",
-                            query_vector=vector_monologue,
-                            query_filter=Filter(
-                                must=[
-                                    models.FieldCondition(
-                                        key="memory_type",
-                                        match=models.MatchValue(value="Web_Scrape"),
-                                    ),
-                                    models.FieldCondition(
-                                        key="user",
-                                        match=models.MatchValue(value=f"{username}"),
-                                    ),
-                                ]
-                            ),
-                            limit=5
-                        )
-                        int_scrape = [hit.payload['message'] for hit in hits]
-                    #    print(int_scrape)
-                    except Exception as e:
-                        print(f"An unexpected error occurred: {str(e)}")
-                elif self.is_file_db_checked():
-                    try:
-                        hits = client.search(
-                            collection_name=f"Bot_{bot_name}_External_Knowledgebase",
-                            query_vector=vector_monologue,
-                            query_filter=Filter(
-                                must=[
-                                    models.FieldCondition(
-                                        key="memory_type",
-                                        match=models.MatchValue(value="File_Scrape"),
-                                    ),
-                                    models.FieldCondition(
-                                        key="user",
-                                        match=models.MatchValue(value=f"{username}"),
-                                    ),
-                                ]
-                            ),
-                            limit=5
-                        )
-                        int_scrape = [hit.payload['message'] for hit in hits]
-                #        print(int_scrape)
-                    except Exception as e:
-                        print(f"An unexpected error occurred: {str(e)}")
-                else:
-                    int_scrape = "No External Resources Selected"
-                    print(int_scrape)
+                int_scrape = "No External Resources Selected"
+                print(int_scrape)
             # # Intuition Generation
             inner_loop_db = 'None'
         #    [INST] Thank you, now please search external resources for information pertaining to the user's inquiry. User's Inquiry: {a} [/INST] EXTERNAL RESOURCES: {int_scrape}
@@ -6541,28 +6371,29 @@ class ChatBotApplication(customtkinter.CTkFrame):
             timestamp = time()
             timestring = timestamp_to_datetime(timestamp)
             vector = embeddings(output_two)
-            try:
-                hits = client.search(
-                    collection_name=f"Bot_{bot_name}_External_Knowledgebase",
-                    query_vector=vector,
-                    query_filter=Filter(
-                        must=[
-                            FieldCondition(
-                                key="user",
-                                match=MatchValue(value=f"{username}")
-                            )
-                        ]
-                    ),
-                    limit=10
-                )
-                # Print the result
-            #    for hit in hits:
-            #        print(hit.payload['message'])
-                ext_resources = [hit.payload['message'] for hit in hits]
-            #    print(ext_resources)
-            except Exception as e:
-                print(f"An unexpected error occurred: {str(e)}")
-                ext_resources = "No External Resources Available"
+            if self.is_external_resources_checked():
+                try:
+                    hits = client.search(
+                        collection_name=f"Bot_{bot_name}_External_Knowledgebase",
+                        query_vector=vector,
+                        query_filter=Filter(
+                            must=[
+                                FieldCondition(
+                                    key="user",
+                                    match=MatchValue(value=f"{username}")
+                                )
+                            ]
+                        ),
+                        limit=10
+                    )
+                    # Print the result
+                #    for hit in hits:
+                #        print(hit.payload['message'])
+                    ext_resources = [hit.payload['message'] for hit in hits]
+                #    print(ext_resources)
+                except Exception as e:
+                    print(f"An unexpected error occurred: {str(e)}")
+                    ext_resources = "No External Resources Available"
             # # Test for basic Autonomous Tasklist Generation and Task Completion
             master_tasklist.append({'role': 'system', 'content': f"Please search the external resource database for relevant topics associated with the user's request. [/INST] EXTERNAL RESOURCES: {ext_resources}"})
             master_tasklist.append({'role': 'system', 'content': f"[INST] MAIN SYSTEM PROMPT: You are a stateless task list coordinator for {bot_name}, an autonomous Ai chatbot. Your job is to combine the user's input and the user facing chatbots action plan, then, use them and the given external resources to make a bullet point list of three to six independent research search queries for {bot_name}'s response that can be executed by separate AI agents in a cluster computing environment. The other asynchronous Ai agents are stateless and cannot communicate with each other or the user during task execution, however the agents do have access to a set External Resource Database. Exclude tasks involving final product production, user communication, seeking outside help, seeking external validation, or checking work with other entities. Respond using the following bullet point format: '•[task]'\n"})

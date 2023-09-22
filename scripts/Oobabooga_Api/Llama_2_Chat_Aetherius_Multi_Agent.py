@@ -6414,9 +6414,9 @@ class ChatBotApplication(customtkinter.CTkFrame):
 
             # Write tasklist_completion to a text file
             file_path = os.path.join(directory, f"{a}.txt")
-            with open(file_path, 'w') as f:
-                for item in tasklist_completion:
-                    f.write(f"{item}\n")
+         #   with open(file_path, 'w') as f:
+         #       for item in tasklist_completion:
+         #           f.write(f"{item}\n")
                         
                         
                         

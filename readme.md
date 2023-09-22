@@ -8,7 +8,7 @@ For a quick demo deployment without a UI, see: [Public Oobabooga Api Colab](http
 ------
 **Recent Changes**
 
-• 9/22 Added Rough Draft of Multi-Agent Framework, Ui still needs to be edited to accommodate it.  Ui update and Example Script for Sub-Agent creation coming soon.
+• 9/22 Added Sub-Agents/Multi-Agent mode for the Llama 2 version of Aetherius.  See the Sub-Agent folder for an example template. (Still a work in progress)
 
 • 9/19 Added Log writing for Agent mode internal research, can be found in ./logs/Datasets folder
 

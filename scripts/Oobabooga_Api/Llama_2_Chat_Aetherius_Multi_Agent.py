@@ -5814,6 +5814,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                             limit=2
                         )
                         unsorted_table = [(hit.payload['timestring'], hit.payload['tag'], hit.payload['message']) for hit in hits]
+                        
                         sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'timestring' field
                         external_scrape = "\n".join([f"{tag} - {message}" for timestring, tag, message in sorted_table])
                 #        print(external_scrape)
@@ -5937,9 +5938,9 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     ),
                     limit=5
                 )
-                unsorted_table = [(hit.payload['timestring'], hit.payload['tag'], hit.payload['message']) for hit in hits]
+                unsorted_table = [(hit.payload['timestring'], hit.payload['message']) for hit in hits]
                 sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'timestring' field
-                db_search_14 = "\n".join([f"{tag} - {message}" for timestring, tag, message in sorted_table])
+                db_search_14 = "\n".join([f"{message}" for timestring, message in sorted_table])
             #    print(db_search_14)
             except Exception as e:
                 print(f"An unexpected error occurred: {str(e)}")
@@ -6139,20 +6140,21 @@ class ChatBotApplication(customtkinter.CTkFrame):
         #        print(f"An unexpected error occurred: {str(e)}")
         
         
-            folder_path = "./Sub_Agents"
+            folder_path = "./Sub_Agents/Llama_2"
             filename_description_map = load_filenames_and_descriptions(self, folder_path)
     
        #     if saved_map != filename_description_map:
-            try:
-                collection_name = f"Bot_{bot_name}_{username}_Sub_Agents"
+
+            collection_name = f"Bot_{bot_name}_{username}_Sub_Agents"
                     # Create the collection only if it doesn't exist
-                try:
-                    collection_info = client.get_collection(collection_name=collection_name)
-                except:
-                    client.create_collection(
-                        collection_name=collection_name,
-                        vectors_config=VectorParams(size=embed_size, distance=Distance.COSINE),
-                    )
+            try:
+                collection_info = client.get_collection(collection_name=collection_name)
+            except:
+                client.create_collection(
+                    collection_name=collection_name,
+                    vectors_config=VectorParams(size=embed_size, distance=Distance.COSINE),
+                )
+            try:
                 for filename, description in filename_description_map.items():
                     file_desc = f"{filename} - {description}"
                     vector = embeddings(file_desc)  # Assuming description is a string you can embed
@@ -6629,14 +6631,6 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 hits = client.search(
                     collection_name=f"Bot_{bot_name}_{username}_Sub_Agents",
                     query_vector=vector,
-                    query_filter=Filter(
-                        must=[
-                            FieldCondition(
-                                key="user",
-                                match=MatchValue(value=f"{username}")
-                            )
-                        ]
-                    ),
                     limit=1
                 )
                 subagent_selection = [hit.payload['filename'] for hit in hits]
@@ -6648,7 +6642,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 print(f"Trying to execute function from {subagent_selection}...")
                 for filename_with_extension in subagent_selection:
                     filename = filename_with_extension.rstrip('.py')  # Stripping .py from the filename
-                    script_path = os.path.join('./Sub_Agents', filename_with_extension)  # Using filename_with_extension here because file paths should include the extension
+                    script_path = os.path.join('./Sub_Agents/Llama_2', filename_with_extension)  # Using filename_with_extension here because file paths should include the extension
 
                     if os.path.exists(script_path):
                         spec = spec_from_file_location(filename, script_path)
@@ -6693,17 +6687,20 @@ def load_filenames_and_descriptions(self, folder_path):
 
             # Try to fetch the description function from the imported module
             description_function = getattr(module, f"{base_filename}_Description", None)
+            
+            description = "Description function not found."
             if description_function:
-                description = description_function()
-            else:
-                description = "Description function not found."
+                try:
+                    description = description_function()
+                except Exception as e:
+                    print(f"An error occurred while calling '{base_filename}_Description' function in '{filename}': {e}")
 
             filename_description_map[filename] = description  # Add the filename and description to the dictionary
 
     except FileNotFoundError:
         print(f"The folder '{folder_path}' was not found.")
     except Exception as e:
-        print(f"An error occurred: {e}")
+        print(f"An unexpected error occurred: {e}")
 
     return filename_description_map
             

@@ -8,6 +8,10 @@ For a quick demo deployment without a UI, see: [Public Oobabooga Api Colab](http
 ------
 **Recent Changes**
 
+• 9/23 Added Memory Search Sub-Agent and an autonomous web-search if the needed information is not in the External Resources DB.
+
+• 9/23 Continued to work on Sub-Agent framework
+
 • 9/22 Added Sub-Agents/Multi-Agent mode for the Llama 2 version of Aetherius.  See the Sub-Agent folder for an example template. (Still a work in progress)
 
 • 9/19 Added Log writing for Agent mode internal research, can be found in ./logs/Datasets folder

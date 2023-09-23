@@ -3425,6 +3425,142 @@ def agent_oobabooga_process_line_response2(host, prompt):
         return decoded_string
         
         
+def agent_oobabooga_memory_db_check(host, prompt):
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
+    main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+    history = {'internal': [], 'visible': []}
+    temperature = open_file(f'./config/Generation_Settings/Response/temperature.txt')
+    top_p = open_file(f'./config/Generation_Settings/Response/top_p.txt')
+    rep_pen = open_file(f'./config/Generation_Settings/Response/rep_pen.txt')
+    max_tokens = open_file(f'./config/Generation_Settings/Response/max_tokens.txt')
+    top_k = open_file(f'./config/Generation_Settings/Response/top_k.txt')
+    request = {
+        'user_input': prompt,
+        'max_new_tokens': max_tokens,
+        'history': history,
+        'mode': 'instruct',  # Valid options: 'chat', 'chat-instruct', 'instruct'
+        'instruction_template': 'Llama-v2',  # Will get autodetected if unset
+        'context_instruct': f"[INST] <<SYS>>\nYou are a selection agent for an autonomous AI chatbot.  Your job is to decide if the given database queries contain the needed information to answer the user's inquiry.  Only respond with either 'YES' or 'NO'.\n<</SYS>>",  # Optional
+        'your_name': f'{username}',
+
+        'regenerate': False,
+        '_continue': False,
+        'stop_at_newline': False,
+        'chat_generation_attempts': 1,
+        # Generation params. If 'preset' is set to different than 'None', the values
+        # in presets/preset-name.yaml are used instead of the individual numbers.
+        'preset': 'None',  
+        'do_sample': True,
+        'temperature': 0.4,
+        'top_p': .25,
+        'typical_p': 1,
+        'epsilon_cutoff': 0,  # In units of 1e-4
+        'eta_cutoff': 0,  # In units of 1e-4
+        'tfs': 1,
+        'top_a': 0,
+        'repetition_penalty': 1.15,
+        'top_k': 20,
+        'min_length': 0,
+        'no_repeat_ngram_size': 0,
+        'num_beams': 1,
+        'penalty_alpha': 0,
+        'length_penalty': 1,
+        'early_stopping': False,
+        'mirostat_mode': 0,
+        'mirostat_tau': 5,
+        'mirostat_eta': 0.1,
+
+        'seed': -1,
+        'add_bos_token': True,
+        'truncation_length': 4096,
+        'ban_eos_token': False,
+        'skip_special_tokens': True,
+        'stopping_strings': ['[/']
+    }
+
+    response = requests.post(f"{host}/v1/chat", json=request)
+
+    if response.status_code == 200:
+        result = response.json()['results'][0]['history']
+    #    print(json.dumps(result, indent=4))
+        print()
+    #    print(result['visible'][-1][1])
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
+        
+        
+def agent_oobabooga_google_rephrase(host, prompt):
+    with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+            
+    bot_name = settings.get('prompt_bot_name', '')
+    username = settings.get('prompt_username', '')
+    main_prompt = open_file(f'./config/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+    history = {'internal': [], 'visible': []}
+    temperature = open_file(f'./config/Generation_Settings/Response/temperature.txt')
+    top_p = open_file(f'./config/Generation_Settings/Response/top_p.txt')
+    rep_pen = open_file(f'./config/Generation_Settings/Response/rep_pen.txt')
+    max_tokens = open_file(f'./config/Generation_Settings/Response/max_tokens.txt')
+    top_k = open_file(f'./config/Generation_Settings/Response/top_k.txt')
+    request = {
+        'user_input': prompt,
+        'max_new_tokens': max_tokens,
+        'history': history,
+        'mode': 'instruct',  # Valid options: 'chat', 'chat-instruct', 'instruct'
+        'instruction_template': 'Llama-v2',  # Will get autodetected if unset
+        'context_instruct': f"[INST] <<SYS>>\nRephrase the user's inquiry into a google search query. Do not converse with the user or print any text outside of the search query.\n<</SYS>>",  # Optional
+        'your_name': f'{username}',
+
+        'regenerate': False,
+        '_continue': False,
+        'stop_at_newline': False,
+        'chat_generation_attempts': 1,
+        # Generation params. If 'preset' is set to different than 'None', the values
+        # in presets/preset-name.yaml are used instead of the individual numbers.
+        'preset': 'None',  
+        'do_sample': True,
+        'temperature': 0.4,
+        'top_p': .25,
+        'typical_p': 1,
+        'epsilon_cutoff': 0,  # In units of 1e-4
+        'eta_cutoff': 0,  # In units of 1e-4
+        'tfs': 1,
+        'top_a': 0,
+        'repetition_penalty': 1.15,
+        'top_k': 20,
+        'min_length': 0,
+        'no_repeat_ngram_size': 0,
+        'num_beams': 1,
+        'penalty_alpha': 0,
+        'length_penalty': 1,
+        'early_stopping': False,
+        'mirostat_mode': 0,
+        'mirostat_tau': 5,
+        'mirostat_eta': 0.1,
+
+        'seed': -1,
+        'add_bos_token': True,
+        'truncation_length': 4096,
+        'ban_eos_token': False,
+        'skip_special_tokens': True,
+        'stopping_strings': ['[/']
+    }
+
+    response = requests.post(f"{host}/v1/chat", json=request)
+
+    if response.status_code == 200:
+        result = response.json()['results'][0]['history']
+    #    print(json.dumps(result, indent=4))
+        print()
+    #    print(result['visible'][-1][1])
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
+        
+        
 def agent_oobabooga_auto(prompt):
     with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
         settings = json.load(f)

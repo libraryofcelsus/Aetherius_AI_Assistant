@@ -2400,7 +2400,7 @@ def agent_oobabooga_intuition(prompt):
         'history': history,
         'mode': 'instruct',  # Valid options: 'chat', 'chat-instruct', 'instruct'
         'instruction_template': 'Llama-v2',  # Will get autodetected if unset
-        'context_instruct': f"[INST] <<SYS>>\nTransmute the user, {username}'s message as {bot_name} by devising a truncated predictive action plan in the third person point of view on how to best respond to {username}'s most recent message.  Do not create a plan for generic conversation, only on what information is needed to be given.\n<</SYS>>",  # Optional
+        'context_instruct': f"[INST] <<SYS>>\nFormulate an action plan only if the message involves complex questions or specific tasks. Use third-person perspective to outline this strategy. Avoid creating action plans for simple or casual interactions.\n<</SYS>>",  # Optional  
         'your_name': f'{username}',
 
         'regenerate': False,

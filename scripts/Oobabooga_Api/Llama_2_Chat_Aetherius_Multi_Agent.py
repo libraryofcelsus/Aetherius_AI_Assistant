@@ -2805,7 +2805,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
     def process_message(self, a):
         self.conversation_text.insert(tk.END, f"\nYou: {a}\n\n")
         self.conversation_text.yview(tk.END)
-        if self.is_external_resources_checked():
+        if self.is_agent_mode_checked():
             t = threading.Thread(target=self.Agent_Tasklist_Inner_Monologue, args=(a,))
             t.start()
         else:
@@ -5881,12 +5881,14 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     db_search_17 = "\n".join([f"{message}" for timestring, message in sorted_table])
                     conversation.append({'role': 'assistant', 'content': f"{db_search_17}\n"})
                     if external_scrape != 'No External Resources Selected':
-                        conversation.append({'role': 'assistant', 'content': f"EXTERNAL RESOURCES: {external_scrape}\n"})
+                        if self.is_external_resources_checked():
+                            conversation.append({'role': 'assistant', 'content': f"EXTERNAL RESOURCES: {external_scrape}\n"})
                     tasklist_counter2 + 1
                     if tasklist_counter2 < 2:
                         int_conversation.append({'role': 'assistant', 'content': f"{db_search_17}\n"})
                         if external_scrape != 'No External Resources Selected':
-                            int_conversation.append({'role': 'assistant', 'content': f"EXTERNAL RESOURCES: {external_scrape}\n"})
+                            if self.is_external_resources_checked():
+                                int_conversation.append({'role': 'assistant', 'content': f"EXTERNAL RESOURCES: {external_scrape}\n"})
                 #    print(db_search_17)
                 except Exception as e:
                     print(f"An unexpected error occurred: {str(e)}")
@@ -6016,6 +6018,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
         memcheck = list()
         memcheck2 = list()
         webcheck = list()
+        task_expand = list()
         counter = 0
         counter2 = 0
         mem_counter = 0
@@ -6112,7 +6115,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                             ),
                         ]
                     ),
-                    limit=5
+                    limit=3
                 )
                 # Print the result
             #    for hit in hits:
@@ -6134,34 +6137,75 @@ class ChatBotApplication(customtkinter.CTkFrame):
         #        print(int_scrape)
         #    except Exception as e:
         #        print(f"An unexpected error occurred: {str(e)}")
-
-
-            if self.is_external_resources_checked():
+        
+        
+            folder_path = "./Sub_Agents"
+            filename_description_map = load_filenames_and_descriptions(self, folder_path)
+    
+       #     if saved_map != filename_description_map:
+            try:
+                collection_name = f"Bot_{bot_name}_{username}_Sub_Agents"
+                    # Create the collection only if it doesn't exist
                 try:
-                    hits = client.search(
-                        collection_name=f"Bot_{bot_name}_External_Knowledgebase",
-                        query_vector=vector_monologue,
-                        query_filter=Filter(
-                            must=[
-                                models.FieldCondition(
-                                    key="user",
-                                    match=models.MatchValue(value=f"{username}"),
-                                ),
-                            ]
-                        ),
-                        limit=5
+                    collection_info = client.get_collection(collection_name=collection_name)
+                except:
+                    client.create_collection(
+                        collection_name=collection_name,
+                        vectors_config=VectorParams(size=embed_size, distance=Distance.COSINE),
                     )
-                    int_scrape = [hit.payload['message'] for hit in hits]
-                #    print(int_scrape)
-                except Exception as e:
-                    print(f"An unexpected error occurred: {str(e)}")
-            else:      
-                int_scrape = "No External Resources Selected"
-                print(int_scrape)
+                for filename, description in filename_description_map.items():
+                    file_desc = f"{filename} - {description}"
+                    vector = embeddings(file_desc)  # Assuming description is a string you can embed
+                    unique_id = str(uuid4())
+                    timestamp = time()
+                    metadata = {
+                        'bot': bot_name,
+                        'user': username,
+                        'time': timestamp,
+                        'filename': filename,
+                        'description': description,
+                        'uuid': unique_id,
+                    }
+
+                    client.upsert(collection_name=collection_name,
+                                 points=[PointStruct(id=unique_id, vector=vector, payload=metadata)])
+            except Exception as e:
+                traceback.print_exc()
+                print(f"An error occurred: {e}")
+                error = e
+                return error
+                
+                
+            task_expand.clear()
+
+            try:
+                hits = client.search(
+                    collection_name=f"Bot_{bot_name}_{username}_Sub_Agents",
+                    query_vector=vector_input,
+                    query_filter=Filter(
+                        must=[
+                            FieldCondition(
+                                key="user",
+                                match=MatchValue(value=f"{username}")
+                            ),
+                        ]
+                    ),
+                    limit=5
+                )
+                tool_db = [hit.payload['filename'] for hit in hits]
+            except Exception as e:
+                print(f"Error with Subagent DB: {e}")
+                tool_db = "No Sub-Agents Found"
+                
+                
+
+
             # # Intuition Generation
             inner_loop_db = 'None'
         #    [INST] Thank you, now please search external resources for information pertaining to the user's inquiry. User's Inquiry: {a} [/INST] EXTERNAL RESOURCES: {int_scrape}
-            int_conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S EPISODIC MEMORIES: {db_search_4}\n{botnameupper}'s HEURISTICS: {db_search_15}\n{botnameupper}'S INNER THOUGHTS: {output_one}\nCONVERSATION HISTORY: {con_hist} [INST] SYSTEM: Transmute the user, {username}'s message as {bot_name} by devising a truncated predictive action plan in the third person point of view on how to best respond to {username}'s most recent message using the given External Resources.  If the user is requesting information on a subject or asking a question, predict what information needs to be provided. {usernameupper}: {a} [/INST] {botnameupper}: Sure, here is an action plan based on {username}'s inquiry: "}) 
+            int_conversation.append({'role': 'assistant', 'content': f"{botnameupper}'S EPISODIC MEMORIES: {db_search_4}\n{botnameupper}'s HEURISTICS: {db_search_15}\n{botnameupper}'S INNER THOUGHTS: {output_one} [INST] Now return the list of tools available for you to use. [/INST] AVAILABLE TOOLS: {tool_db} [INST] Now return and analyze the previous conversation history. [/INST] PREVIOUS CONVERSATION HISTORY: {con_hist} [INST] SYSTEM: Transmute the user, {username}'s message as {bot_name} by devising a truncated predictive action plan in the third person point of view on how to best respond to {username}'s most recent message using the given External Resources and list of available tools.  If the user is requesting information on a subjector asking a question, predict what information needs to be provided. Do not give examples, only the action plan. {usernameupper}: {a} [/INST] {botnameupper}: "}) 
+           
+            
             
             inner_loop_response = 'None'
             prompt = ''.join([message_dict['content'] for message_dict in int_conversation])
@@ -6257,7 +6301,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 self.conversation_text.insert(tk.END, f"Upload Implicit Memories?\n{inner_loop_response}\n\n")
                 ask_upload_implicit_memories(inner_loop_response)
             # After the operations are complete, call the response generation function in a separate thread
-            t = threading.Thread(target=self.Agent_Tasklist_Response, args=(a, vector_input, vector_monologue, output_one, output_two, inner_loop_db))
+            t = threading.Thread(target=self.Agent_Tasklist_Response, args=(a, vector_input, vector_monologue, output_one, output_two, inner_loop_db, filename_description_map))
             t.start()
             return  
 
@@ -6275,7 +6319,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
         return result
         
         
-    def Agent_Tasklist_Response(self, a, vector_input, vector_monologue, output_one, output_two, inner_loop_db):
+    def Agent_Tasklist_Response(self, a, vector_input, vector_monologue, output_one, output_two, inner_loop_db, filename_description_map):
         my_api_key = open_file('api_keys/key_google.txt')
         my_cse_id = open_file('api_keys/key_google_cse.txt')
         # # Number of Messages before conversation is summarized, higher number, higher api cost. Change to 3 when using GPT 3.5 due to token usage.
@@ -6342,7 +6386,8 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     print(f"An unexpected error occurred: {str(e)}")
                     ext_resources = "No External Resources Available"
             # # Test for basic Autonomous Tasklist Generation and Task Completion
-            master_tasklist.append({'role': 'system', 'content': f"Please search the external resource database for relevant topics associated with the user's request. [/INST] EXTERNAL RESOURCES: {ext_resources}"})
+            if self.is_external_resources_checked():
+                master_tasklist.append({'role': 'system', 'content': f"Please search the external resource database for relevant topics associated with the user's request. [/INST] EXTERNAL RESOURCES: {ext_resources}"})
             master_tasklist.append({'role': 'system', 'content': f"[INST] MAIN SYSTEM PROMPT: You are a stateless task list coordinator for {bot_name}, an autonomous Ai chatbot. Your job is to combine the user's input and the user facing chatbots action plan, then, use them and the given external resources to make a bullet point list of three to six independent research search queries for {bot_name}'s response that can be executed by separate AI agents in a cluster computing environment. The other asynchronous Ai agents are stateless and cannot communicate with each other or the user during task execution, however the agents do have access to a set External Resource Database. Exclude tasks involving final product production, user communication, seeking outside help, seeking external validation, or checking work with other entities. Respond using the following bullet point format: '•[task]'\n"})
             master_tasklist.append({'role': 'user', 'content': f"USER FACING CHATBOT'S INTUITIVE ACTION PLAN: {output_two}\n"})
             master_tasklist.append({'role': 'user', 'content': f"USER INQUIRY: {a} [/INST] "})
@@ -6397,7 +6442,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                             future = executor.submit(
                                 self.wrapped_process_line,
                                 bot_name, username, line, task_counter, output_one, output_two,
-                                master_tasklist_output, a
+                                master_tasklist_output, a, filename_description_map
                             )
                             futures.append(future)
 
@@ -6419,7 +6464,10 @@ class ChatBotApplication(customtkinter.CTkFrame):
          #           f.write(f"{item}\n")
                         
                         
-                        
+            try:
+                client.delete_collection(collection_name=f"Bot_{bot_name}_{username}_Sub_Agents") 
+            except:
+                 print("No Collection to Delete")    
             try:            
                 tasklist_completion.append({'role': 'assistant', 'content': f"[INST] USER'S INITIAL INPUT: {a} [/INST] {botnameupper}'S INNER_MONOLOGUE: {output_one}"})
         #        tasklist_completion.append({'role': 'user', 'content': f"%{bot_name}'s INTUITION%\n{output_two}\n\n"})
@@ -6545,7 +6593,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
             return
             
             
-    def process_line(self, host, bot_name, username, line, task_counter, output_one, output_two, master_tasklist_output, a):
+    def process_line(self, host, bot_name, username, line, task_counter, output_one, output_two, master_tasklist_output, a, filename_description_map):
         try:
             completed_task = "Error Completing Task"
             tasklist_completion2 = list()
@@ -6560,45 +6608,8 @@ class ChatBotApplication(customtkinter.CTkFrame):
             # Add a check with the subagent folder and a saved list.  If the list is different than the sub agent folder, the qdrant recollection will be recreated.
             
             
-            folder_path = "./Sub_Agents"
-            filename_description_map = load_filenames_and_descriptions(self, folder_path)
-            
-
-            
+           
                 
-       #     if saved_map != filename_description_map:
-            try:
-                collection_name = f"Bot_{bot_name}_{username}_Sub_Agents"
-                    # Create the collection only if it doesn't exist
-                try:
-                    collection_info = client.get_collection(collection_name=collection_name)
-                except:
-                    client.create_collection(
-                        collection_name=collection_name,
-                        vectors_config=VectorParams(size=embed_size, distance=Distance.COSINE),
-                    )
-                for filename, description in filename_description_map.items():
-                    file_desc = f"{filename} - {description}"
-                    vector = embeddings(file_desc)  # Assuming description is a string you can embed
-                    unique_id = str(uuid4())
-                    timestamp = time()
-                    metadata = {
-                        'bot': bot_name,
-                        'user': username,
-                        'time': timestamp,
-                        'filename': filename,
-                        'description': description,
-                        'uuid': unique_id,
-                        'id': task_counter,
-                    }
-
-                    client.upsert(collection_name=collection_name,
-                                 points=[PointStruct(id=unique_id, vector=vector, payload=metadata)])
-            except Exception as e:
-                traceback.print_exc()
-                print(f"An error occurred: {e}")
-                error = e
-                return error
                                   
             # Save the new filename_description_map
              
@@ -6623,11 +6634,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                             FieldCondition(
                                 key="user",
                                 match=MatchValue(value=f"{username}")
-                            ),
-                            FieldCondition(
-                                key="id",
-                                match=MatchValue(value=task_counter)
-                            ),
+                            )
                         ]
                     ),
                     limit=1
@@ -6654,10 +6661,6 @@ class ChatBotApplication(customtkinter.CTkFrame):
                             print(f"Calling function: {filename}")  # Debug print
                             completed_task = function_to_call(self, host, bot_name, username, line, task_counter, output_one, output_two, master_tasklist_output, a)
             
-            try:
-                client.delete_collection(collection_name=collection_name) 
-            except:
-                 print("No Collection to Delete")
             return completed_task
         except Exception as e:
             traceback.print_exc()

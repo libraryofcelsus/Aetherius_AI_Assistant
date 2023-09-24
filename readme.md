@@ -300,7 +300,6 @@ Inspired by https://github.com/daveshap/
 To run Aetherius on Google Colab, first run the Oobabooga Public Api: <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Oobabooga_Public_Api.ipynb">
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
 </a>  
-(Note: There is a bug currently when using the public api colab and Aetherius with the Agent mode, I think the problem comes from Oobabooga, but I am unsure. (Responses will Return "None" before they are finished Generating.))
 
 Then, go to Qdrant and get an API key and URL: https://qdrant.to/cloud
 
@@ -315,7 +314,7 @@ Install Python 3.10.6, Make sure you add it to PATH: **https://www.python.org/do
 
 Run the Installer Bat as admin, it is located at: https://github.com/libraryofcelsus/Aetherius_AI_Assistant/blob/main/scripts/resources/install.bat
 
-(If you get an error when installing requirements run: **python -m pip cache purge** after activating the venv)
+(If you get an error when installing requirements run: **python -m pip cache purge**)
 
 ![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/05/Capture11111111.png)
 

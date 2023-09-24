@@ -541,7 +541,7 @@ def chunk_text_from_file(file_path, chunk_size=400, overlap=40):
             audio_file = "audio_extracted.wav"  # Replace with a more unique name if needed
             subprocess.run(["ffmpeg", "-i", file_path, "-vn", "-acodec", "pcm_s16le", "-ac", "1", "-ar", "44100", "-f", "wav", audio_file])
             
-            model_stt = whisper.load_model("small")
+            model_stt = whisper.load_model("tiny")
             transcribe_result = model_stt.transcribe(audio_file)
             if isinstance(transcribe_result, dict) and 'text' in transcribe_result:
                 texttemp = transcribe_result['text']

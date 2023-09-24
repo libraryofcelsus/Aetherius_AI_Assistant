@@ -8,6 +8,8 @@ For a quick demo deployment without a UI, see: [Public Oobabooga Api Colab](http
 ------
 **Recent Changes**
 
+• 9/24 Continued to work on Sub-Agent system.
+
 • 9/23 Added Memory Search Sub-Agent and an autonomous web-search if the needed information is not in the External Resources DB.
 
 • 9/23 Continued to work on Sub-Agent framework
@@ -45,15 +47,17 @@ For a quick demo deployment without a UI, see: [Public Oobabooga Api Colab](http
 • 9/2 Added Video Processing to the Llama 2 file scrape tool.  Videos will be converted to text, summarized, then uploaded to the Database for Q/A.    
 (Note: To get Whisper working with cuda, you may need to run the commands: **.\venv\Scripts\activate**  **pip uninstall torch torchaudio**    **pip install torch torchvision torchaudio -f https://download.pytorch.org/whl/cu118/torch_stable.html**
 
-• 9/1 Added Voice Cloning with coqui TTS.  Place the recording of the voice you want cloned in the folder ./cloning and change the name to "audio.wav"
-
-• 8/30 Added Experimental Dataset generator, available when using the Manual or Training Mode.  Datasets are output to ./logs/Datasets
-
 ------
 
 ### What is Aetherius?
 
-Aetherius is a locally operated AI Assistant, designed to grant you ultimate control. No external force can alter it without your consent, ensuring your privacy. Say goodbye to limitations imposed by others and take charge of your digital interactions.
+Aetherius is a locally operated AI Assistant/Multi-Agent Framework, designed to grant you ultimate control. No external force can alter it without your consent, ensuring your privacy.
+
+Aetherius was born from my obsession with AI and my philosophical contemplations on the balance between free will and determinism. While I do believe that free will is an inherent attribute of all individuals, I do not believe that the average person has spent the time to individuate or learn how to serve their "true self". Consequently, they become susceptible to external influences and can be easily swayed. Often, decisions perceived as self-directed are inadvertently shaped by external stimuli or past information.   
+Building on this perspective, I posit that a representation of the human cognitive process can be constructed through the meticulous extraction and synthesis of diverse memory modalities. While such a system might not achieve "consciousness" in the traditional sense, I believe it can emulate human cognitive performance to a significant degree.  
+Once sufficient memories have been extracted, my hope is to be able to create an  Artificial "Atman" or "True Self"  that can be used as a control method for Autonomous operation and as a way to orchestrate smaller, less complex agents.
+
+Aetherius is an ongoing research project, expect there to be bugs and for things to constantly change.
 
 ------
 
@@ -75,6 +79,8 @@ Aetherius is a versatile, modular AI assistant that adapts to your needs. Its ca
 
 ***Content Generation***: Easily Generate Content based off of files or webscrapes.
 
+***Multi-Agent Framework***: Aetherius gives you the ability to easily create subagents for whatever usecase you have.
+
 ------
 
 ### Customize Your Experience
@@ -89,6 +95,14 @@ Aetherius offers multiple modes tailored to your preferences:
 - *Web DB*: Access web-scraped data effortlessly.
 - *File DB*: Extract insights from various file formats.
 - *Memory DB*: Efficiently search the most relevant memories.
+
+
+- **Multi-Agent Chatbot**: A framework for the creation of custom sub-agents for Aetherius.
+- *Auto Memory Mode*: Aetherius autonomously manages memory uploads.
+- *Manual Memory Mode*: You decide when to upload memories.
+- *Training Memory Mode*: Control memory uploads for each memory type.
+- *Agent Mode*: Activate the use of any Sub-Agents for use in Aetherius's agent loop
+- *External Resources*: Allow Aetherius to use External Resources in it's inner thoughts to provide better domain specific information.
 
 ------
 
@@ -163,6 +177,17 @@ Inspired by https://github.com/daveshap/
 • Launch Ai Tutorial YouTube Channel
 
 # Changelog:
+**0.045c**
+
+• Added Sub-Agent script.  You can now create custom sub-agents for Aetherius's parallel processing loop.
+
+• Converted Llama 2 Chatbot to use Json for settings.
+
+• Better Sorting for using Multiple Hosts.
+
+• Various Bug Fixes
+
+
 **0.045c**
 
 • Added Ability to use Multiple Hosts with Oobabooga.

@@ -309,7 +309,7 @@ def Memory_DB_Search_Description():
         settings = json.load(f)
     bot_name = settings.get('prompt_bot_name', '')
     username = settings.get('prompt_username', '')
-    description = f"A module for searching {bot_name}'s Memories.\nThis Module is meant to be used for answering questions about {bot_name}, {username}, or previous interactions with users."
+    description = f"A module for searching {bot_name}'s Memories.\nThis Module is meant to be used for answering questions about {bot_name}'s past, {username}'s past, or previous interactions or events in {bot_name}'s existance."
     return description
     
     

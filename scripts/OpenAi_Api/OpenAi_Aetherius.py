@@ -2966,6 +2966,37 @@ class ChatBotApplication(customtkinter.CTkFrame):
         save_button.pack()
         
         
+    # Selects which Open Ai model to use.    
+    def Model_Selection(self):
+        file_path = "./config/model.txt"
+        dark_bg_color = "#2B2B2B"
+        light_text_color = "#ffffff"
+        
+        with open(file_path, 'r', encoding='utf-8') as file:
+            prompt_contents = file.read()
+        
+        top = tk.Toplevel(self)
+        top.configure(bg=dark_bg_color)
+        top.title("Select a Model")
+        
+        models_label = customtkinter.CTkLabel(top, text="Available Models: gpt_35, gpt_4")
+        models_label.pack()
+        
+        prompt_text = tk.Text(top, height=10, width=60, bg=dark_bg_color, fg=light_text_color)
+        prompt_text.insert(tk.END, prompt_contents)
+        prompt_text.pack()
+        
+        def save_prompt():
+            new_prompt = prompt_text.get("1.0", tk.END).strip()
+            with open(file_path, 'w') as file:
+                file.write(new_prompt)
+            self.conversation_text.delete("1.0", tk.END)
+            self.display_conversation_history()
+        
+        save_button = customtkinter.CTkButton(top, text="Save", command=save_prompt)
+        save_button.pack()
+        
+        
     # Change Font Style, called in create widgets
     def Edit_Font(self):
         file_path = "./config/chatbot_settings.json"  # Changed from "./config/font.txt"
@@ -3458,17 +3489,13 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 self.temperature_value.set("Temperature: N/A")
                 self.scale_widget.set(1.0)  # Setting the slider to a neutral position, adjust if necessary
 
-                self.rep_pen_value.set("Repetition Penalty: N/A")
+                self.rep_pen_value.set("Frequency Penalty: N/A")
                 self.rep_pen_scale_widget.set(1.0)  # Setting the slider to a neutral position, adjust if necessary
 
                 self.tokens_value.set("Max Tokens: N/A")
                 self.tokens_scale_widget.set(1000)  # Setting the slider to a neutral position, adjust if necessary
                 self.top_p_value.set("Top P: N/A")
                 self.top_p_scale_widget.set(0.5)  # Neutral position for top_p slider (mid-point between 0.00 and 1.00)
-                self.top_k_value.set("Top K: N/A")
-                self.top_k_scale_widget.set(50)  # Mid value for top_k
-                self.min_tokens_value.set("Min Tokens: N/A")
-                self.min_tokens_scale_widget.set(40)  # Setting the slider to a neutral position, adjust if necessary
                 return
                 
                 
@@ -3476,73 +3503,51 @@ class ChatBotApplication(customtkinter.CTkFrame):
             # Otherwise, update based on file values:
             
             # For Temperature:
-            temp_file_path = f"./config/Generation_Settings/{current_selection}/temperature.txt"
+            temp_file_path = f"./config/Generation_Settings/OpenAi/{current_selection}/temperature.txt"
             try:
                 with open(temp_file_path, 'r') as file:
                     current_value = float(file.read().strip())
                     self.scale_widget.set(current_value)
                     self.temperature_value.set(f"Temperature: {current_value:.2f}")
-                    self.temperature_label = customtkinter.CTkLabel(self.settings_frame, text=f"Temperature: {open_file_menu(f'./config/Generation_Settings/{current_selection}/temperature.txt')}", font=('bold', font_size_config))
+                    self.temperature_label = customtkinter.CTkLabel(self.settings_frame, text=f"Temperature: {open_file_menu(f'./config/Generation_Settings/OpenAi/{current_selection}/temperature.txt')}", font=('bold', font_size_config))
                     self.temperature_label.grid(row=3, column=0, padx=5, pady=1, sticky=tk.W+tk.E)
             except:
                 print(f"Error reading {temp_file_path}")
 
                 
             # For Top P:
-            top_p_file_path = f"./config/Generation_Settings/{current_selection}/top_p.txt"
+            top_p_file_path = f"./config/Generation_Settings/OpenAi/{current_selection}/top_p.txt"
             try:
                 with open(top_p_file_path, 'r') as file:
                     current_value = float(file.read().strip())
                     self.top_p_scale_widget.set(current_value)
                     self.top_p_value.set(f"Top P: {current_value:.2f}")
-                    self.top_p_label = customtkinter.CTkLabel(self.settings_frame, text=f"Top_P: {open_file_menu(f'./config/Generation_Settings/{current_selection}/top_p.txt')}", font=('bold', font_size_config))
+                    self.top_p_label = customtkinter.CTkLabel(self.settings_frame, text=f"Top_P: {open_file_menu(f'./config/Generation_Settings/OpenAi/{current_selection}/top_p.txt')}", font=('bold', font_size_config))
                     self.top_p_label.grid(row=5, column=0, padx=5, pady=1, sticky=tk.W+tk.E)
             except:
                 print(f"Error reading {top_p_file_path}")
-            # For Top K:
-            top_k_file_path = f"./config/Generation_Settings/{current_selection}/top_k.txt"
-            try:
-                with open(top_k_file_path, 'r') as file:
-                    current_value = int(file.read().strip())
-                    self.top_k_scale_widget.set(current_value)
-                    self.top_k_value.set(f"Top K: {current_value}")
-                    self.top_k_label = customtkinter.CTkLabel(self.settings_frame, text=f"Top_K: {open_file_menu(f'./config/Generation_Settings/{current_selection}/top_k.txt')}", font=('bold', font_size_config))
-                    self.top_k_label.grid(row=7, column=0, padx=5, pady=1, sticky=tk.W+tk.E)
-            except:
-                print(f"Error reading {top_k_file_path}")
                 
-            # For Repetition Penalty:
-            rep_pen_file_path = f"./config/Generation_Settings/{current_selection}/rep_pen.txt"
+            # For Frequency Penalty:
+            rep_pen_file_path = f"./config/Generation_Settings/OpenAi/{current_selection}/rep_pen.txt"
             try:
                 with open(rep_pen_file_path, 'r') as file:
                     current_value = float(file.read().strip())
                     self.rep_pen_scale_widget.set(current_value)
-                    self.rep_pen_value.set(f"Repetition Penalty: {current_value:.2f}")
-                    self.rep_pen_label = customtkinter.CTkLabel(self.settings_frame, text=f"Repetition Penalty: {open_file_menu(f'./config/Generation_Settings/{current_selection}/rep_pen.txt')}", font=('bold', font_size_config))
+                    self.rep_pen_value.set(f"Frequency Penalty: {current_value:.2f}")
+                    self.rep_pen_label = customtkinter.CTkLabel(self.settings_frame, text=f"Frequency Penalty: {open_file_menu(f'./config/Generation_Settings/OpenAi/{current_selection}/rep_pen.txt')}", font=('bold', font_size_config))
                     self.rep_pen_label.grid(row=9, column=0, padx=5, pady=1, sticky=tk.W+tk.E)
             except:
                 print(f"Error reading {rep_pen_file_path}")
                 
-            # For Min Tokens:
-            min_token_file_path = f"./config/Generation_Settings/{current_selection}/min_tokens.txt"
-            try:
-                with open(min_token_file_path, 'r') as file:
-                    current_value = int(file.read().strip())
-                    self.min_tokens_scale_widget.set(current_value)
-                    self.min_tokens_value.set(f"Min Tokens: {current_value}")
-                    self.min_tokens_label = customtkinter.CTkLabel(self.settings_frame, text=f"Min_Tokens: {open_file_menu(f'./config/Generation_Settings/{current_selection}/min_tokens.txt')}", font=('bold', font_size_config))
-                    self.min_tokens_label.grid(row=11, column=0, padx=5, pady=1, sticky=tk.W+tk.E)
-            except:
-                print(f"Error reading {min_token_file_path}")
                 
             # For Max Tokens:
-            token_file_path = f"./config/Generation_Settings/{current_selection}/max_tokens.txt"
+            token_file_path = f"./config/Generation_Settings/OpenAi/{current_selection}/max_tokens.txt"
             try:
                 with open(token_file_path, 'r') as file:
                     current_value = int(file.read().strip())
                     self.tokens_scale_widget.set(current_value)
                     self.tokens_value.set(f"Max Tokens: {current_value}")
-                    self.tokens_label = customtkinter.CTkLabel(self.settings_frame, text=f"Max_Tokens: {open_file_menu(f'./config/Generation_Settings/{current_selection}/max_tokens.txt')}", font=('bold', font_size_config))
+                    self.tokens_label = customtkinter.CTkLabel(self.settings_frame, text=f"Max_Tokens: {open_file_menu(f'./config/Generation_Settings/OpenAi/{current_selection}/max_tokens.txt')}", font=('bold', font_size_config))
                     self.tokens_label.grid(row=13, column=0, padx=5, pady=1, sticky=tk.W+tk.E)
             except:
                 print(f"Error reading {token_file_path}")
@@ -3561,7 +3566,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
         def update_value(value):
             # Function called when the slider value is changed.
             current_selection = self.loop_menu.get()
-            file_path = f"./config/Generation_Settings/{current_selection}/temperature.txt"
+            file_path = f"./config/Generation_Settings/OpenAi/{current_selection}/temperature.txt"
             formatted_value = f"{float(value):.2f}" # Format the value to two decimal places
             try:
                 with open(file_path, 'w') as file:
@@ -3569,16 +3574,16 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 self.temperature_value.set(f"Temperature: {formatted_value}")  # update the label with formatted value
             except:
                 print(f"Error writing to {file_path}")
-            self.temperature_label = customtkinter.CTkLabel(self.settings_frame, text=f"Temperature: {open_file_menu(f'./config/Generation_Settings/{current_selection}/temperature.txt')}", font=('bold', font_size_config))
+            self.temperature_label = customtkinter.CTkLabel(self.settings_frame, text=f"Temperature: {open_file_menu(f'./config/Generation_Settings/OpenAi/{current_selection}/temperature.txt')}", font=('bold', font_size_config))
             self.temperature_label.grid(row=3, column=0, padx=5, pady=1, sticky=tk.W+tk.E)
 
         current_selection = self.loop_menu.get()
         self.temperature_value = tk.StringVar()
 
         # Set the initial value using "Inner Monologue" since the initial dropdown selection is "Loop Selection" which maps to "N/A"
-        self.temperature_value.set(f"Temperature: {open_file_menu(f'./config/Generation_Settings/{current_selection}/temperature.txt')}")
+        self.temperature_value.set(f"Temperature: {open_file_menu(f'./config/Generation_Settings/OpenAi/{current_selection}/temperature.txt')}")
 
-        self.temperature_label = customtkinter.CTkLabel(self.settings_frame, text=f"Temperature: {open_file_menu(f'./config/Generation_Settings/{current_selection}/temperature.txt')}", font=('bold', font_size_config))
+        self.temperature_label = customtkinter.CTkLabel(self.settings_frame, text=f"Temperature: {open_file_menu(f'./config/Generation_Settings/OpenAi/{current_selection}/temperature.txt')}", font=('bold', font_size_config))
         self.temperature_label.grid(row=3, column=0, padx=5, pady=1, sticky=tk.W+tk.E)
 
         # Adjusted the range and resolution of the slider for the new values
@@ -3591,13 +3596,13 @@ class ChatBotApplication(customtkinter.CTkFrame):
         # Function to update top_p value when the slider is moved
         def update_top_p(value):
             current_selection = self.loop_menu.get()
-            file_path = f"./config/Generation_Settings/{current_selection}/top_p.txt"
+            file_path = f"./config/Generation_Settings/OpenAi/{current_selection}/top_p.txt"
             formatted_value = f"{float(value):.2f}"
             try:
                 with open(file_path, 'w') as file:
                     file.write(formatted_value)
                 self.top_p_value.set(f"Top P: {formatted_value}")  # update the label with formatted value
-                self.top_p_label = customtkinter.CTkLabel(self.settings_frame, text=f"Top_P: {open_file_menu(f'./config/Generation_Settings/{current_selection}/top_p.txt')}", font=('bold', font_size_config))
+                self.top_p_label = customtkinter.CTkLabel(self.settings_frame, text=f"Top_P: {open_file_menu(f'./config/Generation_Settings/OpenAi/{current_selection}/top_p.txt')}", font=('bold', font_size_config))
                 self.top_p_label.grid(row=5, column=0, padx=5, pady=1, sticky=tk.W+tk.E)
             except:
                 print(f"Error writing to {file_path}")
@@ -3605,99 +3610,57 @@ class ChatBotApplication(customtkinter.CTkFrame):
         # GUI Widget for Top P
         self.top_p_value = tk.StringVar()
         self.top_p_value.set("Top P: 0.50")  # Default value
-        self.top_p_label = customtkinter.CTkLabel(self.settings_frame, text=f"Top_P: {open_file_menu(f'./config/Generation_Settings/{current_selection}/top_p.txt')}", font=('bold', font_size_config))
+        self.top_p_label = customtkinter.CTkLabel(self.settings_frame, text=f"Top_P: {open_file_menu(f'./config/Generation_Settings/OpenAi/{current_selection}/top_p.txt')}", font=('bold', font_size_config))
         self.top_p_label.grid(row=5, column=0, padx=5, pady=1, sticky=tk.W+tk.E)
 
         self.top_p_scale_widget = customtkinter.CTkSlider(self.settings_frame, from_=0.00, to=1.00, number_of_steps=100, command=update_top_p, width=140)
         self.top_p_scale_widget.grid(row=6, column=0, padx=5, pady=3, sticky=tk.W+tk.E)
         
-        # Function to update top_k value when the slider is moved
-        def update_top_k(value):
-            current_selection = self.loop_menu.get()
-            file_path = f"./config/Generation_Settings/{current_selection}/top_k.txt"
-            try:
-                with open(file_path, 'w') as file:
-                    file.write(str(int(value)))
-                self.top_k_value.set(f"Top K: {int(value)}")  # update the label with the integer value
-                self.top_k_label = customtkinter.CTkLabel(self.settings_frame, text=f"Top_K: {open_file_menu(f'./config/Generation_Settings/{current_selection}/top_k.txt')}", font=('bold', font_size_config))
-                self.top_k_label.grid(row=7, column=0, padx=5, pady=1, sticky=tk.W+tk.E)
-            except:
-                print(f"Error writing to {file_path}")
 
-        # GUI Widget for Top K
-        self.top_k_value = tk.StringVar()
-        self.top_k_value.set("Top K: 50")  # Default value
-        self.top_k_label = customtkinter.CTkLabel(self.settings_frame, text=f"Top_K: {open_file_menu(f'./config/Generation_Settings/{current_selection}/top_k.txt')}", font=('bold', font_size_config))
-        self.top_k_label.grid(row=7, column=0, padx=5, pady=1, sticky=tk.W+tk.E)
-
-        self.top_k_scale_widget = customtkinter.CTkSlider(self.settings_frame, from_=0, to=100, number_of_steps=101, command=update_top_k, width=140)  # 101 steps for the range 0 to 100 inclusive
-        self.top_k_scale_widget.grid(row=8, column=0, padx=5, pady=3, sticky=tk.W+tk.E)
         
         def update_rep_pen(value):
-            # Function called when the repetition penalty slider value is changed.
+            # Function called when the Frequency Penalty slider value is changed.
             current_selection = self.loop_menu.get()
-            file_path = f"./config/Generation_Settings/{current_selection}/rep_pen.txt"
+            file_path = f"./config/Generation_Settings/OpenAi/{current_selection}/rep_pen.txt"
             formatted_value = f"{float(value):.2f}"
             try:
                 with open(file_path, 'w') as file:
                     file.write(formatted_value) 
-                self.rep_pen_value.set(f"Repetition Penalty: {formatted_value}")  # update the label with formatted value
+                self.rep_pen_value.set(f"Frequency Penalty: {formatted_value}")  # update the label with formatted value
             except:
                 print(f"Error writing to {file_path}")
-            self.rep_pen_label = customtkinter.CTkLabel(self.settings_frame, text=f"Repetition Penalty: {open_file_menu(f'./config/Generation_Settings/{current_selection}/rep_pen.txt')}", font=('bold', font_size_config))
+            self.rep_pen_label = customtkinter.CTkLabel(self.settings_frame, text=f"Frequency Penalty: {open_file_menu(f'./config/Generation_Settings/OpenAi/{current_selection}/rep_pen.txt')}", font=('bold', font_size_config))
             self.rep_pen_label.grid(row=9, column=0, padx=5, pady=1, sticky=tk.W+tk.E)
 
         self.rep_pen_value = tk.StringVar()
-        self.rep_pen_value.set("Repetition Penalty: 1.0")  # Set a default value (can be adjusted)
-        self.rep_pen_label = customtkinter.CTkLabel(self.settings_frame, text=f"Repetition Penalty: {open_file_menu(f'./config/Generation_Settings/{current_selection}/rep_pen.txt')}", font=('bold', font_size_config))
+        self.rep_pen_value.set("Frequency Penalty: 1.0")  # Set a default value (can be adjusted)
+        self.rep_pen_label = customtkinter.CTkLabel(self.settings_frame, text=f"Frequency Penalty: {open_file_menu(f'./config/Generation_Settings/OpenAi/{current_selection}/rep_pen.txt')}", font=('bold', font_size_config))
         self.rep_pen_label.grid(row=9, column=0, padx=5, pady=1, sticky=tk.W+tk.E)
 
-        # You might want to adjust the range and steps based on the desired range for repetition penalty.
-        self.rep_pen_scale_widget = customtkinter.CTkSlider(self.settings_frame, from_=0.0, to=2.0, number_of_steps=40, command=update_rep_pen, width=140)
+        # You might want to adjust the range and steps based on the desired range for Frequency Penalty.
+        self.rep_pen_scale_widget = customtkinter.CTkSlider(self.settings_frame, from_=-2.0, to=2.0, number_of_steps=40, command=update_rep_pen, width=140)
         self.rep_pen_scale_widget.grid(row=10, column=0, padx=5, pady=3, sticky=tk.W+tk.E)
         
         
-        def update_min_tokens(value):
-            # Function called when the tokens slider value is changed.
-            current_selection = self.loop_menu.get()
-            file_path = f"./config/Generation_Settings/{current_selection}/min_tokens.txt"
-            try:
-                with open(file_path, 'w') as file:
-                    file.write(str(int(value)))  # Storing the value as an integer
-                self.min_tokens_value.set(f"Min Tokens: {int(value)}")  # update the label
-            except:
-                print(f"Error writing to {file_path}")
-            self.min_tokens_label = customtkinter.CTkLabel(self.settings_frame, text=f"Min_Tokens: {open_file_menu(f'./config/Generation_Settings/{current_selection}/min_tokens.txt')}", font=('bold', font_size_config))
-            self.min_tokens_label.grid(row=11, column=0, padx=5, pady=1, sticky=tk.W+tk.E)
-                
-
-        self.min_tokens_value = tk.StringVar()
-        self.min_tokens_value.set("Min Tokens: 0")  # Set a default value (can be adjusted)
-        self.min_tokens_label = customtkinter.CTkLabel(self.settings_frame, text=f"Min_Tokens: {open_file_menu(f'./config/Generation_Settings/{current_selection}/min_tokens.txt')}", font=('bold', font_size_config))
-        self.min_tokens_label.grid(row=11, column=0, padx=5, pady=1, sticky=tk.W+tk.E)
-
-        # Assuming you want a range of 0 to 1000 tokens. Adjust the range and steps accordingly.
-        self.min_tokens_scale_widget = customtkinter.CTkSlider(self.settings_frame, from_=0, to=1000, number_of_steps=100, command=update_min_tokens, width=140)
-        self.min_tokens_scale_widget.grid(row=12, column=0, padx=5, pady=3, sticky=tk.W+tk.E)
         
         
         def update_tokens(value):
             # Function called when the tokens slider value is changed.
             current_selection = self.loop_menu.get()
-            file_path = f"./config/Generation_Settings/{current_selection}/max_tokens.txt"
+            file_path = f"./config/Generation_Settings/OpenAi/{current_selection}/max_tokens.txt"
             try:
                 with open(file_path, 'w') as file:
                     file.write(str(int(value)))  # Storing the value as an integer
                 self.tokens_value.set(f"Max Tokens: {int(value)}")  # update the label
             except:
                 print(f"Error writing to {file_path}")
-            self.tokens_label = customtkinter.CTkLabel(self.settings_frame, text=f"Max_Tokens: {open_file_menu(f'./config/Generation_Settings/{current_selection}/max_tokens.txt')}", font=('bold', font_size_config))
+            self.tokens_label = customtkinter.CTkLabel(self.settings_frame, text=f"Max_Tokens: {open_file_menu(f'./config/Generation_Settings/OpenAi/{current_selection}/max_tokens.txt')}", font=('bold', font_size_config))
             self.tokens_label.grid(row=13, column=0, padx=5, pady=1, sticky=tk.W+tk.E)
                 
 
         self.tokens_value = tk.StringVar()
         self.tokens_value.set("Max Tokens: 0")  # Set a default value (can be adjusted)
-        self.tokens_label = customtkinter.CTkLabel(self.settings_frame, text=f"Max_Tokens: {open_file_menu(f'./config/Generation_Settings/{current_selection}/max_tokens.txt')}", font=('bold', font_size_config))
+        self.tokens_label = customtkinter.CTkLabel(self.settings_frame, text=f"Max_Tokens: {open_file_menu(f'./config/Generation_Settings/OpenAi/{current_selection}/max_tokens.txt')}", font=('bold', font_size_config))
         self.tokens_label.grid(row=13, column=0, padx=5, pady=1, sticky=tk.W+tk.E)
 
         # Assuming you want a range of 0 to 1000 tokens. Adjust the range and steps accordingly.
@@ -3743,15 +3706,15 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 self.Edit_Font_Size()
             elif selection == "Set Conv Length":
                 self.Set_Conv_Length()
-            elif selection == "Set Oobabooga HOST":
-                self.Set_Host()
-            elif selection == "Set Embedding Model":
+            elif selection == "Select GPT Model":
+                self.Model_Selection()
+            elif selection == "Select Embedding Model":
                 self.Set_Embed()
             elif selection == "Set TTS Model":
                 self.Set_TTS()
         
         # Config Dropdown Menu
-        self.menu = customtkinter.CTkComboBox(self.top_frame, values=["Set Oobabooga HOST", "Set Embedding Model", "Set TTS Model", "Edit Font", "Edit Font Size", "Set Conv Length"], state="readonly", command=handle_menu_selection)
+        self.menu = customtkinter.CTkComboBox(self.top_frame, values=["Select GPT Model", "Select Embedding Model", "Set TTS Model", "Edit Font", "Edit Font Size", "Set Conv Length"], state="readonly", command=handle_menu_selection)
         self.menu.grid(row=0, column=4, padx=5, pady=5, sticky=tk.W+tk.E)
         self.menu.set("Config Menu")
         self.menu.bind("<<ComboboxSelected>>", self.handle_menu_selection)

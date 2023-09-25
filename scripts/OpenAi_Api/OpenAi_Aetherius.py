@@ -404,11 +404,10 @@ def summarized_chunk_from_url(host, chunk, collection_name, bot_name, username, 
     try:
         weblist = list()
         websum = list()
-        websum.append({'role': 'system', 'content': "MAIN SYSTEM PROMPT: You are an ai text summarizer.  Your job is to take the given text from a scraped article, then return the text in a summarized article form.  Do not generalize, rephrase, or add information in your summary, keep the same semantic meaning.  If no article is given, print no article.\n\n\n"})
-        websum.append({'role': 'user', 'content': f"SCRAPED ARTICLE: {chunk}\n\nINSTRUCTIONS: Summarize the article without losing any factual data or semantic meaning.  Ensure to maintain full context and information. Only print the truncated article, do not include any additional text or comments. [/INST] SUMMARIZER BOT: Sure! Here is the summarized article based on the scraped text: "})
-        prompt = ''.join([message_dict['content'] for message_dict in websum])
-            
-        text = scrape_oobabooga_scrape(host, prompt)
+        websum.append({'role': 'system', 'content': "You are an ai text summarizer.  Your job is to take the given text from a scraped article, then return the text in a summarized article form.  Do not generalize, rephrase, or add information in your summary, keep the same semantic meaning."})
+        websum.append({'role': 'assistant', 'content': f"ARTICLE: {chunk}"})
+        websum.append({'role': 'user', 'content': f"Summarize the article without losing any factual knowledge and maintaining full context and information. Only print the truncated article, do not include any additional text or comments."})
+        text = chatgpt_scrape_completion(websum)
         if text.startswith("Sure! Here is the summarized article based on the scraped text:"):
                 # Remove the specified text from the variable
             text = text[len("Sure! Here is the summarized article based on the scraped text:"):]
@@ -418,12 +417,13 @@ def summarized_chunk_from_url(host, chunk, collection_name, bot_name, username, 
         #    paragraphs = text.split('\n\n')  # Split into paragraphs
         #    for paragraph in paragraphs:  # Process each paragraph individually, add a check to see if paragraph contained actual information.
         webcheck = list()
-        webcheck.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a sub-agent for an automated webscraping tool. Your task is to decide if the previous Ai sub-agent scraped legible information. The scraped text should contain some form of text, if it does, print 'YES'.  If the webscrape failed or is illegible, print: 'NO'."})
-        webcheck.append({'role': 'user', 'content': f"ORIGINAL TEXT FROM SCRAPE: {chunk}[/INST]"})
-        webcheck.append({'role': 'user', 'content': f"PROCESSED WEBSCRAPE: {text}\n\n"})
-        webcheck.append({'role': 'user', 'content': f"[INST]SYSTEM: You are responding for a Yes or No input field. You are only capible of printing Yes or No. Use the format: [AI AGENT: <'Yes'/'No'>][/INST]\n\nASSISTANT: "})
+        webcheck.append({'role': 'system', 'content': f"You are a sub-agent for an automated webscraping tool. Your task is to decide if the previous Ai sub-agent scraped legible information. The scraped text should contain some form of article, if it does, print 'YES'.  If the webscrape failed or is illegible, print: 'NO'."})
+        webcheck.append({'role': 'user', 'content': f"ORIGINAL TEXT FROM SCRAPE: {chunk}"})
+        webcheck.append({'role': 'assistant', 'content': f"PROCESSED WEBSCRAPE: {text}"})
+        webcheck.append({'role': 'user', 'content': f"You are responding for a Yes or No input field. You are only capable of printing Yes or No. Does the processed webscrape contain information?  Use the format: 'Yes'/'No'"})
+        webcheck.append({'role': 'assistant', 'content': f"ASSISTANT: "})
+    #    webyescheck = chatgpt_yesno_completion(webcheck)
 
-        prompt = ''.join([message_dict['content'] for message_dict in webcheck])
         #    webyescheck = agent_oobabooga_webcheckyesno(prompt)
         webyescheck = 'yes'
         if 'no webscrape' in text.lower():
@@ -456,11 +456,10 @@ def summarized_chunk_from_url(host, chunk, collection_name, bot_name, username, 
                 text = chunk
             if 'yes' in webyescheck.lower():
                 semanticterm = list()
-                semanticterm.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a bot responsible for taging articles with a title for database queries.  Your job is to read the given text, then create a title in question form representative of what the article is about, focusing on its main subject.  The title should be semantically identical to the overview of the article and not include extraneous info.  The article is from the URL: {url}. Use the format: [<TITLE IN QUESTION FORM>].\n\n"})
-                semanticterm.append({'role': 'user', 'content': f"ARTICLE: {text}\n\n"})
-                semanticterm.append({'role': 'user', 'content': f"SYSTEM: Create a short, single question that encapsulates the semantic meaning of the Article.  Use the format: [<QUESTION TITLE>].  Please only print the title, it will be directly input in front of the article.[/INST]\n\nASSISTANT: Sure! Here's the summary of the webscrape: "})
-                prompt = ''.join([message_dict['content'] for message_dict in semanticterm])
-                semantic_db_term = scrape_oobabooga_scrape(host, prompt)
+                semanticterm.append({'role': 'system', 'content': f"You are a bot responsible for taging articles with a title for database queries.  Your job is to read the given text, then create a title in question form representative of what the article is about, focusing on its main subject.  The title should be semantically identical to the overview of the article and not include extraneous info.  The article is from the URL: {url}. Use the format: [<TITLE IN QUESTION FORM>].\n\n"})
+                semanticterm.append({'role': 'assistant', 'content': f"ARTICLE: {text}\n\n"})
+                semanticterm.append({'role': 'user', 'content': f"Create a short, single question that encapsulates the semantic meaning of the Article.  Use the format: [<QUESTION TITLE>].  Please only print the title, it will be directly input in front of the article."})
+                semantic_db_term = chatgpt35_completion(semanticterm)
                 if 'cannot provide a summary of' in semantic_db_term.lower():
                     semantic_db_term = 'Tag Censored by Model'
                 print('---------')
@@ -638,14 +637,13 @@ def wrapped_chunk_from_file(host_queue, chunk, collection_name, bot_name, userna
         
 def summarized_chunk_from_file(host, chunk, collection_name, bot_name, username, embeddings, client, file_path):
     try:
-        filesum = list()
         filelist = list()
-        filesum.append({'role': 'system', 'content': "MAIN SYSTEM PROMPT: You are an ai text summarizer.  Your job is to take the given text from a scraped file, then return the text in a summarized article form.  Do not generalize, rephrase, or add information in your summary, keep the same semantic meaning.  If no article is given, print no article.\n\n\n"})
-        filesum.append({'role': 'user', 'content': f"SCRAPED ARTICLE: {chunk}\n\nINSTRUCTIONS: Summarize the article without losing any factual knowledge and maintaining full context and information. Only print the truncated article, do not include any additional text or comments. [/INST] SUMMARIZER BOT: Sure! Here is the summarized article based on the scraped text: "})
-
-
-        prompt = ''.join([message_dict['content'] for message_dict in filesum])
-        text = File_Processor_oobabooga_scrape(host, prompt)
+        filesum = list()
+        filesum.append({'role': 'system', 'content': "You are an ai text editor.  Your job is to take the given text from a file, then return the scraped text in an informational article form.  Do not generalize, rephrase, or use latent knowledge in your summary.  If no article is given, print no article."})
+        filesum.append({'role': 'assistant', 'content': f"FILE TEXT: {chunk}"})
+        filesum.append({'role': 'user', 'content': f"Summarize the text scrape without losing any factual knowledge and maintaining full context. The truncated article will be directly uploaded to a Database, leave out extraneous text and personal statements."})
+        text = chatgpt_scrape_completion(filesum)
+        
         if len(text) < 20:
             text = "No File available"
         #    paragraphs = text.split('\n\n')  # Split into paragraphs
@@ -687,11 +685,10 @@ def summarized_chunk_from_file(host, chunk, collection_name, bot_name, username,
                 text = chunk
             if 'yes' in fileyescheck.lower():
                 semanticterm = list()
-                semanticterm.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a bot responsible for taging articles with a title for database queries.  Your job is to read the given text, then create a title in question form representative of what the article is about.  The title should be semantically identical to the overview of the article and not include extraneous info. Use the format: [<TITLE IN QUESTION FORM>].\n\n"})
-                semanticterm.append({'role': 'user', 'content': f"ARTICLE: {text}\n\n"})
-                semanticterm.append({'role': 'user', 'content': f"SYSTEM: Create a short, single question that encapsulates the semantic meaning of the Article.  Use the format: [<QUESTION TITLE>].  Please only print the title, it will be directly input in front of the article.[/INST]\n\nASSISTANT: Sure! Here's the summary of the given article: "})
-                prompt = ''.join([message_dict['content'] for message_dict in semanticterm])
-                semantic_db_term = File_Processor_oobabooga_scrape(host, prompt)
+                semanticterm.append({'role': 'system', 'content': f"You are a bot responsible for taging articles with a title for database queries.  Your job is to read the given text, then create a title in question form representative of what the article is about.  The title should be semantically identical to the overview of the article and not include extraneous info. Use the format: [<TITLE IN QUESTION FORM>].\n\n"})
+                semanticterm.append({'role': 'assistant', 'content': f"ARTICLE: {text}\n\n"})
+                semanticterm.append({'role': 'user', 'content': f"Create a short, single question that encapsulates the semantic meaning of the Article.  Use the format: [<QUESTION TITLE>].  Please only print the title, it will be directly input in front of the article."})
+                semantic_db_term = chatgpt35_completion(semanticterm)
                 filename = os.path.basename(file_path)
                 print('---------')
                 if 'cannot provide a summary of' in semantic_db_term.lower():
@@ -5104,97 +5101,99 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 
             # # Short Term Memory Consolidation based on amount of vectors in namespace    
             collection_name = f"Bot_{bot_name}_{username}_Explicit_Short_Term"
-            collection_info = client.get_collection(collection_name=collection_name)
-            if collection_info.vectors_count > 23:
-        #    if collection_info.vectors_count > 5:
-                consolidation.clear()
-                memory_consol_db = None
-                        
-                try:
-                    hits = client.search(
-                        collection_name=f"Bot_{bot_name}_{username}_Explicit_Short_Term",
-                        query_vector=vector_input,
-                        query_filter=Filter(
-                            must=[
-                                FieldCondition(
-                                    key="user",
-                                    match=MatchValue(value=f"{username}")
-                                )
-                            ]
-                        ),
-                        limit=20
-                    )
-                    memory_consol_db = [hit.payload['message'] for hit in hits]
-                    print(memory_consol_db)
-                except Exception as e:
-                    if "Not found: Collection" in str(e):
-                        print("Collection does not exist.")
-                    else:
-                        print(f"An unexpected error occurred: {str(e)}")
-                        
-
-                print('\n-----------------------\n')
-                consolidation.append({'role': 'system', 'content': "%s" % main_prompt})
-                consolidation.append({'role': 'assistant', 'content': "LOG:\n%s\n\nRead the Log and consolidate the different topics into executive summaries. Each summary should contain the entire context of the memory. Follow the format [-Executive Summary]." % memory_consol_db})
-                memory_consol = chatgptconsolidation_completion(consolidation)
-            #    print(memory_consol)
-            #    print('\n-----------------------\n')
-                segments = re.split(r'•|\n\s*\n', memory_consol)
-                for segment in segments:
-                    if segment.strip() == '':  # This condition checks for blank segments
-                        continue  # This condition checks for blank lines
-                    else:
-                        print(segment)
-                        # Define the collection name
-                        collection_name = f"Bot_{bot_name}"
-                        # Create the collection only if it doesn't exist
-                        try:
-                            collection_info = client.get_collection(collection_name=collection_name)
-                        except:
-                            client.create_collection(
-                                collection_name=collection_name,
-                                vectors_config=VectorParams(size=embed_size, distance=Distance.COSINE),
-                            )
-                        vector1 = embeddings(segment)
-                        unique_id = str(uuid4())
-                        importance_score.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a sub-module of {bot_name}, an autonomous AI entity. Your function is to process a given memory and rate its importance to personal development and/or its ability to impact the greater world.  You are to give the rating on a scale of 1-100.\n"})
-                        importance_score.append({'role': 'system', 'content': f"{botnameupper}'S MAIN PROMPT: {main_prompt}\n"})
-                        importance_score.append({'role': 'system', 'content': f"{botnameupper}'S SECONDARY PROMPT: {second_prompt}\n"})
-                        importance_score.append({'role': 'system', 'content': f"{botnameupper}'S GREETING MESSAGE: {greeting_msg}\n"})
-                        importance_score.append({'role': 'system', 'content': f"MEMORY TO RATE: {segment}\n"})
-                        importance_score.append({'role': 'system', 'content': f"{usernameupper}: Please now rate the given memory on a scale of 1-100. Only print the numerical rating as a digit. [/INST]"})
-                        importance_score.append({'role': 'system', 'content': f"{botnameupper}: Sure thing! Here's the memory rated on a scale of 1-100:\nRating: "})
-                        prompt = ''.join([message_dict['content'] for message_dict in importance_score])
-                        score = 75
-                        # print(score)
-                        importance_score.clear()
-                        metadata = {
-                            'bot': bot_name,
-                            'user': username,
-                            'time': timestamp,
-                            'rating': score,
-                            'message': segment,
-                            'timestring': timestring,
-                            'uuid': unique_id,
-                            'memory_type': 'Explicit_Long_Term',
-                        }
-                        client.upsert(collection_name=collection_name,
-                                             points=[PointStruct(id=unique_id, vector=vector1, payload=metadata)])   
-                        payload.clear()
-                client.delete(
-                    collection_name=f"Bot_{bot_name}_{username}_Explicit_Short_Term",
-                    points_selector=models.FilterSelector(
-                        filter=models.Filter(
-                            must=[
-                                models.FieldCondition(
-                                    key="user",
-                                    match=models.MatchValue(value=f"{username}"),
-                                ),
-                            ],
+            try:
+                collection_info = client.get_collection(collection_name=collection_name)
+                if collection_info.vectors_count > 23:
+            #    if collection_info.vectors_count > 5:
+                    consolidation.clear()
+                    memory_consol_db = None
+                            
+                    try:
+                        hits = client.search(
+                            collection_name=f"Bot_{bot_name}_{username}_Explicit_Short_Term",
+                            query_vector=vector_input,
+                            query_filter=Filter(
+                                must=[
+                                    FieldCondition(
+                                        key="user",
+                                        match=MatchValue(value=f"{username}")
+                                    )
+                                ]
+                            ),
+                            limit=20
                         )
-                    ),
-                ) 
-                
+                        memory_consol_db = [hit.payload['message'] for hit in hits]
+                        print(memory_consol_db)
+                    except Exception as e:
+                        if "Not found: Collection" in str(e):
+                            print("Collection does not exist.")
+                        else:
+                            print(f"An unexpected error occurred: {str(e)}")
+                            
+
+                    print('\n-----------------------\n')
+                    consolidation.append({'role': 'system', 'content': "%s" % main_prompt})
+                    consolidation.append({'role': 'assistant', 'content': "LOG:\n%s\n\nRead the Log and consolidate the different topics into executive summaries. Each summary should contain the entire context of the memory. Follow the format [-Executive Summary]." % memory_consol_db})
+                    memory_consol = chatgptconsolidation_completion(consolidation)
+                #    print(memory_consol)
+                #    print('\n-----------------------\n')
+                    segments = re.split(r'•|\n\s*\n', memory_consol)
+                    for segment in segments:
+                        if segment.strip() == '':  # This condition checks for blank segments
+                            continue  # This condition checks for blank lines
+                        else:
+                            print(segment)
+                            # Define the collection name
+                            collection_name = f"Bot_{bot_name}"
+                            # Create the collection only if it doesn't exist
+                            try:
+                                collection_info = client.get_collection(collection_name=collection_name)
+                            except:
+                                client.create_collection(
+                                    collection_name=collection_name,
+                                    vectors_config=VectorParams(size=embed_size, distance=Distance.COSINE),
+                                )
+                            vector1 = embeddings(segment)
+                            unique_id = str(uuid4())
+                            importance_score.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a sub-module of {bot_name}, an autonomous AI entity. Your function is to process a given memory and rate its importance to personal development and/or its ability to impact the greater world.  You are to give the rating on a scale of 1-100.\n"})
+                            importance_score.append({'role': 'system', 'content': f"{botnameupper}'S MAIN PROMPT: {main_prompt}\n"})
+                            importance_score.append({'role': 'system', 'content': f"{botnameupper}'S SECONDARY PROMPT: {second_prompt}\n"})
+                            importance_score.append({'role': 'system', 'content': f"{botnameupper}'S GREETING MESSAGE: {greeting_msg}\n"})
+                            importance_score.append({'role': 'system', 'content': f"MEMORY TO RATE: {segment}\n"})
+                            importance_score.append({'role': 'system', 'content': f"{usernameupper}: Please now rate the given memory on a scale of 1-100. Only print the numerical rating as a digit. [/INST]"})
+                            importance_score.append({'role': 'system', 'content': f"{botnameupper}: Sure thing! Here's the memory rated on a scale of 1-100:\nRating: "})
+                            prompt = ''.join([message_dict['content'] for message_dict in importance_score])
+                            score = 75
+                            # print(score)
+                            importance_score.clear()
+                            metadata = {
+                                'bot': bot_name,
+                                'user': username,
+                                'time': timestamp,
+                                'rating': score,
+                                'message': segment,
+                                'timestring': timestring,
+                                'uuid': unique_id,
+                                'memory_type': 'Explicit_Long_Term',
+                            }
+                            client.upsert(collection_name=collection_name,
+                                                 points=[PointStruct(id=unique_id, vector=vector1, payload=metadata)])   
+                            payload.clear()
+                    client.delete(
+                        collection_name=f"Bot_{bot_name}_{username}_Explicit_Short_Term",
+                        points_selector=models.FilterSelector(
+                            filter=models.Filter(
+                                must=[
+                                    models.FieldCondition(
+                                        key="user",
+                                        match=models.MatchValue(value=f"{username}"),
+                                    ),
+                                ],
+                            )
+                        ),
+                    ) 
+            except Exception as e:
+                print(e)
                         # Define the collection name
                 collection_name = f'Consol_Counter_Bot_{bot_name}_{username}'
                         # Create the collection only if it doesn't exist

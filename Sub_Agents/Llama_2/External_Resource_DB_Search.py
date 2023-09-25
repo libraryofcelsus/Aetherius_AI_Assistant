@@ -191,7 +191,10 @@ def External_Resource_DB_Search(self, host, bot_name, username, line, task_count
                             table = "Google Search Failed"
                     except Exception as e:
                         print(e)
-                        table = "Google Search Failed.  Remind user they need to add the Google Api key to the api keys folder."
+                        table = "Google Search Failed.  Remind user they need to add the Google Api key to the api keys folder or disable the web-search in the External Resources Sub-Agent."
+                        self.conversation_text.insert(tk.END, f"{table}\n")
+                        self.conversation_text.insert(tk.END, f"------------------------------------------------------------------------------------------------------------------\n")
+                        print(table)
 
                 if Search_Engine == "Bing":
                     try:
@@ -214,7 +217,10 @@ def External_Resource_DB_Search(self, host, bot_name, username, line, task_count
                         table = "<table>{0}</table>".format(rows)
                     except Exception as e:
                         print(e)
-                        table = "Bing Search Failed.  Remind user they need to add the Bing Api key to the api keys folder."
+                        table = "Bing Search Failed.  Remind user they need to add the Bing Api key to the api keys folder or disable the web-search in the External Resources Sub-Agent."
+                        self.conversation_text.insert(tk.END, f"{table}\n")
+                        self.conversation_text.insert(tk.END, f"------------------------------------------------------------------------------------------------------------------\n")
+                        print(table)
 
         
         conversation.append({'role': 'assistant', 'content': f"[INST] INITIAL USER REQUEST: {a}\n Now please provide relevant external resources to answer the query. [/INST]"})

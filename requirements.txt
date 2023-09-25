@@ -54,7 +54,7 @@ tokenizers==0.13.3
 werkzeug==2.3.7
 wheel==0.41.2
 yarl==1.9.2
-openai<= 0.28.0
+openai<=0.28.0
 pinecone-client<=2.2.2
 beautifulsoup4==4.12.2
 PyPDF2==3.0.1

@@ -65,6 +65,7 @@ customtkinter==5.2.0
 EbookLib==0.18
 sentence-transformers==2.2.2
 qdrant-client==1.4.0
+sounddevice==0.4.6
 setuptools-rust==1.7.0
 keyboard==0.13.5
 scipy==1.11.2

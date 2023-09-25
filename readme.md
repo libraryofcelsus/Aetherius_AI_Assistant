@@ -8,6 +8,8 @@ For a quick demo deployment without a UI, see: [Public Oobabooga Api Colab](http
 ------
 **Recent Changes**
 
+• 9/25 Updated OpenAi Version of Aetherius with Llama 2 versions features.
+
 • 9/24 Better outlined dependencies to increase requirements.txt install time.
 
 • 9/24 Continued to work on Sub-Agent system.

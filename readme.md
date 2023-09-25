@@ -8,6 +8,8 @@ For a quick demo deployment without a UI, see: [Public Oobabooga Api Colab](http
 ------
 **Recent Changes**
 
+• 9/24 Better outlined dependencies to increase requirements.txt install time.
+
 • 9/24 Continued to work on Sub-Agent system.
 
 • 9/23 Added Memory Search Sub-Agent and an autonomous web-search if the needed information is not in the External Resources DB.

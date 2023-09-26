@@ -82,12 +82,13 @@ def get_script_path_from_file(json_path, key, base_folder='./scripts/resources/'
 
 # Path to the JSON settings file
 json_file_path = './config/chatbot_settings.json'
+
 # Import Embedding Module
 script_path = get_script_path_from_file(json_file_path, "embedding_model")
 import_functions_from_script(script_path, "embedding_module")
 
 
-# Create a Description for the Module
+# Create a Description for the Module.  The name needs to be Filename+"_Description
 def Example_Template_Description():
     with open('./config/chatbot_settings.json', 'r', encoding='utf-8') as f:
         settings = json.load(f)
@@ -97,7 +98,7 @@ def Example_Template_Description():
     return description
     
     
-# Add your custom code Here
+# Add your custom code here.  The name of the function needs to be the same as the file name.
 def Example_Template(self, host, bot_name, username, line, task_counter, output_one, output_two, master_tasklist_output, a):
     try:
         # List used for returning response to main chatbot
@@ -112,7 +113,7 @@ def Example_Template(self, host, bot_name, username, line, task_counter, output_
         
         
         
-        # Set Final response to "task_completion", must return a list
+        # Set Final response to "task_completion"
         task_completion = oobabooga_response(host, prompt)
         
 
@@ -126,6 +127,7 @@ def Example_Template(self, host, bot_name, username, line, task_counter, output_
         print('-------')
         print(task_completion)
         sub_agent_completion.append({'role': 'assistant', 'content': f"COMPLETED TASK: {task_completion} [INST] "})
+        # You must return a List or it will cause errors.
         return sub_agent_completion
     except Exception as e:
         print(f'Failed with error: {e}')

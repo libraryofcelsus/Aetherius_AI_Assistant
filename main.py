@@ -7,6 +7,8 @@ import platform
 import tkinter as tk
 import customtkinter
 import json
+from tkinter import PhotoImage
+import webbrowser
 
 
 
@@ -68,6 +70,8 @@ class SubApplication(tk.Toplevel):
         spec.loader.exec_module(module)
         function = getattr(module, module_name)
         function()
+        
+
 
 
 class Application(customtkinter.CTk):
@@ -111,6 +115,20 @@ class Application(customtkinter.CTk):
             script_name = script[:-3].replace('Menu_', '').replace('_', ' ')
             button = customtkinter.CTkButton(self, text=script_name, command=lambda s=script: self.run_script(s), font=("Arial", 14))
             button.pack(side="top", pady=3)
+            
+        # Create the Ko-fi button at the bottom left
+        kofi_img_path = './scripts/resources/Image/kofi3.png'
+        kofi_img = PhotoImage(file=kofi_img_path)
+
+        kofi_label = tk.Label(self, image=kofi_img, cursor="hand2", bg="#242424")
+        kofi_label.image = kofi_img  # Keep a reference to avoid garbage collection
+        kofi_label.bind("<Button-1>", self.open_kofi_link)
+
+        # Anchor the label to the west (left) and pack it to the bottom
+        kofi_label.pack(side="bottom", anchor="w", pady=10)
+            
+    def open_kofi_link(self, event):
+        webbrowser.open('https://ko-fi.com/libraryofcelsus')
 
     def run_script(self, script):
         module_name = script[:-3]
@@ -133,24 +151,6 @@ if __name__ == '__main__':
             
     bot_name = settings.get('prompt_bot_name', '')
     username = settings.get('prompt_username', '')
-    if not os.path.exists(f'nexus/{bot_name}/{username}/implicit_short_term_memory_nexus'):
-        os.makedirs(f'nexus/{bot_name}/{username}/implicit_short_term_memory_nexus')
-    if not os.path.exists(f'nexus/{bot_name}/{username}/explicit_short_term_memory_nexus'):
-        os.makedirs(f'nexus/{bot_name}/{username}/explicit_short_term_memory_nexus')
-    if not os.path.exists(f'nexus/{bot_name}/{username}/explicit_long_term_memory_nexus'):
-        os.makedirs(f'nexus/{bot_name}/{username}/explicit_long_term_memory_nexus')
-    if not os.path.exists(f'nexus/{bot_name}/{username}/implicit_long_term_memory_nexus'):
-        os.makedirs(f'nexus/{bot_name}/{username}/implicit_long_term_memory_nexus')
-    if not os.path.exists(f'nexus/{bot_name}/{username}/episodic_memory_nexus'):
-        os.makedirs(f'nexus/{bot_name}/{username}/episodic_memory_nexus')
-    if not os.path.exists(f'nexus/{bot_name}/{username}/flashbulb_memory_nexus'):
-        os.makedirs(f'nexus/{bot_name}/{username}/flashbulb_memory_nexus')
-    if not os.path.exists(f'nexus/{bot_name}/{username}/heuristics_nexus'):
-        os.makedirs(f'nexus/{bot_name}/{username}/heuristics_nexus')
-    if not os.path.exists(f'nexus/global_heuristics_nexus'):
-        os.makedirs(f'nexus/global_heuristics_nexus')
-    if not os.path.exists(f'nexus/{bot_name}/{username}/cadence_nexus'):
-        os.makedirs(f'nexus/{bot_name}/{username}/cadence_nexus')
     if not os.path.exists(f'logs/{bot_name}/{username}/complete_chat_logs'):
         os.makedirs(f'logs/{bot_name}/{username}/complete_chat_logs')
     if not os.path.exists(f'logs/{bot_name}/{username}/final_response_logs'):

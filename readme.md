@@ -32,25 +32,6 @@ For a quick demo deployment without a UI, see: [Public Oobabooga Api Colab](http
 
 • 9/13 Worked on DB Sorting Methods
 
-• 9/12 Various Bug Fixes
-
-• 9/11 Added the ability to use multiple Hosts.  To use more than one, separate them with a space.  The first host should be the fastest, as it will be used for the main chat loops.  The second fastest should be second, this will be used for the Memory Loops.  Any additional hosts will only be used for Agent mode.
-
-• 9/11 Worked on Llama 2 Memory Loop
-
-• 9/9 Updated Llama 2 Memory prompts to better extract information representative of the respective memory type.
-
-• 9/7 Improved Llama 2 Agent internal prompts.
-
-• 9/6 Continued to improve Llama 2 internal prompts.  It should now work much better with the 7B model.
-
-• 9/4 Updated Llama 2 Internal Prompts
-
-• 9/3 Updated Installer.bat with update Numpy to fix errors.  Run: **.\venv\Scripts\activate** and **pip install --upgrade numpy=1.24** to fix Numpy not available error.
-
-• 9/2 Added Video Processing to the Llama 2 file scrape tool.  Videos will be converted to text, summarized, then uploaded to the Database for Q/A.    
-(Note: To get Whisper working with cuda, you may need to run the commands: **.\venv\Scripts\activate**  **pip uninstall torch torchaudio**    **pip install torch torchvision torchaudio -f https://download.pytorch.org/whl/cu118/torch_stable.html**
-
 ------
 
 ### What is Aetherius?
@@ -91,7 +72,18 @@ Aetherius is a versatile, modular AI assistant that adapts to your needs. Its ca
 
 Aetherius offers multiple modes tailored to your preferences:
 
-- **Main Chatbot**: Your personal companion with realistic long-term memory.
+- **Main Aetherius Chatbot**: A framework for the creation of custom sub-agents for Aetherius.
+- *Auto Memory Mode*: Aetherius autonomously manages memory uploads.
+- *Manual Memory Mode*: You decide when to upload memories.
+- *Training Memory Mode*: Control memory uploads for each memory type.
+- *Agent Mode*: Activate the use of any Sub-Agents for use in Aetherius's agent loop
+- *External Resources*: Allow Aetherius to use External Resources in it's inner thoughts to provide better domain specific information.
+
+- **Current Sub-Agents**
+- *External Resources*: Will search Aetherius's External Resource Database. (Database from Web and File Scrapes) If the information cannot be found, it will do a simple websearch for the information.  You can disable the websearch and change the engine in the script file.
+- *Memory DB Search*: Will search Aetherius's memories for the information needed for the task.
+
+- **Old Chatbot**: Your personal companion with realistic long-term memory.
 - *Auto Memory Mode*: Aetherius autonomously manages memory uploads.
 - *Manual Memory Mode*: You decide when to upload memories.
 - *Training Memory Mode*: Control memory uploads for each memory type.
@@ -99,14 +91,6 @@ Aetherius offers multiple modes tailored to your preferences:
 - *Web DB*: Access web-scraped data effortlessly.
 - *File DB*: Extract insights from various file formats.
 - *Memory DB*: Efficiently search the most relevant memories.
-
-
-- **Multi-Agent Chatbot**: A framework for the creation of custom sub-agents for Aetherius.
-- *Auto Memory Mode*: Aetherius autonomously manages memory uploads.
-- *Manual Memory Mode*: You decide when to upload memories.
-- *Training Memory Mode*: Control memory uploads for each memory type.
-- *Agent Mode*: Activate the use of any Sub-Agents for use in Aetherius's agent loop
-- *External Resources*: Allow Aetherius to use External Resources in it's inner thoughts to provide better domain specific information.
 
 ------
 
@@ -347,7 +331,9 @@ Run the Installer Bat as admin, it is located at: https://github.com/libraryofce
 
 ![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/05/Capture11111111.png)
 
-Copy your OpenAi and Qdrant API/URL keys to the api_key folder inside of the created Aetherius_Ai_Assistant folder if you are using the OpenAi version.
+Copy your OpenAi and Qdrant API/URL keys to the api_keys folder inside of the created Aetherius_Ai_Assistant folder if you are using the OpenAi version.
+
+Copy your Google CSE Key and Api Key to the api_keys folder or set Web_Search to False in the External Resources Sub-Agent.  You can also change the search engine to Bing.
 
 To run Aetherius on Google Colab with Oobabooga using a public Api, use the Notebook file in the "./Colab Notebooks" Folder.  To use the Public Api with Aetherius, change the "Set Oobabooga Host" in the Config Menu to the given non-streaming Url. <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Oobabooga_Public_Api.ipynb">
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
@@ -383,6 +369,8 @@ Heuristic examples, and files to modify prompts can be found in the config folde
 Photo OCR (jpg, jpeg, png) requires tesseract: https://github.com/UB-Mannheim/tesseract/wiki
 Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aetherius_Ai_Assistant" Folder.
 
+ To get Whisper working with cuda, you may need to run the commands: **.\venv\Scripts\activate**  **pip uninstall torch torchaudio**    **pip install torch torchvision torchaudio -f https://download.pytorch.org/whl/cu118/torch_stable.html**
+
 [Aetherius Usage Guide](https://www.libraryofcelsus.com/research/aetherius-usage-guide/)
 
 ## Windows Installation
@@ -410,7 +398,7 @@ Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aethe
 9. Install the required packages: **pip install -r requirements.txt**   
 (If you get an error when installing requirements run: **python -m pip cache purge** after activating the venv)
 
-10. Update Numpy version: **pip install --upgrade numpy==1.24**
+10. Update Numpy version: **pip install --upgrade numpy==1.24**  (If you get an error from TTS ignore it.)
 
 11. Install FFmpeg: **https://www.gyan.dev/ffmpeg/builds/**
 
@@ -429,7 +417,7 @@ Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aethe
 20. Once the local Qdrant server is running, it should be auto detected by Aetherius.  If No Qdrant server is running, Aetherius will save to disk.   
 (See: https://docs.docker.com/desktop/backup-and-restore/ for how to make backups.)
 
-21. Copy your Google Api key to key_google.txt  (Google Keys only needed if using AetherSearch's websearch.)
+21. Copy your Google Api key to key_google.txt  (You can disable the External Resources Web_Search in the script file.)
 
 22. Copy your Google CSE ID to key_google_cse.txt
 

@@ -3,10 +3,12 @@ Version .045d of the Aetherius Ai Personal Assistant/Agent/Companion by Libraryo
 
 Aetherius is in a state of constant iterative development.  If you like the version you are using, keep a backup.  Expect Bugs.
 
-For a quick demo deployment without a UI, see: [Public Oobabooga Api Colab](https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Oobabooga_Public_Api.ipynb) / [Aetherius Google Colab](https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Aetherius_Colab_Edition_Oobabooga.ipynb)
+For a quick demo deployment or if you do not have a GPU see: [Public Oobabooga Api Colab](https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Oobabooga_Public_Api.ipynb)
 
 ------
 **Recent Changes**
+
+• 9/26 Continued to work on Sub-Agent System
 
 • 9/25 Updated OpenAi Version of Aetherius with Llama 2 versions features.
 
@@ -30,7 +32,6 @@ For a quick demo deployment without a UI, see: [Public Oobabooga Api Colab](http
 
 • 9/13 Added check for unfinished sentences for each response.
 
-• 9/13 Worked on DB Sorting Methods
 
 ------
 
@@ -72,18 +73,18 @@ Aetherius is a versatile, modular AI assistant that adapts to your needs. Its ca
 
 Aetherius offers multiple modes tailored to your preferences:
 
-- **Main Aetherius Chatbot**: A framework for the creation of custom sub-agents for Aetherius.
+**Main Aetherius Chatbot**: A framework for the creation of custom sub-agents for Aetherius.
 - *Auto Memory Mode*: Aetherius autonomously manages memory uploads.
 - *Manual Memory Mode*: You decide when to upload memories.
 - *Training Memory Mode*: Control memory uploads for each memory type.
 - *Agent Mode*: Activate the use of any Sub-Agents for use in Aetherius's agent loop
 - *External Resources*: Allow Aetherius to use External Resources in it's inner thoughts to provide better domain specific information.
 
-- **Current Sub-Agents**
+**Current Sub-Agents**
 - *External Resources*: Will search Aetherius's External Resource Database. (Database from Web and File Scrapes) If the information cannot be found, it will do a simple websearch for the information.  You can disable the websearch and change the engine in the script file.
 - *Memory DB Search*: Will search Aetherius's memories for the information needed for the task.
 
-- **Old Chatbot**: Your personal companion with realistic long-term memory.
+**Old Chatbot**: Your personal companion with realistic long-term memory.
 - *Auto Memory Mode*: Aetherius autonomously manages memory uploads.
 - *Manual Memory Mode*: You decide when to upload memories.
 - *Training Memory Mode*: Control memory uploads for each memory type.

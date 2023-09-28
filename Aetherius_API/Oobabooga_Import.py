@@ -766,7 +766,7 @@ def Aetherius_Chatbot(user_input, username, bot_name):
                     upload_explicit_short_term_memories(segment, username, bot_name)
                 t = threading.Thread(target=Aetherius_Memory_Loop, args=(a, username, bot_name, vector_input, vector_monologue, output_one, response_two))
                 t.start()
-        return
+        return response_two
 
 
 def Aetherius_Agent(user_input, username, bot_name):
@@ -1360,7 +1360,7 @@ def Aetherius_Agent(user_input, username, bot_name):
                     upload_explicit_short_term_memories(segment, username, bot_name)
                 t = threading.Thread(target=Aetherius_Memory_Loop, args=(user_input, username, bot_name, vector_input, vector_monologue, output_one, response_two))
                 t.start()
-        return
+        return response_two
 
 
 

@@ -1419,10 +1419,6 @@ def process_line(host, host_queue, bot_name, username, line, task_counter, outpu
         usernameupper = username.upper()
         tasklist_completion2.append({'role': 'user', 'content': f"TASK: {line} [/INST] "})
         # Add a check with the subagent folder and a saved list.  If the list is different than the sub agent folder, the qdrant recollection will be recreated.
-        if Sub_Module_Output == 'True':
-            print("\n\n----------------------------------\n\n")
-            print(task_expansion)
-            print("\n\n----------------------------------\n\n")
         conversation.append({'role': 'assistant', 'content': f"Search your tool database for a list of the tools available to you. [/INST] "})
         conversation.append({'role': 'assistant', 'content': f"AVAILABLE TOOLS: {filename_description_map} "})
         # Create Module that Explains what the task is and what is needed to complete it.  
@@ -1430,6 +1426,10 @@ def process_line(host, host_queue, bot_name, username, line, task_counter, outpu
         conversation.append({'role': 'assistant', 'content': f"ASSIGNED TASK: {line}. [/INST]"})
         prompt = ''.join([message_dict['content'] for message_dict in conversation])
         task_expansion = agent_oobabooga_process_line_response2(host, prompt, username, bot_name)
+        if Sub_Module_Output == 'True':
+            print("\n\n----------------------------------\n\n")
+            print(task_expansion)
+            print("\n\n----------------------------------\n\n")
         # Create a Collection in Qdrant to upload the selected descriptions.
         vector = embeddings(task_expansion)
         try:

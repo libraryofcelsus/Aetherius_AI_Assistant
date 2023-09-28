@@ -8,6 +8,8 @@ For a quick demo deployment or if you do not have a GPU see: [Public Oobabooga A
 ------
 **Recent Changes**
 
+• 9/28 Added basic API script that can be imported to use Aetherius programmatically. (Still an early work in progress)
+
 • 9/26 Continued to work on Sub-Agent System
 
 • 9/25 Updated OpenAi Version of Aetherius with Llama 2 versions features.

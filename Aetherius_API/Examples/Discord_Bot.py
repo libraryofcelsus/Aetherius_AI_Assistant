@@ -6,7 +6,7 @@ import logging
 import concurrent.futures
 import asyncio
 
-TOKEN = 'REPLACE WITH DISCORD BOT TOKEN'
+TOKEN = 'REPLACE WITH YOUR DISCORD BOT TOKEN'
 
 intents = discord.Intents.all()
 client = discord.Client(command_prefix='!', intents=intents)
@@ -23,14 +23,16 @@ async def on_message(message):
     if message.author == client.user:
         return
 
-    # Execute the chatbot_response function in a separate thread
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        response = await asyncio.get_event_loop().run_in_executor(
-            executor, chatbot_response, message
-        )
-    
-    # Send the response as a message
-    await message.channel.send(response)
+    # Check if the bot was mentioned in the message
+    if client.user in message.mentions:
+        # Execute the chatbot_response function in a separate thread
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            response = await asyncio.get_event_loop().run_in_executor(
+                executor, chatbot_response, message
+            )
+        
+        # Send the response as a message
+        await message.channel.send(response)
 
 # Start the bot
 client.run(TOKEN)

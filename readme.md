@@ -8,6 +8,8 @@ For a quick demo deployment or if you do not have a GPU see: [Public Oobabooga A
 ------
 **Recent Changes**
 
+• 10/1 Added Async Version of Api as well as fixed discord bot
+
 • 9/28 Added Discord Bot Script using Api in ./Aetherius_API/Examples
 
 • 9/28 Added basic API script that can be imported to use Aetherius programmatically. (Still an early work in progress)

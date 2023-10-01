@@ -7,6 +7,8 @@ Then you need to import the functions from the script using:
 import os
 import sys
 from Aetherius_API.Oobabooga_Import import *
+or
+from Aetherius_API.Oobabooga_Import_Async import *
 
 
 

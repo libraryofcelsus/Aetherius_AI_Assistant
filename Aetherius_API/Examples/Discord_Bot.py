@@ -1,38 +1,36 @@
 import discord
 import os
-from discord.ext import commands
-from Aetherius_API.Oobabooga_Import import Aetherius_Chatbot
+from discord.ext.commands import Bot
+from Aetherius_API.Oobabooga_Import_Async import Aetherius_Chatbot
 import logging
-import concurrent.futures
-import asyncio
 
-TOKEN = 'REPLACE WITH YOUR DISCORD BOT TOKEN'
+# Max_Tokens variable for the Response generation should be set to 350 to avoid Length Errors
+
+
+TOKEN = 'REPLACE WITH DISCORD BOT TOKEN'
 
 intents = discord.Intents.all()
-client = discord.Client(command_prefix='!', intents=intents)
+client = Bot(command_prefix='!', intents=intents)
+
 
 logger = logging.getLogger('discord')
 logger.setLevel(logging.ERROR)
-
-def chatbot_response(message):
-    return Aetherius_Chatbot(message.content, str(message.author), 'Aetherius')
 
 @client.event
 async def on_message(message):
     # Only respond to messages from other users, not from the bot itself
     if message.author == client.user:
         return
-
-    # Check if the bot was mentioned in the message
+    # Respond only if the bot is mentioned
     if client.user in message.mentions:
-        # Execute the chatbot_response function in a separate thread
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            response = await asyncio.get_event_loop().run_in_executor(
-                executor, chatbot_response, message
-            )
+        # Use the Aetherius_Chatbot function to generate a response to the message
+        response = await Aetherius_Chatbot(message.content, str(message.author), 'Aetherius')
         
         # Send the response as a message
         await message.channel.send(response)
+
+    # If you're using discord.ext.commands, this is essential to process commands
+    await client.process_commands(message)
 
 # Start the bot
 client.run(TOKEN)

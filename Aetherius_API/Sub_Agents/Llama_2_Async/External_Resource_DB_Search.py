@@ -126,7 +126,7 @@ async def External_Resource_DB_Search(host, bot_name, username, line, task_count
             if "NO" in web_check:
                 websearch_rephrase.append({'role': 'assistant', 'content': f"Extract any salient informational requests from the user's query and rephrase them into an informational search query that will return the requested information.  Only print the search query.\nUSER INQUIRY: {line} [/INST] Google Search Query: "})
                 prompt = ''.join([message_dict['content'] for message_dict in websearch_rephrase])
-                rephrased_query = agent_oobabooga_google_rephrase(host, prompt, username, bot_name)
+                rephrased_query = await agent_oobabooga_google_rephrase(host, prompt, username, bot_name)
                 if '"' in rephrased_query:
                     rephrased_query = rephrased_query.replace('"', '')
                 print(rephrased_query)

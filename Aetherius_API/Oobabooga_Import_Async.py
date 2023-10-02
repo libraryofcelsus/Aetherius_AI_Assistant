@@ -195,6 +195,7 @@ async def Aetherius_Chatbot(user_input, username, bot_name):
     greeting_msg = prompts["greeting_prompt"].replace('<<NAME>>', bot_name)
     main_conversation = MainConversation(username, bot_name, conv_length, main_prompt, greeting_msg)
     while True:
+        print(f"{username}: {user_input}\n\n")
         conversation_history = main_conversation.get_last_entry()
         timestamp = time()
         timestring = timestamp_to_datetime(timestamp)
@@ -722,11 +723,13 @@ async def Aetherius_Chatbot(user_input, username, bot_name):
                 else:
                     print(f"An unexpected error occurred: {str(e)}")
         
-        response.append({'role': 'assistant', 'content': f"CHATBOT'S MEMORIES: {db_search_12}\n{db_search_13}\n{bot_name}'s HEURISTICS: {db_search_14}\nCHATBOT'S INNER THOUGHTS: {output_one}\n{secondary_prompt} [INST] Now return and analyze the previous conversation history. [/INST] CONVERSATION HISTORY: {con_hist} [INST] {usernameupper}: We are currently in the middle of a conversation, please review your action plan for your response. [/INST] {botnameupper}: I will now review my action plan, using it as a framework to construct my upcoming response: {output_two}\nI will proceed by reviewing our previous conversation to ensure I respond in a manner that is both informative and emotionally attuned. Please now give me the message I am to respond to. [INST] {usernameupper}: {user_input} [/INST] {botnameupper}: "})
+        response.append({'role': 'assistant', 'content': f"CHATBOT'S MEMORIES: {db_search_12}\n{db_search_13}\n{bot_name}'s HEURISTICS: {db_search_14}\nCHATBOT'S INNER THOUGHTS: {output_one}\n{secondary_prompt} [INST] Now return and analyze the previous conversation history. [/INST] CONVERSATION HISTORY: {con_hist} [INST] {usernameupper}: We are currently in the middle of a conversation, please review your action plan for your response. [/INST] {botnameupper}: I will now review my action plan, using it as a framework to construct my upcoming response: {output_two}\nI will proceed by reviewing our previous conversation to ensure I respond in a manner that is both informative and emotionally attuned. Please now give me the message I am to respond to. [INST] {usernameupper}: {user_input} [/INST] {botnameupper}: Here is my response to the {username}: "})
         prompt = ''.join([message_dict['content'] for message_dict in response])
         response_two = await oobabooga_response(prompt, username, bot_name)
-        if response_two.startswith(f"{botnameupper}:"):
-            response_two = response_two[len(f"{botnameupper}:"):].lstrip()
+        if response_two.startswith(f"{bot_name}") or response_two.startswith(f"{botnameupper}"):
+            colon_index = response_two.find(":")
+            if colon_index != -1:
+                response_two = response_two[colon_index + 1:].lstrip()
         sentences = re.split(r'(?<=[.!?])\s+', response_two)
         if sentences and not re.search(r'[.!?]$', sentences[-1]):
             sentences.pop()
@@ -842,6 +845,7 @@ async def Aetherius_Agent(user_input, username, bot_name):
     main_conversation = MainConversation(username, bot_name, conv_length, main_prompt, greeting_msg)
  #   r = sr.Recognizer()
     while True:
+        print(f"{username}: {user_input}\n\n")
         # # Get Timestamp
         conversation_history = main_conversation.get_last_entry()
         con_hist = f'{conversation_history}'
@@ -1432,7 +1436,7 @@ async def process_line(host, host_queue, bot_name, username, line, task_counter,
         conversation.append({'role': 'assistant', 'content': f"Search your tool database for a list of the tools available to you. [/INST] "})
         conversation.append({'role': 'assistant', 'content': f"AVAILABLE TOOLS: {filename_description_map} "})
         # Create Module that Explains what the task is and what is needed to complete it.  
-        conversation.append({'role': 'assistant', 'content': f"[INST] Your job is to generalize the given task, outlining what kind of tool is needed in order to complete it.  Use the list of available tools to decide what to select. Limit  your response to a single paragraph.\n"})
+        conversation.append({'role': 'assistant', 'content': f"[INST] Your job is to generalize the given task, outlining what kind of tool is needed in order to complete it.  Use the list of available tools to decide what to select. Limit  your response to a single paragraph. Do not theorize how to complete the task, only the tool needed.\n"})
         conversation.append({'role': 'assistant', 'content': f"ASSIGNED TASK: {line}. [/INST]"})
         prompt = ''.join([message_dict['content'] for message_dict in conversation])
         task_expansion = await agent_oobabooga_process_line_response2(host, prompt, username, bot_name)

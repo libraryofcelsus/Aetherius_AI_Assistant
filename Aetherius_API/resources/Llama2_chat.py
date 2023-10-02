@@ -270,12 +270,12 @@ def oobabooga_intuition(prompt, username, bot_name):
     history = {'internal': [], 'visible': []}
     json_file_path = './Aetherius_API/Generation_Settings/Oobabooga/settings.json'
     settings = read_settings_from_json(json_file_path)
-    intuition_temperature = settings.get("Intuition_temperature", "0.30")
-    intuition_top_p = settings.get("Intuition_top_p", "0.20")
-    intuition_rep_pen = settings.get("Intuition_rep_pen", "1.25")
-    intuition_max_tokens = settings.get("Intuition_max_tokens", "450")
-    intuition_top_k = settings.get("Intuition_top_k", "35")
-    intuition_min_tokens = settings.get("Intuition_min_tokens", "10")
+    temperature = settings.get("Intuition_temperature", "0.30")
+    top_p = settings.get("Intuition_top_p", "0.20")
+    rep_pen = settings.get("Intuition_rep_pen", "1.25")
+    max_tokens = settings.get("Intuition_max_tokens", "450")
+    top_k = settings.get("Intuition_top_k", "35")
+    min_tokens = settings.get("Intuition_min_tokens", "10")
     request = {
         'user_input': prompt,
         'max_new_tokens': max_tokens,
@@ -743,19 +743,19 @@ def oobabooga_response(prompt, username, bot_name):
     history = {'internal': [], 'visible': []}
     json_file_path = './Aetherius_API/Generation_Settings/Oobabooga/settings.json'
     settings = read_settings_from_json(json_file_path)
-    response_temperature = settings.get("Response_temperature", "0.8")
-    response_top_p = settings.get("Response_top_p", "0.55")
-    response_rep_pen = settings.get("Response_rep_pen", "1.18")
-    response_max_tokens = settings.get("Response_max_tokens", "1500")
-    response_top_k = settings.get("Response_top_k", "35")
-    response_min_tokens = settings.get("Response_min_tokens", "40")
+    temperature = settings.get("Response_temperature", "0.8")
+    top_p = settings.get("Response_top_p", "0.55")
+    rep_pen = settings.get("Response_rep_pen", "1.18")
+    max_tokens = settings.get("Response_max_tokens", "1500")
+    top_k = settings.get("Response_top_k", "35")
+    min_tokens = settings.get("Response_min_tokens", "40")
     request = {
         'user_input': prompt,
         'max_new_tokens': max_tokens,
         'history': history,
         'mode': 'instruct',  # Valid options: 'chat', 'chat-instruct', 'instruct'
         'instruction_template': 'Llama-v2',  # Will get autodetected if unset
-        'context_instruct': f"[INST] <<SYS>>\nYou are {bot_name}. You are in the middle of a conversation with your user, {username}. You will do your best to respond naturally in a way that both answer's the user and shows emotional intelligence.\n<</SYS>>",  # Optional
+        'context_instruct': f"[INST] <<SYS>>\nYou are {bot_name}. You are in the middle of a conversation with your user, {username}. You will use the given memories to respond naturally in a way that both answer's the user and shows emotional intelligence. You are directly responding to the user.\n<</SYS>>",  # Optional
         'your_name': f'{username}',
 
         'regenerate': False,
@@ -1290,12 +1290,12 @@ def agent_oobabooga_intuition(prompt, username, bot_name):
     history = {'internal': [], 'visible': []}
     json_file_path = './Aetherius_API/Generation_Settings/Oobabooga/settings.json'
     settings = read_settings_from_json(json_file_path)
-    intuition_temperature = settings.get("Intuition_temperature", "0.30")
-    intuition_top_p = settings.get("Intuition_top_p", "0.20")
-    intuition_rep_pen = settings.get("Intuition_rep_pen", "1.25")
-    intuition_max_tokens = settings.get("Intuition_max_tokens", "450")
-    intuition_top_k = settings.get("Intuition_top_k", "35")
-    intuition_min_tokens = settings.get("Intuition_min_tokens", "10")
+    temperature = settings.get("Intuition_temperature", "0.30")
+    top_p = settings.get("Intuition_top_p", "0.20")
+    rep_pen = settings.get("Intuition_rep_pen", "1.25")
+    max_tokens = settings.get("Intuition_max_tokens", "450")
+    top_k = settings.get("Intuition_top_k", "35")
+    min_tokens = settings.get("Intuition_min_tokens", "10")
     request = {
         'user_input': prompt,
         'max_new_tokens': max_tokens,
@@ -2029,12 +2029,12 @@ def agent_oobabooga_master_tasklist(prompt, username, bot_name):
     history = {'internal': [], 'visible': []}
     json_file_path = './Aetherius_API/Generation_Settings/Oobabooga/settings.json'
     settings = read_settings_from_json(json_file_path)
-    intuition_temperature = settings.get("Intuition_temperature", "0.30")
-    intuition_top_p = settings.get("Intuition_top_p", "0.20")
-    intuition_rep_pen = settings.get("Intuition_rep_pen", "1.25")
-    intuition_max_tokens = settings.get("Intuition_max_tokens", "450")
-    intuition_top_k = settings.get("Intuition_top_k", "35")
-    intuition_min_tokens = settings.get("Intuition_min_tokens", "10")
+    temperature = settings.get("Intuition_temperature", "0.30")
+    top_p = settings.get("Intuition_top_p", "0.20")
+    rep_pen = settings.get("Intuition_rep_pen", "1.25")
+    max_tokens = settings.get("Intuition_max_tokens", "450")
+    top_k = settings.get("Intuition_top_k", "35")
+    min_tokens = settings.get("Intuition_min_tokens", "10")
     request = {
         'user_input': prompt,
         'max_new_tokens': 500,
@@ -2103,12 +2103,12 @@ def agent_oobabooga_response(prompt, username, bot_name):
     history = {'internal': [], 'visible': []}
     json_file_path = './Aetherius_API/Generation_Settings/Oobabooga/settings.json'
     settings = read_settings_from_json(json_file_path)
-    response_temperature = settings.get("Response_temperature", "0.8")
-    response_top_p = settings.get("Response_top_p", "0.55")
-    response_rep_pen = settings.get("Response_rep_pen", "1.18")
-    response_max_tokens = settings.get("Response_max_tokens", "1500")
-    response_top_k = settings.get("Response_top_k", "35")
-    response_min_tokens = settings.get("Response_min_tokens", "40")
+    temperature = settings.get("Response_temperature", "0.8")
+    top_p = settings.get("Response_top_p", "0.55")
+    rep_pen = settings.get("Response_rep_pen", "1.18")
+    max_tokens = settings.get("Response_max_tokens", "1500")
+    top_k = settings.get("Response_top_k", "35")
+    min_tokens = settings.get("Response_min_tokens", "40")
     request = {
         'user_input': prompt,
         'max_new_tokens': max_tokens,
@@ -2177,12 +2177,12 @@ def agent_oobabooga_line_response(prompt, username, bot_name):
     history = {'internal': [], 'visible': []}
     json_file_path = './Aetherius_API/Generation_Settings/Oobabooga/settings.json'
     settings = read_settings_from_json(json_file_path)
-    response_temperature = settings.get("Response_temperature", "0.8")
-    response_top_p = settings.get("Response_top_p", "0.55")
-    response_rep_pen = settings.get("Response_rep_pen", "1.18")
-    response_max_tokens = settings.get("Response_max_tokens", "1500")
-    response_top_k = settings.get("Response_top_k", "35")
-    response_min_tokens = settings.get("Response_min_tokens", "40")
+    temperature = settings.get("Response_temperature", "0.8")
+    top_p = settings.get("Response_top_p", "0.55")
+    rep_pen = settings.get("Response_rep_pen", "1.18")
+    max_tokens = settings.get("Response_max_tokens", "1500")
+    top_k = settings.get("Response_top_k", "35")
+    min_tokens = settings.get("Response_min_tokens", "40")
     request = {
         'user_input': prompt,
         'max_new_tokens': max_tokens,
@@ -2252,12 +2252,12 @@ def agent_oobabooga_process_line_response(host, prompt, username, bot_name):
     history = {'internal': [], 'visible': []}
     json_file_path = './Aetherius_API/Generation_Settings/Oobabooga/settings.json'
     settings = read_settings_from_json(json_file_path)
-    response_temperature = settings.get("Response_temperature", "0.8")
-    response_top_p = settings.get("Response_top_p", "0.55")
-    response_rep_pen = settings.get("Response_rep_pen", "1.18")
-    response_max_tokens = settings.get("Response_max_tokens", "1500")
-    response_top_k = settings.get("Response_top_k", "35")
-    response_min_tokens = settings.get("Response_min_tokens", "40")
+    temperature = settings.get("Response_temperature", "0.8")
+    top_p = settings.get("Response_top_p", "0.55")
+    rep_pen = settings.get("Response_rep_pen", "1.18")
+    max_tokens = settings.get("Response_max_tokens", "1500")
+    top_k = settings.get("Response_top_k", "35")
+    min_tokens = settings.get("Response_min_tokens", "40")
     request = {
         'user_input': prompt,
         'max_new_tokens': max_tokens,
@@ -2326,12 +2326,12 @@ def agent_oobabooga_process_line_response2(host, prompt, username, bot_name):
     history = {'internal': [], 'visible': []}
     json_file_path = './Aetherius_API/Generation_Settings/Oobabooga/settings.json'
     settings = read_settings_from_json(json_file_path)
-    response_temperature = settings.get("Response_temperature", "0.8")
-    response_top_p = settings.get("Response_top_p", "0.55")
-    response_rep_pen = settings.get("Response_rep_pen", "1.18")
-    response_max_tokens = settings.get("Response_max_tokens", "1500")
-    response_top_k = settings.get("Response_top_k", "35")
-    response_min_tokens = settings.get("Response_min_tokens", "40")
+    temperature = settings.get("Response_temperature", "0.8")
+    top_p = settings.get("Response_top_p", "0.55")
+    rep_pen = settings.get("Response_rep_pen", "1.18")
+    max_tokens = settings.get("Response_max_tokens", "1500")
+    top_k = settings.get("Response_top_k", "35")
+    min_tokens = settings.get("Response_min_tokens", "40")
     request = {
         'user_input': prompt,
         'max_new_tokens': 200,
@@ -2400,12 +2400,12 @@ def agent_oobabooga_memory_db_check(host, prompt, username, bot_name):
     history = {'internal': [], 'visible': []}
     json_file_path = './Aetherius_API/Generation_Settings/Oobabooga/settings.json'
     settings = read_settings_from_json(json_file_path)
-    intuition_temperature = settings.get("Intuition_temperature", "0.30")
-    intuition_top_p = settings.get("Intuition_top_p", "0.20")
-    intuition_rep_pen = settings.get("Intuition_rep_pen", "1.25")
-    intuition_max_tokens = settings.get("Intuition_max_tokens", "450")
-    intuition_top_k = settings.get("Intuition_top_k", "35")
-    intuition_min_tokens = settings.get("Intuition_min_tokens", "10")
+    temperature = settings.get("Intuition_temperature", "0.30")
+    top_p = settings.get("Intuition_top_p", "0.20")
+    rep_pen = settings.get("Intuition_rep_pen", "1.25")
+    max_tokens = settings.get("Intuition_max_tokens", "450")
+    top_k = settings.get("Intuition_top_k", "35")
+    min_tokens = settings.get("Intuition_min_tokens", "10")
     request = {
         'user_input': prompt,
         'max_new_tokens': max_tokens,
@@ -2474,12 +2474,12 @@ def agent_oobabooga_google_rephrase(host, prompt, username, bot_name):
     history = {'internal': [], 'visible': []}
     json_file_path = './Aetherius_API/Generation_Settings/Oobabooga/settings.json'
     settings = read_settings_from_json(json_file_path)
-    intuition_temperature = settings.get("Intuition_temperature", "0.30")
-    intuition_top_p = settings.get("Intuition_top_p", "0.20")
-    intuition_rep_pen = settings.get("Intuition_rep_pen", "1.25")
-    intuition_max_tokens = settings.get("Intuition_max_tokens", "450")
-    intuition_top_k = settings.get("Intuition_top_k", "35")
-    intuition_min_tokens = settings.get("Intuition_min_tokens", "10")
+    temperature = settings.get("Intuition_temperature", "0.30")
+    top_p = settings.get("Intuition_top_p", "0.20")
+    rep_pen = settings.get("Intuition_rep_pen", "1.25")
+    max_tokens = settings.get("Intuition_max_tokens", "450")
+    top_k = settings.get("Intuition_top_k", "35")
+    min_tokens = settings.get("Intuition_min_tokens", "10")
     request = {
         'user_input': prompt,
         'max_new_tokens': max_tokens,

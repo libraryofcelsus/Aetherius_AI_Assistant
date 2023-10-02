@@ -165,26 +165,32 @@ def Aetherius_Chatbot(user_input, username, bot_name):
     base_path = "./Aetherius_API/Chatbot_Prompts"
     base_prompts_path = os.path.join(base_path, "Base")
     user_bot_path = os.path.join(base_path, username, bot_name)
-        # Check if user_bot_path exists
-    if not os.path.exists(user_bot_path):
-        os.makedirs(user_bot_path)  # Create directory
-    #    print(f'Created new directory at: {user_bot_path}')
-        # Define list of base prompt files
-        base_files = ['prompt_main.txt', 'prompt_greeting.txt', 'prompt_secondary.txt']
-        # Copy the base prompts to the newly created folder
-        for filename in base_files:
-            src = os.path.join(base_prompts_path, filename)
-            if os.path.isfile(src):  # Ensure it's a file before copying
-                dst = os.path.join(user_bot_path, filename)
-                shutil.copy2(src, dst)  # copy2 preserves file metadata
-        #        print(f'Copied {src} to {dst}')
-            else:
-                pass
-        #        print(f'Source file not found: {src}')
 
-    main_prompt = open_file(f'./Aetherius_API/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
-    second_prompt = open_file(f'./Aetherius_API/Chatbot_Prompts/{username}/{bot_name}/prompt_secondary.txt')
-    greeting_msg = open_file(f'./Aetherius_API/Chatbot_Prompts/{username}/{bot_name}/prompt_greeting.txt').replace('<<NAME>>', bot_name)
+    # Check if user_bot_path exists and create it if it doesn't
+    if not os.path.exists(user_bot_path):
+        os.makedirs(user_bot_path)
+
+    # Define the name of the JSON file containing prompts
+    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
+
+    # Create a default prompts JSON file if it doesn't exist
+    if not os.path.exists(prompts_json_path):
+        default_prompts = {
+            "main_prompt": "Your main prompt text here <<NAME>>",
+            "secondary_prompt": "Your secondary prompt text here",
+            "greeting_prompt": "Your greeting prompt text here <<NAME>>"
+        }
+        with open(prompts_json_path, 'w') as json_file:
+            json.dump(default_prompts, json_file, indent=2)
+
+    # Read prompts from the JSON file
+    with open(prompts_json_path, 'r') as json_file:
+        prompts = json.load(json_file)
+
+    # Access prompts
+    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
+    secondary_prompt = prompts["secondary_prompt"]
+    greeting_msg = prompts["greeting_prompt"].replace('<<NAME>>', bot_name)
     main_conversation = MainConversation(username, bot_name, conv_length, main_prompt, greeting_msg)
     while True:
         conversation_history = main_conversation.get_last_entry()
@@ -715,11 +721,15 @@ def Aetherius_Chatbot(user_input, username, bot_name):
                 else:
                     print(f"An unexpected error occurred: {str(e)}")
         
-        response.append({'role': 'assistant', 'content': f"CHATBOT'S MEMORIES: {db_search_12}\n{db_search_13}\n{bot_name}'s HEURISTICS: {db_search_14}\nCHATBOT'S INNER THOUGHTS: {output_one}\n{second_prompt} [INST] Now return and analyze the previous conversation history. [/INST] CONVERSATION HISTORY: {con_hist} [INST] {usernameupper}: We are currently in the middle of a conversation, please review your action plan for your response. [/INST] {botnameupper}: I will now review my action plan, using it as a framework to construct my upcoming response: {output_two}\nI will proceed by reviewing our previous conversation to ensure I respond in a manner that is both informative and emotionally attuned. Please now give me the message I am to respond to. [INST] {usernameupper}: {user_input} [/INST] {botnameupper}: "})
+        response.append({'role': 'assistant', 'content': f"CHATBOT'S MEMORIES: {db_search_12}\n{db_search_13}\n{bot_name}'s HEURISTICS: {db_search_14}\nCHATBOT'S INNER THOUGHTS: {output_one}\n{secondary_prompt} [INST] Now return and analyze the previous conversation history. [/INST] CONVERSATION HISTORY: {con_hist} [INST] {usernameupper}: We are currently in the middle of a conversation, please review your action plan for your response. [/INST] {botnameupper}: I will now review my action plan, using it as a framework to construct my upcoming response: {output_two}\nI will proceed by reviewing our previous conversation to ensure I respond in a manner that is both informative and emotionally attuned. Please now give me the message I am to respond to. [INST] {usernameupper}: {user_input} [/INST] {botnameupper}: "})
         prompt = ''.join([message_dict['content'] for message_dict in response])
         response_two = oobabooga_response(prompt, username, bot_name)
         if response_two.startswith(f"{botnameupper}:"):
             response_two = response_two[len(f"{botnameupper}:"):].lstrip()
+        sentences = re.split(r'(?<=[.!?])\s+', response_two)
+        if sentences and not re.search(r'[.!?]$', sentences[-1]):
+            sentences.pop()
+        response_two = ' '.join(sentences)
         if Response_Output == 'True':
             print('\n\n%s: %s' % (bot_name, response_two))
         main_conversation.append(timestring, username, usernameupper, user_input, bot_name, botnameupper, response_two)
@@ -770,26 +780,6 @@ def Aetherius_Chatbot(user_input, username, bot_name):
 
 
 def Aetherius_Agent(user_input, username, bot_name):
-    # # Number of Messages before conversation is summarized, higher number, higher api cost. Change to 3 when using GPT 3.5 due to token usage.
-    base_path = "./Aetherius_API/Chatbot_Prompts"
-    base_prompts_path = os.path.join(base_path, "Base")
-    user_bot_path = os.path.join(base_path, username, bot_name)
-        # Check if user_bot_path exists
-    if not os.path.exists(user_bot_path):
-        os.makedirs(user_bot_path)  # Create directory
-    #    print(f'Created new directory at: {user_bot_path}')
-        # Define list of base prompt files
-        base_files = ['prompt_main.txt', 'prompt_greeting.txt', 'prompt_secondary.txt']
-        # Copy the base prompts to the newly created folder
-        for filename in base_files:
-            src = os.path.join(base_prompts_path, filename)
-            if os.path.isfile(src):  # Ensure it's a file before copying
-                dst = os.path.join(user_bot_path, filename)
-                shutil.copy2(src, dst)  # copy2 preserves file metadata
-        #        print(f'Copied {src} to {dst}')
-            else:
-                pass
-        #        print(f'Source file not found: {src}')
     with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
         settings = json.load(f)
     HOST = settings.get('HOST_Oobabooga', 'http://localhost:5000/api')
@@ -827,9 +817,36 @@ def Aetherius_Agent(user_input, username, bot_name):
     mem_counter = 0
     botnameupper = bot_name.upper()
     usernameupper = username.upper()
-    main_prompt = open_file(f'./Aetherius_API/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
-    second_prompt = open_file(f'./Aetherius_API/Chatbot_Prompts/{username}/{bot_name}/prompt_secondary.txt')
-    greeting_msg = open_file(f'./Aetherius_API/Chatbot_Prompts/{username}/{bot_name}/prompt_greeting.txt').replace('<<NAME>>', bot_name)
+    base_path = "./Aetherius_API/Chatbot_Prompts"
+    base_prompts_path = os.path.join(base_path, "Base")
+    user_bot_path = os.path.join(base_path, username, bot_name)
+
+    # Check if user_bot_path exists and create it if it doesn't
+    if not os.path.exists(user_bot_path):
+        os.makedirs(user_bot_path)
+
+    # Define the name of the JSON file containing prompts
+    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
+
+    # Create a default prompts JSON file if it doesn't exist
+    if not os.path.exists(prompts_json_path):
+        default_prompts = {
+            "main_prompt": "Your main prompt text here <<NAME>>",
+            "secondary_prompt": "Your secondary prompt text here",
+            "greeting_prompt": "Your greeting prompt text here <<NAME>>"
+        }
+        with open(prompts_json_path, 'w') as json_file:
+            json.dump(default_prompts, json_file, indent=2)
+
+    # Read prompts from the JSON file
+    with open(prompts_json_path, 'r') as json_file:
+        prompts = json.load(json_file)
+
+    # Access prompts
+    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
+    secondary_prompt = prompts["secondary_prompt"]
+    greeting_msg = prompts["greeting_prompt"].replace('<<NAME>>', bot_name)
+
     main_conversation = MainConversation(username, bot_name, conv_length, main_prompt, greeting_msg)
  #   r = sr.Recognizer()
     while True:
@@ -1695,7 +1712,35 @@ def Aetherius_Explicit_Memory(user_input, vector_input, vector_monologue, output
         embed_size = settings['embed_size']
         DB_Search_Output = settings.get('Output_DB_Search', 'False')
         memory_mode = settings.get('Memory_Mode', 'Auto')
-        main_prompt = open_file(f'./Aetherius_API/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+        base_path = "./Aetherius_API/Chatbot_Prompts"
+        base_prompts_path = os.path.join(base_path, "Base")
+        user_bot_path = os.path.join(base_path, username, bot_name)
+
+        # Check if user_bot_path exists and create it if it doesn't
+        if not os.path.exists(user_bot_path):
+            os.makedirs(user_bot_path)
+
+        # Define the name of the JSON file containing prompts
+        prompts_json_path = os.path.join(user_bot_path, "prompts.json")
+
+        # Create a default prompts JSON file if it doesn't exist
+        if not os.path.exists(prompts_json_path):
+            default_prompts = {
+                "main_prompt": "Your main prompt text here <<NAME>>",
+                "secondary_prompt": "Your secondary prompt text here",
+                "greeting_prompt": "Your greeting prompt text here <<NAME>>"
+            }
+            with open(prompts_json_path, 'w') as json_file:
+                json.dump(default_prompts, json_file, indent=2)
+
+        # Read prompts from the JSON file
+        with open(prompts_json_path, 'r') as json_file:
+            prompts = json.load(json_file)
+
+        # Access prompts
+        main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
+        secondary_prompt = prompts["secondary_prompt"]
+        greeting_msg = prompts["greeting_prompt"].replace('<<NAME>>', bot_name)
         timestamp = time()
         timestring = timestamp_to_datetime(timestamp)
         auto = list()
@@ -1922,9 +1967,36 @@ def Aetherius_Memory_Loop(a, username, bot_name, vector_input, vector_monologue,
     conv_length = int(settings['Conversation_Length'])
     botnameupper = bot_name.upper()
     usernameupper = username.upper()
-    main_prompt = open_file(f'./Aetherius_API/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
-    second_prompt = open_file(f'./Aetherius_API/Chatbot_Prompts/{username}/{bot_name}/prompt_secondary.txt')
-    greeting_msg = open_file(f'./Aetherius_API/Chatbot_Prompts/{username}/{bot_name}/prompt_greeting.txt').replace('<<NAME>>', bot_name)
+    base_path = "./Aetherius_API/Chatbot_Prompts"
+    base_prompts_path = os.path.join(base_path, "Base")
+    user_bot_path = os.path.join(base_path, username, bot_name)
+
+    # Check if user_bot_path exists and create it if it doesn't
+    if not os.path.exists(user_bot_path):
+        os.makedirs(user_bot_path)
+
+    # Define the name of the JSON file containing prompts
+    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
+
+    # Create a default prompts JSON file if it doesn't exist
+    if not os.path.exists(prompts_json_path):
+        default_prompts = {
+            "main_prompt": "Your main prompt text here <<NAME>>",
+            "secondary_prompt": "Your secondary prompt text here",
+            "greeting_prompt": "Your greeting prompt text here <<NAME>>"
+        }
+        with open(prompts_json_path, 'w') as json_file:
+            json.dump(default_prompts, json_file, indent=2)
+
+    # Read prompts from the JSON file
+    with open(prompts_json_path, 'r') as json_file:
+        prompts = json.load(json_file)
+
+    # Access prompts
+    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
+    secondary_prompt = prompts["secondary_prompt"]
+    greeting_msg = prompts["greeting_prompt"].replace('<<NAME>>', bot_name)
+
 #   r = sr.Recognizer()
     while True:
         # # Get Timestamp
@@ -1958,7 +2030,7 @@ def Aetherius_Memory_Loop(a, username, bot_name, vector_input, vector_monologue,
         unique_id = str(uuid4())
         importance_score.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a sub-module of {bot_name}, an autonomous AI entity. Your function is to process a given memory and rate its importance to personal development and/or its ability to impact the greater world.  You are to give the rating on a scale of 1-100.\n"})
         importance_score.append({'role': 'system', 'content': f"{botnameupper}'S MAIN PROMPT: {main_prompt}\n"})
-        importance_score.append({'role': 'system', 'content': f"{botnameupper}'S SECONDARY PROMPT: {second_prompt}\n"})
+        importance_score.append({'role': 'system', 'content': f"{botnameupper}'S SECONDARY PROMPT: {secondary_prompt}\n"})
         importance_score.append({'role': 'system', 'content': f"{botnameupper}'S GREETING MESSAGE: {greeting_msg}\n"})
         importance_score.append({'role': 'system', 'content': f"MEMORY TO RATE: {episodic_msg}\n"})
         importance_score.append({'role': 'system', 'content': f"{usernameupper}: Please now rate the given memory on a scale of 1-100. Only print the numerical rating as a digit. [/INST]"})
@@ -2090,7 +2162,7 @@ def Aetherius_Memory_Loop(a, username, bot_name, vector_input, vector_monologue,
                     flash_mem = f'{timestring} - {segment}'
                     importance_score.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a sub-module of {bot_name}, an autonomous AI entity. Your function is to process a given memory and rate its importance to personal development and/or its ability to impact the greater world.  You are to give the rating on a scale of 1-100.\n"})
                     importance_score.append({'role': 'system', 'content': f"{botnameupper}'S MAIN PROMPT: {main_prompt}\n"})
-                    importance_score.append({'role': 'system', 'content': f"{botnameupper}'S SECONDARY PROMPT: {second_prompt}\n"})
+                    importance_score.append({'role': 'system', 'content': f"{botnameupper}'S SECONDARY PROMPT: {secondary_prompt}\n"})
                     importance_score.append({'role': 'system', 'content': f"{botnameupper}'S GREETING MESSAGE: {greeting_msg}\n"})
                     importance_score.append({'role': 'system', 'content': f"MEMORY TO RATE: {flash_mem}\n"})
                     importance_score.append({'role': 'system', 'content': f"{usernameupper}: Please now rate the given memory on a scale of 1-100. Only print the numerical rating as a digit. [/INST]"})
@@ -2182,7 +2254,7 @@ def Aetherius_Memory_Loop(a, username, bot_name, vector_input, vector_monologue,
                     unique_id = str(uuid4())
                     importance_score.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a sub-module of {bot_name}, an autonomous AI entity. Your function is to process a given memory and rate its importance to personal development and/or its ability to impact the greater world.  You are to give the rating on a scale of 1-100.\n"})
                     importance_score.append({'role': 'system', 'content': f"{botnameupper}'S MAIN PROMPT: {main_prompt}\n"})
-                    importance_score.append({'role': 'system', 'content': f"{botnameupper}'S SECONDARY PROMPT: {second_prompt}\n"})
+                    importance_score.append({'role': 'system', 'content': f"{botnameupper}'S SECONDARY PROMPT: {secondary_prompt}\n"})
                     importance_score.append({'role': 'system', 'content': f"{botnameupper}'S GREETING MESSAGE: {greeting_msg}\n"})
                     importance_score.append({'role': 'system', 'content': f"MEMORY TO RATE: {segment}\n"})
                     importance_score.append({'role': 'system', 'content': f"{usernameupper}: Please now rate the given memory on a scale of 1-100. Only print the numerical rating as a digit. [/INST]"})
@@ -2329,7 +2401,7 @@ def Aetherius_Memory_Loop(a, username, bot_name, vector_input, vector_monologue,
                         unique_id = str(uuid4())
                         importance_score.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a sub-module of {bot_name}, an autonomous AI entity. Your function is to process a given memory and rate its importance to personal development and/or its ability to impact the greater world.  You are to give the rating on a scale of 1-100.\n"})
                         importance_score.append({'role': 'system', 'content': f"{botnameupper}'S MAIN PROMPT: {main_prompt}\n"})
-                        importance_score.append({'role': 'system', 'content': f"{botnameupper}'S SECONDARY PROMPT: {second_prompt}\n"})
+                        importance_score.append({'role': 'system', 'content': f"{botnameupper}'S SECONDARY PROMPT: {secondary_prompt}\n"})
                         importance_score.append({'role': 'system', 'content': f"{botnameupper}'S GREETING MESSAGE: {greeting_msg}\n"})
                         importance_score.append({'role': 'system', 'content': f"MEMORY TO RATE: {segment}\n"})
                         importance_score.append({'role': 'system', 'content': f"{usernameupper}: Please now rate the given memory on a scale of 1-100. Only print the numerical rating as a digit. [/INST]"})
@@ -2427,7 +2499,7 @@ def Aetherius_Memory_Loop(a, username, bot_name, vector_input, vector_monologue,
                         unique_id = str(uuid4())
                         importance_score.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a sub-module of {bot_name}, an autonomous AI entity. Your function is to process a given memory and rate its importance to personal development and/or its ability to impact the greater world.  You are to give the rating on a scale of 1-100.\n"})
                         importance_score.append({'role': 'system', 'content': f"{botnameupper}'S MAIN PROMPT: {main_prompt}\n"})
-                        importance_score.append({'role': 'system', 'content': f"{botnameupper}'S SECONDARY PROMPT: {second_prompt}\n"})
+                        importance_score.append({'role': 'system', 'content': f"{botnameupper}'S SECONDARY PROMPT: {secondary_prompt}\n"})
                         importance_score.append({'role': 'system', 'content': f"{botnameupper}'S GREETING MESSAGE: {greeting_msg}\n"})
                         importance_score.append({'role': 'system', 'content': f"MEMORY TO RATE: {segment}\n"})
                         importance_score.append({'role': 'system', 'content': f"{usernameupper}: Please now rate the given memory on a scale of 1-100. Only print the numerical rating as a digit. [/INST]"})
@@ -2555,7 +2627,7 @@ def Aetherius_Memory_Loop(a, username, bot_name, vector_input, vector_monologue,
                         unique_id = str(uuid4())
                         importance_score.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a sub-module of {bot_name}, an autonomous AI entity. Your function is to process a given memory and rate its importance to personal development and/or its ability to impact the greater world.  You are to give the rating on a scale of 1-100.\n"})
                         importance_score.append({'role': 'system', 'content': f"{botnameupper}'S MAIN PROMPT: {main_prompt}\n"})
-                        importance_score.append({'role': 'system', 'content': f"{botnameupper}'S SECONDARY PROMPT: {second_prompt}\n"})
+                        importance_score.append({'role': 'system', 'content': f"{botnameupper}'S SECONDARY PROMPT: {secondary_prompt}\n"})
                         importance_score.append({'role': 'system', 'content': f"{botnameupper}'S GREETING MESSAGE: {greeting_msg}\n"})
                         importance_score.append({'role': 'system', 'content': f"MEMORY TO RATE: {segment}\n"})
                         importance_score.append({'role': 'system', 'content': f"{usernameupper}: Please now rate the given memory on a scale of 1-100. Only print the numerical rating as a digit. [/INST]"})

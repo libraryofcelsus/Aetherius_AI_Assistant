@@ -111,10 +111,23 @@ def open_file_all(key):
         for host in hosts:
             yield host
             
+            
+def read_settings_from_json(json_file_path):
+    with open(json_file_path, 'r') as file:
+        settings = json.load(file)
+    return settings
 
 
 def oobabooga_terms(prompt, username, bot_name):
-    main_prompt = open_file(f'./Aetherius_API/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
+    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
+
+    # Read prompts from the JSON file
+    with open(prompts_json_path, 'r') as file:
+        prompts = json.load(file)
+
+    # Access the main_prompt
+    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -171,14 +184,24 @@ def oobabooga_terms(prompt, username, bot_name):
 
 
 def oobabooga_inner_monologue(prompt, username, bot_name):
-    main_prompt = open_file(f'./Aetherius_API/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
+    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
+
+    # Read prompts from the JSON file
+    with open(prompts_json_path, 'r') as file:
+        prompts = json.load(file)
+
+    # Access the main_prompt
+    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
-    temperature = open_file(f'./Aetherius_API/Generation_Settings/Inner_Monologue/temperature.txt')
-    top_p = open_file(f'./Aetherius_API/Generation_Settings/Inner_Monologue/top_p.txt')
-    rep_pen = open_file(f'./Aetherius_API/Generation_Settings/Inner_Monologue/rep_pen.txt')
-    max_tokens = open_file(f'./Aetherius_API/Generation_Settings/Inner_Monologue/max_tokens.txt')
-    top_k = open_file(f'./Aetherius_API/Generation_Settings/Inner_Monologue/top_k.txt')
-    min_tokens = open_file(f'./Aetherius_API/Generation_Settings/Inner_Monologue/min_tokens.txt')
+    json_file_path = './Aetherius_API/Generation_Settings/Oobabooga/settings.json'
+    settings = read_settings_from_json(json_file_path)
+    temperature = settings.get("Inner_Monologue_temperature", "0.70")
+    top_p = settings.get("Inner_Monologue_top_p", "0.35")
+    rep_pen = settings.get("Inner_Monologue_rep_pen", "1.18")
+    max_tokens = settings.get("Inner_Monologue_max_tokens", "350")
+    top_k = settings.get("Inner_Monologue_top_k", "45")
+    min_tokens = settings.get("Inner_Monologue_min_tokens", "40")
     request = {
         'user_input': prompt,
         'max_new_tokens': max_tokens,
@@ -235,14 +258,24 @@ def oobabooga_inner_monologue(prompt, username, bot_name):
         
         
 def oobabooga_intuition(prompt, username, bot_name):
-    main_prompt = open_file(f'./Aetherius_API/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
+    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
+
+    # Read prompts from the JSON file
+    with open(prompts_json_path, 'r') as file:
+        prompts = json.load(file)
+
+    # Access the main_prompt
+    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
-    temperature = open_file(f'./Aetherius_API/Generation_Settings/Intuition/temperature.txt')
-    top_p = open_file(f'./Aetherius_API/Generation_Settings/Intuition/top_p.txt')
-    rep_pen = open_file(f'./Aetherius_API/Generation_Settings/Intuition/rep_pen.txt')
-    max_tokens = open_file(f'./Aetherius_API/Generation_Settings/Intuition/max_tokens.txt')
-    top_k = open_file(f'./Aetherius_API/Generation_Settings/Intuition/top_k.txt')
-    min_tokens = open_file(f'./Aetherius_API/Generation_Settings/Intuition/min_tokens.txt')
+    json_file_path = './Aetherius_API/Generation_Settings/Oobabooga/settings.json'
+    settings = read_settings_from_json(json_file_path)
+    intuition_temperature = settings.get("Intuition_temperature", "0.30")
+    intuition_top_p = settings.get("Intuition_top_p", "0.20")
+    intuition_rep_pen = settings.get("Intuition_rep_pen", "1.25")
+    intuition_max_tokens = settings.get("Intuition_max_tokens", "450")
+    intuition_top_k = settings.get("Intuition_top_k", "35")
+    intuition_min_tokens = settings.get("Intuition_min_tokens", "10")
     request = {
         'user_input': prompt,
         'max_new_tokens': max_tokens,
@@ -300,7 +333,15 @@ def oobabooga_intuition(prompt, username, bot_name):
 
         
 def oobabooga_episodic_memory(prompt, username, bot_name):
-    main_prompt = open_file(f'./Aetherius_API/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
+    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
+
+    # Read prompts from the JSON file
+    with open(prompts_json_path, 'r') as file:
+        prompts = json.load(file)
+
+    # Access the main_prompt
+    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -358,7 +399,15 @@ def oobabooga_episodic_memory(prompt, username, bot_name):
         
         
 def oobabooga_flash_memory(prompt, username, bot_name):
-    main_prompt = open_file(f'./Aetherius_API/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
+    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
+
+    # Read prompts from the JSON file
+    with open(prompts_json_path, 'r') as file:
+        prompts = json.load(file)
+
+    # Access the main_prompt
+    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -417,7 +466,15 @@ def oobabooga_flash_memory(prompt, username, bot_name):
         
         
 def oobabooga_implicit_memory(prompt, username, bot_name):
-    main_prompt = open_file(f'./Aetherius_API/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
+    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
+
+    # Read prompts from the JSON file
+    with open(prompts_json_path, 'r') as file:
+        prompts = json.load(file)
+
+    # Access the main_prompt
+    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -475,7 +532,15 @@ def oobabooga_implicit_memory(prompt, username, bot_name):
         
         
 def oobabooga_explicit_memory(prompt, username, bot_name):
-    main_prompt = open_file(f'./Aetherius_API/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
+    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
+
+    # Read prompts from the JSON file
+    with open(prompts_json_path, 'r') as file:
+        prompts = json.load(file)
+
+    # Access the main_prompt
+    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -533,7 +598,15 @@ def oobabooga_explicit_memory(prompt, username, bot_name):
         
         
 def oobabooga_consolidation_memory(prompt, username, bot_name):
-    main_prompt = open_file(f'./Aetherius_API/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
+    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
+
+    # Read prompts from the JSON file
+    with open(prompts_json_path, 'r') as file:
+        prompts = json.load(file)
+
+    # Access the main_prompt
+    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -591,7 +664,15 @@ def oobabooga_consolidation_memory(prompt, username, bot_name):
         
         
 def oobabooga_associative_memory(prompt, username, bot_name):
-    main_prompt = open_file(f'./Aetherius_API/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
+    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
+
+    # Read prompts from the JSON file
+    with open(prompts_json_path, 'r') as file:
+        prompts = json.load(file)
+
+    # Access the main_prompt
+    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -650,14 +731,24 @@ def oobabooga_associative_memory(prompt, username, bot_name):
         
         
 def oobabooga_response(prompt, username, bot_name):
-    main_prompt = open_file(f'./Aetherius_API/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
+    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
+
+    # Read prompts from the JSON file
+    with open(prompts_json_path, 'r') as file:
+        prompts = json.load(file)
+
+    # Access the main_prompt
+    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
-    temperature = open_file(f'./Aetherius_API/Generation_Settings/Response/temperature.txt')
-    top_p = open_file(f'./Aetherius_API/Generation_Settings/Response/top_p.txt')
-    rep_pen = open_file(f'./Aetherius_API/Generation_Settings/Response/rep_pen.txt')
-    max_tokens = open_file(f'./Aetherius_API/Generation_Settings/Response/max_tokens.txt')
-    top_k = open_file(f'./Aetherius_API/Generation_Settings/Response/top_k.txt')
-    min_tokens = open_file(f'./Aetherius_API/Generation_Settings/Response/min_tokens.txt')
+    json_file_path = './Aetherius_API/Generation_Settings/Oobabooga/settings.json'
+    settings = read_settings_from_json(json_file_path)
+    response_temperature = settings.get("Response_temperature", "0.8")
+    response_top_p = settings.get("Response_top_p", "0.55")
+    response_rep_pen = settings.get("Response_rep_pen", "1.18")
+    response_max_tokens = settings.get("Response_max_tokens", "1500")
+    response_top_k = settings.get("Response_top_k", "35")
+    response_min_tokens = settings.get("Response_min_tokens", "40")
     request = {
         'user_input': prompt,
         'max_new_tokens': max_tokens,
@@ -714,7 +805,15 @@ def oobabooga_response(prompt, username, bot_name):
         
         
 def oobabooga_auto(prompt, username, bot_name):
-    main_prompt = open_file(f'./Aetherius_API/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
+    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
+
+    # Read prompts from the JSON file
+    with open(prompts_json_path, 'r') as file:
+        prompts = json.load(file)
+
+    # Access the main_prompt
+    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -773,7 +872,15 @@ def oobabooga_auto(prompt, username, bot_name):
         
         
 def oobabooga_memyesno(prompt, username, bot_name):
-    main_prompt = open_file(f'./Aetherius_API/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
+    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
+
+    # Read prompts from the JSON file
+    with open(prompts_json_path, 'r') as file:
+        prompts = json.load(file)
+
+    # Access the main_prompt
+    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -831,7 +938,15 @@ def oobabooga_memyesno(prompt, username, bot_name):
         
        
 def oobabooga_selector(prompt, username, bot_name):
-    main_prompt = open_file(f'./Aetherius_API/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
+    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
+
+    # Read prompts from the JSON file
+    with open(prompts_json_path, 'r') as file:
+        prompts = json.load(file)
+
+    # Access the main_prompt
+    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -889,7 +1004,15 @@ def oobabooga_selector(prompt, username, bot_name):
 
 
 def oobabooga_250(prompt, username, bot_name):
-    main_prompt = open_file(f'./Aetherius_API/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
+    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
+
+    # Read prompts from the JSON file
+    with open(prompts_json_path, 'r') as file:
+        prompts = json.load(file)
+
+    # Access the main_prompt
+    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -947,7 +1070,15 @@ def oobabooga_250(prompt, username, bot_name):
         
         
 def scrape_oobabooga_scrape(host, prompt, username, bot_name):
-    main_prompt = open_file(f'./Aetherius_API/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
+    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
+
+    # Read prompts from the JSON file
+    with open(prompts_json_path, 'r') as file:
+        prompts = json.load(file)
+
+    # Access the main_prompt
+    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -1008,7 +1139,15 @@ def scrape_oobabooga_scrape(host, prompt, username, bot_name):
 
 
 def agent_oobabooga_terms(prompt, username, bot_name):
-    main_prompt = open_file(f'./Aetherius_API/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
+    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
+
+    # Read prompts from the JSON file
+    with open(prompts_json_path, 'r') as file:
+        prompts = json.load(file)
+
+    # Access the main_prompt
+    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -1065,13 +1204,24 @@ def agent_oobabooga_terms(prompt, username, bot_name):
 
 
 def agent_oobabooga_inner_monologue(prompt, username, bot_name):
-    main_prompt = open_file(f'./Aetherius_API/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
+    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
+
+    # Read prompts from the JSON file
+    with open(prompts_json_path, 'r') as file:
+        prompts = json.load(file)
+
+    # Access the main_prompt
+    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
-    temperature = open_file(f'./Aetherius_API/Generation_Settings/Inner_Monologue/temperature.txt')
-    top_p = open_file(f'./Aetherius_API/Generation_Settings/Inner_Monologue/top_p.txt')
-    rep_pen = open_file(f'./Aetherius_API/Generation_Settings/Inner_Monologue/rep_pen.txt')
-    max_tokens = open_file(f'./Aetherius_API/Generation_Settings/Inner_Monologue/max_tokens.txt')
-    top_k = open_file(f'./Aetherius_API/Generation_Settings/Inner_Monologue/top_k.txt')
+    json_file_path = './Aetherius_API/Generation_Settings/Oobabooga/settings.json'
+    settings = read_settings_from_json(json_file_path)
+    temperature = settings.get("Inner_Monologue_temperature", "0.70")
+    top_p = settings.get("Inner_Monologue_top_p", "0.35")
+    rep_pen = settings.get("Inner_Monologue_rep_pen", "1.18")
+    max_tokens = settings.get("Inner_Monologue_max_tokens", "350")
+    top_k = settings.get("Inner_Monologue_top_k", "45")
+    min_tokens = settings.get("Inner_Monologue_min_tokens", "40")
     request = {
         'user_input': prompt,
         'max_new_tokens': max_tokens,
@@ -1128,13 +1278,24 @@ def agent_oobabooga_inner_monologue(prompt, username, bot_name):
         
         
 def agent_oobabooga_intuition(prompt, username, bot_name):
-    main_prompt = open_file(f'./Aetherius_API/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
+    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
+
+    # Read prompts from the JSON file
+    with open(prompts_json_path, 'r') as file:
+        prompts = json.load(file)
+
+    # Access the main_prompt
+    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
-    temperature = open_file(f'./Aetherius_API/Generation_Settings/Intuition/temperature.txt')
-    top_p = open_file(f'./Aetherius_API/Generation_Settings/Intuition/top_p.txt')
-    rep_pen = open_file(f'./Aetherius_API/Generation_Settings/Intuition/rep_pen.txt')
-    max_tokens = open_file(f'./Aetherius_API/Generation_Settings/Intuition/max_tokens.txt')
-    top_k = open_file(f'./Aetherius_API/Generation_Settings/Intuition/top_k.txt')
+    json_file_path = './Aetherius_API/Generation_Settings/Oobabooga/settings.json'
+    settings = read_settings_from_json(json_file_path)
+    intuition_temperature = settings.get("Intuition_temperature", "0.30")
+    intuition_top_p = settings.get("Intuition_top_p", "0.20")
+    intuition_rep_pen = settings.get("Intuition_rep_pen", "1.25")
+    intuition_max_tokens = settings.get("Intuition_max_tokens", "450")
+    intuition_top_k = settings.get("Intuition_top_k", "35")
+    intuition_min_tokens = settings.get("Intuition_min_tokens", "10")
     request = {
         'user_input': prompt,
         'max_new_tokens': max_tokens,
@@ -1192,7 +1353,15 @@ def agent_oobabooga_intuition(prompt, username, bot_name):
 
         
 def agent_oobabooga_episodicmem(prompt, username, bot_name):
-    main_prompt = open_file(f'./Aetherius_API/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
+    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
+
+    # Read prompts from the JSON file
+    with open(prompts_json_path, 'r') as file:
+        prompts = json.load(file)
+
+    # Access the main_prompt
+    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -1250,7 +1419,15 @@ def agent_oobabooga_episodicmem(prompt, username, bot_name):
         
         
 def agent_oobabooga_flashmem(prompt, username, bot_name):
-    main_prompt = open_file(f'./Aetherius_API/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
+    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
+
+    # Read prompts from the JSON file
+    with open(prompts_json_path, 'r') as file:
+        prompts = json.load(file)
+
+    # Access the main_prompt
+    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -1309,7 +1486,15 @@ def agent_oobabooga_flashmem(prompt, username, bot_name):
         
         
 def agent_oobabooga_implicitmem(prompt, username, bot_name):
-    main_prompt = open_file(f'./Aetherius_API/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
+    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
+
+    # Read prompts from the JSON file
+    with open(prompts_json_path, 'r') as file:
+        prompts = json.load(file)
+
+    # Access the main_prompt
+    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -1367,7 +1552,15 @@ def agent_oobabooga_implicitmem(prompt, username, bot_name):
         
         
 def agent_oobabooga_explicitmem(prompt, username, bot_name):
-    main_prompt = open_file(f'./Aetherius_API/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
+    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
+
+    # Read prompts from the JSON file
+    with open(prompts_json_path, 'r') as file:
+        prompts = json.load(file)
+
+    # Access the main_prompt
+    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -1425,7 +1618,15 @@ def agent_oobabooga_explicitmem(prompt, username, bot_name):
         
         
 def agent_oobabooga_consolidationmem(prompt, username, bot_name):
-    main_prompt = open_file(f'./Aetherius_API/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
+    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
+
+    # Read prompts from the JSON file
+    with open(prompts_json_path, 'r') as file:
+        prompts = json.load(file)
+
+    # Access the main_prompt
+    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -1483,7 +1684,15 @@ def agent_oobabooga_consolidationmem(prompt, username, bot_name):
         
         
 def agent_oobabooga_associativemem(prompt, username, bot_name):
-    main_prompt = open_file(f'./Aetherius_API/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
+    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
+
+    # Read prompts from the JSON file
+    with open(prompts_json_path, 'r') as file:
+        prompts = json.load(file)
+
+    # Access the main_prompt
+    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -1541,7 +1750,15 @@ def agent_oobabooga_associativemem(prompt, username, bot_name):
 
 
 def agent_oobabooga_250(prompt, username, bot_name):
-    main_prompt = open_file(f'./Aetherius_API/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
+    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
+
+    # Read prompts from the JSON file
+    with open(prompts_json_path, 'r') as file:
+        prompts = json.load(file)
+
+    # Access the main_prompt
+    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -1600,7 +1817,15 @@ def agent_oobabooga_250(prompt, username, bot_name):
 
 
 def agent_oobabooga_500(prompt, username, bot_name):
-    main_prompt = open_file(f'./Aetherius_API/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
+    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
+
+    # Read prompts from the JSON file
+    with open(prompts_json_path, 'r') as file:
+        prompts = json.load(file)
+
+    # Access the main_prompt
+    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -1658,7 +1883,15 @@ def agent_oobabooga_500(prompt, username, bot_name):
         
         
 def agent_oobabooga_800(prompt, username, bot_name):
-    main_prompt = open_file(f'./Aetherius_API/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
+    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
+
+    # Read prompts from the JSON file
+    with open(prompts_json_path, 'r') as file:
+        prompts = json.load(file)
+
+    # Access the main_prompt
+    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -1716,7 +1949,15 @@ def agent_oobabooga_800(prompt, username, bot_name):
         
         
 def agent_oobabooga_scrape(prompt, username, bot_name):
-    main_prompt = open_file(f'./Aetherius_API/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
+    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
+
+    # Read prompts from the JSON file
+    with open(prompts_json_path, 'r') as file:
+        prompts = json.load(file)
+
+    # Access the main_prompt
+    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -1776,13 +2017,24 @@ def agent_oobabooga_scrape(prompt, username, bot_name):
         
         
 def agent_oobabooga_master_tasklist(prompt, username, bot_name):
-    main_prompt = open_file(f'./Aetherius_API/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
+    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
+
+    # Read prompts from the JSON file
+    with open(prompts_json_path, 'r') as file:
+        prompts = json.load(file)
+
+    # Access the main_prompt
+    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
-    temperature = open_file(f'./Aetherius_API/Generation_Settings/Response/temperature.txt')
-    top_p = open_file(f'./Aetherius_API/Generation_Settings/Response/top_p.txt')
-    rep_pen = open_file(f'./Aetherius_API/Generation_Settings/Response/rep_pen.txt')
-    max_tokens = open_file(f'./Aetherius_API/Generation_Settings/Response/max_tokens.txt')
-    top_k = open_file(f'./Aetherius_API/Generation_Settings/Response/top_k.txt')
+    json_file_path = './Aetherius_API/Generation_Settings/Oobabooga/settings.json'
+    settings = read_settings_from_json(json_file_path)
+    intuition_temperature = settings.get("Intuition_temperature", "0.30")
+    intuition_top_p = settings.get("Intuition_top_p", "0.20")
+    intuition_rep_pen = settings.get("Intuition_rep_pen", "1.25")
+    intuition_max_tokens = settings.get("Intuition_max_tokens", "450")
+    intuition_top_k = settings.get("Intuition_top_k", "35")
+    intuition_min_tokens = settings.get("Intuition_min_tokens", "10")
     request = {
         'user_input': prompt,
         'max_new_tokens': 500,
@@ -1839,13 +2091,24 @@ def agent_oobabooga_master_tasklist(prompt, username, bot_name):
         
         
 def agent_oobabooga_response(prompt, username, bot_name):
-    main_prompt = open_file(f'./Aetherius_API/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
+    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
+
+    # Read prompts from the JSON file
+    with open(prompts_json_path, 'r') as file:
+        prompts = json.load(file)
+
+    # Access the main_prompt
+    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
-    temperature = open_file(f'./Aetherius_API/Generation_Settings/Response/temperature.txt')
-    top_p = open_file(f'./Aetherius_API/Generation_Settings/Response/top_p.txt')
-    rep_pen = open_file(f'./Aetherius_API/Generation_Settings/Response/rep_pen.txt')
-    max_tokens = open_file(f'./Aetherius_API/Generation_Settings/Response/max_tokens.txt')
-    top_k = open_file(f'./Aetherius_API/Generation_Settings/Response/top_k.txt')
+    json_file_path = './Aetherius_API/Generation_Settings/Oobabooga/settings.json'
+    settings = read_settings_from_json(json_file_path)
+    response_temperature = settings.get("Response_temperature", "0.8")
+    response_top_p = settings.get("Response_top_p", "0.55")
+    response_rep_pen = settings.get("Response_rep_pen", "1.18")
+    response_max_tokens = settings.get("Response_max_tokens", "1500")
+    response_top_k = settings.get("Response_top_k", "35")
+    response_min_tokens = settings.get("Response_min_tokens", "40")
     request = {
         'user_input': prompt,
         'max_new_tokens': max_tokens,
@@ -1902,13 +2165,24 @@ def agent_oobabooga_response(prompt, username, bot_name):
         
         
 def agent_oobabooga_line_response(prompt, username, bot_name):
-    main_prompt = open_file(f'./Aetherius_API/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
+    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
+
+    # Read prompts from the JSON file
+    with open(prompts_json_path, 'r') as file:
+        prompts = json.load(file)
+
+    # Access the main_prompt
+    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
-    temperature = open_file(f'./Aetherius_API/Generation_Settings/Response/temperature.txt')
-    top_p = open_file(f'./Aetherius_API/Generation_Settings/Response/top_p.txt')
-    rep_pen = open_file(f'./Aetherius_API/Generation_Settings/Response/rep_pen.txt')
-    max_tokens = open_file(f'./Aetherius_API/Generation_Settings/Response/max_tokens.txt')
-    top_k = open_file(f'./Aetherius_API/Generation_Settings/Response/top_k.txt')
+    json_file_path = './Aetherius_API/Generation_Settings/Oobabooga/settings.json'
+    settings = read_settings_from_json(json_file_path)
+    response_temperature = settings.get("Response_temperature", "0.8")
+    response_top_p = settings.get("Response_top_p", "0.55")
+    response_rep_pen = settings.get("Response_rep_pen", "1.18")
+    response_max_tokens = settings.get("Response_max_tokens", "1500")
+    response_top_k = settings.get("Response_top_k", "35")
+    response_min_tokens = settings.get("Response_min_tokens", "40")
     request = {
         'user_input': prompt,
         'max_new_tokens': max_tokens,
@@ -1966,13 +2240,24 @@ def agent_oobabooga_line_response(prompt, username, bot_name):
         
         
 def agent_oobabooga_process_line_response(host, prompt, username, bot_name):
-    main_prompt = open_file(f'./Aetherius_API/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
+    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
+
+    # Read prompts from the JSON file
+    with open(prompts_json_path, 'r') as file:
+        prompts = json.load(file)
+
+    # Access the main_prompt
+    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
-    temperature = open_file(f'./Aetherius_API/Generation_Settings/Response/temperature.txt')
-    top_p = open_file(f'./Aetherius_API/Generation_Settings/Response/top_p.txt')
-    rep_pen = open_file(f'./Aetherius_API/Generation_Settings/Response/rep_pen.txt')
-    max_tokens = open_file(f'./Aetherius_API/Generation_Settings/Response/max_tokens.txt')
-    top_k = open_file(f'./Aetherius_API/Generation_Settings/Response/top_k.txt')
+    json_file_path = './Aetherius_API/Generation_Settings/Oobabooga/settings.json'
+    settings = read_settings_from_json(json_file_path)
+    response_temperature = settings.get("Response_temperature", "0.8")
+    response_top_p = settings.get("Response_top_p", "0.55")
+    response_rep_pen = settings.get("Response_rep_pen", "1.18")
+    response_max_tokens = settings.get("Response_max_tokens", "1500")
+    response_top_k = settings.get("Response_top_k", "35")
+    response_min_tokens = settings.get("Response_min_tokens", "40")
     request = {
         'user_input': prompt,
         'max_new_tokens': max_tokens,
@@ -2029,13 +2314,24 @@ def agent_oobabooga_process_line_response(host, prompt, username, bot_name):
         
         
 def agent_oobabooga_process_line_response2(host, prompt, username, bot_name):
-    main_prompt = open_file(f'./Aetherius_API/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
+    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
+
+    # Read prompts from the JSON file
+    with open(prompts_json_path, 'r') as file:
+        prompts = json.load(file)
+
+    # Access the main_prompt
+    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
-    temperature = open_file(f'./Aetherius_API/Generation_Settings/Response/temperature.txt')
-    top_p = open_file(f'./Aetherius_API/Generation_Settings/Response/top_p.txt')
-    rep_pen = open_file(f'./Aetherius_API/Generation_Settings/Response/rep_pen.txt')
-    max_tokens = open_file(f'./Aetherius_API/Generation_Settings/Response/max_tokens.txt')
-    top_k = open_file(f'./Aetherius_API/Generation_Settings/Response/top_k.txt')
+    json_file_path = './Aetherius_API/Generation_Settings/Oobabooga/settings.json'
+    settings = read_settings_from_json(json_file_path)
+    response_temperature = settings.get("Response_temperature", "0.8")
+    response_top_p = settings.get("Response_top_p", "0.55")
+    response_rep_pen = settings.get("Response_rep_pen", "1.18")
+    response_max_tokens = settings.get("Response_max_tokens", "1500")
+    response_top_k = settings.get("Response_top_k", "35")
+    response_min_tokens = settings.get("Response_min_tokens", "40")
     request = {
         'user_input': prompt,
         'max_new_tokens': 200,
@@ -2092,13 +2388,24 @@ def agent_oobabooga_process_line_response2(host, prompt, username, bot_name):
         
         
 def agent_oobabooga_memory_db_check(host, prompt, username, bot_name):
-    main_prompt = open_file(f'./Aetherius_API/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
+    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
+
+    # Read prompts from the JSON file
+    with open(prompts_json_path, 'r') as file:
+        prompts = json.load(file)
+
+    # Access the main_prompt
+    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
-    temperature = open_file(f'./Aetherius_API/Generation_Settings/Response/temperature.txt')
-    top_p = open_file(f'./Aetherius_API/Generation_Settings/Response/top_p.txt')
-    rep_pen = open_file(f'./Aetherius_API/Generation_Settings/Response/rep_pen.txt')
-    max_tokens = open_file(f'./Aetherius_API/Generation_Settings/Response/max_tokens.txt')
-    top_k = open_file(f'./Aetherius_API/Generation_Settings/Response/top_k.txt')
+    json_file_path = './Aetherius_API/Generation_Settings/Oobabooga/settings.json'
+    settings = read_settings_from_json(json_file_path)
+    intuition_temperature = settings.get("Intuition_temperature", "0.30")
+    intuition_top_p = settings.get("Intuition_top_p", "0.20")
+    intuition_rep_pen = settings.get("Intuition_rep_pen", "1.25")
+    intuition_max_tokens = settings.get("Intuition_max_tokens", "450")
+    intuition_top_k = settings.get("Intuition_top_k", "35")
+    intuition_min_tokens = settings.get("Intuition_min_tokens", "10")
     request = {
         'user_input': prompt,
         'max_new_tokens': max_tokens,
@@ -2155,13 +2462,24 @@ def agent_oobabooga_memory_db_check(host, prompt, username, bot_name):
         
         
 def agent_oobabooga_google_rephrase(host, prompt, username, bot_name):
-    main_prompt = open_file(f'./Aetherius_API/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
+    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
+
+    # Read prompts from the JSON file
+    with open(prompts_json_path, 'r') as file:
+        prompts = json.load(file)
+
+    # Access the main_prompt
+    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
-    temperature = open_file(f'./Aetherius_API/Generation_Settings/Response/temperature.txt')
-    top_p = open_file(f'./Aetherius_API/Generation_Settings/Response/top_p.txt')
-    rep_pen = open_file(f'./Aetherius_API/Generation_Settings/Response/rep_pen.txt')
-    max_tokens = open_file(f'./Aetherius_API/Generation_Settings/Response/max_tokens.txt')
-    top_k = open_file(f'./Aetherius_API/Generation_Settings/Response/top_k.txt')
+    json_file_path = './Aetherius_API/Generation_Settings/Oobabooga/settings.json'
+    settings = read_settings_from_json(json_file_path)
+    intuition_temperature = settings.get("Intuition_temperature", "0.30")
+    intuition_top_p = settings.get("Intuition_top_p", "0.20")
+    intuition_rep_pen = settings.get("Intuition_rep_pen", "1.25")
+    intuition_max_tokens = settings.get("Intuition_max_tokens", "450")
+    intuition_top_k = settings.get("Intuition_top_k", "35")
+    intuition_min_tokens = settings.get("Intuition_min_tokens", "10")
     request = {
         'user_input': prompt,
         'max_new_tokens': max_tokens,
@@ -2218,7 +2536,15 @@ def agent_oobabooga_google_rephrase(host, prompt, username, bot_name):
         
         
 def agent_oobabooga_auto(prompt, username, bot_name):
-    main_prompt = open_file(f'./Aetherius_API/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
+    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
+
+    # Read prompts from the JSON file
+    with open(prompts_json_path, 'r') as file:
+        prompts = json.load(file)
+
+    # Access the main_prompt
+    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -2277,7 +2603,15 @@ def agent_oobabooga_auto(prompt, username, bot_name):
         
         
 def agent_oobabooga_memyesno(prompt, username, bot_name):
-    main_prompt = open_file(f'./Aetherius_API/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
+    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
+
+    # Read prompts from the JSON file
+    with open(prompts_json_path, 'r') as file:
+        prompts = json.load(file)
+
+    # Access the main_prompt
+    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -2335,7 +2669,15 @@ def agent_oobabooga_memyesno(prompt, username, bot_name):
         
         
 def agent_oobabooga_webcheckyesno(prompt, username, bot_name):
-    main_prompt = open_file(f'./Aetherius_API/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
+    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
+
+    # Read prompts from the JSON file
+    with open(prompts_json_path, 'r') as file:
+        prompts = json.load(file)
+
+    # Access the main_prompt
+    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -2393,7 +2735,15 @@ def agent_oobabooga_webcheckyesno(prompt, username, bot_name):
         
         
 def agent_oobabooga_webyesno(prompt, username, bot_name):
-    main_prompt = open_file(f'./Aetherius_API/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
+    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
+
+    # Read prompts from the JSON file
+    with open(prompts_json_path, 'r') as file:
+        prompts = json.load(file)
+
+    # Access the main_prompt
+    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -2451,7 +2801,15 @@ def agent_oobabooga_webyesno(prompt, username, bot_name):
         
        
 def agent_oobabooga_selector(prompt, username, bot_name):
-    main_prompt = open_file(f'./Aetherius_API/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
+    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
+
+    # Read prompts from the JSON file
+    with open(prompts_json_path, 'r') as file:
+        prompts = json.load(file)
+
+    # Access the main_prompt
+    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -2509,7 +2867,15 @@ def agent_oobabooga_selector(prompt, username, bot_name):
         
         
 def File_Processor_oobabooga_scrape(host, prompt, username, bot_name):
-    main_prompt = open_file(f'./Aetherius_API/Chatbot_Prompts/{username}/{bot_name}/prompt_main.txt').replace('<<NAME>>', bot_name)
+    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
+    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
+
+    # Read prompts from the JSON file
+    with open(prompts_json_path, 'r') as file:
+        prompts = json.load(file)
+
+    # Access the main_prompt
+    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,

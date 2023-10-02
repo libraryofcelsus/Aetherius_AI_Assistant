@@ -752,7 +752,7 @@ def Aetherius_Chatbot(user_input, username, bot_name):
                     # Check if it is the final segment and if the memory is cut off (ends without punctuation)
                     if index == total_segments - 1 and not segment[-1] in ['.', '!', '?']:
                         continue
-                    upload_implicit_short_term_memories(segment, username, bot_name)
+                    Upload_Implicit_Short_Term_Memories(segment, username, bot_name)
                 segments = re.split(r'•|\n\s*\n', db_upsert)
                 total_segments = len(segments)
 
@@ -763,7 +763,7 @@ def Aetherius_Chatbot(user_input, username, bot_name):
                     # Check if it is the final segment and if the memory is cut off (ends without punctuation)
                     if index == total_segments - 1 and not segment[-1] in ['.', '!', '?']:
                         continue
-                    upload_explicit_short_term_memories(segment, username, bot_name)
+                    Upload_Explicit_Short_Term_Memories(segment, username, bot_name)
                 t = threading.Thread(target=Aetherius_Memory_Loop, args=(a, username, bot_name, vector_input, vector_monologue, output_one, response_two))
                 t.start()
         return response_two
@@ -1346,7 +1346,7 @@ def Aetherius_Agent(user_input, username, bot_name):
                     # Check if it is the final segment and if the memory is cut off (ends without punctuation)
                     if index == total_segments - 1 and not segment[-1] in ['.', '!', '?']:
                         continue
-                    upload_implicit_short_term_memories(segment, username, bot_name)
+                    Upload_Implicit_Short_Term_Memories(segment, username, bot_name)
                 segments = re.split(r'•|\n\s*\n', db_upsert)
                 total_segments = len(segments)
 
@@ -1357,7 +1357,7 @@ def Aetherius_Agent(user_input, username, bot_name):
                     # Check if it is the final segment and if the memory is cut off (ends without punctuation)
                     if index == total_segments - 1 and not segment[-1] in ['.', '!', '?']:
                         continue
-                    upload_explicit_short_term_memories(segment, username, bot_name)
+                    Upload_Explicit_Short_Term_Memories(segment, username, bot_name)
                 t = threading.Thread(target=Aetherius_Memory_Loop, args=(user_input, username, bot_name, vector_input, vector_monologue, output_one, response_two))
                 t.start()
         return response_two
@@ -1517,7 +1517,41 @@ def load_filenames_and_descriptions(folder_path, username, bot_name):
         
         
         
-        
+def Upload_Heuristics(query, username, bot_name):
+    with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+    embed_size = settings['embed_size']    
+    timestamp = time()
+    timestring = timestamp_to_datetime(timestamp)
+    payload = list()
+    payload = list()    
+                # Define the collection name
+    collection_name = f"Bot_{bot_name}"
+                # Create the collection only if it doesn't exist
+    try:
+        collection_info = client.get_collection(collection_name=collection_name)
+    except:
+        client.create_collection(
+            collection_name=collection_name,
+            vectors_config=VectorParams(size=embed_size, distance=Distance.COSINE),
+        )
+    vector1 = embeddings(query)
+    unique_id = str(uuid4())
+    point_id = unique_id + str(int(timestamp))
+    metadata = {
+        'bot': bot_name,
+        'user': username,
+        'time': timestamp,
+        'message': query,
+        'timestring': timestring,
+        'uuid': unique_id,
+        'user': username,
+        'memory_type': 'Heuristics',
+    }
+    client.upsert(collection_name=collection_name,
+                         points=[PointStruct(id=unique_id, vector=vector1, payload=metadata)])    
+                # Search the collection
+    return query
         
         
         
@@ -1608,18 +1642,16 @@ def Aetherius_Implicit_Memory(user_input, output_one, bot_name, username, prompt
             print(f"Upload Implicit Memories?\n{inner_loop_response}\n\n")
             mem_upload_yescheck = input("Enter 'Y' or 'N': ")
             if mem_upload_yescheck.upper == 'Y':
-                upload_implicit_short_term_memories(inner_loop_response, username, bot_name)
+                Upload_Implicit_Short_Term_Memories(inner_loop_response, username, bot_name)
     except Exception as e:
         print(e)
                 
                 
                 
-def upload_implicit_short_term_memories(query, username, bot_name):
+def Upload_Implicit_Short_Term_Memories(query, username, bot_name):
     with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
         settings = json.load(f)
     embed_size = settings['embed_size']    
-    bot_name = settings.get('prompt_bot_name', '')
-    username = settings.get('prompt_username', '')
     timestamp = time()
     timestring = timestamp_to_datetime(timestamp)
     payload = list()
@@ -1747,7 +1779,7 @@ def Aetherius_Explicit_Memory(user_input, vector_input, vector_monologue, output
             print(f"Upload Explicit Memories?\n{db_upload}\n\n")
             db_upload_yescheck = input("Enter 'Y' or 'N': ")
             if db_upload_yescheck.upper == 'Y':
-                upload_explicit_short_term_memories(db_upsert, username, bot_name)
+                Upload_Explicit_Short_Term_Memories(db_upsert, username, bot_name)
 
             if db_upload_yescheck.upper == 'Y':
                 t = threading.Thread(target=Aetherius_Memory_Loop, args=(user_input, username, bot_name, vector_input, vector_monologue, output_one, response_two))
@@ -1755,12 +1787,10 @@ def Aetherius_Explicit_Memory(user_input, vector_input, vector_monologue, output
     except Exception as e:
         print(e)
 
-def upload_explicit_short_term_memories(query, username, bot_name):
+def Upload_Explicit_Short_Term_Memories(query, username, bot_name):
     with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
         settings = json.load(f)
     embed_size = settings['embed_size']    
-    bot_name = settings.get('prompt_bot_name', '')
-    username = settings.get('prompt_username', '')
     timestamp = time()
     timestring = timestamp_to_datetime(timestamp)
     payload = list()
@@ -1792,6 +1822,81 @@ def upload_explicit_short_term_memories(query, username, bot_name):
                          points=[PointStruct(id=unique_id, vector=vector1, payload=metadata)])    
                 # Search the collection
     return query
+    
+    
+def Upload_Implicit_Long_Term_Memories(query, username, bot_name):
+    with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+    embed_size = settings['embed_size']    
+    timestamp = time()
+    timestring = timestamp_to_datetime(timestamp)
+    payload = list()
+    payload = list()    
+                # Define the collection name
+    collection_name = f"Bot_{bot_name}"
+                # Create the collection only if it doesn't exist
+    try:
+        collection_info = client.get_collection(collection_name=collection_name)
+    except:
+        client.create_collection(
+            collection_name=collection_name,
+            vectors_config=VectorParams(size=embed_size, distance=Distance.COSINE),
+        )
+    vector1 = embeddings(query)
+    unique_id = str(uuid4())
+    point_id = unique_id + str(int(timestamp))
+    metadata = {
+        'bot': bot_name,
+        'user': username,
+        'time': timestamp,
+        'message': query,
+        'timestring': timestring,
+        'uuid': unique_id,
+        'user': username,
+        'memory_type': 'Implicit_Long_Term',
+    }
+    client.upsert(collection_name=collection_name,
+                         points=[PointStruct(id=unique_id, vector=vector1, payload=metadata)])    
+                # Search the collection
+    return query
+
+
+def Upload_Explicit_Long_Term_Memories(query, username, bot_name):
+    with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+    embed_size = settings['embed_size']    
+    timestamp = time()
+    timestring = timestamp_to_datetime(timestamp)
+    payload = list()
+    payload = list()    
+                # Define the collection name
+    collection_name = f"Bot_{bot_name}"
+                # Create the collection only if it doesn't exist
+    try:
+        collection_info = client.get_collection(collection_name=collection_name)
+    except:
+        client.create_collection(
+            collection_name=collection_name,
+            vectors_config=VectorParams(size=embed_size, distance=Distance.COSINE),
+        )
+    vector1 = embeddings(query)
+    unique_id = str(uuid4())
+    point_id = unique_id + str(int(timestamp))
+    metadata = {
+        'bot': bot_name,
+        'user': username,
+        'time': timestamp,
+        'message': query,
+        'timestring': timestring,
+        'uuid': unique_id,
+        'user': username,
+        'memory_type': 'Explicit_Long_Term',
+    }
+    client.upsert(collection_name=collection_name,
+                         points=[PointStruct(id=unique_id, vector=vector1, payload=metadata)])    
+                # Search the collection
+    return query
+
 
 
 def Aetherius_Memory_Loop(a, username, bot_name, vector_input, vector_monologue, output_one, response_two):

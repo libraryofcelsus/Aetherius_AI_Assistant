@@ -8,6 +8,8 @@ For a quick demo deployment or if you do not have a GPU see: [Public Oobabooga A
 ------
 **Recent Changes**
 
+• 10/2  Added !Agent command to the Discord Bot.
+
 • 10/2 Converted .txt setting files to json
 
 • 10/1 Added Async Version of Api as well as fixed discord bot

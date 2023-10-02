@@ -118,7 +118,7 @@ async def External_Resource_DB_Search(host, bot_name, username, line, task_count
         except:
             table = "No External Resources Available"
             
-        if Web_Search == 'True':    
+        if Web_Search == True:    
             websearch_check.append({'role': 'assistant', 'content': f"You are a selection agent for an autonomous AI chatbot.  Your job is to decide if the given database queries contain the needed information to answer the user's inquiry.  Only respond with either 'YES' or 'NO'.\n\nGIVEN DATABASE QUERIES: {table}\n\nUSER INQUIRY: {user_input} [/INST] "})
             prompt = ''.join([message_dict['content'] for message_dict in websearch_check])
             web_check = await agent_oobabooga_memory_db_check(host, prompt, username, bot_name)
@@ -150,7 +150,7 @@ async def External_Resource_DB_Search(host, bot_name, username, line, task_count
                                     table = [item['snippet'] for item in data.get("items", [])]  # Return a list of snippets
                                 else:
                                     raise Exception(f"Request failed with status code {response.status_code}")
-                            table = "Google Search Failed"
+                                    table = "Google Search Failed"
                     except Exception as e:
                         print(e)
                         table = "Google Search Failed.  Remind user they need to add the Google Api key to the api keys folder or disable the web-search in the External Resources Sub-Agent."

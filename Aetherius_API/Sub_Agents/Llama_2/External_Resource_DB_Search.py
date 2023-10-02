@@ -119,7 +119,7 @@ def External_Resource_DB_Search(host, bot_name, username, line, task_counter, ou
         except:
             table = "No External Resources Available"
             
-        if Web_Search == 'True':    
+        if Web_Search == True:    
             websearch_check.append({'role': 'assistant', 'content': f"You are a selection agent for an autonomous AI chatbot.  Your job is to decide if the given database queries contain the needed information to answer the user's inquiry.  Only respond with either 'YES' or 'NO'.\n\nGIVEN DATABASE QUERIES: {table}\n\nUSER INQUIRY: {user_input} [/INST] "})
             prompt = ''.join([message_dict['content'] for message_dict in websearch_check])
             web_check = agent_oobabooga_memory_db_check(host, prompt, username, bot_name)

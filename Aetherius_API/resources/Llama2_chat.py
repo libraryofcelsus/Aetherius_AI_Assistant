@@ -2338,7 +2338,7 @@ def agent_oobabooga_process_line_response2(host, prompt, username, bot_name):
         'history': history,
         'mode': 'instruct',  # Valid options: 'chat', 'chat-instruct', 'instruct'
         'instruction_template': 'Llama-v2',  # Will get autodetected if unset
-        'context_instruct': f"[INST] <<SYS>>\nYour job is to generalize the given task, outlining what kind of tool is needed in order to complete it.  You may only use a single tool.\n<</SYS>>",  # Optional
+        'context_instruct': f"[INST] <<SYS>>\nRead the list of available tools, then please describe the given task in general terms and simply identify one type of tool necessary for completion, without elaborating on the reasoning.\n<</SYS>>",  # Optional
         'your_name': f'{username}',
 
         'regenerate': False,

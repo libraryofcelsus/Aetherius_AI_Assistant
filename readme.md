@@ -8,6 +8,8 @@ For a quick demo deployment or if you do not have a GPU see: [Public Oobabooga A
 ------
 **Recent Changes**
 
+• 10/2 Continued to work on Discord Bot. !WebScrape added.
+
 • 10/2  Added !Agent command to the Discord Bot.
 
 • 10/2 Converted .txt setting files to json
@@ -363,8 +365,8 @@ Click the "load" button and load the model. The Aetherius should now work!
 Qdrant Cloud: https://qdrant.to/cloud
 
 To use a local Qdrant server, first install Docker: https://www.docker.com.  
-Next type: **docker pull qdrant/qdrant:latest** in the command prompt.  
-After it is finished downloading, type **docker run -p 6333:6333 qdrant/qdrant:latest**  
+Next type: **docker pull qdrant/qdrant:v1.5.1** in the command prompt.  
+After it is finished downloading, type **docker run -p 6333:6333 qdrant/qdrant:v1.5.1**  
 
 See: https://docs.docker.com/desktop/backup-and-restore/ for how to make backups.
 
@@ -421,9 +423,9 @@ Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aethe
 
 17. To use a local Qdrant server, first install Docker: https://www.docker.com/
 
-18. Now run: **docker pull qdrant/qdrant:latest** in CMD
+18. Now run: **docker pull qdrant/qdrant:v1.5.1** in CMD
 
-19. Next run: **docker run -p 6333:6333 qdrant/qdrant:latest**
+19. Next run: **docker run -p 6333:6333 qdrant/qdrant:v1.5.1**
 
 20. Once the local Qdrant server is running, it should be auto detected by Aetherius.  If No Qdrant server is running, Aetherius will save to disk.   
 (See: https://docs.docker.com/desktop/backup-and-restore/ for how to make backups.)

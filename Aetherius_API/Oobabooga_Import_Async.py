@@ -1230,7 +1230,7 @@ async def Aetherius_Agent(user_input, username, bot_name):
 
         # # Intuition Generation
         inner_loop_db = 'None'
-        agent_intuition.append({'role': 'assistant', 'content': f"{botnameupper}'S EPISODIC MEMORIES: {db_search_4}\n{botnameupper}'s HEURISTICS: {db_search_15}\n{botnameupper}'S INNER THOUGHTS: {output_one} [INST] Now return the list of tools available for you to use. [/INST] AVAILABLE TOOLS: {tool_db} [INST] Now return and analyze the previous conversation history. [/INST] PREVIOUS CONVERSATION HISTORY: {con_hist} [INST] SYSTEM: Transmute the user, {username}'s message as {bot_name} by devising a truncated predictive action plan in the third person point of view on how to best respond to {username}'s most recent message using the given External Resources and list of available tools.  If the user is requesting information on a subjector asking a question, predict what information needs to be provided. Do not give examples, only the action plan. {usernameupper}: {user_input} [/INST] {botnameupper}: "}) 
+        agent_intuition.append({'role': 'assistant', 'content': f"{botnameupper}'S EPISODIC MEMORIES: {db_search_4}\n{botnameupper}'s HEURISTICS: {db_search_15}\n{botnameupper}'S INNER THOUGHTS: {output_one} [INST] Now return the list of tools available for you to use. [/INST] AVAILABLE TOOLS: {tool_db} [INST] Now return and analyze the previous conversation history. [/INST] PREVIOUS CONVERSATION HISTORY: {con_hist} [INST] SYSTEM: Transmute the user, {username}'s message as {bot_name} by devising a truncated predictive action plan in the third person point of view on how to best respond to {username}'s most recent message using the given External Resources and list of available tools.  If the user is requesting information on a subjector asking a question, predict what information needs to be provided. Do not give examples or double check work, only provide the action plan. {usernameupper}: {user_input} [/INST] {botnameupper}: "}) 
        
         
         
@@ -1353,9 +1353,43 @@ async def Aetherius_Agent(user_input, username, bot_name):
                     
                     
         try:
-            client.delete_collection(collection_name=f"Bot_{bot_name}_{username}_Sub_Agents") 
+            client.delete(
+                collection_name=f"Bot_{bot_name}_{username}_Sub_Agents",
+                points_selector=models.FilterSelector(
+                    filter=models.Filter(
+                        must=[
+                            FieldCondition(
+                                key="user",
+                                match=models.MatchValue(value=f"{username}"),
+                            ),
+                        ],
+                    )
+                ),
+            ) 
         except:
-             print("No Collection to Delete")    
+             print("No Collection to Delete")  
+
+        try:
+            client.delete(
+                collection_name=f"Bot_{bot_name}_External_Knowledgebase",
+                points_selector=models.FilterSelector(
+                    filter=models.Filter(
+                        must=[
+                            FieldCondition(
+                                key="user",
+                                match=models.MatchValue(value=f"{username}"),
+                            ),
+                            FieldCondition(
+                                key="memory_type",
+                                match=models.MatchValue(value=f"Web_Scrape_Temp"),
+                            ),
+                        ],
+                    )
+                ),
+            ) 
+        except:
+             print("No Collection to Delete") 
+             
         try:            
             tasklist_completion.append({'role': 'assistant', 'content': f"[INST] USER'S INITIAL INPUT: {user_input} [/INST] {botnameupper}'S INNER_MONOLOGUE: {output_one}"})
     #        tasklist_completion.append({'role': 'user', 'content': f"%{bot_name}'s INTUITION%\n{output_two}\n\n"})

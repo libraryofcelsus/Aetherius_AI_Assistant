@@ -249,7 +249,7 @@ async def summarized_chunk_from_url(host, chunk, collection_name, bot_name, user
 
 
 def External_Resource_DB_Search_Description(username, bot_name):
-    description = f"A module for searching {bot_name}'s External Resource Database.\nThis Module is meant to be used for verifying or searching for external information."
+    description = f"A module for searching {bot_name}'s External Resource Database.  This Module is meant to be used for the verification and retrieval of external information. This module also includes a web-search Tool."
     return description
 
 async def External_Resource_DB_Search(host, bot_name, username, line, task_counter, output_one, output_two, master_tasklist_output, user_input):
@@ -303,7 +303,7 @@ async def External_Resource_DB_Search(host, bot_name, username, line, task_count
             web_check = await agent_oobabooga_memory_db_check(host, prompt, username, bot_name)
             print(web_check)
             if "NO" in web_check:
-                websearch_rephrase.append({'role': 'assistant', 'content': f"Extract any salient informational requests from the user's query and rephrase them into an informational search query that will return the requested information.  Only print the search query.\nUSER INQUIRY: {line} [/INST] Google Search Query: "})
+                websearch_rephrase.append({'role': 'assistant', 'content': f"Rephrase the user's inquiry into a google search query that will return the requested information.  Only print the search query, do not include anything about the External Resources Module.  The search query should be a natural sounding question.\nUSER INQUIRY: {line} [/INST] Google Search Query: "})
                 prompt = ''.join([message_dict['content'] for message_dict in websearch_rephrase])
                 rephrased_query = await agent_oobabooga_google_rephrase(host, prompt, username, bot_name)
                 if '"' in rephrased_query:
@@ -412,7 +412,7 @@ async def External_Resource_DB_Search(host, bot_name, username, line, task_count
                             unsorted_table = [(hit.payload['source'], hit.payload['message']) for hit in hits]
                             sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'source' field
                             joined_table = " ".join([f"{source} - {message}" for source, message in sorted_table])
-                            table = f"{joined_table}\n{snippets}"
+                            table = f"{snippets}\n{joined_table}"
                         except Exception as e:  # Log the exception for debugging
                             print(f"An error occurred: {e}")
                             table = "No External Resources Available"

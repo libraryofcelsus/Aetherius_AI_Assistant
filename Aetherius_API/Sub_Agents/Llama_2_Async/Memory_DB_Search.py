@@ -257,7 +257,7 @@ async def search_explicit_db(line_vec, username, bot_name):
 
 # Create a Description for the Module
 def Memory_DB_Search_Description(username, bot_name):
-    description = f"A module for searching {bot_name}'s Memories.\nThis Module is meant to be used for answering questions about {bot_name}'s past, {username}'s past, or previous interactions or events in {bot_name}'s existance."
+    description = f"A module dedicated to exploring {bot_name}'s Memories. This module is designed to assist in answering inquiries regarding {bot_name}'s historical interactions, events, and past experiences. It is not intended for validating factual information."
     return description
     
     

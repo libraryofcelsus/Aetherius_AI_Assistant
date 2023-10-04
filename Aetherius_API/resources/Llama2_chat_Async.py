@@ -2448,11 +2448,11 @@ async def agent_oobabooga_google_rephrase(host, prompt, username, bot_name):
     min_tokens = settings.get("Intuition_min_tokens", "10")
     request = {
         'user_input': prompt,
-        'max_new_tokens': max_tokens,
+        'max_new_tokens': 100,
         'history': history,
         'mode': 'instruct',  # Valid options: 'chat', 'chat-instruct', 'instruct'
         'instruction_template': 'Llama-v2',  # Will get autodetected if unset
-        'context_instruct': f"[INST] <<SYS>>\nRephrase the user's inquiry into a google search query. Do not converse with the user or print any text outside of the search query.\n<</SYS>>",  # Optional
+        'context_instruct': f"[INST] <<SYS>>\nRephrase the user's inquiry into a google search query. Do not converse with the user or print any text outside of the search query.  The query should only search for the requested information, not anything about the External Resource Module.\n<</SYS>>",  # Optional
         'your_name': f'{username}',
 
         'regenerate': False,
@@ -2463,8 +2463,8 @@ async def agent_oobabooga_google_rephrase(host, prompt, username, bot_name):
         # in presets/preset-name.yaml are used instead of the individual numbers.
         'preset': 'None',  
         'do_sample': True,
-        'temperature': 0.4,
-        'top_p': .25,
+        'temperature': 0.6,
+        'top_p': .5,
         'typical_p': 1,
         'epsilon_cutoff': 0,  # In units of 1e-4
         'eta_cutoff': 0,  # In units of 1e-4

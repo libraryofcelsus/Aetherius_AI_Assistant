@@ -3,6 +3,8 @@ import sys
 sys.path.insert(0, './Aetherius_API/resources')
 from Llama2_chat_Async import *
 import time
+from datetime import datetime
+from uuid import uuid4
 import json
 import importlib.util
 import requests
@@ -66,6 +68,12 @@ def fail():
   #  print('')
     fail = "Not Needed"
     return fail  
+    
+    
+def timestamp_to_datetime(unix_time):
+    datetime_obj = datetime.datetime.fromtimestamp(unix_time)
+    datetime_str = datetime_obj.strftime("%A, %B %d, %Y at %I:%M%p %Z")
+    return datetime_str
 
 
 async def search_episodic_db(line_vec, username, bot_name):

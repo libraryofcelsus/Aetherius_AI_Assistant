@@ -7,7 +7,7 @@ import logging
 # Max_Tokens variable for the Response generation should be set to 350 to avoid Length Errors
 
 
-TOKEN = 'REPLACE WITH DISCORD BOT TOKEN'
+TOKEN = 'MTE1NzA5NzA5ODA0MzQ2OTkzNw.GIbjLS.yUiDGIzhIyH-kecPQb6psn5XjNzGJh2Rw0FK9w'
 
 BOTNAME = 'Aetherius'
 

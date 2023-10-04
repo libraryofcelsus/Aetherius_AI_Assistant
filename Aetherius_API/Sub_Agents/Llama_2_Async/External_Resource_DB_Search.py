@@ -5,12 +5,17 @@ from Llama2_chat_Async import *
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams, PointStruct, Filter, FieldCondition, Range, MatchValue
 from qdrant_client.http import models
-import time
+from time import time
+from datetime import datetime
+from uuid import uuid4
 import json
 import importlib.util
 import requests
 import asyncio
+import aiohttp
 import aiofiles
+from bs4 import BeautifulSoup
+from concurrent.futures import ThreadPoolExecutor
 
 # Set the desired search engine to use if information cannot be found in DB
 # Available Options: "Google, Bing"
@@ -61,15 +66,189 @@ else:
 model = SentenceTransformer('all-mpnet-base-v2')
 
 
-def embeddings(query):
-    vector = model.encode([query])[0].tolist()
+executor = ThreadPoolExecutor()
+
+async def embeddings(query):
+    loop = asyncio.get_event_loop()
+    vector = await loop.run_in_executor(executor, lambda: model.encode([query])[0].tolist())
     return vector
+    
+    
+def timestamp_to_datetime(unix_time):
+    datetime_obj = datetime.fromtimestamp(unix_time)
+    datetime_str = datetime_obj.strftime("%A, %B %d, %Y at %I:%M%p %Z")
+    return datetime_str
+    
+    
+async def google_search(query, my_api_key, my_cse_id, **kwargs):
+    params = {
+        "key": my_api_key,
+        "cx": my_cse_id,
+        "q": query,
+        "num": 7,
+        "snippet": "true"  # use a string here instead of a boolean
+    }
+    async with aiohttp.ClientSession() as session:
+        async with session.get("https://www.googleapis.com/customsearch/v1", params=params) as response:
+            if response.status == 200:
+                data = await response.json()
+                urls = [item['link'] for item in data.get("items", [])]
+                snippets = [item['snippet'] for item in data.get("items", [])]
+                return urls, snippets
+            else:
+                raise Exception(f"Request failed with status code {response.status}")
+
+
+     
+async def fetch_html(url):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            return await response.text()
+            
+async def fetch_all(urls, username, bot_name, task_counter):
+    tasks = [chunk_text_from_url(url, username, bot_name, task_counter) for url in urls]
+    return await asyncio.gather(*tasks)
+
+async def read_json(filepath):
+    async with aiofiles.open(filepath, mode='r', encoding='utf-8') as f:
+        return json.loads(await f.read())
         
- 
+async def chunk_text(text, chunk_size, overlap):
+    chunks = []
+    start = 0
+    end = chunk_size
+    while end <= len(text):
+        chunks.append(text[start:end])
+        start += chunk_size - overlap
+        end += chunk_size - overlap
+    if end > len(text):
+        chunks.append(text[start:])
+    return chunks 
+        
+        
+async def chunk_text_from_url(url, username, bot_name, task_counter, chunk_size=380, overlap=40):
+    try:
+        
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                html = await response.text()
+
+        soup = BeautifulSoup(html, 'html.parser')
+        texttemp = soup.get_text().strip()
+        texttemp = texttemp.replace('\n', '').replace('\r', '')
+        texttemp = '\n'.join(line for line in texttemp.splitlines() if line.strip())
+        chunks = await chunk_text(texttemp, chunk_size, overlap)
+        weblist = list()
+
+        try:
+            async with aiofiles.open('config/chatbot_settings.json', mode='r', encoding='utf-8') as f:
+                contents = await f.read()
+            settings = json.loads(contents)
+            host_data = settings.get('HOST_Oobabooga', '').strip()
+            hosts = host_data.split(' ')
+            num_hosts = len(hosts)
+        except Exception as e:
+            print(f"An error occurred while reading the host file: {e}")
+        # Assuming host_queue is now an async queue
+        host_queue = asyncio.Queue()
+        for host in hosts:
+            await host_queue.put(host)
+            
+        # Define the collection name
+        collection_name = f"Bot_{bot_name}_External_Knowledgebase"
+        try:
+            collection_info = client.get_collection(collection_name=collection_name)
+            print(collection_info)
+        except:
+            client.create_collection(
+            collection_name=collection_name,
+            vectors_config=VectorParams(size=embed_size, distance=Distance.COSINE),
+        )
+        
+        
+        async def process_chunk(chunk):
+            nonlocal weblist  # Make sure you can modify weblist
+            try:
+                result = await wrapped_chunk_from_url(
+                    host_queue, chunk, collection_name, bot_name, username, client, url, task_counter
+                )
+                
+                if not isinstance(result, dict):
+                    weblist.append(f"Error: Expected a dictionary, but got {type(result)}")
+                    return
+
+                if 'url' not in result or 'processed_text' not in result:
+                    weblist.append(f"Error: Expected keys 'url' and 'processed_text' in the result dictionary. Got: {result.keys()}")
+                    return
+
+                weblist.append(result['url'] + ' ' + result['processed_text'])
+                
+            except Exception as e:
+                weblist.append(f"An error occurred in process_chunk: {e}")
+
+        # Use asyncio.gather to run all the coroutines concurrently
+        await asyncio.gather(*(process_chunk(chunk) for chunk in chunks))
+
+        return weblist  # Return weblist here
+
+    except Exception as e:
+        return [f"An error occurred in your_parent_function: {e}"]
+
+
+async def wrapped_chunk_from_url(host_queue, chunk, collection_name, bot_name, username, client, url, task_counter):
+    try:
+        # get a host
+        host = await host_queue.get()
+        
+        # Assuming summarized_chunk_from_url is also async function
+        result = await summarized_chunk_from_url(host, chunk, collection_name, bot_name, username, client, url, task_counter)
+        # release the host
+        await host_queue.put(host)
+        return result
+    except Exception as e:
+        print(e)
+
+
+async def summarized_chunk_from_url(host, chunk, collection_name, bot_name, username, client, url, task_counter):
+    try:
+        weblist = list()
+        text = str(chunk)
+
+        weblist.append(url + ' ' + text)
+        payload = list()
+        timestamp = time()
+        timestring = timestamp_to_datetime(timestamp)
+
+        vector1 = await embeddings(text)
+        unique_id = str(uuid4())
+        point_id = unique_id + str(int(timestamp))
+        metadata = {
+            'bot': bot_name,
+            'user': username,
+            'time': timestamp,
+            'source': url,
+            'task': task_counter,
+            'message': text,
+            'timestring': timestring,
+            'uuid': unique_id,
+            'memory_type': 'Web_Scrape_Temp',
+        }
+
+        client.upsert(collection_name=collection_name,
+                      points=[PointStruct(id=unique_id, vector=vector1, payload=metadata)]) 
+      
+
+        # Assuming weblist is a list with a single item formatted as "url text"
+        if weblist:
+            result_url, result_text = weblist[0].split(' ', 1)
+            return {'url': result_url, 'processed_text': result_text}
+
+    except Exception as e:
+        print(e)
+        return {'url': 'Error', 'processed_text': str(e)}
 
 
 def External_Resource_DB_Search_Description(username, bot_name):
-    
     description = f"A module for searching {bot_name}'s External Resource Database.\nThis Module is meant to be used for verifying or searching for external information."
     return description
 
@@ -95,7 +274,7 @@ async def External_Resource_DB_Search(host, bot_name, username, line, task_count
         conversation.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a sub-agent for {bot_name}, an Autonomous Ai-Chatbot. You are one of many agents in a chain. You are to take the given task and complete it in its entirety, using the given external resources to ensure factual accuracy. Be Verbose and take other tasks into account when formulating your answer.\n"})
         conversation.append({'role': 'user', 'content': f"Task list: {master_tasklist_output}\nNow, choose a task to research.[/INST]"})
         conversation.append({'role': 'assistant', 'content': f"Bot {task_counter}: I have studied the given tasklist. The task I have chosen to complete is: {line}."})
-        vector_input1 = embeddings(line)
+        vector_input1 = await embeddings(line)
         table = "No External Resources in DB"
         try:
             hits = client.search(
@@ -118,8 +297,8 @@ async def External_Resource_DB_Search(host, bot_name, username, line, task_count
         except:
             table = "No External Resources Available"
             
-        if Web_Search == True:    
-            websearch_check.append({'role': 'assistant', 'content': f"You are a selection agent for an autonomous AI chatbot.  Your job is to decide if the given database queries contain the needed information to answer the user's inquiry.  Only respond with either 'YES' or 'NO'.\n\nGIVEN DATABASE QUERIES: {table}\n\nUSER INQUIRY: {user_input} [/INST] "})
+        if Web_Search == 'True':    
+            websearch_check.append({'role': 'assistant', 'content': f"You are a selection agent for an autonomous AI chatbot.  Your job is to decide if the given database queries contain the needed information to answer the user's inquiry. If the information isn't given or if it needs to be updated, print 'NO'.  Only respond with either 'YES' or 'NO'.\n\nGIVEN DATABASE QUERIES: {table}\n\nUSER INQUIRY: {user_input} [/INST] "})
             prompt = ''.join([message_dict['content'] for message_dict in websearch_check])
             web_check = await agent_oobabooga_memory_db_check(host, prompt, username, bot_name)
             print(web_check)
@@ -134,23 +313,112 @@ async def External_Resource_DB_Search(host, bot_name, username, line, task_count
                     try:
                         my_api_key = open_file('./Aetherius_API/api_keys/key_google.txt')
                         my_cse_id = open_file('./Aetherius_API/api_keys/key_google_cse.txt')
+                        urls, snippets = await google_search(rephrased_query, my_api_key, my_cse_id)
+
+                        for url, snippet in zip(urls, snippets):
+                            payload = list()
+                            timestamp = time()
+                            timestring = timestamp_to_datetime(timestamp)  # Assuming timestamp_to_datetime is defined
+                            vector1 = await embeddings(snippet)  # Assuming embeddings is an asynchronous function
+                            unique_id = str(uuid4())
+                            point_id = unique_id + str(int(timestamp))
+                            metadata = {
+                                'bot': bot_name,  # Assuming bot_name is defined
+                                'user': username,  # Assuming username is defined
+                                'source': url,
+                                'task': task_counter,  # Assuming task_counter is defined
+                                'message': snippet,
+                                'uuid': unique_id,
+                                'memory_type': 'Web_Scrape_Url',
+                            }
+
+                            # Assuming PointStruct and client are defined and set up properly
+                            client.upsert(collection_name = f"Bot_{bot_name}_External_Knowledgebase",
+                                          points=[PointStruct(id=unique_id, vector=vector1, payload=metadata)])
+                            payload.clear()
                         
-                        params = {
-                            "key": my_api_key,
-                            "cx": my_cse_id,
-                            "q": rephrased_query,
-                            "num": 10,
-                            "snippet": True
-                        }
+                        vector1 = await embeddings(user_input)
+
+                        try:
+                            payload = list()
+                            # Perform the search query
+                            hits = client.search(
+                                collection_name=f"Bot_{bot_name}_External_Knowledgebase",
+                                query_vector=vector1,
+                                query_filter=Filter(
+                                    must=[
+                                        FieldCondition(
+                                            key="user",
+                                            match=models.MatchValue(value=f"{username}")
+                                        ),
+                                        FieldCondition(
+                                            key="memory_type",
+                                            match=models.MatchValue(value=f"Web_Scrape_Url")
+                                        ),
+                                        FieldCondition(
+                                            key="task",
+                                            match=models.MatchValue(value=task_counter)
+                                        ),
+                                    ]
+                                ),
+                                limit=1
+                            )
+                            # Prepare the table from the search hits
+                            unsorted_table = [(hit.payload['source'], hit.payload['message']) for hit in hits]
+                            sorted_table = sorted(unsorted_table, key=lambda x: x[0])
+                            joined_table = "\n".join([f"{source} - {message}" for source, message in sorted_table])
+                            table = f"{joined_table}\n{snippets}"
+
+                            # Extract the URLs from search to be passed into fetch_all
+                            urls_from_search = [hit.payload['source'] for hit in hits]
+                            urls = urls_from_search
+
+                        except Exception as e:
+                            print(f"An error occurred: {e}")
+                            table = "No External Resources Available"
+
+                        try:
+                            # Perform the fetch for all URLs
+                            texts = await fetch_all(urls, username, bot_name, task_counter)
+                        except Exception as e:
+                            print(f"An error occurred while fetching all texts: {e}")
+                            texts = []
                         
-                        async with aiohttp.ClientSession() as session:
-                            async with session.get("https://www.googleapis.com/customsearch/v1", params=params) as response:
-                                if response.status == 200:
-                                    data = await response.json()
-                                    table = [item['snippet'] for item in data.get("items", [])]  # Return a list of snippets
-                                else:
-                                    raise Exception(f"Request failed with status code {response.status_code}")
-                                    table = "Google Search Failed"
+                        
+                        try:
+                            hits = client.search(
+                                collection_name=f"Bot_{bot_name}_External_Knowledgebase",
+                                query_vector=vector_input1,
+                                query_filter=Filter(
+                                    must=[
+                                        FieldCondition(
+                                            key="user",
+                                            match=models.MatchValue(value=f"{username}"),
+                                        ),
+                                        FieldCondition(
+                                            key="memory_type",
+                                            match=models.MatchValue(value=f"Web_Scrape_Temp"),
+                                        ),
+                                        FieldCondition(
+                                            key="task",
+                                            match=models.MatchValue(value=task_counter),
+                                        ),
+                                    ]
+                                ),
+                                limit=13
+                            )
+                            
+                            
+                            unsorted_table = [(hit.payload['source'], hit.payload['message']) for hit in hits]
+                            sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'source' field
+                            joined_table = " ".join([f"{source} - {message}" for source, message in sorted_table])
+                            table = f"{joined_table}\n{snippets}"
+                        except Exception as e:  # Log the exception for debugging
+                            print(f"An error occurred: {e}")
+                            table = "No External Resources Available"
+                        
+
+
                     except Exception as e:
                         print(e)
                         table = "Google Search Failed.  Remind user they need to add the Google Api key to the api keys folder or disable the web-search in the External Resources Sub-Agent."
@@ -180,7 +448,7 @@ async def External_Resource_DB_Search(host, bot_name, username, line, task_count
                         table = "Bing Search Failed.  Remind user they need to add the Bing Api key to the api keys folder or disable the web-search in the External Resources Sub-Agent."
                         print(table)
 
-        
+        print(table)
         conversation.append({'role': 'assistant', 'content': f"[INST] INITIAL USER REQUEST: {user_input}\n Now please provide relevant external resources to answer the query. [/INST]"})
         conversation.append({'role': 'user', 'content': f"Bot {task_counter}: EXTERNAL RESOURCES: {table}"})
         conversation.append({'role': 'user', 'content': f"[INST] SYSTEM: Summarize the pertinent information from the given external sources related to the given task. Present the summarized data in a single, easy-to-understand paragraph. Do not generalize, expand upon, or use any latent knowledge in your summary, only return a truncated version of previously given information. [/INST] Bot {task_counter}: Sure, here is a short summary combining the relevant information needed to complete the given task: "})
@@ -201,6 +469,49 @@ async def External_Resource_DB_Search(host, bot_name, username, line, task_count
             # print(table)
             # print('-------')
             print(task_completion)
+        client.delete(
+            collection_name=f"Bot_{bot_name}_External_Knowledgebase",
+            points_selector=models.FilterSelector(
+                filter=models.Filter(
+                    must=[
+                        FieldCondition(
+                            key="user",
+                            match=models.MatchValue(value=f"{username}"),
+                        ),
+                        FieldCondition(
+                            key="memory_type",
+                            match=models.MatchValue(value=f"Web_Scrape_Temp"),
+                        ),
+                        FieldCondition(
+                            key="task",
+                            match=models.MatchValue(value=task_counter),
+                        ),
+                    ],
+                )
+            ),
+        ) 
+        client.delete(
+            collection_name=f"Bot_{bot_name}_External_Knowledgebase",
+            points_selector=models.FilterSelector(
+                filter=models.Filter(
+                    must=[
+                        FieldCondition(
+                            key="user",
+                            match=models.MatchValue(value=f"{username}"),
+                        ),
+                        FieldCondition(
+                            key="memory_type",
+                            match=models.MatchValue(value=f"Web_Scrape_Url"),
+                        ),
+                        FieldCondition(
+                            key="task",
+                            match=models.MatchValue(value=task_counter),
+                        ),
+                    ],
+                )
+            ),
+        ) 
+        
         return tasklist_completion2
     except Exception as e:
         print(f'Failed with error: {e}')

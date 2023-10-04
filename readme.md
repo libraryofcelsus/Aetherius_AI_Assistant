@@ -8,6 +8,8 @@ For a quick demo deployment or if you do not have a GPU see: [Public Oobabooga A
 ------
 **Recent Changes**
 
+• 10/4 Continued to work on Api.  Added more advanced webscrape for external resources sub-agent.
+
 • 10/2 Continued to work on Discord Bot. !WebScrape added.
 
 • 10/2  Added !Agent command to the Discord Bot.

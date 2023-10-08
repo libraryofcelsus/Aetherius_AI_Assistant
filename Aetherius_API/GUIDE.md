@@ -41,6 +41,9 @@ The Available Functions are:
 **Upload_Explicit_Long_Term_Memories(query, username, bot_name)**
 (This function will allow you to directly upload something into the Bot's long-term memory.)
 
+**TTS_Generation(query)**
+(This function will use the set TTS in the settings to generate speech.)
+
 ## OpenAi_Import Functions
 
 Work in Progress.

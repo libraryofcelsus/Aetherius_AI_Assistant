@@ -89,6 +89,9 @@ json_file_path = './Aetherius_API/chatbot_settings.json'
 script_path1 = get_script_path_from_file(json_file_path, "Embeddings")
 import_functions_from_script(script_path1, "embedding_module")
 
+script_path2 = get_script_path_from_file(json_file_path, "TTS")
+import_functions_from_script(script_path2, "TTS_module")
+
 
 # Import Tool Functions.
 def get_script_path_from_file(json_path, key, base_folder='./Aetherius_API/Tools/Llama_2_Async/'):
@@ -208,6 +211,10 @@ async def Aetherius_Chatbot(user_input, username, bot_name):
     Response_Output = settings.get('Output_Response', 'True')
     DB_Search_Output = settings.get('Output_DB_Search', 'False')
     memory_mode = settings.get('Memory_Mode', 'Auto')
+    Update_Bot_Personality_Description = settings.get('Update_Bot_Personality_Description', 'False')
+    Update_User_Personality_Description = settings.get('Update_User_Personality_Description', 'False')
+    Use_Bot_Personality_Description = settings.get('Use_Bot_Personality_Description', 'False')
+    Use_User_Personality_Description = settings.get('Use_User_Personality_Description', 'False')
     botnameupper = bot_name.upper()
     usernameupper = username.upper()
     base_path = "./Aetherius_API/Chatbot_Prompts"
@@ -250,9 +257,41 @@ async def Aetherius_Chatbot(user_input, username, bot_name):
         lines = tasklist_output.splitlines()
         tasklist_counter = 0
         tasklist_counter2 = 0
-        inner_monologue.append({'role': 'system', 'content': f"{main_prompt} Now return your most relevant memories: [/INST]"})
+        inner_monologue.append({'role': 'system', 'content': f"{main_prompt}"})
+        
+        if Use_Bot_Personality_Description == 'True':
+            file_path = f"./Chatbot_Personalities/{bot_name}/{username}/{bot_name}_personality_file.txt"
+            try:
+                async with aiofiles.open(file_path, mode='r', encoding='utf-8') as file:
+                    file_content = await file.readlines()
+            except FileNotFoundError:
+                print(f"No such file or directory: '{file_path}'")
+                return None
+            except IOError:
+                print("An I/O error occurred while handling the file")
+                return None
+            else:
+                bot_personality = [line.strip() for line in file_content]
+            inner_monologue.append({'role': 'system', 'content': f"{botnameupper}'S PERSONALITY DESCRIPTION: {bot_personality}\n\n"})
+            
+        inner_monologue.append({'role': 'system', 'content': f"Now return your most relevant memories: [/INST]"})
         inner_monologue.append({'role': 'system', 'content': f"{botnameupper}'S LONG TERM CHATBOT MEMORIES: "})
-        intuition.append({'role': 'system', 'content': f"{main_prompt} Now return your most relevant memories: [/INST]"})
+        intuition.append({'role': 'system', 'content': f"{main_prompt}"})
+        if Use_User_Personality_Description == 'True':
+            file_path = f"./Chatbot_Personalities/{bot_name}/{username}/{username}_personality_file.txt"
+            try:
+                async with aiofiles.open(file_path, mode='r', encoding='utf-8') as file:
+                    file_content = await file.readlines()
+            except FileNotFoundError:
+                print(f"No such file or directory: '{file_path}'")
+                return None
+            except IOError:
+                print("An I/O error occurred while handling the file")
+                return None
+            else:
+                user_personality = [line.strip() for line in file_content]
+            intuition.append({'role': 'system', 'content': f"{usernameupper}'S PERSONALITY DESCRIPTION: {user_personality}\n\n"})
+        intuition.append({'role': 'system', 'content': f"Now return your most relevant memories: [/INST]"})
         intuition.append({'role': 'system', 'content': f"{botnameupper}'S LONG TERM CHATBOT MEMORIES: "})
         for line in lines:
             if line.startswith("•"):
@@ -279,9 +318,9 @@ async def Aetherius_Chatbot(user_input, username, bot_name):
                     db_search_1 = "\n".join([f"{message}" for timestring, message in sorted_table])
                     
                     inner_monologue.append({'role': 'assistant', 'content': f"{db_search_1}  "})
-                    tasklist_counter + 1
                     if tasklist_counter < 3:
                         intuition.append({'role': 'assistant', 'content': f"{db_search_1}  "})
+                    tasklist_counter + 1
                     if DB_Search_Output == 'True':
                         print(db_search_1)
                 except Exception as e:
@@ -307,15 +346,15 @@ async def Aetherius_Chatbot(user_input, username, bot_name):
                                 ),
                             ]
                         ),
-                        limit=3
+                        limit=4
                     )
                     unsorted_table = [(hit.payload['timestring'], hit.payload['message']) for hit in hits]
                     sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'timestring' field
                     db_search_2 = "\n".join([f"{message}" for timestring, message in sorted_table])
                     inner_monologue.append({'role': 'assistant', 'content': f"{db_search_2}  "})
-                    tasklist_counter2 + 1
                     if tasklist_counter2 < 3:
                         intuition.append({'role': 'assistant', 'content': f"{db_search_2}  "})
+                    tasklist_counter2 + 1
                     if DB_Search_Output == 'True':
                         print(db_search_2)
                 except Exception as e:
@@ -360,7 +399,7 @@ async def Aetherius_Chatbot(user_input, username, bot_name):
                 
         try:
             hits = client.search(
-                collection_name=f"Bot_{bot_name}_{username}_Explicit_Short_Term",
+                collection_name=f"Bot_{bot_name}_Explicit_Short_Term",
                 query_vector=vector_input1,
                 query_filter=Filter(
                     must=[
@@ -378,16 +417,48 @@ async def Aetherius_Chatbot(user_input, username, bot_name):
             )
             unsorted_table = [(hit.payload['timestring'], hit.payload['message']) for hit in hits]
             sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'timestring' field
-            db_search_4 = "\n".join([f"{message}" for timestring, message in sorted_table])
+            explicit_short = "\n".join([f"{message}" for timestring, message in sorted_table])
             if DB_Search_Output == 'True':
-                print(db_search_4)
+                print(explicit_short)
         except Exception as e:
+            explicit_short = "No Memories"
             if DB_Search_Output == 'True':
                 if "Not found: Collection" in str(e):
                     print("Collection does not exist.")
                 else:
                     print(f"An unexpected error occurred: {str(e)}")
-                
+                    
+        try:
+            hits = client.search(
+                collection_name=f"Bot_{bot_name}_Implicit_Short_Term",
+                query_vector=vector_input1,
+                query_filter=Filter(
+                    must=[
+                        FieldCondition(
+                            key="memory_type",
+                            match=MatchValue(value="Implicit_Short_Term"),
+                        ),
+                        FieldCondition(
+                            key="user",
+                            match=models.MatchValue(value=f"{username}"),
+                        ),
+                    ]
+                ),
+                limit=3
+            )
+            unsorted_table = [(hit.payload['timestring'], hit.payload['message']) for hit in hits]
+            sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'timestring' field
+            implicit_short = "\n".join([f"{message}" for timestring, message in sorted_table])
+            if DB_Search_Output == 'True':
+                print(implicit_short)
+        except Exception as e:
+            implicit_short = "No Memories"
+            if DB_Search_Output == 'True':
+                if "Not found: Collection" in str(e):
+                    print("Collection does not exist.")
+                else:
+                    print(f"An unexpected error occurred: {str(e)}")
+        db_search_4 = f"{implicit_short}\n{explicit_short}"    
                 
         try:
             hits = client.search(
@@ -523,7 +594,7 @@ async def Aetherius_Chatbot(user_input, username, bot_name):
         
         try:
             hits = client.search(
-                collection_name=f"Bot_{bot_name}_{username}_Explicit_Short_Term",
+                collection_name=f"Bot_{bot_name}_Explicit_Short_Term",
                 query_vector=vector_monologue,
                 query_filter=Filter(
                     must=[
@@ -619,12 +690,12 @@ async def Aetherius_Chatbot(user_input, username, bot_name):
         prompt = ''.join([message_dict['content'] for message_dict in intuition])
         output_two = await oobabooga_intuition(prompt, username, bot_name)
         
-        sentences = re.split(r'(?<=[.!?])\s+', output_two)
-        if sentences and not re.search(r'[.!?]$', sentences[-1]):
-            sentences.pop()
-        output_two = ' '.join(sentences)
+     #   sentences = re.split(r'(?<=[.!?])\s+', output_two)
+     #   if sentences and not re.search(r'[.!?]$', sentences[-1]):
+     #       sentences.pop()
+     #   output_two = ' '.join(sentences)
         if Intuition_Output == 'True':
-            print('\n\nINTUITION: %s' % output_two)
+            print(f'\n\nINTUITION: {output_two}')
         if memory_mode != 'None':
             implicit_short_term_memory = f'\nUSER: {user_input}\nINNER_MONOLOGUE: {output_one}'
             implicit_memory.append({'role': 'assistant', 'content': f"LOG: {implicit_short_term_memory} [INST] SYSTEM: Read the log to identify key interactions between {bot_name} and {username} from the chatbot's inner monologue. Create 1-5 bullet-point summaries that will serve as automatic, unconscious memories for {bot_name}'s future interactions. These memories should not be easily verbalized but should capture the essence of skills, habits, or associations learned during interactions. Each bullet point should contain enough context to understand the significance without tying to explicit reasoning or verbal explanation. Use the following bullet point format: •[memory] [/INST] {botnameupper}: Sure! Here are the bullet-point summaries which will serve as memories based on {bot_name}'s internal thoughts:"})
@@ -959,10 +1030,9 @@ async def Aetherius_Agent(user_input, username, bot_name):
                 sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'timestring' field
                 db_search_16 = "\n".join([f"{message}" for timestring, message in sorted_table])
                 agent_inner_monologue.append({'role': 'assistant', 'content': f"{db_search_16}\n"})
-                tasklist_counter + 1
                 if tasklist_counter < 2:
                     agent_intuition.append({'role': 'assistant', 'content': f"{db_search_16}\n"})
-              #      print(db_search_16)
+                tasklist_counter + 1
             except Exception as e:
                 print(f"An unexpected error occurred: {str(e)}")
             try:
@@ -993,12 +1063,12 @@ async def Aetherius_Agent(user_input, username, bot_name):
                 if external_scrape != 'No External Resources Selected':
                     if External_Research_Search == 'True':
                         agent_inner_monologue.append({'role': 'assistant', 'content': f"EXTERNAL RESOURCES: {external_scrape}\n"})
-                tasklist_counter2 + 1
                 if tasklist_counter2 < 2:
                     agent_intuition.append({'role': 'assistant', 'content': f"{db_search_17}\n"})
                     if external_scrape != 'No External Resources Selected':
                         if External_Research_Search == 'True':
                             agent_intuition.append({'role': 'assistant', 'content': f"EXTERNAL RESOURCES: {external_scrape}\n"})
+                tasklist_counter2 + 1
             #    print(db_search_17)
             except Exception as e:
                 print(f"An unexpected error occurred: {str(e)}")
@@ -1028,6 +1098,32 @@ async def Aetherius_Agent(user_input, username, bot_name):
          #   print(db_search_1)
         except Exception as e:
             print(f"An unexpected error occurred: {str(e)}")
+            
+        try:
+            hits = client.search(
+                collection_name=f"Bot_{bot_name}_Implicit_Short_Term",
+                query_vector=vector_input1,
+                query_filter=Filter(
+                    must=[
+                        models.FieldCondition(
+                            key="memory_type",
+                            match=models.MatchValue(value="Implicit_Short_Term"),
+                        ),
+                        models.FieldCondition(
+                            key="user",
+                            match=models.MatchValue(value=f"{username}"),
+                        ),
+                    ]
+                ),
+                limit=3
+            )
+            unsorted_table = [(hit.payload['timestring'], hit.payload['message']) for hit in hits]
+            sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'timestring' field
+            db_search_1 = "\n".join([f"{message}" for timestring, message in sorted_table])
+         #   print(db_search_1)
+        except Exception as e:
+            print(f"An unexpected error occurred: {str(e)}")
+            
         try:
             hits = client.search(
                 collection_name=f"Bot_{bot_name}",
@@ -1079,9 +1175,13 @@ async def Aetherius_Agent(user_input, username, bot_name):
             db_search_2 = "No External Resources Selected"
             #    print(db_search_2)
             
+        if External_Research_Search == 'True':
+            external_resources = f"[INST] Search your external resources and find relevant information to help form your thoughts. [/INST]  EXTERNAL RESOURCES: {db_search_2}"
+        else:
+            external_resources = " "
       #  [INST] Search your external resources for data relating to the user's inquiry. [/INST]  EXTERNAL RESOURCES: {db_search_2}   
         # # Inner Monologue Generation
-        agent_inner_monologue.append({'role': 'assistant', 'content': f"{botnameupper}'S EPISODIC MEMORIES: {db_search_1}\n{bot_name}'s HEURISTICS: {db_search_14}\nPREVIOUS CONVERSATION HISTORY: {con_hist} [INST] Search your external resources and find relevant information to help form your thoughts. [/INST]  EXTERNAL RESOURCES: {db_search_2} [INST] SYSTEM: Compose a truncated silent soliloquy to serve as {bot_name}'s internal monologue/narrative using the external resources.  Ensure it includes {bot_name}'s contemplations on how {username}'s request relates to the given external information.\n{usernameupper}: {user_input} [/INST] {botnameupper}: Sure, here is an internal narrative as {bot_name} on how the user's request relates to the Given External information: "})
+        agent_inner_monologue.append({'role': 'assistant', 'content': f"{botnameupper}'S EPISODIC MEMORIES: {db_search_1}\n{bot_name}'s HEURISTICS: {db_search_14}\nPREVIOUS CONVERSATION HISTORY: {con_hist} [INST] SYSTEM: Compose a truncated silent soliloquy to serve as {bot_name}'s internal monologue/narrative using the external resources.  Ensure it includes {bot_name}'s contemplations on how {username}'s request relates to the given external information.\n{usernameupper}: {user_input} [/INST] {botnameupper}: Sure, here is an internal narrative as {bot_name} on how the user's request relates to the Given External information: "})
         
         prompt = ''.join([message_dict['content'] for message_dict in agent_inner_monologue])
         output_one = await agent_oobabooga_inner_monologue(prompt, username, bot_name)
@@ -1122,7 +1222,7 @@ async def Aetherius_Agent(user_input, username, bot_name):
             print(f"An unexpected error occurred: {str(e)}")
         try:
             hits = client.search(
-                collection_name=f"Bot_{bot_name}_{username}_Explicit_Short_Term",
+                collection_name=f"Bot_{bot_name}_Explicit_Short_Term",
                 query_vector=vector_monologue,
                 query_filter=Filter(
                     must=[
@@ -1243,7 +1343,8 @@ async def Aetherius_Agent(user_input, username, bot_name):
 
         if memory_mode != 'None':
             implicit_short_term_memory = f'\nUSER: {user_input}\nINNER_MONOLOGUE: {output_one}'
-            implicit_memory.append({'role': 'assistant', 'content': f"LOG: {implicit_short_term_memory} [INST] SYSTEM: Read the log to identify key interactions between {bot_name} and {username} from the chatbot's inner monologue. Create 1-5 bullet-point summaries that will serve as automatic, unconscious memories for {bot_name}'s future interactions. These memories should not be easily verbalized but should capture the essence of skills, habits, or associations learned during interactions. Each bullet point should contain enough context to understand the significance without tying to explicit reasoning or verbal explanation. Use the following bullet point format: •[memory] [/INST] {botnameupper}: Sure! Here are the bullet-point summaries which will serve as memories based on {bot_name}'s internal thoughts:"})
+        #    implicit_memory.append({'role': 'assistant', 'content': f"LOG: {implicit_short_term_memory} [INST] SYSTEM: Read the log to identify key interactions between {bot_name} and {username} from the chatbot's inner monologue. Create 1-5 bullet-point summaries that will serve as automatic, unconscious memories for {bot_name}'s future interactions. These memories should not be easily verbalized but should capture the essence of skills, habits, or associations learned during interactions. Each bullet point should contain enough context to understand the significance without tying to explicit reasoning or verbal explanation. Use the following bullet point format: •[memory] [/INST] {botnameupper}: Sure! Here are the bullet-point summaries which will serve as memories based on {bot_name}'s internal thoughts:"})
+            implicit_memory.append({'role': 'assistant', 'content': f"LOG: {implicit_short_term_memory} [INST] SYSTEM: Extract core facts and aspects of Aetherius's personality based on the dialogue interactions between {bot_name} and {username}. Formulate 1-5 bullet-point summaries to be embedded as subtle, non-verbalizable memories for {bot_name}'s future engagements. Ensure these encapsulations carry enough context to implicitly influence {bot_name}'s responses and actions, without being directly tied to verbal reasoning or explicit recall. Adhere to the bullet point format below: •[memory] [/INST] {botnameupper}: Certainly! The encapsulated memories derived from Aetherius's persona, as observed in the dialogues, are as follows: "})
             prompt_implicit = ''.join([message_dict['content'] for message_dict in implicit_memory])
             if memory_mode != 'Manual':
                 asyncio.create_task(Aetherius_Implicit_Memory(user_input, output_one, bot_name, username, prompt_implicit))
@@ -1633,13 +1734,30 @@ async def Aetherius_Implicit_Memory(user_input, output_one, bot_name, username, 
         embed_size = settings['embed_size']
         DB_Search_Output = settings.get('Output_DB_Search', 'False')
         memory_mode = settings.get('Memory_Mode', 'Auto')
+        Update_Bot_Personality_Description = settings.get('Update_Bot_Personality_Description', 'False')
+        Update_User_Personality_Description = settings.get('Update_User_Personality_Description', 'False')
         timestamp = time()
+        botnameupper = bot_name.upper()
+        usernameupper = username.upper()
         timestring = timestamp_to_datetime(timestamp)
         auto = list()
+        personality_list = list()
+        personality_update = list()
         inner_loop_response = await oobabooga_implicit_memory(prompt_implicit, username, bot_name)
         inner_loop_db = inner_loop_response
         paragraph = inner_loop_db
         vector = embeddings(paragraph)
+        base_path = "./Aetherius_API/Chatbot_Prompts"
+        base_prompts_path = os.path.join(base_path, "Base")
+        user_bot_path = os.path.join(base_path, username, bot_name)
+        if not os.path.exists(user_bot_path):
+            os.makedirs(user_bot_path)
+        prompts_json_path = os.path.join(user_bot_path, "prompts.json")
+        async with aiofiles.open(prompts_json_path, 'r') as file:
+            prompts = json.loads(await file.read())
+        main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
+        secondary_prompt = prompts["secondary_prompt"]
+        greeting_msg = prompts["greeting_prompt"].replace('<<NAME>>', bot_name)
         if memory_mode == 'Auto': 
             auto_count = 0
             auto.clear()
@@ -1668,6 +1786,7 @@ async def Aetherius_Implicit_Memory(user_input, output_one, bot_name, username, 
                         # Define the collection name
                         collection_name = f"Bot_{bot_name}_Implicit_Short_Term"
                         # Create the collection only if it doesn't exist
+                        print(f"\n{segment}")
                         try:
                             collection_info = client.get_collection(collection_name=collection_name)
                         except:
@@ -1691,8 +1810,13 @@ async def Aetherius_Implicit_Memory(user_input, output_one, bot_name, username, 
                         client.upsert(collection_name=collection_name,
                                              points=[PointStruct(id=unique_id, vector=vector1, payload=metadata)])  
                         payload.clear()
+                        
+                        # Add loop for removing redundant information in assosiation process.
+                         
                     else:
                         break
+                        
+
                 values_to_check2 = ["1", "2", "3", "4", "5", "6"]
                 if any(val in automemory for val in values_to_check2):
                     print("Memories not worthy of Upload")
@@ -1710,6 +1834,94 @@ async def Aetherius_Implicit_Memory(user_input, output_one, bot_name, username, 
             mem_upload_yescheck = input("Enter 'Y' or 'N': ")
             if mem_upload_yescheck.upper == 'Y':
                 await Upload_Implicit_Short_Term_Memories(inner_loop_response, username, bot_name)
+                
+        if Update_Bot_Personality_Description == 'True':        
+            file_path = f"./Chatbot_Personalities/{bot_name}/{username}/{bot_name}_personality_file.txt"
+
+            # Check if file exists, if not create and write default prompts.
+            if not os.path.exists(file_path):
+                os.makedirs(os.path.dirname(file_path), exist_ok=True)
+                default_prompts = f"{main_prompt}\n{secondary_prompt}\n{greeting_msg}"
+
+                async def write_prompts():
+                    try:
+                        async with aiofiles.open(file_path, 'w') as txt_file:
+                            await txt_file.write(default_prompts)
+                    except Exception as e:
+                        print(f"Failed to write to file: {e}")
+
+                # Ensure to call write_prompts in an async context
+                await write_prompts()
+
+            try:
+                async with aiofiles.open(file_path, mode='r') as file:
+                    personality_file = await file.read()
+            except FileNotFoundError:
+                personality_file = "File not found."
+            
+            personality_list.append({'role': 'system', 'content': f"You are a sub-module for the autonomous Ai Entity {bot_name}.  Your job is to decide if the generated implicit memories fit {bot_name}'s personality.  If the generated memories match {bot_name}'s personality, print: 'YES'.  If they do not match the personality or if it contains conflicting information, print: 'NO'.[/INST]"})
+            personality_list.append({'role': 'assistant', 'content': f"I will only print 'YES' or 'NO' in determination of if the given implicit memories match {bot_name}'s personality."})
+            personality_list.append({'role': 'user', 'content': f"[INST] Please return your personality file and your generated implicit memories. [/INST]"})
+            personality_list.append({'role': 'assistant', 'content': f"{botnameupper}'S PERSONALITY: {personality_file}"})
+            personality_list.append({'role': 'assistant', 'content': f"GENERATED IMPLICIT MEMORIES: {inner_loop_response}"})
+            personality_list.append({'role': 'user', 'content': f"Now, please provide your 'YES' or 'NO' answer."})
+            prompt = ''.join([message_dict['content'] for message_dict in personality_list])
+            personality_check = await oobabooga_personality_check(prompt, username, bot_name)
+            print(personality_check)
+                
+            if 'YES' in personality_check.upper():
+                #Code for writing to personality file.
+           #     personality_update.append({'role': 'system', 'content': f"You are a sub-module for the autonomous Ai Entity {bot_name}.  Your task is to reprint the personality list, ensuring that it maintains a high degree of similarity to the original. Integrate only the most prominent and pivotal new information derived from {bot_name}'s implicit memories, ensuring any updates are seamlessly woven into the existing framework. It is paramount to preserve the integrity of the initial personality list, therefore, avoid overwriting and prioritize the foundational information at all times.[/INST]"})
+            #    personality_update.append({'role': 'assistant', 'content': f"I will return the updated personality description, only updating it if there is new important information to add."})
+            #    personality_update.append({'role': 'user', 'content': f"[INST] Please return your personality file and the generated implicit memories. [/INST]"})
+            #    personality_update.append({'role': 'user', 'content': f"PERSONALITY LIST: {personality_file}"})
+            #    personality_update.append({'role': 'assistant', 'content': f"IMPLICIT MEMORIES: {inner_loop_response}"})
+            #    personality_update.append({'role': 'user', 'content': f"[INST] Please now return the updated Personality list.  You will be directly writing to the personality file, do not converse in anyway in your response, only print the personality list. [/INST] "})
+            #    personality_update.append({'role': 'assistant', 'content': f"PERSONALITY LIST: "})
+                
+                
+                personality_update.append({'role': 'system', 'content': f"You are tasked with the delicate updating of the personality list for the AI entity, {bot_name}. Your main objective is to assimilate any vital and outstanding information from {bot_name}'s implicit memories into the personality list while maintaining utmost fidelity to the original content. Minimize modifications and intertwine any new information subtly and congruently within the established framework. The original personality data must remain predominantly unaltered.[/INST]"})
+
+                personality_update.append({'role': 'assistant', 'content': f"I will attentively update the personality description, ensuring any amendments are warranted and essential."})
+
+                personality_update.append({'role': 'user', 'content': f"[INST] Please provide your current personality file along with the generated implicit memories. [/INST]"})
+
+                personality_update.append({'role': 'user', 'content': f"PERSONALITY LIST: {personality_file}"})
+
+                personality_update.append({'role': 'assistant', 'content': f"IMPLICIT MEMORIES: {inner_loop_response}"})
+
+                personality_update.append({'role': 'user', 'content': f"[INST] Kindly return the refined personality list in a single paragraph. Note that you'll be writing directly to the personality file; refrain from conversational responses and only output the updated list. [/INST]"})
+
+                personality_update.append({'role': 'assistant', 'content': f"PERSONALITY LIST: "})
+
+                
+                prompt = ''.join([message_dict['content'] for message_dict in personality_update])
+                personality_gen = await oobabooga_personality_gen(prompt, username, bot_name)
+                if ':' in personality_gen:
+                    personality_gen = personality_gen.split(':', 1)[1].strip()
+                
+                print(f"PRINT OF PERSONALITY FILE: {personality_gen}")
+                # Code for writing to personality file.
+                new_personality_content = personality_gen
+                
+                async with aiofiles.open(file_path, 'w') as file:
+                    await file.write(new_personality_content)
+
+                
+            #    try:
+                    # Check if new_personality_content is longer than the content of personality_file
+            #        if len(new_personality_content) > len(personality_file):
+            #            async with aiofiles.open(file_path, 'w') as file:
+            #                await file.write(new_personality_content)
+            #        else:
+            #            print("New personality content is not longer than the existing file, no update performed.")
+            #    except IOError:
+            #        print("File write operation failed.")  
+                
+                
+ 
+                
+                
     except Exception as e:
         print(e)
                 
@@ -1762,6 +1974,10 @@ async def Aetherius_Explicit_Memory(user_input, vector_input, vector_monologue, 
         embed_size = settings['embed_size']
         DB_Search_Output = settings.get('Output_DB_Search', 'False')
         memory_mode = settings.get('Memory_Mode', 'Auto')
+        Update_Bot_Personality_Description = settings.get('Update_Bot_Personality_Description', 'False')
+        Update_User_Personality_Description = settings.get('Update_User_Personality_Description', 'False')
+        usernameupper = username.upper()
+        botnameupper = bot_name.upper()
         base_path = "./Aetherius_API/Chatbot_Prompts"
         base_prompts_path = os.path.join(base_path, "Base")
         user_bot_path = os.path.join(base_path, username, bot_name)
@@ -1788,6 +2004,8 @@ async def Aetherius_Explicit_Memory(user_input, vector_input, vector_monologue, 
         greeting_msg = prompts["greeting_prompt"].replace('<<NAME>>', bot_name)
         timestamp = time()
         timestring = timestamp_to_datetime(timestamp)
+        personality_list = list()
+        personality_update = list()
         auto = list()
         db_upload = await oobabooga_explicit_memory(prompt_explicit, username, bot_name)
         #    print(db_upload)
@@ -1819,7 +2037,7 @@ async def Aetherius_Explicit_Memory(user_input, vector_input, vector_monologue, 
               #          print(segment)
                         payload = list()       
                         # Define the collection name
-                        collection_name = f"Bot_{bot_name}_{username}_Explicit_Short_Term"
+                        collection_name = f"Bot_{bot_name}_Explicit_Short_Term"
                         # Create the collection only if it doesn't exist
                         try:
                             collection_info = client.get_collection(collection_name=collection_name)
@@ -1872,6 +2090,108 @@ async def Aetherius_Explicit_Memory(user_input, vector_input, vector_monologue, 
 
             if db_upload_yescheck.upper == 'Y':
                 task = asyncio.create_task(Aetherius_Memory_Loop(user_input, username, bot_name, vector_input, vector_monologue, output_one, response_two))
+                
+        if Update_User_Personality_Description == 'True':
+            file_path = f"./Chatbot_Personalities/{bot_name}/{username}/{username}_personality_file.txt"
+
+            # Check if file exists, if not create and write default prompts.
+            if not os.path.exists(file_path):
+                os.makedirs(os.path.dirname(file_path), exist_ok=True)
+                default_prompts = f"The user {username} does not yet have a personality file."
+
+                async def write_prompts():
+                    try:
+                        async with aiofiles.open(file_path, 'w') as txt_file:
+                            await txt_file.write(default_prompts)
+                    except Exception as e:
+                        print(f"Failed to write to file: {e}")
+
+                # Ensure to call write_prompts in an async context
+                await write_prompts()
+
+            try:
+                async with aiofiles.open(file_path, mode='r') as file:
+                    personality_file = await file.read()
+            except FileNotFoundError:
+                personality_file = "File not found."
+            
+            personality_list.clear()
+            personality_update.clear()
+            
+            
+            # Write module for extracting insights about the user.
+            
+            
+            personality_list.append({'role': 'system', 'content': f"You are a sub-module for the autonomous Ai Entity {bot_name}.  Your job is to extract any salient insights about {username} from their request, the given internal monologue, and {bot_name}'s final response. [/INST]"})
+            personality_list.append({'role': 'assistant', 'content': f"I will extract any salient insights about the user from the given information."})
+            personality_list.append({'role': 'user', 'content': f"[INST] Please return the user's inquirythe given internal monologue, and {bot_name}'s final response. [/INST]"})
+            personality_list.append({'role': 'assistant', 'content': f"{usernameupper}'S INQUIRY: {user_input}"})
+            personality_list.append({'role': 'assistant', 'content': f"{botnameupper}'S INNER MONOLOGUE: {output_one}"})
+            personality_list.append({'role': 'assistant', 'content': f"{botnameupper}'S FINAL RESPONSE: {response_two}"})
+            personality_list.append({'role': 'user', 'content': f"[INST] Now, please provide the extracted salient points about {username}. [/INST]"})
+            prompt = ''.join([message_dict['content'] for message_dict in personality_list])
+            personality_extraction = await oobabooga_user_personality_extraction(prompt, username, bot_name)
+            print(personality_extraction)
+            
+            
+            
+            
+            # Check if the generated insights match the known personality of the user
+        #    personality_list.append({'role': 'system', 'content': f"You are a sub-module for the autonomous Ai Entity {bot_name}.  Your job is to decide if the generated implicit memories fit {bot_name}'s personality.  If the generated memories match {bot_name}'s personality, print: 'YES'.  If they do not match the personality or if it contains conflicting information, print: 'NO'.[/INST]"})
+        #    personality_list.append({'role': 'assistant', 'content': f"I will only print 'YES' or 'NO' in determination of if the given implicit memories match {bot_name}'s personality."})
+        #    personality_list.append({'role': 'user', 'content': f"[INST] Please return your personality file and the generated implicit memories. [/INST]"})
+        #    personality_list.append({'role': 'assistant', 'content': f"{botnameupper}'S PERSONALITY: {personality_file}"})
+        #    personality_list.append({'role': 'assistant', 'content': f"GENERATED IMPLICIT MEMORIES: {inner_loop_response}"})
+        #    personality_list.append({'role': 'user', 'content': f"Now, please provide your 'YES' or 'NO' answer."})
+        #    prompt = ''.join([message_dict['content'] for message_dict in personality_list])
+        #    personality_check = await oobabooga_user_personality_check(prompt, username, bot_name)
+        #    print(personality_check)
+            personality_check = 'YES'
+                
+                
+            # Update User Profile.    
+            if 'YES' in personality_check.upper():
+                #Code for writing to personality file.
+           #     personality_update.append({'role': 'system', 'content': f"You are a sub-module for the autonomous Ai Entity {bot_name}.  Your task is to reprint the personality list, ensuring that it maintains a high degree of similarity to the original. Integrate only the most prominent and pivotal new information derived from {bot_name}'s implicit memories, ensuring any updates are seamlessly woven into the existing framework. It is paramount to preserve the integrity of the initial personality list, therefore, avoid overwriting and prioritize the foundational information at all times.[/INST]"})
+            #    personality_update.append({'role': 'assistant', 'content': f"I will return the updated personality description, only updating it if there is new important information to add."})
+            #    personality_update.append({'role': 'user', 'content': f"[INST] Please return your personality file and the generated implicit memories. [/INST]"})
+            #    personality_update.append({'role': 'user', 'content': f"PERSONALITY LIST: {personality_file}"})
+            #    personality_update.append({'role': 'assistant', 'content': f"IMPLICIT MEMORIES: {inner_loop_response}"})
+            #    personality_update.append({'role': 'user', 'content': f"[INST] Please now return the updated Personality list.  You will be directly writing to the personality file, do not converse in anyway in your response, only print the personality list. [/INST] "})
+            #    personality_update.append({'role': 'assistant', 'content': f"PERSONALITY LIST: "})
+                
+                
+                personality_update.append({'role': 'system', 'content': f"You are tasked with the delicate updating of the personality list for the user, {username}. Your main objective is to assimilate any vital and outstanding information from the given explicit memories into the personality list while maintaining utmost fidelity to the original content. Minimize modifications and intertwine any new information subtly and congruently within the established framework. The original personality data must remain predominantly unaltered.[/INST]"})
+                personality_update.append({'role': 'assistant', 'content': f"I will attentively update the user's personality description, ensuring any amendments are warranted and essential."})
+                personality_update.append({'role': 'user', 'content': f"[INST] Please provide your current personality file along with the generated explicit memories. [/INST]"})
+                personality_update.append({'role': 'user', 'content': f"{usernameupper}'S PERSONALITY LIST: {personality_file}"})
+                personality_update.append({'role': 'assistant', 'content': f"EXPLICIT MEMORIES: {personality_extraction}"})
+                personality_update.append({'role': 'user', 'content': f"[INST] Kindly return the refined user personality description in a single paragraph. Note that you'll be writing directly to the personality file; refrain from conversational responses and only output the updated list. [/INST]"})
+                personality_update.append({'role': 'assistant', 'content': f"{usernameupper}'S PERSONALITY DESCRIPTION: "})
+
+                
+                prompt = ''.join([message_dict['content'] for message_dict in personality_update])
+                personality_gen = await oobabooga_user_personality_gen(prompt, username, bot_name)
+                if ':' in personality_gen:
+                    personality_gen = personality_gen.split(':', 1)[1].strip()
+                
+                print(f"PRINT OF USER PERSONALITY FILE: {personality_gen}")
+                # Code for writing to personality file.
+                new_personality_content = personality_gen
+                
+                async with aiofiles.open(file_path, 'w') as file:
+                    await file.write(new_personality_content)
+                
+            #    try:
+                    # Check if new_personality_content is longer than the content of personality_file
+            #        if len(new_personality_content) > len(personality_file):
+            #            async with aiofiles.open(file_path, 'w') as file:
+            #                await file.write(new_personality_content)
+            #        else:
+            #            print("New personality content is not longer than the existing file, no update performed.")
+            #    except IOError:
+            #        print("File write operation failed.")   
+
     except Exception as e:
         print(e)
         
@@ -1922,7 +2242,7 @@ async def Upload_Explicit_Short_Term_Memories(query, username, bot_name):
     payload = list()
     payload = list()    
                 # Define the collection name
-    collection_name = f"Bot_{bot_name}_{username}_Explicit_Short_Term"
+    collection_name = f"Bot_{bot_name}_Explicit_Short_Term"
                 # Create the collection only if it doesn't exist
     try:
         collection_info = client.get_collection(collection_name=collection_name)
@@ -2272,7 +2592,7 @@ async def Aetherius_Memory_Loop(user_input, username, bot_name, vector_input, ve
             ) 
             
         # # Short Term Memory Consolidation based on amount of vectors in namespace    
-        collection_name = f"Bot_{bot_name}_{username}_Explicit_Short_Term"
+        collection_name = f"Bot_{bot_name}_Explicit_Short_Term"
         try:
             collection_info = client.get_collection(collection_name=collection_name)
         except:
@@ -2285,7 +2605,7 @@ async def Aetherius_Memory_Loop(user_input, username, bot_name, vector_input, ve
                         
                 try:
                     hits = client.search(
-                        collection_name=f"Bot_{bot_name}_{username}_Explicit_Short_Term",
+                        collection_name=f"Bot_{bot_name}_Explicit_Short_Term",
                         query_vector=vector_input,
                         query_filter=Filter(
                             must=[
@@ -2359,7 +2679,7 @@ async def Aetherius_Memory_Loop(user_input, username, bot_name, vector_input, ve
                                              points=[PointStruct(id=unique_id, vector=vector1, payload=metadata)])   
                         payload.clear()
                 client.delete(
-                    collection_name=f"Bot_{bot_name}_{username}_Explicit_Short_Term",
+                    collection_name=f"Bot_{bot_name}_Explicit_Short_Term",
                     points_selector=models.FilterSelector(
                         filter=models.Filter(
                             must=[

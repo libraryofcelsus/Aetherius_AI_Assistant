@@ -8,6 +8,8 @@ For a quick demo deployment or if you do not have a GPU see: [Public Oobabooga A
 ------
 **Recent Changes**
 
+• 10/8 Added Experimental Bot and User profile descriptions.  This can be disabled in the Api settings json.
+
 • 10/4 Continued to work on Api.  Added more advanced webscrape for external resources sub-agent.
 
 • 10/2 Continued to work on Discord Bot. !WebScrape added.
@@ -62,6 +64,8 @@ Aetherius is an ongoing research project, expect there to be bugs and for things
 ------
 
 ### Aetherius - Your Personal Digital Assistant
+
+**Documentation not up to date :(**
 
 At the heart of Aetherius lies a custom Long-Term Memory (LLM) Retrieval Framework, fueled by the Llama 2 and Oobabooga API (Free Tier Colab Available) or OpenAi's ChatGPT.  Qdrant is used for a robust, efficient database, ensuring Aetherius evolves with you.
 

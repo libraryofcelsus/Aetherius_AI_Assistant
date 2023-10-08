@@ -928,6 +928,266 @@ async def oobabooga_memyesno(prompt, username, bot_name):
         decoded_string = html.unescape(result['visible'][-1][1])
         return decoded_string
         
+        
+async def oobabooga_personality_check(prompt, username, bot_name):
+    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
+    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
+
+    # Read prompts from the JSON file asynchronously
+    async with aiofiles.open(prompts_json_path, 'r') as file:
+        prompts = json.loads(await file.read())
+    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
+    history = {'internal': [], 'visible': []}
+    request = {
+        'user_input': prompt,
+        'max_new_tokens': 10,
+        'history': history,
+        'mode': 'instruct',  # Valid options: 'chat', 'chat-instruct', 'instruct'
+        'instruction_template': 'Llama-v2',  # Will get autodetected if unset
+        'context_instruct': f"[INST] <<SYS>>\nYour job is to decide if the generated implicit memories fit {bot_name}'s personality.  If the generated memories match {bot_name}'s personality, print: 'YES'.  If they do not match the personality or if it contains conflicting information, print: 'NO'.\n<</SYS>>",  # Optional
+        'your_name': f'{username}',
+
+        'regenerate': False,
+        '_continue': False,
+        'stop_at_newline': False,
+        'chat_generation_attempts': 1,
+        # Generation params. If 'preset' is set to different than 'None', the values
+        # in presets/preset-name.yaml are used instead of the individual numbers.
+        'preset': 'None',  
+        'do_sample': True,
+        'temperature': 0.4,
+        'top_p': 0.1,
+        'typical_p': 1,
+        'epsilon_cutoff': 0,  # In units of 1e-4
+        'eta_cutoff': 0,  # In units of 1e-4
+        'tfs': 1,
+        'top_a': 0,
+        'repetition_penalty': 1.18,
+        'top_k': 20,
+        'min_length': 0,
+        'no_repeat_ngram_size': 0,
+        'num_beams': 1,
+        'penalty_alpha': 0,
+        'length_penalty': 1,
+        'early_stopping': False,
+        'mirostat_mode': 0,
+        'mirostat_tau': 5,
+        'mirostat_eta': 0.1,
+
+        'seed': -1,
+        'add_bos_token': True,
+        'truncation_length': 4096,
+        'ban_eos_token': False,
+        'skip_special_tokens': True,
+        'stopping_strings': ['[/']
+    }
+
+    async with aiohttp.ClientSession() as session:
+        async with session.post(f"{open_file_second('HOST_Oobabooga')}/v1/chat", json=request) as response:
+            if response.status == 200:
+                json_response = await response.json()
+                result = json_response['results'][0]['history']
+    #    print(json.dumps(result, indent=4))
+        
+    #    print(result['visible'][-1][1])
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
+        
+        
+async def oobabooga_personality_gen(prompt, username, bot_name):
+    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
+    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
+
+    # Read prompts from the JSON file asynchronously
+    async with aiofiles.open(prompts_json_path, 'r') as file:
+        prompts = json.loads(await file.read())
+    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
+    history = {'internal': [], 'visible': []}
+    request = {
+        'user_input': prompt,
+        'max_new_tokens': 500,
+        'history': history,
+        'mode': 'instruct',  # Valid options: 'chat', 'chat-instruct', 'instruct'
+        'instruction_template': 'Llama-v2',  # Will get autodetected if unset
+        'context_instruct': f"[INST] <<SYS>>\nYour task is to cautiously update the personality description for {bot_name}, ensuring it retains strong alignment with the original version. Within a paragraph, weave in only the most critical and relevant new information from {bot_name}'s implicit memories, ensuring that any alterations are subtly and coherently integrated, preserving the essence and integrity of the foundational personality framework.\n<</SYS>>",  # Optional
+        'your_name': f'{username}',
+
+        'regenerate': False,
+        '_continue': False,
+        'stop_at_newline': False,
+        'chat_generation_attempts': 1,
+        # Generation params. If 'preset' is set to different than 'None', the values
+        # in presets/preset-name.yaml are used instead of the individual numbers.
+        'preset': 'None',  
+        'do_sample': True,
+        'temperature': 0.5,
+        'top_p': 0.3,
+        'typical_p': 1,
+        'epsilon_cutoff': 0,  # In units of 1e-4
+        'eta_cutoff': 0,  # In units of 1e-4
+        'tfs': 1,
+        'top_a': 0,
+        'repetition_penalty': 1.10,
+        'top_k': 20,
+        'min_length': 0,
+        'no_repeat_ngram_size': 0,
+        'num_beams': 1,
+        'penalty_alpha': 0,
+        'length_penalty': 1,
+        'early_stopping': False,
+        'mirostat_mode': 0,
+        'mirostat_tau': 5,
+        'mirostat_eta': 0.1,
+
+        'seed': -1,
+        'add_bos_token': True,
+        'truncation_length': 4096,
+        'ban_eos_token': False,
+        'skip_special_tokens': True,
+        'stopping_strings': ['[/']
+    }
+
+    async with aiohttp.ClientSession() as session:
+        async with session.post(f"{open_file_second('HOST_Oobabooga')}/v1/chat", json=request) as response:
+            if response.status == 200:
+                json_response = await response.json()
+                result = json_response['results'][0]['history']
+    #    print(json.dumps(result, indent=4))
+        
+    #    print(result['visible'][-1][1])
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
+        
+        
+async def oobabooga_user_personality_extraction(prompt, username, bot_name):
+    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
+    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
+
+    # Read prompts from the JSON file asynchronously
+    async with aiofiles.open(prompts_json_path, 'r') as file:
+        prompts = json.loads(await file.read())
+    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
+    history = {'internal': [], 'visible': []}
+    request = {
+        'user_input': prompt,
+        'max_new_tokens': 500,
+        'history': history,
+        'mode': 'instruct',  # Valid options: 'chat', 'chat-instruct', 'instruct'
+        'instruction_template': 'Llama-v2',  # Will get autodetected if unset
+        'context_instruct': f"[INST] <<SYS>>\nYour job is to extract any salient insights about {username} from their request, the given internal monologue, and {bot_name}'s final response.\n<</SYS>>",  # Optional
+        'your_name': f'{username}',
+
+        'regenerate': False,
+        '_continue': False,
+        'stop_at_newline': False,
+        'chat_generation_attempts': 1,
+        # Generation params. If 'preset' is set to different than 'None', the values
+        # in presets/preset-name.yaml are used instead of the individual numbers.
+        'preset': 'None',  
+        'do_sample': True,
+        'temperature': 0.5,
+        'top_p': 0.3,
+        'typical_p': 1,
+        'epsilon_cutoff': 0,  # In units of 1e-4
+        'eta_cutoff': 0,  # In units of 1e-4
+        'tfs': 1,
+        'top_a': 0,
+        'repetition_penalty': 1.10,
+        'top_k': 20,
+        'min_length': 0,
+        'no_repeat_ngram_size': 0,
+        'num_beams': 1,
+        'penalty_alpha': 0,
+        'length_penalty': 1,
+        'early_stopping': False,
+        'mirostat_mode': 0,
+        'mirostat_tau': 5,
+        'mirostat_eta': 0.1,
+
+        'seed': -1,
+        'add_bos_token': True,
+        'truncation_length': 4096,
+        'ban_eos_token': False,
+        'skip_special_tokens': True,
+        'stopping_strings': ['[/']
+    }
+
+    async with aiohttp.ClientSession() as session:
+        async with session.post(f"{open_file_second('HOST_Oobabooga')}/v1/chat", json=request) as response:
+            if response.status == 200:
+                json_response = await response.json()
+                result = json_response['results'][0]['history']
+    #    print(json.dumps(result, indent=4))
+        
+    #    print(result['visible'][-1][1])
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
+        
+        
+async def oobabooga_user_personality_gen(prompt, username, bot_name):
+    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
+    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
+
+    # Read prompts from the JSON file asynchronously
+    async with aiofiles.open(prompts_json_path, 'r') as file:
+        prompts = json.loads(await file.read())
+    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
+    history = {'internal': [], 'visible': []}
+    request = {
+        'user_input': prompt,
+        'max_new_tokens': 500,
+        'history': history,
+        'mode': 'instruct',  # Valid options: 'chat', 'chat-instruct', 'instruct'
+        'instruction_template': 'Llama-v2',  # Will get autodetected if unset
+        'context_instruct': f"[INST] <<SYS>>\nYour task is to cautiously update the personality description for the user, {username}, ensuring it retains strong alignment with the original version. Within a paragraph, weave in only the most critical and relevant new information from the generated memories, ensuring that any alterations are subtly and coherently integrated, preserving the essence and integrity of the foundational personality framework.\n<</SYS>>",  # Optional
+        'your_name': f'{username}',
+
+        'regenerate': False,
+        '_continue': False,
+        'stop_at_newline': False,
+        'chat_generation_attempts': 1,
+        # Generation params. If 'preset' is set to different than 'None', the values
+        # in presets/preset-name.yaml are used instead of the individual numbers.
+        'preset': 'None',  
+        'do_sample': True,
+        'temperature': 0.5,
+        'top_p': 0.3,
+        'typical_p': 1,
+        'epsilon_cutoff': 0,  # In units of 1e-4
+        'eta_cutoff': 0,  # In units of 1e-4
+        'tfs': 1,
+        'top_a': 0,
+        'repetition_penalty': 1.10,
+        'top_k': 20,
+        'min_length': 0,
+        'no_repeat_ngram_size': 0,
+        'num_beams': 1,
+        'penalty_alpha': 0,
+        'length_penalty': 1,
+        'early_stopping': False,
+        'mirostat_mode': 0,
+        'mirostat_tau': 5,
+        'mirostat_eta': 0.1,
+
+        'seed': -1,
+        'add_bos_token': True,
+        'truncation_length': 4096,
+        'ban_eos_token': False,
+        'skip_special_tokens': True,
+        'stopping_strings': ['[/']
+    }
+
+    async with aiohttp.ClientSession() as session:
+        async with session.post(f"{open_file_second('HOST_Oobabooga')}/v1/chat", json=request) as response:
+            if response.status == 200:
+                json_response = await response.json()
+                result = json_response['results'][0]['history']
+    #    print(json.dumps(result, indent=4))
+        
+    #    print(result['visible'][-1][1])
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
+        
        
 async def oobabooga_selector(prompt, username, bot_name):
     user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)

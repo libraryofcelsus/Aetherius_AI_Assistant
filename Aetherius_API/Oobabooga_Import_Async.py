@@ -260,37 +260,82 @@ async def Aetherius_Chatbot(user_input, username, bot_name):
         inner_monologue.append({'role': 'system', 'content': f"{main_prompt}"})
         
         if Use_Bot_Personality_Description == 'True':
-            file_path = f"./Chatbot_Personalities/{bot_name}/{username}/{bot_name}_personality_file.txt"
             try:
-                async with aiofiles.open(file_path, mode='r', encoding='utf-8') as file:
-                    file_content = await file.readlines()
-            except FileNotFoundError:
-                print(f"No such file or directory: '{file_path}'")
-                return None
-            except IOError:
-                print("An I/O error occurred while handling the file")
-                return None
-            else:
-                bot_personality = [line.strip() for line in file_content]
-            inner_monologue.append({'role': 'system', 'content': f"{botnameupper}'S PERSONALITY DESCRIPTION: {bot_personality}\n\n"})
+                file_path = f"./Chatbot_Personalities/{bot_name}/{username}/{bot_name}_personality_file.txt"
+                if not os.path.exists(file_path):
+                    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+                    default_prompts = f"{main_prompt}\n{secondary_prompt}\n{greeting_msg}"
+                    async def write_prompts():
+                        try:
+                            async with aiofiles.open(file_path, 'w') as txt_file:
+                                await txt_file.write(default_prompts)
+                        except Exception as e:
+                            print(f"Failed to write to file: {e}")
+
+                    # Ensure to call write_prompts in an async context
+                    await write_prompts()
+
+                try:
+                    async with aiofiles.open(file_path, mode='r') as file:
+                        personality_file = await file.read()
+                except FileNotFoundError:
+                    personality_file = "File not found."
+
+                try:
+                    async with aiofiles.open(file_path, mode='r', encoding='utf-8') as file:
+                        file_content = await file.readlines()
+                except FileNotFoundError:
+                    print(f"No such file or directory: '{file_path}'")
+                    return None
+                except IOError:
+                    print("An I/O error occurred while handling the file")
+                    return None
+                else:
+                    bot_personality = [line.strip() for line in file_content]
+                inner_monologue.append({'role': 'system', 'content': f"{botnameupper}'S PERSONALITY DESCRIPTION: {bot_personality}\n\n"})
+            except:
+                pass
             
         inner_monologue.append({'role': 'system', 'content': f"Now return your most relevant memories: [/INST]"})
         inner_monologue.append({'role': 'system', 'content': f"{botnameupper}'S LONG TERM CHATBOT MEMORIES: "})
         intuition.append({'role': 'system', 'content': f"{main_prompt}"})
         if Use_User_Personality_Description == 'True':
-            file_path = f"./Chatbot_Personalities/{bot_name}/{username}/{username}_personality_file.txt"
             try:
-                async with aiofiles.open(file_path, mode='r', encoding='utf-8') as file:
-                    file_content = await file.readlines()
-            except FileNotFoundError:
-                print(f"No such file or directory: '{file_path}'")
-                return None
-            except IOError:
-                print("An I/O error occurred while handling the file")
-                return None
-            else:
-                user_personality = [line.strip() for line in file_content]
-            intuition.append({'role': 'system', 'content': f"{usernameupper}'S PERSONALITY DESCRIPTION: {user_personality}\n\n"})
+                file_path = f"./Chatbot_Personalities/{bot_name}/{username}/{username}_personality_file.txt"
+                # Check if file exists, if not create and write default prompts.
+                if not os.path.exists(file_path):
+                    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+                    default_prompts = f"The user {username} does not yet have a personality file."
+
+                    async def write_prompts():
+                        try:
+                            async with aiofiles.open(file_path, 'w') as txt_file:
+                                await txt_file.write(default_prompts)
+                        except Exception as e:
+                            print(f"Failed to write to file: {e}")
+
+                    # Ensure to call write_prompts in an async context
+                    await write_prompts()
+
+                try:
+                    async with aiofiles.open(file_path, mode='r') as file:
+                        personality_file = await file.read()
+                except FileNotFoundError:
+                    personality_file = "File not found."
+                try:
+                    async with aiofiles.open(file_path, mode='r', encoding='utf-8') as file:
+                        file_content = await file.readlines()
+                except FileNotFoundError:
+                    print(f"No such file or directory: '{file_path}'")
+                    return None
+                except IOError:
+                    print("An I/O error occurred while handling the file")
+                    return None
+                else:
+                    user_personality = [line.strip() for line in file_content]
+                intuition.append({'role': 'system', 'content': f"{usernameupper}'S PERSONALITY DESCRIPTION: {user_personality}\n\n"})
+            except:
+                pass
         intuition.append({'role': 'system', 'content': f"Now return your most relevant memories: [/INST]"})
         intuition.append({'role': 'system', 'content': f"{botnameupper}'S LONG TERM CHATBOT MEMORIES: "})
         for line in lines:

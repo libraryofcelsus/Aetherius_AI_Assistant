@@ -1935,9 +1935,9 @@ async def Aetherius_Implicit_Memory(user_input, output_one, bot_name, username, 
 
                 personality_update.append({'role': 'assistant', 'content': f"IMPLICIT MEMORIES: {inner_loop_response}"})
 
-                personality_update.append({'role': 'user', 'content': f"[INST] Kindly return the refined personality list in a single paragraph. Note that you'll be writing directly to the personality file; refrain from conversational responses and only output the updated list. [/INST]"})
+                personality_update.append({'role': 'user', 'content': f"[INST] Kindly return the refined personality list in a single paragraph. Note that you'll be writing directly to the personality file; refrain from conversational responses and only output the updated list. Please write in the third person. [/INST]"})
 
-                personality_update.append({'role': 'assistant', 'content': f"PERSONALITY LIST: "})
+                personality_update.append({'role': 'assistant', 'content': f"{botnameupper}'S PERSONALITY LIST: "})
 
                 
                 prompt = ''.join([message_dict['content'] for message_dict in personality_update])
@@ -2206,15 +2206,14 @@ async def Aetherius_Explicit_Memory(user_input, vector_input, vector_monologue, 
             #    personality_update.append({'role': 'assistant', 'content': f"PERSONALITY LIST: "})
                 
                 
-                personality_update.append({'role': 'system', 'content': f"You are tasked with the delicate updating of the personality list for the user, {username}. Your main objective is to assimilate any vital and outstanding information from the given explicit memories into the personality list while maintaining utmost fidelity to the original content. Minimize modifications and intertwine any new information subtly and congruently within the established framework. The original personality data must remain predominantly unaltered.[/INST]"})
+                personality_update.append({'role': 'system', 'content': f"You are tasked with the delicate updating of the personality description for the user, {username}. Your main objective is to assimilate any vital and outstanding information from the given explicit memories into the personality list while maintaining utmost fidelity to the original content. Minimize modifications and intertwine any new information subtly and congruently within the established framework. The original personality data must remain predominantly unaltered.[/INST]"})
                 personality_update.append({'role': 'assistant', 'content': f"I will attentively update the user's personality description, ensuring any amendments are warranted and essential."})
                 personality_update.append({'role': 'user', 'content': f"[INST] Please provide your current personality file along with the generated explicit memories. [/INST]"})
                 personality_update.append({'role': 'user', 'content': f"{usernameupper}'S PERSONALITY LIST: {personality_file}"})
                 personality_update.append({'role': 'assistant', 'content': f"EXPLICIT MEMORIES: {personality_extraction}"})
-                personality_update.append({'role': 'user', 'content': f"[INST] Kindly return the refined user personality description in a single paragraph. Note that you'll be writing directly to the personality file; refrain from conversational responses and only output the updated list. [/INST]"})
+                personality_update.append({'role': 'user', 'content': f"[INST] Kindly return the refined user personality description in a single paragraph. Note that you'll be writing directly to the personality file; refrain from conversational responses and only output the updated list. Please write in the third person. [/INST]"})
                 personality_update.append({'role': 'assistant', 'content': f"{usernameupper}'S PERSONALITY DESCRIPTION: "})
 
-                
                 prompt = ''.join([message_dict['content'] for message_dict in personality_update])
                 personality_gen = await oobabooga_user_personality_gen(prompt, username, bot_name)
                 if ':' in personality_gen:

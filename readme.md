@@ -8,6 +8,8 @@ For a quick demo deployment or if you do not have a GPU see: [Public Oobabooga A
 ------
 **Recent Changes**
 
+• 10/14 Updated Ui External Resource Sub-Agent and fixed no collection error printing.
+
 • 10/9 Worked on profile description prompts.
 
 • 10/8 Added Experimental Bot and User profile descriptions.  This can be disabled in the Api settings json.

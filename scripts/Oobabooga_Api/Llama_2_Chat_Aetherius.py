@@ -1212,7 +1212,7 @@ def upload_explicit_short_term_memories(query):
     payload = list()
     payload = list()    
                 # Define the collection name
-    collection_name = f"Bot_{bot_name}_{username}_Explicit_Short_Term"
+    collection_name = f"Bot_{bot_name}_Explicit_Short_Term"
                 # Create the collection only if it doesn't exist
     try:
         collection_info = client.get_collection(collection_name=collection_name)
@@ -1322,7 +1322,7 @@ def ask_upload_explicit_memories(memories):
                 payload = list()
             #    a = input(f'\n\nUSER: ')        
                 # Define the collection name
-                collection_name = f"Bot_{bot_name}_{username}_Explicit_Short_Term"
+                collection_name = f"Bot_{bot_name}_Explicit_Short_Term"
                 # Create the collection only if it doesn't exist
                 try:
                     collection_info = client.get_collection(collection_name=collection_name)
@@ -1426,7 +1426,7 @@ def upload_explicit_short_term_memories(query):
     payload = list()
     payload = list()    
                 # Define the collection name
-    collection_name = f"Bot_{bot_name}_{username}_Explicit_Short_Term"
+    collection_name = f"Bot_{bot_name}_Explicit_Short_Term"
                 # Create the collection only if it doesn't exist
     try:
         collection_info = client.get_collection(collection_name=collection_name)
@@ -1640,7 +1640,7 @@ def search_explicit_db(line_vec):
         
             try:
                 hits = client.search(
-                    collection_name=f"Bot_{bot_name}_{username}_Explicit_Short_Term",
+                    collection_name=f"Bot_{bot_name}_Explicit_Short_Term",
                     query_vector=line_vec,
                     query_filter=Filter(
                         must=[
@@ -2554,7 +2554,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     pass
                 try:
                     client.delete(
-                        collection_name=f"Bot_{bot_name}_{username}_Explicit_Short_Term",
+                        collection_name=f"Bot_{bot_name}_Explicit_Short_Term",
                         points_selector=models.FilterSelector(
                             filter=models.Filter(
                                 must=[
@@ -4071,7 +4071,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     print(f"An unexpected error occurred: {str(e)}")
             try:
                 hits = client.search(
-                    collection_name=f"Bot_{bot_name}_{username}_Explicit_Short_Term",
+                    collection_name=f"Bot_{bot_name}_Explicit_Short_Term",
                     query_vector=vector_input1,
                     query_filter=Filter(
                         must=[
@@ -4277,7 +4277,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                     print(f"An unexpected error occurred: {str(e)}")
             try:
                 hits = client.search(
-                    collection_name=f"Bot_{bot_name}_{username}_Explicit_Short_Term",
+                    collection_name=f"Bot_{bot_name}_Explicit_Short_Term",
                     query_vector=vector_monologue,
                     query_filter=Filter(
                         must=[
@@ -4791,7 +4791,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                             print(segment)
                             payload = list()       
                             # Define the collection name
-                            collection_name = f"Bot_{bot_name}_{username}_Explicit_Short_Term"
+                            collection_name = f"Bot_{bot_name}_Explicit_Short_Term"
                             # Create the collection only if it doesn't exist
                             try:
                                 collection_info = client.get_collection(collection_name=collection_name)
@@ -5098,8 +5098,11 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 ) 
                 
             # # Short Term Memory Consolidation based on amount of vectors in namespace    
-            collection_name = f"Bot_{bot_name}_{username}_Explicit_Short_Term"
-            collection_info = client.get_collection(collection_name=collection_name)
+            collection_name = f"Bot_{bot_name}_Explicit_Short_Term"
+            try:
+                collection_info = client.get_collection(collection_name=collection_name)
+            except:
+                collection_info.vectors_count = 0
             if collection_info.vectors_count > 23:
         #    if collection_info.vectors_count > 5:
                 consolidation.clear()
@@ -5107,7 +5110,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                         
                 try:
                     hits = client.search(
-                        collection_name=f"Bot_{bot_name}_{username}_Explicit_Short_Term",
+                        collection_name=f"Bot_{bot_name}_Explicit_Short_Term",
                         query_vector=vector_input,
                         query_filter=Filter(
                             must=[
@@ -5178,7 +5181,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                                              points=[PointStruct(id=unique_id, vector=vector1, payload=metadata)])   
                         payload.clear()
                 client.delete(
-                    collection_name=f"Bot_{bot_name}_{username}_Explicit_Short_Term",
+                    collection_name=f"Bot_{bot_name}_Explicit_Short_Term",
                     points_selector=models.FilterSelector(
                         filter=models.Filter(
                             must=[
@@ -5887,8 +5890,8 @@ class ChatBotApplication(customtkinter.CTkFrame):
         
         
     def Agent_Tasklist_Intuition(self, a, vector_input, output_one, int_conversation, tasklist_output):
-        my_api_key = open_file('api_keys/key_google.txt')
-        my_cse_id = open_file('api_keys/key_google_cse.txt')
+        my_api_key = open_file('./api_keys/key_google.txt')
+        my_cse_id = open_file('./api_keys/key_google_cse.txt')
         # # Number of Messages before conversation is summarized, higher number, higher api cost. Change to 3 when using GPT 3.5 due to token usage.
         conv_length = 4
         m = multiprocessing.Manager()
@@ -5963,7 +5966,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 print(f"An unexpected error occurred: {str(e)}")
             try:
                 hits = client.search(
-                    collection_name=f"Bot_{bot_name}_{username}_Explicit_Short_Term",
+                    collection_name=f"Bot_{bot_name}_Explicit_Short_Term",
                     query_vector=vector_monologue,
                     query_filter=Filter(
                         must=[
@@ -6024,7 +6027,6 @@ class ChatBotApplication(customtkinter.CTkFrame):
         #        print(int_scrape)
         #    except Exception as e:
         #        print(f"An unexpected error occurred: {str(e)}")
-        
         
             folder_path = "./Sub_Agents/Llama_2"
             filename_description_map = load_filenames_and_descriptions(self, folder_path)

@@ -72,5 +72,3 @@ scipy==1.11.2
 gTTS==2.3.2
 openai-whisper<=20230314
 pandas<=2.1.0
-aiofiles
-aiohttp

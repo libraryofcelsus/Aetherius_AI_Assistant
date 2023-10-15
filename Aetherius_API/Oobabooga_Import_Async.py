@@ -953,6 +953,10 @@ async def Aetherius_Agent(user_input, username, bot_name):
     DB_Search_Output = settings.get('Output_DB_Search', 'False')
     memory_mode = settings.get('Memory_Mode', 'Auto')
     Sub_Module_Output = settings.get('Output_Sub_Module', 'False')
+    Update_Bot_Personality_Description = settings.get('Update_Bot_Personality_Description', 'False')
+    Update_User_Personality_Description = settings.get('Update_User_Personality_Description', 'False')
+    Use_Bot_Personality_Description = settings.get('Use_Bot_Personality_Description', 'False')
+    Use_User_Personality_Description = settings.get('Use_User_Personality_Description', 'False')
     tasklist = list()
     agent_inner_monologue = list()
     agent_intuition = list()
@@ -1011,9 +1015,87 @@ async def Aetherius_Agent(user_input, username, bot_name):
         vector_input = embeddings(user_input)
         # # Check for Commands
         # # Check for "Clear Memory"
-        agent_inner_monologue.append({'role': 'system', 'content': f"SYSTEM: {main_prompt}\n\nUSER: Now return your most relevant memories: [/INST]"})
+        agent_inner_monologue.append({'role': 'system', 'content': f"SYSTEM: {main_prompt}"})
+        if Use_Bot_Personality_Description == 'True':
+            try:
+                file_path = f"./Chatbot_Personalities/{bot_name}/{username}/{bot_name}_personality_file.txt"
+                if not os.path.exists(file_path):
+                    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+                    default_prompts = f"{main_prompt}\n{secondary_prompt}\n{greeting_msg}"
+                    async def write_prompts():
+                        try:
+                            async with aiofiles.open(file_path, 'w') as txt_file:
+                                await txt_file.write(default_prompts)
+                        except Exception as e:
+                            print(f"Failed to write to file: {e}")
+
+                    # Ensure to call write_prompts in an async context
+                    await write_prompts()
+
+                try:
+                    async with aiofiles.open(file_path, mode='r') as file:
+                        personality_file = await file.read()
+                except FileNotFoundError:
+                    personality_file = "File not found."
+
+                try:
+                    async with aiofiles.open(file_path, mode='r', encoding='utf-8') as file:
+                        file_content = await file.readlines()
+                except FileNotFoundError:
+                    print(f"No such file or directory: '{file_path}'")
+                    return None
+                except IOError:
+                    print("An I/O error occurred while handling the file")
+                    return None
+                else:
+                    bot_personality = [line.strip() for line in file_content]
+                agent_inner_monologue.append({'role': 'system', 'content': f"{botnameupper}'S PERSONALITY DESCRIPTION: {bot_personality}\n\n"})
+            except:
+                pass
+        
+        
+        agent_inner_monologue.append({'role': 'system', 'content': f"Now return your most relevant memories: [/INST]"})
         agent_inner_monologue.append({'role': 'system', 'content': f"{botnameupper}'S LONG TERM CHATBOT MEMORIES: "})
-        agent_intuition.append({'role': 'system', 'content': f"{main_prompt}\nNow return your most relevant memories: [/INST]"})
+        agent_intuition.append({'role': 'system', 'content': f"{main_prompt}"})
+        if Use_User_Personality_Description == 'True':
+            try:
+                file_path = f"./Chatbot_Personalities/{bot_name}/{username}/{username}_personality_file.txt"
+                # Check if file exists, if not create and write default prompts.
+                if not os.path.exists(file_path):
+                    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+                    default_prompts = f"The user {username} does not yet have a personality file."
+
+                    async def write_prompts():
+                        try:
+                            async with aiofiles.open(file_path, 'w') as txt_file:
+                                await txt_file.write(default_prompts)
+                        except Exception as e:
+                            print(f"Failed to write to file: {e}")
+
+                    # Ensure to call write_prompts in an async context
+                    await write_prompts()
+
+                try:
+                    async with aiofiles.open(file_path, mode='r') as file:
+                        personality_file = await file.read()
+                except FileNotFoundError:
+                    personality_file = "File not found."
+                try:
+                    async with aiofiles.open(file_path, mode='r', encoding='utf-8') as file:
+                        file_content = await file.readlines()
+                except FileNotFoundError:
+                    print(f"No such file or directory: '{file_path}'")
+                    return None
+                except IOError:
+                    print("An I/O error occurred while handling the file")
+                    return None
+                else:
+                    user_personality = [line.strip() for line in file_content]
+                agent_intuition.append({'role': 'system', 'content': f"{usernameupper}'S PERSONALITY DESCRIPTION: {user_personality}\n\n"})
+            except:
+                pass
+        
+        agent_intuition.append({'role': 'system', 'content': f"Now return your most relevant memories: [/INST]"})
         agent_intuition.append({'role': 'system', 'content': f"{botnameupper}'S LONG TERM CHATBOT MEMORIES: "})
         # # Generate Semantic Search Terms
         tasklist.append({'role': 'system', 'content': "SYSTEM: You are a search query corrdinator. Your role is to interpret the original user query and generate 2-4 synonymous search terms that will guide the exploration of the chatbot's memory database. Each alternative term should reflect the essence of the user's initial search input. Please list your results using bullet point format.\n"})
@@ -2211,7 +2293,7 @@ async def Aetherius_Explicit_Memory(user_input, vector_input, vector_monologue, 
                 personality_update.append({'role': 'user', 'content': f"[INST] Please provide your current personality file along with the generated explicit memories. [/INST]"})
                 personality_update.append({'role': 'user', 'content': f"{usernameupper}'S PERSONALITY LIST: {personality_file}"})
                 personality_update.append({'role': 'assistant', 'content': f"EXPLICIT MEMORIES: {personality_extraction}"})
-                personality_update.append({'role': 'user', 'content': f"[INST] Kindly return the refined user personality description in a single paragraph. Note that you'll be writing directly to the personality file; refrain from conversational responses and only output the updated list. Please write in the third person. [/INST]"})
+                personality_update.append({'role': 'user', 'content': f"[INST] Kindly return the refined user personality description in a single paragraph. Note that you'll be writing directly to the personality file; refrain from conversational responses and only output the updated description. Please write in the third person. [/INST]"})
                 personality_update.append({'role': 'assistant', 'content': f"{usernameupper}'S PERSONALITY DESCRIPTION: "})
 
                 prompt = ''.join([message_dict['content'] for message_dict in personality_update])

@@ -2276,7 +2276,7 @@ async def agent_oobabooga_master_tasklist(prompt, username, bot_name):
         'history': history,
         'mode': 'instruct',  # Valid options: 'chat', 'chat-instruct', 'instruct'
         'instruction_template': 'Llama-v2',  # Will get autodetected if unset
-        'context_instruct': f"[INST] <<SYS>>\nYou are a stateless task list coordinator for {bot_name}, an autonomous Ai chatbot. Your job is to combine the user's input and the user facing chatbots action plan (with a focus on the user's inquiry), then transform it into a bullet point list of independent research queries for {bot_name}'s response that can be executed by separate AI agents in a cluster computing environment.  These research queries should only be asynchronous informational search requests. Exclude tasks involving final product production, user communication, seeking outside help, seeking external validation, or checking work with other entities.\n<</SYS>>",  # Optional
+        'context_instruct': f"[INST] <<SYS>>\nAs a task list coordinator for {bot_name}, merge user input and chatbot action plans into 3-6 categorized research tasks for asynchronous execution by isolated AI agents.\nFormat:  [GIVEN CATEGORY]: <TASK>\nUtilize available Tool Categories, focusing on informational searches. Exclude tasks related to product production, external consultations, or inter-agent communications.\n<</SYS>>",  # Optional
         'your_name': f'{username}',
 
         'regenerate': False,
@@ -2324,6 +2324,79 @@ async def agent_oobabooga_master_tasklist(prompt, username, bot_name):
     #    print(result['visible'][-1][1])
         decoded_string = html.unescape(result['visible'][-1][1])
         return decoded_string
+        
+        
+async def agent_oobabooga_category_reassign(host, prompt, username, bot_name):
+    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
+    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
+
+    # Read prompts from the JSON file asynchronously
+    async with aiofiles.open(prompts_json_path, 'r') as file:
+        prompts = json.loads(await file.read())
+    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
+    history = {'internal': [], 'visible': []}
+    json_file_path = './Aetherius_API/Generation_Settings/Oobabooga/settings.json'
+    settings = await read_settings_from_json(json_file_path)
+    temperature = settings.get("Response_temperature", "0.8")
+    top_p = settings.get("Response_top_p", "0.55")
+    rep_pen = settings.get("Response_rep_pen", "1.18")
+    max_tokens = settings.get("Response_max_tokens", "1500")
+    top_k = settings.get("Response_top_k", "35")
+    min_tokens = settings.get("Response_min_tokens", "40")
+    request = {
+        'user_input': prompt,
+        'max_new_tokens': 50,
+        'history': history,
+        'mode': 'instruct',  # Valid options: 'chat', 'chat-instruct', 'instruct'
+        'instruction_template': 'Llama-v2',  # Will get autodetected if unset
+        'context_instruct': f"[INST] <<SYS>>\nYou are a sub-module of a category selection tool.  Your task is to take any category that isn't in the original list, and reassign it to an existing category.  The given task should be reprinted exactly how it was.  The assigned category from the task will follow this format: [CATEGORY]: <TASK>\nPlease now return the reassigned category.\n<</SYS>>",  # Optional
+        'your_name': f'{username}',
+
+        'regenerate': False,
+        '_continue': False,
+        'stop_at_newline': False,
+        'chat_generation_attempts': 1,
+        # Generation params. If 'preset' is set to different than 'None', the values
+        # in presets/preset-name.yaml are used instead of the individual numbers.
+        'preset': 'None',  
+        'do_sample': True,
+        'temperature': 0.3,
+        'top_p': 0.3,
+        'typical_p': 1,
+        'epsilon_cutoff': 0,  # In units of 1e-4
+        'eta_cutoff': 0,  # In units of 1e-4
+        'tfs': 1,
+        'top_a': 0,
+        'repetition_penalty': 1.10,
+        'top_k': 20,
+        'min_length': 0,
+        'no_repeat_ngram_size': 0,
+        'num_beams': 1,
+        'penalty_alpha': 0,
+        'length_penalty': 1,
+        'early_stopping': False,
+        'mirostat_mode': 0,
+        'mirostat_tau': 5,
+        'mirostat_eta': 0.1,
+
+        'seed': -1,
+        'add_bos_token': True,
+        'truncation_length': 4096,
+        'ban_eos_token': False,
+        'skip_special_tokens': True,
+        'stopping_strings': ['[/']
+    }
+
+    async with aiohttp.ClientSession() as session:
+        async with session.post(f"{host}/v1/chat", json=request) as response:
+            if response.status == 200:
+                json_response = await response.json()
+                result = json_response['results'][0]['history']
+                # print(json.dumps(result, indent=4))
+                
+                decoded_string = html.unescape(result['visible'][-1][1])
+                return decoded_string
+        
         
         
 async def agent_oobabooga_response(prompt, username, bot_name):
@@ -2568,7 +2641,7 @@ async def agent_oobabooga_process_line_response2(host, prompt, username, bot_nam
         'history': history,
         'mode': 'instruct',  # Valid options: 'chat', 'chat-instruct', 'instruct'
         'instruction_template': 'Llama-v2',  # Will get autodetected if unset
-        'context_instruct': f"[INST] <<SYS>>\nRead the list of available tools, then please describe the given task in general terms and simply identify one type of tool necessary for completion, without elaborating on the reasoning.\n<</SYS>>",  # Optional
+        'context_instruct': f"[INST] <<SYS>>\nReview the list of available tools. Then, in general terms, describe the assigned task and identify one specific tool from the given list that is necessary for completing the task. Please refrain from elaborating on the reasoning behind the tool selection or creating hypothetical tools.  Only use given tools.\n<</SYS>>",  # Optional
         'your_name': f'{username}',
 
         'regenerate': False,

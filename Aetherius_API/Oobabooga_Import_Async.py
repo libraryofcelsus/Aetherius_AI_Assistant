@@ -974,6 +974,7 @@ async def Aetherius_Agent(user_input, username, bot_name):
     memcheck = list()
     memcheck2 = list()
     webcheck = list()
+    cat_list = list()
     counter = 0
     counter2 = 0
     mem_counter = 0
@@ -1054,7 +1055,6 @@ async def Aetherius_Agent(user_input, username, bot_name):
                 pass
         
         
-        agent_inner_monologue.append({'role': 'system', 'content': f"Now return your most relevant memories: [/INST]"})
         agent_inner_monologue.append({'role': 'system', 'content': f"{botnameupper}'S LONG TERM CHATBOT MEMORIES: "})
         agent_intuition.append({'role': 'system', 'content': f"{main_prompt}"})
         if Use_User_Personality_Description == 'True':
@@ -1410,9 +1410,13 @@ async def Aetherius_Agent(user_input, username, bot_name):
                 vectors_config=VectorParams(size=embed_size, distance=Distance.COSINE),
             )
         try:
-            for filename, description in filename_description_map.items():
-                file_desc = f"{filename} - {description}"
-                vector = embeddings(file_desc)  # Assuming description is a string you can embed
+            for filename, file_data in filename_description_map.items():
+                file_desc = f"{filename} - {file_data['description']}"
+                cat = file_data['category']
+                catupper = cat.upper()
+                cat_des = file_data['cat_description']
+                cat_list.append({'content': f"[{cat}]- {cat_des}"})
+                vector = embeddings(file_desc)  
                 unique_id = str(uuid4())
                 timestamp = time()
                 metadata = {
@@ -1420,7 +1424,9 @@ async def Aetherius_Agent(user_input, username, bot_name):
                     'user': username,
                     'time': timestamp,
                     'filename': filename,
-                    'description': description,
+                    'description': file_data['description'],
+                    'category': catupper,
+                    'category_description': file_data['cat_description'],
                     'uuid': unique_id,
                 }
 
@@ -1510,15 +1516,37 @@ async def Aetherius_Agent(user_input, username, bot_name):
                 print(f"An unexpected error occurred: {str(e)}")
                 ext_resources = "No External Resources Available"
         # # Test for basic Autonomous Tasklist Generation and Task Completion
-        if External_Research_Search == 'True':
-            master_tasklist.append({'role': 'system', 'content': f"Please search the external resource database for relevant topics associated with the user's request. [/INST] EXTERNAL RESOURCES: {ext_resources}"})
-        master_tasklist.append({'role': 'system', 'content': f"[INST] MAIN SYSTEM PROMPT: You are a stateless task list coordinator for {bot_name}, an autonomous Ai chatbot. Your job is to combine the user's input and the user facing chatbots action plan, then, use them and the given external resources to make a bullet point list of three to six independent research search queries for {bot_name}'s response that can be executed by separate AI agents in a cluster computing environment. The other asynchronous Ai agents are stateless and cannot communicate with each other or the user during task execution, however the agents do have access to a set External Resource Database. Exclude tasks involving final product production, user communication, seeking outside help, seeking external validation, or checking work with other entities. Respond using the following bullet point format: '•[task]'\n"})
-        master_tasklist.append({'role': 'user', 'content': f"USER FACING CHATBOT'S INTUITIVE ACTION PLAN: {output_two}\n"})
-        master_tasklist.append({'role': 'user', 'content': f"USER INQUIRY: {user_input} [/INST] "})
-        master_tasklist.append({'role': 'assistant', 'content': f"TASK COORDINATOR: Sure, here is your bullet point list of 3-6 asynchronous search queries based on the intuitive action plan and external resources: "})
+        subagent_cat = '\n'.join([message_dict['content'] for message_dict in cat_list])
+        print(subagent_cat)
+    #    master_tasklist.append({'role': 'system', 'content': f"Please return a list of the available Tool Categories that can be used to complete Tasks. [/INST]"})
+    #    master_tasklist.append({'role': 'assistant', 'content': f"AVAILABLE TOOL CATEGORIES: {subagent_cat}\n"})
+    #    if External_Research_Search == 'True':
+    #        master_tasklist.append({'role': 'system', 'content': f"[INST]Please search the external resource database for relevant topics associated with the user's request. [/INST] EXTERNAL RESOURCES: {ext_resources}"})
+    #    master_tasklist.append({'role': 'system', 'content': f"[INST] MAIN SYSTEM PROMPT: You are a stateless task list coordinator for {bot_name}, an autonomous Ai chatbot. Your job is to combine the user's input and the user facing chatbots action plan, then, use them and the given available Tool Categories to make a bullet point list of three to six independent research search queries for {bot_name}'s response that can be executed by separate AI agents in a cluster computing environment. The other asynchronous Ai agents are stateless and cannot communicate with each other or the user during task execution, however the agents do have access to Tools that can be used. Exclude tasks involving final product production, user communication, seeking outside help, seeking external validation, or checking work with other entities. Respond using the following bullet point format: '•[task]'\n"})
+    #    master_tasklist.append({'role': 'user', 'content': f"USER FACING CHATBOT'S INTUITIVE ACTION PLAN: {output_two}\n"})
+    #    master_tasklist.append({'role': 'user', 'content': f"USER INQUIRY: {user_input} [/INST] "})
+    #    master_tasklist.append({'role': 'assistant', 'content': f"TASK COORDINATOR: Sure, here is your bullet point list of 3-6 asynchronous search queries based on the intuitive action plan and the given Tool Categories: "})
+
         
-        prompt = ''.join([message_dict['content'] for message_dict in master_tasklist])
+
+
+        if External_Research_Search == 'True':
+            master_tasklist.append({'role': 'system', 'content': f"[INST]Please search the external resource database for relevant topics associated with the user's request. [/INST] EXTERNAL RESOURCES: {ext_resources}"})
+
+        master_tasklist.append({'role': 'system', 'content': f"[INST] MAIN SYSTEM PROMPT: You are a task list coordinator for {bot_name}, an autonomous AI chatbot. Your job is to merge the user's input and the user-facing chatbot's action plan, along with the given available Tool Categories, to formulate a list of 3-6 independent research search queries. Each task should strictly be allocated a specific Tool Category from the provided list by including '[CATEGORY]' at the beginning of each task. These categories should not be altered or created anew. The tasks will be executed by separate AI agents in a cluster computing environment who are stateless and can't communicate with each other or the user during task execution. Exclude tasks focused on final product production, user communication, seeking external help, seeking external validation, or liaising with other entities. Respond using the following format: '•[CATEGORY]: <TASK>'\n\nNow, please return the Chatbot's Action Plan and available Tool List."})
+
+        master_tasklist.append({'role': 'user', 'content': f"USER FACING CHATBOT'S INTUITIVE ACTION PLAN: {output_two}\n\nAVAILABLE TOOL CATEGORIES:\n{subagent_cat}\n\n"})
+
+        master_tasklist.append({'role': 'user', 'content': f"USER INQUIRY: {user_input}\nUse only the given categories from the provided list. Do not create or use any categories outside of the given Tool Categories. [/INST] "})
+
+        master_tasklist.append({'role': 'assistant', 'content': f"TASK COORDINATOR: Sure, here is a bullet point list of 3-6 tasks, each strictly assigned a category from the given Tool Categories: "})
+
+
+        
+        
+        prompt = ' '.join([message_dict['content'] for message_dict in master_tasklist])
         master_tasklist_output = await agent_oobabooga_master_tasklist(prompt, username, bot_name)
+        print(f"TASKLIST OUTPUT: {master_tasklist_output}")
         if Intuition_Output == 'True':
             print('-------\nMaster Tasklist:')
             print(master_tasklist_output)
@@ -1567,7 +1595,7 @@ async def Aetherius_Agent(user_input, username, bot_name):
                         wrapped_process_line(
                             host_queue, bot_name, username, line, task_counter, 
                             output_one, output_two, master_tasklist_output, 
-                            user_input, filename_description_map
+                            user_input, filename_description_map, subagent_cat
                         )
                     )
                     tasks.append(task)
@@ -1621,7 +1649,8 @@ async def Aetherius_Agent(user_input, username, bot_name):
         try:            
             tasklist_completion.append({'role': 'assistant', 'content': f"[INST] USER'S INITIAL INPUT: {user_input} [/INST] {botnameupper}'S INNER_MONOLOGUE: {output_one}"})
     #        tasklist_completion.append({'role': 'user', 'content': f"%{bot_name}'s INTUITION%\n{output_two}\n\n"})
-            tasklist_completion.append({'role': 'user', 'content': f" [INST] SYSTEM: Using the tasks and completed responses from the research task loop, create a comprehensive response for {username}. Please note that {username} has no access to the research you have conducted, so be sure to compile all necessary context and information and include it in your reply.  Do not expand upon the research or include any of your own knowledge, keeping factual accuracy should be paramount.\nUSER'S INITIAL INPUT: {user_input}\nYour given time for research and planning has finished, now craft a detailed and natural-sounding response to ensure the user's request is fully met. [/INST] {botnameupper}: "})
+            tasklist_completion.append({'role': 'system', 'content': f"[INST] SYSTEM: You are now required to craft a comprehensive response for {username}, utilizing the completed tasks and responses generated during the research task loop. Remember, {username} hasn't had access to the research undertaken, hence it’s essential to amalgamate all vital context and information within your reply. Avoid incorporating additional knowledge beyond the completed research tasks and maintain factual accuracy as a priority.\nUSER'S INITIAL INPUT: {user_input}\nYour allotted time for research and planning is over. Focus on formulating a detailed, coherent, and natural-sounding response that thoroughly addresses the user's query. [/INST] {botnameupper}: "})
+
       #      print(tasklist_completion)
             prompt = ''.join([message_dict['content'] for message_dict in tasklist_completion])
             response_two = await agent_oobabooga_response(prompt, username, bot_name)
@@ -1713,10 +1742,10 @@ async def Aetherius_Agent(user_input, username, bot_name):
         
         
         
-async def wrapped_process_line(host_queue, bot_name, username, line, task_counter, output_one, output_two, master_tasklist_output, user_input, filename_description_map):
+async def wrapped_process_line(host_queue, bot_name, username, line, task_counter, output_one, output_two, master_tasklist_output, user_input, filename_description_map, subagent_cat):
     # get a host
     host = await host_queue.get()
-    result = await process_line(host, host_queue, bot_name, username, line, task_counter, output_one, output_two, master_tasklist_output, user_input, filename_description_map)
+    result = await process_line(host, host_queue, bot_name, username, line, task_counter, output_one, output_two, master_tasklist_output, user_input, filename_description_map, subagent_cat)
     # release the host
     await host_queue.put(host)
     return result
@@ -1724,7 +1753,7 @@ async def wrapped_process_line(host_queue, bot_name, username, line, task_counte
         
         
         
-async def process_line(host, host_queue, bot_name, username, line, task_counter, output_one, output_two, master_tasklist_output, user_input, filename_description_map):
+async def process_line(host, host_queue, bot_name, username, line, task_counter, output_one, output_two, master_tasklist_output, user_input, filename_description_map, subagent_cat):
     try:
         with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
             settings = json.load(f)
@@ -1732,15 +1761,95 @@ async def process_line(host, host_queue, bot_name, username, line, task_counter,
         completed_task = "Error Completing Task"
         tasklist_completion2 = list()
         conversation = list()
+        cat_list = list()
+        cat_choose = list()
         botnameupper = bot_name.upper()
         usernameupper = username.upper()
+        
+        
+        line_cat = "Research"
+        try:
+            # Load the categories
+            for filename, file_data in filename_description_map.items():
+                cat = file_data['category']
+                cat = cat.upper()
+                cat_list.append(cat)
+
+            # Check if the category is in the line
+            category_found = False
+            lineupper = line.upper()
+            content_within_brackets = re.findall(r'\[(.*?)\]', lineupper)
+
+            for cat in cat_list:
+                for content in content_within_brackets:
+                    if cat in content:
+                        line_cat = cat
+                        category_found = True
+                        break
+               
+            
+            # If category is not found, reassign it
+            if not category_found:
+                
+                cat_choose.append({'role': 'system', 'content': f"[INST] ROLE: You are functioning as a sub-module within a category selection tool. OBJECTIVE: Your primary responsibility is to reevaluate and reassign categories. If a task is associated with a category not present in the predefined list, you must reassign it to an applicable existing category from the list. FORMAT: Maintain the original task wording, and follow this structure for the reassigned task: '[NEW CATEGORY]: <TASK>'. Upon completion, return the task with the updated category assignment. [/INST]"})
+                
+                cat_choose.append({'role': 'system', 'content': f"AVAILABLE TOOL CATEGORIES: {subagent_cat}"})
+                
+                cat_choose.append({'role': 'system', 'content': f"TASK REQUIRING CATEGORY REASSIGNMENT: {line}"})
+                
+                prompt = ''.join([message_dict['content'] for message_dict in cat_choose])
+                task_expansion = await agent_oobabooga_category_reassign(host, prompt, username, bot_name)
+                category_matches = re.findall(r'\[(.*?)\]', task_expansion)
+                
+                for cat in cat_list:
+                    for matched_category in category_matches:
+                        if cat.upper() in matched_category.upper():  # Making comparison case-insensitive
+                            line_cat = matched_category
+                            category_found = True
+                             print(f"\n-----------------------\n")
+                            print(f"Extracted category: {line_cat}")
+                            break
+                        
+                    if category_found:
+                        break
+                
+                if not category_found:
+                    print("No matching category found in the string.")
+                    
+                    
+        except Exception as e:
+            print(f"An error occurred: {e}")
+        
+        
+        vector = embeddings(line_cat)
+        try:
+            hits = client.search(
+                collection_name=f"Bot_{bot_name}_{username}_Sub_Agents",
+                query_vector=vector,
+                query_filter=Filter(
+                    must=[
+                        FieldCondition(
+                            key="category",
+                            match=MatchValue(value=line_cat)
+                        ),
+                    ]
+                ),
+                limit=10
+            )
+            subagent_list = [hit.payload['filename'] for hit in hits]
+        except Exception as e:
+            print(f"Error with Subagent DB: {e}")
+            subagent_list = "No Sub-Agents Found"
+      
+        
+        
         tasklist_completion2.append({'role': 'user', 'content': f"TASK: {line} [/INST] "})
-        # Add a check with the subagent folder and a saved list.  If the list is different than the sub agent folder, the qdrant recollection will be recreated.
-        conversation.append({'role': 'assistant', 'content': f"Search your tool database for a list of the tools available to you. [/INST] "})
-        conversation.append({'role': 'assistant', 'content': f"AVAILABLE TOOLS: {filename_description_map} "})
-        # Create Module that Explains what the task is and what is needed to complete it.  
-        conversation.append({'role': 'assistant', 'content': f"[INST] Your job is to generalize the given task, outlining what kind of tool is needed in order to complete it.  Use the list of available tools to decide what to select. Limit  your response to a single paragraph. Do not theorize how to complete the task, only the tool needed.\n"})
+        conversation.append({'role': 'assistant', 'content': f"First, refer to your tool database to identify the tools that are currently available to you. [/INST] "})
+        conversation.append({'role': 'assistant', 'content': f"AVAILABLE TOOLS: {subagent_list} "})
+        conversation.append({'role': 'assistant', 'content': f"[INST] Your task is to determine which tool, from the provided list, is necessary to effectively complete the assigned task. Please focus on specifying the appropriate tool based on the available options. Avoid introducing or suggesting tools that are not included in the list. Provide a brief paragraph that clearly and exclusively states the necessary tool without delving into the operational details or process of using the tool.\n"})
+
         conversation.append({'role': 'assistant', 'content': f"ASSIGNED TASK: {line}. [/INST]"})
+
         prompt = ''.join([message_dict['content'] for message_dict in conversation])
         task_expansion = await agent_oobabooga_process_line_response2(host, prompt, username, bot_name)
         if Sub_Module_Output == 'True':
@@ -1753,6 +1862,14 @@ async def process_line(host, host_queue, bot_name, username, line, task_counter,
             hits = client.search(
                 collection_name=f"Bot_{bot_name}_{username}_Sub_Agents",
                 query_vector=vector,
+                query_filter=Filter(
+                    must=[
+                        FieldCondition(
+                            key="category",
+                            match=MatchValue(value=line_cat)
+                        ),
+                    ]
+                ),
                 limit=1
             )
             subagent_selection = [hit.payload['filename'] for hit in hits]
@@ -1766,7 +1883,7 @@ async def process_line(host, host_queue, bot_name, username, line, task_counter,
                 print(f"Trying to execute function from {subagent_selection}...")
             for filename_with_extension in subagent_selection:
                 filename = filename_with_extension.rstrip('.py')
-                script_path = os.path.join('Aetherius_API\Sub_Agents\Llama_2_Async', filename_with_extension)
+                script_path = os.path.join(f'Aetherius_API\Sub_Agents\Llama_2_Async\{line_cat}', filename_with_extension)
 
                 if os.path.exists(script_path):
                     spec = spec_from_file_location(filename, script_path)
@@ -1801,44 +1918,52 @@ async def process_line(host, host_queue, bot_name, username, line, task_counter,
             
 async def load_filenames_and_descriptions(folder_path, username, bot_name):
     """
-    Load all Python filenames in the given folder along with their descriptions.
-    The description for each filename is fetched from a function named {filename}_Description within the same file.
-    Returns a dictionary mapping filenames to their descriptions.
+    Load all Python filenames in the given folder along with their descriptions and categories.
+    Returns a dictionary mapping filenames to their descriptions and categories.
     """
-    filename_description_map = {}  # Initialize an empty dictionary to hold the filename-description mappings
+    filename_description_map = {}  # Initialize an empty dictionary to hold the mappings
 
     try:
-        filenames = [f for f in os.listdir(folder_path) if f.endswith('.py')]
-        if not filenames:
-            print("No Python files found in the folder.")
-            return filename_description_map
+        categories = [d for d in os.listdir(folder_path) if os.path.isdir(os.path.join(folder_path, d))]
+        for category in categories:
+            cat_folder_path = os.path.join(folder_path, category)
+            cat_description_file = os.path.join(cat_folder_path, f"{category}.txt")
 
-        for filename in filenames:
-            # Remove the '.py' extension to get the base filename
-            base_filename = os.path.splitext(filename)[0]
+            # Load category description from the text file
+            cat_description = "Category description not found."
+            if os.path.isfile(cat_description_file):
+                with open(cat_description_file, 'r') as file:
+                    cat_description = file.read().strip()
+                    cat_description = cat_description.replace('<<USERNAME>>', username)
+                    cat_description = cat_description.replace('<<BOTNAME>>', bot_name)
 
-            # Dynamic import of the Python file using direct import approach
-            spec = spec_from_file_location(base_filename, os.path.join(folder_path, filename))
-            module = module_from_spec(spec)
-            spec.loader.exec_module(module)
+            filenames = [f for f in os.listdir(cat_folder_path) if f.endswith('.py')]
 
-            # Try to fetch the description function from the imported module
-            description_function = getattr(module, f"{base_filename}_Description", None)
-            
-            description = "Description function not found."
-            if description_function:
-                try:
-                    # Pass the username and bot_name to the description function
-                    description = description_function(username, bot_name)
-                except Exception as e:
-                    print(f"An error occurred while calling '{base_filename}_Description' function in '{filename}': {e}")
+            for filename in filenames:
+                base_filename = os.path.splitext(filename)[0]
 
-            filename_description_map[filename] = description  # Add the filename and description to the dictionary
+                spec = spec_from_file_location(base_filename, os.path.join(cat_folder_path, filename))
+                module = module_from_spec(spec)
+                spec.loader.exec_module(module)
+
+                description_function = getattr(module, f"{base_filename}_Description", None)
+                
+                description = "Description function not found."
+                if description_function:
+                    try:
+                        description = description_function(username, bot_name)
+                        description = description.replace('<<USERNAME>>', username)
+                        description = description.replace('<<BOTNAME>>', bot_name)
+                    except Exception as e:
+                        print(f"An error occurred: {e}")
+
+                filename_description_map[filename] = {"filename": filename, "description": description, "category": category, "cat_description": cat_description}
 
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
 
     return filename_description_map
+
         
         
         

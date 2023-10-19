@@ -1806,7 +1806,7 @@ async def process_line(host, host_queue, bot_name, username, line, task_counter,
                         if cat.upper() in matched_category.upper():  # Making comparison case-insensitive
                             line_cat = matched_category
                             category_found = True
-                             print(f"\n-----------------------\n")
+                            print(f"\n-----------------------\n")
                             print(f"Extracted category: {line_cat}")
                             break
                         

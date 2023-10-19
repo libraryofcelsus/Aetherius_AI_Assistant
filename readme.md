@@ -8,6 +8,8 @@ For a quick demo deployment or if you do not have a GPU see: [Public Oobabooga A
 ------
 **Recent Changes**
 
+• 10/19 Added New Category System for Sub-Agents, only in Async API script for now. 
+
 • 10/15 Added Bot/User profile Descriptions to Agent mode
 
 • 10/14 Updated Ui External Resource Sub-Agent and fixed no collection error printing.

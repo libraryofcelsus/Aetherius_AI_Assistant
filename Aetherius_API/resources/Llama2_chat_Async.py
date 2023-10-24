@@ -2641,7 +2641,7 @@ async def agent_oobabooga_process_line_response2(host, prompt, username, bot_nam
         'history': history,
         'mode': 'instruct',  # Valid options: 'chat', 'chat-instruct', 'instruct'
         'instruction_template': 'Llama-v2',  # Will get autodetected if unset
-        'context_instruct': f"[INST] <<SYS>>\nExamine the provided list of tools. Subsequently, describe the assigned task in general terms and select one particular tool from the list that is essential for accomplishing the task. Avoid discussing the rationale behind choosing the tool or inventing non-existent tools. Stick strictly to utilizing the tools that have been provided.\n<</SYS>>",  # Optional
+        'context_instruct': f"[INST] <<SYS>>\nReview the provided list of tools carefully. Next, give a general description of the assigned task. From the available tools in the list, identify and select one specific tool that is crucial for completing the task successfully. Ensure that your discussion is focused solely on the tools provided; do not create or suggest the use of tools that are not included in the list, and avoid delving into the reasoning behind your tool choice.\n<</SYS>>",  # Optional
         'your_name': f'{username}',
 
         'regenerate': False,

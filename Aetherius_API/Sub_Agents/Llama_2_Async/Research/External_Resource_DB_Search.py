@@ -126,7 +126,7 @@ async def chunk_text(text, chunk_size, overlap):
     return chunks 
         
         
-async def chunk_text_from_url(url, username, bot_name, task_counter, chunk_size=380, overlap=40):
+async def chunk_text_from_url(url, username, bot_name, task_counter, chunk_size=480, overlap=40):
     try:
         
         async with aiohttp.ClientSession() as session:
@@ -249,7 +249,7 @@ async def summarized_chunk_from_url(host, chunk, collection_name, bot_name, user
 
 
 def External_Resource_DB_Search_Description(username, bot_name):
-    description = f"A module for searching {bot_name}'s External Resource Database.  This Module is meant to be used for the verification and retrieval of external information. This module also includes a web-search Tool."
+    description = f"External_Resource_DB_Search.py: A module for searching {bot_name}'s External Resource Database.  This Module is meant to be used for the verification and retrieval of external information. This module also includes a web-search Tool."
     return description
 
 async def External_Resource_DB_Search(host, bot_name, username, line, task_counter, output_one, output_two, master_tasklist_output, user_input):

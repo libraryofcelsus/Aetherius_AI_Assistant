@@ -982,23 +982,23 @@ async def Aetherius_Agent(user_input, username, bot_name):
     usernameupper = username.upper()
     base_path = "./Aetherius_API/Chatbot_Prompts"
     base_prompts_path = os.path.join(base_path, "Base")
-    user_bot_path = os.path.join(base_path, username, bot_name)
+    user_bot_path = os.path.join(base_path, username, bot_name)  # Replace 'username' and 'bot_name'
+
     if not os.path.exists(user_bot_path):
         os.makedirs(user_bot_path)
+
     prompts_json_path = os.path.join(user_bot_path, "prompts.json")
-    if not os.path.exists(prompts_json_path):
-        default_prompts = {
-            "main_prompt": "",
-            "secondary_prompt": "",
-            "greeting_prompt": ""
-        }
-        for filename in default_prompts:
-            src = os.path.join(base_prompts_path, f"prompt_{filename}.txt")
-            if os.path.isfile(src):
-                with open(src, 'r') as file:
-                    default_prompts[filename] = file.read()
-        async with aiofiles.open(prompts_json_path, 'w') as json_file:
-            await json_file.write(json.dumps(default_prompts, indent=2))
+    base_prompts_json_path = os.path.join(base_prompts_path, "prompts.json")
+
+    # If prompts.json doesn’t exist in the user’s directory, copy it from the Base directory
+    if not os.path.exists(prompts_json_path) and os.path.exists(base_prompts_json_path):
+        async with aiofiles.open(base_prompts_json_path, 'r') as base_file:
+            base_prompts_content = await base_file.read()
+            
+        async with aiofiles.open(prompts_json_path, 'w') as user_file:
+            await user_file.write(base_prompts_content)
+
+    # Now, you can read the content of prompts.json in the user’s directory
     async with aiofiles.open(prompts_json_path, 'r') as file:
         prompts = json.loads(await file.read())
     main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
@@ -1410,12 +1410,16 @@ async def Aetherius_Agent(user_input, username, bot_name):
                 vectors_config=VectorParams(size=embed_size, distance=Distance.COSINE),
             )
         try:
+            cat_set = set()
             for filename, file_data in filename_description_map.items():
                 file_desc = f"{filename} - {file_data['description']}"
                 cat = file_data['category']
                 catupper = cat.upper()
                 cat_des = file_data['cat_description']
-                cat_list.append({'content': f"[{cat}]- {cat_des}"})
+                cat_entry = f"[{cat}]- {cat_des}"
+                if cat_entry not in cat_set:  # Check if the category description is unique
+                    cat_set.add(cat_entry)
+                    cat_list.append({'content': cat_entry})
                 vector = embeddings(file_desc)  
                 unique_id = str(uuid4())
                 timestamp = time()
@@ -1432,12 +1436,17 @@ async def Aetherius_Agent(user_input, username, bot_name):
 
                 client.upsert(collection_name=collection_name,
                              points=[PointStruct(id=unique_id, vector=vector, payload=metadata)])
+                             
+            subagent_cat = '\n'.join([message_dict['content'] for message_dict in cat_list])
+            print(subagent_cat)
         except Exception as e:
             traceback.print_exc()
             print(f"An error occurred: {e}")
             error = e
             return error
             
+
+
 
         try:
             hits = client.search(
@@ -1463,7 +1472,7 @@ async def Aetherius_Agent(user_input, username, bot_name):
 
         # # Intuition Generation
         inner_loop_db = 'None'
-        agent_intuition.append({'role': 'assistant', 'content': f"{botnameupper}'S EPISODIC MEMORIES: {db_search_4}\n{botnameupper}'s HEURISTICS: {db_search_15}\n{botnameupper}'S INNER THOUGHTS: {output_one} [INST] Now return the list of tools available for you to use. [/INST] AVAILABLE TOOLS: {tool_db} [INST] Now return and analyze the previous conversation history. [/INST] PREVIOUS CONVERSATION HISTORY: {con_hist} [INST] SYSTEM: Transmute the user, {username}'s message as {bot_name} by devising a truncated predictive action plan in the third person point of view on how to best respond to {username}'s most recent message using the given External Resources and list of available tools.  If the user is requesting information on a subjector asking a question, predict what information needs to be provided. Do not give examples or double check work, only provide the action plan. {usernameupper}: {user_input} [/INST] {botnameupper}: "}) 
+        agent_intuition.append({'role': 'assistant', 'content': f"{botnameupper}'S EPISODIC MEMORIES: {db_search_4}\n{botnameupper}'s HEURISTICS: {db_search_15}\n{botnameupper}'S INNER THOUGHTS: {output_one} [INST] Now return the list of tools available for you to use. [/INST] AVAILABLE TOOLS: {subagent_cat} [INST] Now return and analyze the previous conversation history. [/INST] PREVIOUS CONVERSATION HISTORY: {con_hist} [INST] SYSTEM: Transmute the user, {username}'s message as {bot_name} by devising a truncated predictive action plan in the third person point of view on how to best respond to {username}'s most recent message using the given External Resources and list of available tools.  If the user is requesting information on a subjector asking a question, predict what information needs to be provided. Do not give examples or double check work, only provide the action plan. {usernameupper}: {user_input} [/INST] {botnameupper}: "}) 
        
         
         
@@ -1516,8 +1525,6 @@ async def Aetherius_Agent(user_input, username, bot_name):
                 print(f"An unexpected error occurred: {str(e)}")
                 ext_resources = "No External Resources Available"
         # # Test for basic Autonomous Tasklist Generation and Task Completion
-        subagent_cat = '\n'.join([message_dict['content'] for message_dict in cat_list])
-        print(subagent_cat)
     #    master_tasklist.append({'role': 'system', 'content': f"Please return a list of the available Tool Categories that can be used to complete Tasks. [/INST]"})
     #    master_tasklist.append({'role': 'assistant', 'content': f"AVAILABLE TOOL CATEGORIES: {subagent_cat}\n"})
     #    if External_Research_Search == 'True':
@@ -1648,8 +1655,8 @@ async def Aetherius_Agent(user_input, username, bot_name):
              
         try:            
             tasklist_completion.append({'role': 'assistant', 'content': f"[INST] USER'S INITIAL INPUT: {user_input} [/INST] {botnameupper}'S INNER_MONOLOGUE: {output_one}"})
-    #        tasklist_completion.append({'role': 'user', 'content': f"%{bot_name}'s INTUITION%\n{output_two}\n\n"})
-            tasklist_completion.append({'role': 'system', 'content': f"[INST] SYSTEM: You are now required to craft a comprehensive response for {username}, utilizing the completed tasks and responses generated during the research task loop. Remember, {username} hasn't had access to the research undertaken, hence it’s essential to amalgamate all vital context and information within your reply. Avoid incorporating additional knowledge beyond the completed research tasks and maintain factual accuracy as a priority.\nUSER'S INITIAL INPUT: {user_input}\nYour allotted time for research and planning is over. Focus on formulating a detailed, coherent, and natural-sounding response that thoroughly addresses the user's query. [/INST] {botnameupper}: "})
+            tasklist_completion.append({'role': 'system', 'content': f"[INST] SYSTEM: You are tasked with crafting a comprehensive response for {username}. Use the insights and information gathered from the completed tasks during the research task loop to formulate your answer. Since {username} did not have access to the research process, ensure that your reply is self-contained, providing all necessary context and information. Do not introduce information beyond what was discovered during the research tasks, and ensure that factual accuracy is maintained throughout your response. \nUSER'S INITIAL INPUT: {user_input}\nYour research and planning phase is concluded. Concentrate on composing a detailed, coherent, and conversational reply that fully addresses the user's question based on the completed research tasks. [/INST] {botnameupper}: "})
+
 
       #      print(tasklist_completion)
             prompt = ''.join([message_dict['content'] for message_dict in tasklist_completion])
@@ -1710,33 +1717,6 @@ async def Aetherius_Agent(user_input, username, bot_name):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-        
         
         
         
@@ -1844,11 +1824,11 @@ async def process_line(host, host_queue, bot_name, username, line, task_counter,
         
         
         tasklist_completion2.append({'role': 'user', 'content': f"TASK: {line} [/INST] "})
-        conversation.append({'role': 'assistant', 'content': f"First, refer to your tool database to identify the tools that are currently available to you. [/INST] "})
+        conversation.append({'role': 'assistant', 'content': f"First, please refer to your tool database to identify the tools that are currently available to you. [/INST] "})
         conversation.append({'role': 'assistant', 'content': f"AVAILABLE TOOLS: {subagent_list} "})
-        conversation.append({'role': 'assistant', 'content': f"[INST] Your task is to determine which tool, from the provided list, is necessary to effectively complete the assigned task. Please focus on specifying the appropriate tool based on the available options. Avoid introducing or suggesting tools that are not included in the list. Provide a brief paragraph that clearly and exclusively states the necessary tool without delving into the operational details or process of using the tool.\n"})
-
+        conversation.append({'role': 'assistant', 'content': f"[INST] Your task is to select the necessary tool to complete the assigned task from the provided list of available tools. Ensure that your choice is strictly based on the options provided, and do not suggest or introduce tools that are not part of the list. Your response should be a concise paragraph that distinctly identifies the chosen tool without going into the operational process or detailed usage of the tool.\n"})
         conversation.append({'role': 'assistant', 'content': f"ASSIGNED TASK: {line}. [/INST]"})
+
 
         prompt = ''.join([message_dict['content'] for message_dict in conversation])
         task_expansion = await agent_oobabooga_process_line_response2(host, prompt, username, bot_name)
@@ -1881,6 +1861,10 @@ async def process_line(host, host_queue, bot_name, username, line, task_counter,
             tasks = []  # List to hold all tasks that we want to run concurrently
             if Sub_Module_Output == 'True':
                 print(f"Trying to execute function from {subagent_selection}...")
+            if not subagent_selection:
+                print("Error with Module, using fallback")
+                fallback_path = "Aetherius_API\Sub_Agents\Llama_2_Async\Research\External_Resource_DB_Search.py"
+                subagent_selection = [os.path.basename(fallback_path)]
             for filename_with_extension in subagent_selection:
                 filename = filename_with_extension.rstrip('.py')
                 script_path = os.path.join(f'Aetherius_API\Sub_Agents\Llama_2_Async\{line_cat}', filename_with_extension)

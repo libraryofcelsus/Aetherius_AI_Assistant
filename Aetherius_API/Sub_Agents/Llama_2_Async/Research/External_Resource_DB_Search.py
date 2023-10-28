@@ -252,7 +252,7 @@ def External_Resource_DB_Search_Description(username, bot_name):
     description = f"External_Resource_DB_Search.py: A module for searching {bot_name}'s External Resource Database.  This Module is meant to be used for the verification and retrieval of external information. This module also includes a web-search Tool."
     return description
 
-async def External_Resource_DB_Search(host, bot_name, username, line, task_counter, output_one, output_two, master_tasklist_output, user_input):
+async def External_Resource_DB_Search(host, bot_name, username, user_id, line, task_counter, output_one, output_two, master_tasklist_output, user_input):
     try:
         async with aiofiles.open('./Aetherius_API/chatbot_settings.json', mode='r', encoding='utf-8') as f:
             settings = json.loads(await f.read())
@@ -284,7 +284,7 @@ async def External_Resource_DB_Search(host, bot_name, username, line, task_count
                     must=[
                         FieldCondition(
                             key="user",
-                            match=MatchValue(value=f"{username}")
+                            match=MatchValue(value=f"{user_id}")
                         )
                     ]
                 ),
@@ -318,21 +318,21 @@ async def External_Resource_DB_Search(host, bot_name, username, line, task_count
                         for url, snippet in zip(urls, snippets):
                             payload = list()
                             timestamp = time()
-                            timestring = timestamp_to_datetime(timestamp)  # Assuming timestamp_to_datetime is defined
-                            vector1 = await embeddings(snippet)  # Assuming embeddings is an asynchronous function
+                            timestring = timestamp_to_datetime(timestamp) 
+                            vector1 = await embeddings(snippet)  
                             unique_id = str(uuid4())
                             point_id = unique_id + str(int(timestamp))
                             metadata = {
-                                'bot': bot_name,  # Assuming bot_name is defined
-                                'user': username,  # Assuming username is defined
+                                'bot': bot_name, 
+                                'user': user_id, 
                                 'source': url,
-                                'task': task_counter,  # Assuming task_counter is defined
+                                'task': task_counter,  
                                 'message': snippet,
                                 'uuid': unique_id,
                                 'memory_type': 'Web_Scrape_Url',
                             }
 
-                            # Assuming PointStruct and client are defined and set up properly
+                    
                             client.upsert(collection_name = f"Bot_{bot_name}_External_Knowledgebase",
                                           points=[PointStruct(id=unique_id, vector=vector1, payload=metadata)])
                             payload.clear()
@@ -349,7 +349,7 @@ async def External_Resource_DB_Search(host, bot_name, username, line, task_count
                                     must=[
                                         FieldCondition(
                                             key="user",
-                                            match=models.MatchValue(value=f"{username}")
+                                            match=models.MatchValue(value=f"{user_id}")
                                         ),
                                         FieldCondition(
                                             key="memory_type",
@@ -393,7 +393,7 @@ async def External_Resource_DB_Search(host, bot_name, username, line, task_count
                                     must=[
                                         FieldCondition(
                                             key="user",
-                                            match=models.MatchValue(value=f"{username}"),
+                                            match=models.MatchValue(value=f"{user_id}"),
                                         ),
                                         FieldCondition(
                                             key="memory_type",
@@ -476,7 +476,7 @@ async def External_Resource_DB_Search(host, bot_name, username, line, task_count
                     must=[
                         FieldCondition(
                             key="user",
-                            match=models.MatchValue(value=f"{username}"),
+                            match=models.MatchValue(value=f"{user_id}"),
                         ),
                         FieldCondition(
                             key="memory_type",
@@ -497,7 +497,7 @@ async def External_Resource_DB_Search(host, bot_name, username, line, task_count
                     must=[
                         FieldCondition(
                             key="user",
-                            match=models.MatchValue(value=f"{username}"),
+                            match=models.MatchValue(value=f"{user_id}"),
                         ),
                         FieldCondition(
                             key="memory_type",

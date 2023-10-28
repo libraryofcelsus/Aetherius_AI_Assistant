@@ -76,128 +76,9 @@ def timestamp_to_datetime(unix_time):
     return datetime_str
 
 
-async def search_episodic_db(line_vec, username, bot_name):
-    try:
-        memories = None
-        try:
-            hits = client.search(
-                collection_name=f"Bot_{bot_name}",
-                query_vector=line_vec,
-                query_filter=Filter(
-                    must=[
-                        FieldCondition(
-                            key="memory_type",
-                            match=MatchValue(value="Episodic")
-                        )
-                    ]
-                ),
-                limit=5
-            )
-                # Print the result
-            memories = [hit.payload['message'] for hit in hits]
-        except Exception as e:
-            if "Not found: Collection" in str(e):
-                print("Collection has no memories.")
-            else:
-                print(f"An unexpected error occurred: {str(e)}")
-        return memories
-    except Exception as e:
-        print(e)
-        memories = "Error"
-        return memories
         
         
-async def search_implicit_db(line_vec, username, bot_name):
-    try:
-        memories1 = None
-        memories2  = None
-        try:
-            hits = client.search(
-                collection_name=f"Bot_{bot_name}",
-                query_vector=line_vec,
-                query_filter=Filter(
-                    must=[
-                        FieldCondition(
-                            key="memory_type",
-                            match=MatchValue(value="Implicit_Long_Term")
-                        )
-                    ]
-                ),
-                limit=3
-            )
-                # Print the result
-            memories1 = [hit.payload['message'] for hit in hits]
-        except Exception as e:
-            if "Not found: Collection" in str(e):
-                print("Collection has no memories.")
-            else:
-                if "Not found: Collection" in str(e):
-                    print("Collection has no memories.")
-                else:
-                    print(f"An unexpected error occurred: {str(e)}")
-    
-        try:
-            hits = client.search(
-                collection_name=f"Bot_{bot_name}_Implicit_Short_Term",
-                query_vector=line_vec,
-                query_filter=Filter(
-                    must=[
-                        FieldCondition(
-                            key="memory_type",
-                            match=MatchValue(value="Implicit_Short_Term")
-                        )
-                    ]
-                ),
-                limit=5
-            )
-                # Print the result
-            memories2 = [hit.payload['message'] for hit in hits]
-        except Exception as e:
-            if "Not found: Collection" in str(e):
-                print("Collection has no memories.")
-            else:
-                print(f"An unexpected error occurred: {str(e)}")
-            
-        memories = f'{memories1}\n{memories2}'    
-        return memories
-    except Exception as e:
-        print(e)
-        memories = "Error"
-        return memories
-        
-        
-async def search_flashbulb_db(line_vec, username, bot_name):
-    try:
-        memories = None
-        try:
-            hits = client.search(
-                collection_name=f"Bot_{bot_name}",
-                query_vector=line_vec,
-                query_filter=Filter(
-                    must=[
-                        FieldCondition(
-                            key="memory_type",
-                            match=MatchValue(value="Flashbulb")
-                        )
-                    ]
-                ),
-                limit=2
-            )
-                # Print the result
-            memories = [hit.payload['message'] for hit in hits]
-        except Exception as e:
-            if "Not found: Collection" in str(e):
-                print("Collection has no memories.")
-            else:
-                print(f"An unexpected error occurred: {str(e)}")
-        return memories
-    except Exception as e:
-        print(e)
-        memories = "Error"
-        return memories 
-        
-        
-async def search_explicit_db(line_vec, username, bot_name):
+async def search_explicit_db(line_vec, user_id, bot_name):
     try:
         memories1 = None
         memories2 = None
@@ -209,8 +90,12 @@ async def search_explicit_db(line_vec, username, bot_name):
                     must=[
                         FieldCondition(
                             key="memory_type",
-                            match=MatchValue(value="Explicit_Long_Term")
-                        )
+                            match=models.MatchValue(value="Explicit_Long_Term"),
+                        ),
+                        FieldCondition(
+                            key="user",
+                            match=models.MatchValue(value=f"{user_id}"),
+                        ),
                     ]
                 ),
                 limit=3
@@ -225,14 +110,18 @@ async def search_explicit_db(line_vec, username, bot_name):
     
         try:
             hits = client.search(
-                collection_name=f"Bot_{bot_name}_{username}_Explicit_Short_Term",
+                collection_name=f"Bot_{bot_name}_Explicit_Short_Term",
                 query_vector=line_vec,
                 query_filter=Filter(
                     must=[
                         FieldCondition(
                             key="memory_type",
-                            match=MatchValue(value="Explicit_Short_Term")
-                        )
+                            match=models.MatchValue(value="Explicit_Short_Term"),
+                        ),
+                        FieldCondition(
+                            key="user",
+                            match=models.MatchValue(value=f"{user_id}"),
+                        ),
                     ]
                 ),
                 limit=5
@@ -262,7 +151,7 @@ def Explicit_Memory_Search_Description(username, bot_name):
     
     
 # Add your custom code Here
-async def Explicit_Memory_Search(host, bot_name, username, line, task_counter, output_one, output_two, master_tasklist_output, user_input):
+async def Explicit_Memory_Search(host, bot_name, username, user_id, line, task_counter, output_one, output_two, master_tasklist_output, user_input):
     try:
         async with aiofiles.open('./Aetherius_API/chatbot_settings.json', mode='r', encoding='utf-8') as f:
             settings = json.loads(await f.read())
@@ -280,7 +169,7 @@ async def Explicit_Memory_Search(host, bot_name, username, line, task_counter, o
         task_completion = "Task Failed"
         line_vec = embeddings(line)
         try:
-            result = await search_explicit_db(line_vec, username, bot_name)
+            result = await search_explicit_db(line_vec, user_id, bot_name)
             conversation.append({'role': 'assistant', 'content': f"MEMORIES: {result}\n\n"})
 
         except Exception as e:

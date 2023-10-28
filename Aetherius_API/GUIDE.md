@@ -17,28 +17,34 @@ from Aetherius_API.Oobabooga_Import_Async import *
 ## Oobabooga_Import Functions
 
 After importing the functions, you can now use Aetherius as an Api.
+For the non Async Api, remove the user_id variable.
+
+query = User Input
+username = User's Display Name
+user_id = Unique User Id
+bot_name = Chatbot Name
 
 The Available Functions are:
 
-**Aetherius_Chatbot(query, username, bot_name)**
+**Aetherius_Chatbot(query, username, user_id, bot_name)**
 (This Function is the basic version of Aetherius.  It only includes the Inner Monologue, Intuition, and Response Loops.  This mode does not use sub-agents.  The User Input, Username, and the Bot name must be passed through.)
 
-**Aetherius_Agent(query, username, bot_name)**
+**Aetherius_Agent(query, username, user_id, bot_name)**
 (This Function is the multi-agent mode of Aetherius.  It will use the sub-agents in the sub_agents folder to answer a generated Tasklist.  If using this mode it is recommended to use multiple hosts.
 
-**Upload_Heuristics(query, username, bot_name)**
+**Upload_Heuristics(query, username, user_id, bot_name)**
 (This function will allow you to upload something to the Bot's Heuristics.)
 
-**Upload_Implicit_Short_Term_Memories(query, username, bot_name)**
+**Upload_Implicit_Short_Term_Memories(query, username, user_id, bot_name)**
 (This function will allow you to directly upload something into the Bot's short-term memory.)
 
-**Upload_Explicit_Short_Term_Memories(query, username, bot_name)**
+**Upload_Explicit_Short_Term_Memories(query, username, user_id, bot_name)**
 (This function will allow you to directly upload something into the Bot's short-term memory.)
 
-**Upload_Implicit_Long_Term_Memories(query, username, bot_name)**
+**Upload_Implicit_Long_Term_Memories(query, username, user_id, bot_name)**
 (This function will allow you to directly upload something into the Bot's long-term memory.)
 
-**Upload_Explicit_Long_Term_Memories(query, username, bot_name)**
+**Upload_Explicit_Long_Term_Memories(query, username, user_id, bot_name)**
 (This function will allow you to directly upload something into the Bot's long-term memory.)
 
 **TTS_Generation(query)**

@@ -1,10 +1,10 @@
 import discord
 import os
 from discord.ext.commands import Bot
-from Aetherius_API.Oobabooga_Import_Async import *
+from Aetherius_API.New_Oobabooga_Import_Async import *
 import logging
 
-# Max_Tokens variable for the Response generation should be set to 350 to avoid Length Errors
+# All Indents must be enabled, give the bot admin privileges
 
 
 TOKEN = 'REPLACE WITH DISCORD BOT TOKEN'
@@ -37,7 +37,7 @@ def split_response(response, limit=1999):
 @client.command()
 async def Agent(ctx, *, inquiry):
     """Handle the !Agent command"""
-    response = await Aetherius_Agent(inquiry, str(ctx.author), BOTNAME)
+    response = await Aetherius_Agent(inquiry, str(ctx.author.display_name), str(ctx.author), BOTNAME)
 
     for chunk in split_response(response):
         await ctx.send(chunk)
@@ -45,42 +45,42 @@ async def Agent(ctx, *, inquiry):
 @client.command()
 async def Heuristics(ctx, *, query):
     """Handle the !Heuristics command"""
-    response = await Upload_Heuristics(query, str(ctx.author), BOTNAME)
+    response = await Upload_Heuristics(query, str(ctx.author.display_name), str(ctx.author), BOTNAME)
     for chunk in split_response(response):
         await ctx.send(chunk)
 
 @client.command()
 async def ImplicitSTM(ctx, *, query):
     """Handle the !ImplicitSTM command"""
-    response = await Upload_Implicit_Short_Term_Memories(query, str(ctx.author), BOTNAME)
+    response = await Upload_Implicit_Short_Term_Memories(query, str(ctx.author.display_name), str(ctx.author), BOTNAME)
     for chunk in split_response(response):
         await ctx.send(chunk)
 
 @client.command()
 async def ExplicitSTM(ctx, *, query):
     """Handle the !ExplicitSTM command"""
-    response = await Upload_Explicit_Short_Term_Memories(query, str(ctx.author), BOTNAME)
+    response = await Upload_Explicit_Short_Term_Memories(query, str(ctx.author.display_name), str(ctx.author), BOTNAME)
     for chunk in split_response(response):
         await ctx.send(chunk)
 
 @client.command()
 async def ImplicitLTM(ctx, *, query):
     """Handle the !ImplicitLTM command"""
-    response = await Upload_Implicit_Long_Term_Memories(query, str(ctx.author), BOTNAME)
+    response = await Upload_Implicit_Long_Term_Memories(query, str(ctx.author.display_name), str(ctx.author), BOTNAME)
     for chunk in split_response(response):
         await ctx.send(chunk)
 
 @client.command()
 async def ExplicitLTM(ctx, *, query):
     """Handle the !ExplicitLTM command"""
-    response = await Upload_Explicit_Long_Term_Memories(query, str(ctx.author), BOTNAME)
+    response = await Upload_Explicit_Long_Term_Memories(query, str(ctx.author.display_name), str(ctx.author), BOTNAME)
     for chunk in split_response(response):
         await ctx.send(chunk)
         
 @client.command()
 async def WebScrape(ctx, *, query):
     """Handle the !WebScrape command"""
-    await async_chunk_text_from_url(query, str(ctx.author), BOTNAME)
+    await async_chunk_text_from_url(query, str(ctx.author.display_name), str(ctx.author), BOTNAME)
     await ctx.send("WebScrape command received and is being processed.")  # Acknowledgment message
         
 
@@ -96,7 +96,7 @@ async def on_message(message):
     
     # If the message doesn't start with '!', interact as a chatbot
     if not message.content.startswith('!'):
-        response = await Aetherius_Chatbot(message.content, str(message.author), BOTNAME)
+        response = await Aetherius_Chatbot(message.content, str(message.author.display_name), str(message.author), BOTNAME)
         for chunk in split_response(response):
             await message.channel.send(chunk)
 

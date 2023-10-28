@@ -122,13 +122,6 @@ async def read_settings_from_json(json_file_path):
 
 
 async def oobabooga_terms(prompt, username, bot_name):
-    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
-    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
-
-    # Read prompts from the JSON file asynchronously
-    async with aiofiles.open(prompts_json_path, 'r') as file:
-        prompts = json.loads(await file.read())
-    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -186,13 +179,6 @@ async def oobabooga_terms(prompt, username, bot_name):
 
 
 async def oobabooga_inner_monologue(prompt, username, bot_name):
-    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
-    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
-
-    # Read prompts from the JSON file asynchronously
-    async with aiofiles.open(prompts_json_path, 'r') as file:
-        prompts = json.loads(await file.read())
-    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     json_file_path = './Aetherius_API/Generation_Settings/Oobabooga/settings.json'
     settings = await read_settings_from_json(json_file_path)
@@ -260,13 +246,6 @@ async def oobabooga_inner_monologue(prompt, username, bot_name):
         
         
 async def oobabooga_intuition(prompt, username, bot_name):
-    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
-    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
-
-    # Read prompts from the JSON file asynchronously
-    async with aiofiles.open(prompts_json_path, 'r') as file:
-        prompts = json.loads(await file.read())
-    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     json_file_path = './Aetherius_API/Generation_Settings/Oobabooga/settings.json'
     settings = await read_settings_from_json(json_file_path)
@@ -334,13 +313,6 @@ async def oobabooga_intuition(prompt, username, bot_name):
 
         
 async def oobabooga_episodic_memory(prompt, username, bot_name):
-    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
-    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
-
-    # Read prompts from the JSON file asynchronously
-    async with aiofiles.open(prompts_json_path, 'r') as file:
-        prompts = json.loads(await file.read())
-    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -399,13 +371,6 @@ async def oobabooga_episodic_memory(prompt, username, bot_name):
         
         
 async def oobabooga_flash_memory(prompt, username, bot_name):
-    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
-    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
-
-    # Read prompts from the JSON file asynchronously
-    async with aiofiles.open(prompts_json_path, 'r') as file:
-        prompts = json.loads(await file.read())
-    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -465,13 +430,6 @@ async def oobabooga_flash_memory(prompt, username, bot_name):
         
         
 async def oobabooga_implicit_memory(prompt, username, bot_name):
-    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
-    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
-
-    # Read prompts from the JSON file asynchronously
-    async with aiofiles.open(prompts_json_path, 'r') as file:
-        prompts = json.loads(await file.read())
-    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -530,13 +488,6 @@ async def oobabooga_implicit_memory(prompt, username, bot_name):
         
         
 async def oobabooga_explicit_memory(prompt, username, bot_name):
-    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
-    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
-
-    # Read prompts from the JSON file asynchronously
-    async with aiofiles.open(prompts_json_path, 'r') as file:
-        prompts = json.loads(await file.read())
-    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -595,13 +546,6 @@ async def oobabooga_explicit_memory(prompt, username, bot_name):
         
         
 async def oobabooga_consolidation_memory(prompt, username, bot_name):
-    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
-    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
-
-    # Read prompts from the JSON file asynchronously
-    async with aiofiles.open(prompts_json_path, 'r') as file:
-        prompts = json.loads(await file.read())
-    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -660,13 +604,6 @@ async def oobabooga_consolidation_memory(prompt, username, bot_name):
         
         
 async def oobabooga_associative_memory(prompt, username, bot_name):
-    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
-    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
-
-    # Read prompts from the JSON file asynchronously
-    async with aiofiles.open(prompts_json_path, 'r') as file:
-        prompts = json.loads(await file.read())
-    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -726,13 +663,6 @@ async def oobabooga_associative_memory(prompt, username, bot_name):
         
         
 async def oobabooga_response(prompt, username, bot_name):
-    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
-    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
-
-    # Read prompts from the JSON file asynchronously
-    async with aiofiles.open(prompts_json_path, 'r') as file:
-        prompts = json.loads(await file.read())
-    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     json_file_path = './Aetherius_API/Generation_Settings/Oobabooga/settings.json'
     settings = await read_settings_from_json(json_file_path)
@@ -799,13 +729,6 @@ async def oobabooga_response(prompt, username, bot_name):
         
         
 async def oobabooga_auto(prompt, username, bot_name):
-    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
-    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
-
-    # Read prompts from the JSON file asynchronously
-    async with aiofiles.open(prompts_json_path, 'r') as file:
-        prompts = json.loads(await file.read())
-    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -865,13 +788,6 @@ async def oobabooga_auto(prompt, username, bot_name):
         
         
 async def oobabooga_memyesno(prompt, username, bot_name):
-    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
-    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
-
-    # Read prompts from the JSON file asynchronously
-    async with aiofiles.open(prompts_json_path, 'r') as file:
-        prompts = json.loads(await file.read())
-    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -930,13 +846,6 @@ async def oobabooga_memyesno(prompt, username, bot_name):
         
         
 async def oobabooga_personality_check(prompt, username, bot_name):
-    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
-    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
-
-    # Read prompts from the JSON file asynchronously
-    async with aiofiles.open(prompts_json_path, 'r') as file:
-        prompts = json.loads(await file.read())
-    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -995,13 +904,6 @@ async def oobabooga_personality_check(prompt, username, bot_name):
         
         
 async def oobabooga_personality_gen(prompt, username, bot_name):
-    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
-    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
-
-    # Read prompts from the JSON file asynchronously
-    async with aiofiles.open(prompts_json_path, 'r') as file:
-        prompts = json.loads(await file.read())
-    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -1060,13 +962,6 @@ async def oobabooga_personality_gen(prompt, username, bot_name):
         
         
 async def oobabooga_user_personality_extraction(prompt, username, bot_name):
-    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
-    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
-
-    # Read prompts from the JSON file asynchronously
-    async with aiofiles.open(prompts_json_path, 'r') as file:
-        prompts = json.loads(await file.read())
-    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -1125,13 +1020,6 @@ async def oobabooga_user_personality_extraction(prompt, username, bot_name):
         
         
 async def oobabooga_user_personality_gen(prompt, username, bot_name):
-    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
-    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
-
-    # Read prompts from the JSON file asynchronously
-    async with aiofiles.open(prompts_json_path, 'r') as file:
-        prompts = json.loads(await file.read())
-    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -1320,13 +1208,6 @@ async def oobabooga_250(prompt, username, bot_name):
         
         
 async def scrape_oobabooga_scrape(host, prompt, username, bot_name):
-    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
-    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
-
-    # Read prompts from the JSON file asynchronously
-    async with aiofiles.open(prompts_json_path, 'r') as file:
-        prompts = json.loads(await file.read())
-    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -1387,13 +1268,6 @@ async def scrape_oobabooga_scrape(host, prompt, username, bot_name):
 
 
 async def agent_oobabooga_terms(prompt, username, bot_name):
-    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
-    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
-
-    # Read prompts from the JSON file asynchronously
-    async with aiofiles.open(prompts_json_path, 'r') as file:
-        prompts = json.loads(await file.read())
-    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -1453,13 +1327,6 @@ async def agent_oobabooga_terms(prompt, username, bot_name):
 
 
 async def agent_oobabooga_inner_monologue(prompt, username, bot_name):
-    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
-    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
-
-    # Read prompts from the JSON file asynchronously
-    async with aiofiles.open(prompts_json_path, 'r') as file:
-        prompts = json.loads(await file.read())
-    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     json_file_path = './Aetherius_API/Generation_Settings/Oobabooga/settings.json'
     settings = await read_settings_from_json(json_file_path)
@@ -1526,13 +1393,6 @@ async def agent_oobabooga_inner_monologue(prompt, username, bot_name):
         
         
 async def agent_oobabooga_intuition(prompt, username, bot_name):
-    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
-    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
-
-    # Read prompts from the JSON file asynchronously
-    async with aiofiles.open(prompts_json_path, 'r') as file:
-        prompts = json.loads(await file.read())
-    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     json_file_path = './Aetherius_API/Generation_Settings/Oobabooga/settings.json'
     settings = await read_settings_from_json(json_file_path)
@@ -1600,13 +1460,6 @@ async def agent_oobabooga_intuition(prompt, username, bot_name):
 
         
 async def agent_oobabooga_episodicmem(prompt, username, bot_name):
-    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
-    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
-
-    # Read prompts from the JSON file asynchronously
-    async with aiofiles.open(prompts_json_path, 'r') as file:
-        prompts = json.loads(await file.read())
-    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -1665,13 +1518,6 @@ async def agent_oobabooga_episodicmem(prompt, username, bot_name):
         
         
 async def agent_oobabooga_flashmem(prompt, username, bot_name):
-    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
-    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
-
-    # Read prompts from the JSON file asynchronously
-    async with aiofiles.open(prompts_json_path, 'r') as file:
-        prompts = json.loads(await file.read())
-    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -1731,13 +1577,6 @@ async def agent_oobabooga_flashmem(prompt, username, bot_name):
         
         
 async def agent_oobabooga_implicitmem(prompt, username, bot_name):
-    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
-    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
-
-    # Read prompts from the JSON file asynchronously
-    async with aiofiles.open(prompts_json_path, 'r') as file:
-        prompts = json.loads(await file.read())
-    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -1796,13 +1635,6 @@ async def agent_oobabooga_implicitmem(prompt, username, bot_name):
         
         
 async def agent_oobabooga_explicitmem(prompt, username, bot_name):
-    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
-    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
-
-    # Read prompts from the JSON file asynchronously
-    async with aiofiles.open(prompts_json_path, 'r') as file:
-        prompts = json.loads(await file.read())
-    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -1861,13 +1693,6 @@ async def agent_oobabooga_explicitmem(prompt, username, bot_name):
         
         
 async def agent_oobabooga_consolidationmem(prompt, username, bot_name):
-    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
-    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
-
-    # Read prompts from the JSON file asynchronously
-    async with aiofiles.open(prompts_json_path, 'r') as file:
-        prompts = json.loads(await file.read())
-    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -1926,13 +1751,6 @@ async def agent_oobabooga_consolidationmem(prompt, username, bot_name):
         
         
 async def agent_oobabooga_associativemem(prompt, username, bot_name):
-    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
-    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
-
-    # Read prompts from the JSON file asynchronously
-    async with aiofiles.open(prompts_json_path, 'r') as file:
-        prompts = json.loads(await file.read())
-    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -2187,13 +2005,6 @@ async def agent_oobabooga_800(prompt, username, bot_name):
         
         
 async def agent_oobabooga_scrape(prompt, username, bot_name):
-    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
-    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
-
-    # Read prompts from the JSON file asynchronously
-    async with aiofiles.open(prompts_json_path, 'r') as file:
-        prompts = json.loads(await file.read())
-    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -2254,13 +2065,6 @@ async def agent_oobabooga_scrape(prompt, username, bot_name):
         
         
 async def agent_oobabooga_master_tasklist(prompt, username, bot_name):
-    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
-    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
-
-    # Read prompts from the JSON file asynchronously
-    async with aiofiles.open(prompts_json_path, 'r') as file:
-        prompts = json.loads(await file.read())
-    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     json_file_path = './Aetherius_API/Generation_Settings/Oobabooga/settings.json'
     settings = await read_settings_from_json(json_file_path)
@@ -2327,13 +2131,6 @@ async def agent_oobabooga_master_tasklist(prompt, username, bot_name):
         
         
 async def agent_oobabooga_category_reassign(host, prompt, username, bot_name):
-    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
-    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
-
-    # Read prompts from the JSON file asynchronously
-    async with aiofiles.open(prompts_json_path, 'r') as file:
-        prompts = json.loads(await file.read())
-    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     json_file_path = './Aetherius_API/Generation_Settings/Oobabooga/settings.json'
     settings = await read_settings_from_json(json_file_path)
@@ -2400,13 +2197,6 @@ async def agent_oobabooga_category_reassign(host, prompt, username, bot_name):
         
         
 async def agent_oobabooga_response(prompt, username, bot_name):
-    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
-    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
-
-    # Read prompts from the JSON file asynchronously
-    async with aiofiles.open(prompts_json_path, 'r') as file:
-        prompts = json.loads(await file.read())
-    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     json_file_path = './Aetherius_API/Generation_Settings/Oobabooga/settings.json'
     settings = await read_settings_from_json(json_file_path)
@@ -2473,13 +2263,6 @@ async def agent_oobabooga_response(prompt, username, bot_name):
         
         
 async def agent_oobabooga_line_response(prompt, username, bot_name):
-    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
-    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
-
-    # Read prompts from the JSON file asynchronously
-    async with aiofiles.open(prompts_json_path, 'r') as file:
-        prompts = json.loads(await file.read())
-    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     json_file_path = './Aetherius_API/Generation_Settings/Oobabooga/settings.json'
     settings = await read_settings_from_json(json_file_path)
@@ -2547,13 +2330,6 @@ async def agent_oobabooga_line_response(prompt, username, bot_name):
 
         
 async def agent_oobabooga_process_line_response(host, prompt, username, bot_name):
-    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
-    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
-
-    # Read prompts from the JSON file asynchronously
-    async with aiofiles.open(prompts_json_path, 'r') as file:
-        prompts = json.loads(await file.read())
-    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     json_file_path = './Aetherius_API/Generation_Settings/Oobabooga/settings.json'
     settings = await read_settings_from_json(json_file_path)
@@ -2619,13 +2395,6 @@ async def agent_oobabooga_process_line_response(host, prompt, username, bot_name
         
         
 async def agent_oobabooga_process_line_response2(host, prompt, username, bot_name):
-    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
-    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
-
-    # Read prompts from the JSON file asynchronously
-    async with aiofiles.open(prompts_json_path, 'r') as file:
-        prompts = json.loads(await file.read())
-    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     json_file_path = './Aetherius_API/Generation_Settings/Oobabooga/settings.json'
     settings = await read_settings_from_json(json_file_path)
@@ -2691,13 +2460,6 @@ async def agent_oobabooga_process_line_response2(host, prompt, username, bot_nam
         
         
 async def agent_oobabooga_memory_db_check(host, prompt, username, bot_name):
-    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
-    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
-
-    # Read prompts from the JSON file asynchronously
-    async with aiofiles.open(prompts_json_path, 'r') as file:
-        prompts = json.loads(await file.read())
-    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     json_file_path = './Aetherius_API/Generation_Settings/Oobabooga/settings.json'
     settings = await read_settings_from_json(json_file_path)
@@ -2763,13 +2525,6 @@ async def agent_oobabooga_memory_db_check(host, prompt, username, bot_name):
         
         
 async def agent_oobabooga_google_rephrase(host, prompt, username, bot_name):
-    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
-    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
-
-    # Read prompts from the JSON file asynchronously
-    async with aiofiles.open(prompts_json_path, 'r') as file:
-        prompts = json.loads(await file.read())
-    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     json_file_path = './Aetherius_API/Generation_Settings/Oobabooga/settings.json'
     settings = await read_settings_from_json(json_file_path)
@@ -2835,13 +2590,6 @@ async def agent_oobabooga_google_rephrase(host, prompt, username, bot_name):
         
         
 async def agent_oobabooga_auto(prompt, username, bot_name):
-    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
-    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
-
-    # Read prompts from the JSON file asynchronously
-    async with aiofiles.open(prompts_json_path, 'r') as file:
-        prompts = json.loads(await file.read())
-    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -2901,13 +2649,6 @@ async def agent_oobabooga_auto(prompt, username, bot_name):
         
         
 async def agent_oobabooga_memyesno(prompt, username, bot_name):
-    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
-    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
-
-    # Read prompts from the JSON file asynchronously
-    async with aiofiles.open(prompts_json_path, 'r') as file:
-        prompts = json.loads(await file.read())
-    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -2966,13 +2707,6 @@ async def agent_oobabooga_memyesno(prompt, username, bot_name):
         
         
 async def agent_oobabooga_webcheckyesno(prompt, username, bot_name):
-    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
-    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
-
-    # Read prompts from the JSON file asynchronously
-    async with aiofiles.open(prompts_json_path, 'r') as file:
-        prompts = json.loads(await file.read())
-    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -3031,13 +2765,6 @@ async def agent_oobabooga_webcheckyesno(prompt, username, bot_name):
         
         
 async def agent_oobabooga_webyesno(prompt, username, bot_name):
-    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
-    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
-
-    # Read prompts from the JSON file asynchronously
-    async with aiofiles.open(prompts_json_path, 'r') as file:
-        prompts = json.loads(await file.read())
-    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
@@ -3161,13 +2888,6 @@ async def agent_oobabooga_selector(prompt, username, bot_name):
         
         
 async def File_Processor_oobabooga_scrape(host, prompt, username, bot_name):
-    user_bot_path = os.path.join("./Aetherius_API/Chatbot_Prompts", username, bot_name)
-    prompts_json_path = os.path.join(user_bot_path, "prompts.json")
-
-    # Read prompts from the JSON file asynchronously
-    async with aiofiles.open(prompts_json_path, 'r') as file:
-        prompts = json.loads(await file.read())
-    main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,

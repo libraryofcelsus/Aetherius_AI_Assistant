@@ -1,7 +1,7 @@
 import discord
 import os
 from discord.ext.commands import Bot
-from Aetherius_API.New_Oobabooga_Import_Async import *
+from Aetherius_API.Oobabooga_Import_Async import *
 import logging
 
 # All Indents must be enabled, give the bot admin privileges

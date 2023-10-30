@@ -177,6 +177,8 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name):
     response = list()
     explicit_memory = list()
     payload = list()
+    input_expansion = list()
+    domain_extraction = list()
     counter = 0
     counter2 = 0
     mem_counter = 0
@@ -224,11 +226,84 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name):
     main_conversation = MainConversation(username, user_id, bot_name, conv_length, main_prompt, greeting_msg)
     while True:
         print(f"{username}: {user_input}\n\n")
-        conversation_history = main_conversation.get_last_entry()
+    #    conversation_history = main_conversation.get_conversation_history()
+        conversation_history = main_conversation.get_conversation_history()
         con_hist = f'{conversation_history}'
         timestamp = time()
         timestring = timestamp_to_datetime(timestamp)
-        vector_input = embeddings(user_input)
+        
+        input_expansion.append({'role': 'user', 'content': f"PREVIOUS CONVERSATION HISTORY: {con_hist}\n\n\n"})
+        input_expansion.append({'role': 'system', 'content': f"You are a task rephraser. Your primary task is to rephrase the user's most recent input succinctly and accurately. Please return the rephrased version of the user’s most recent input. USER'S MOST RECENT INPUT: {user_input} [/INST]"})
+      #  input_expansion.append({'role': 'user', 'content': f"\n"})
+        input_expansion.append({'role': 'user', 'content': f"TASK REPHRASER: Sure! Here's the rephrased version of the user's most recent input: "})
+
+
+
+
+        prompt = ''.join([message_dict['content'] for message_dict in input_expansion])
+        expanded_input = await oobabooga_input_expansion(prompt, username, bot_name)
+        print(f"Expanded User Input: {expanded_input}")
+        
+        
+        domain_extraction.append({'role': 'user', 'content': f"You are a knowledge domain extractor.  Your task is to analyze the user's inquiry, then choose the single most salent generalized knowledge domain needed to complete the user's inquiry from the list of existing domains.  Your response should only contain the single existing knowledge domain.\n"})
+        domain_extraction.append({'role': 'user', 'content': f"USER INPUT: {expanded_input} [/INST] "})
+        
+        prompt = ''.join([message_dict['content'] for message_dict in domain_extraction])
+        extracted_domain = await oobabooga_domain_extraction(prompt, username, bot_name)
+        if ":" in extracted_domain:
+            extracted_domain = extracted_domain.split(":")[-1]
+            extracted_domain = extracted_domain.replace("\n", "")
+            extracted_domain = extracted_domain.upper()
+        
+        domain_extraction.clear()
+        
+        
+        vector1 = embeddings(extracted_domain)
+        try:
+            hits = client.search(
+                collection_name=f"Bot_{bot_name}_Knowledge_Domains",
+                query_vector=vector1,
+                query_filter=Filter(
+                    must=[
+                        FieldCondition(
+                            key="user",
+                            match=MatchValue(value=f"{user_id}")
+                        )
+                    ]
+                ),
+                limit=15
+            )
+            domain_search = [hit.payload['knowledge_domain'] for hit in hits]
+            print(f"Knowledge Domains: {domain_search}")
+        except Exception as e:
+            if "Not found: Collection" in str(e):
+                print("Collection does not exist.")
+                domain_search = "No Collection"
+            else:
+                print(f"An unexpected error occurred: {str(e)}")
+        
+        
+        domain_extraction.append({'role': 'user', 'content': f"Please return the existing knowledge domains. [/INST]"})
+        domain_extraction.append({'role': 'user', 'content': f"EXISTING KNOWLEGE DOMAINS: {domain_search}"})
+        domain_extraction.append({'role': 'user', 'content': f"[INST] You are a knowledge domain selector.  Your task is to analyze the user's inquiry, then choose the single most salent generalized knowledge domain from the given list needed to complete the user's inquiry.  Your response should only contain the single existing knowledge domain.\n"})
+        domain_extraction.append({'role': 'user', 'content': f"USER INPUT: {expanded_input} [/INST] "})
+        
+        prompt = ''.join([message_dict['content'] for message_dict in domain_extraction])
+        extracted_domain = await oobabooga_domain_selection(prompt, username, bot_name)
+        if ":" in extracted_domain:
+            extracted_domain = extracted_domain.split(":")[-1]
+            extracted_domain = extracted_domain.replace("\n", "")
+            extracted_domain = extracted_domain.upper()
+        print(f"Extracted Domain: {extracted_domain}")
+        
+        
+        
+        
+        
+        conversation_history = main_conversation.get_last_entry()
+        con_hist = f'{conversation_history}'
+        
+        vector_input = embeddings(expanded_input)
         
         # Semantic Term Separation
         tasklist.append({'role': 'system', 'content': "SYSTEM: You are a search query corrdinator. Your role is to interpret the original user query and generate 2-4 synonymous search terms that will guide the exploration of the chatbot's memory database. Each alternative term should reflect the essence of the user's initial search input. Please list your results using bullet point format.\n"})
@@ -326,7 +401,8 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name):
         intuition.append({'role': 'system', 'content': f"Now return your most relevant memories: [/INST]"})
         intuition.append({'role': 'system', 'content': f"{botnameupper}'S LONG TERM CHATBOT MEMORIES: "})
         
-        
+        temp_list = list()
+        temp_list2 = list()
         for line in lines:
             if line.startswith("•"):
                 try:
@@ -340,20 +416,23 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name):
                                     match=MatchValue(value="Explicit_Long_Term"),
                                 ),
                                 FieldCondition(
+                                    key="knowledge_domain",
+                                    match=MatchValue(value=extracted_domain),
+                                ),
+                                FieldCondition(
                                     key="user",
                                     match=models.MatchValue(value=f"{user_id}"),
                                 ),
                             ]
                         ),
-                        limit=3
+                        limit=5
                     )
                     unsorted_table = [(hit.payload['timestring'], hit.payload['message']) for hit in hits]
                     sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'timestring' field
                     db_search_1 = "\n".join([f"{message}" for timestring, message in sorted_table])
-                    
-                    inner_monologue.append({'role': 'assistant', 'content': f"{db_search_1}  "})
-                    if tasklist_counter < 3:
-                        intuition.append({'role': 'assistant', 'content': f"{db_search_1}  "})
+                    temp_list.append({'role': 'assistant', 'content': f"{db_search_1}  "})
+                    if tasklist_counter < 4:
+                        temp_list2.append({'role': 'assistant', 'content': f"{db_search_1}  "})
                     tasklist_counter + 1
                     if DB_Search_Output == 'True':
                         print(db_search_1)
@@ -380,14 +459,14 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name):
                                 ),
                             ]
                         ),
-                        limit=4
+                        limit=6
                     )
                     unsorted_table = [(hit.payload['timestring'], hit.payload['message']) for hit in hits]
                     sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'timestring' field
                     db_search_2 = "\n".join([f"{message}" for timestring, message in sorted_table])
-                    inner_monologue.append({'role': 'assistant', 'content': f"{db_search_2}  "})
-                    if tasklist_counter2 < 3:
-                        intuition.append({'role': 'assistant', 'content': f"{db_search_2}  "})
+                    temp_list.append({'role': 'assistant', 'content': f"{db_search_2}  "})
+                    if tasklist_counter2 < 4:
+                        temp_list2.append({'role': 'assistant', 'content': f"{db_search_2}  "})
                     tasklist_counter2 + 1
                     if DB_Search_Output == 'True':
                         print(db_search_2)
@@ -398,7 +477,17 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name):
                         else:
                             print(f"An unexpected error occurred: {str(e)}")
                             
-                            
+                def remove_duplicate_dicts(input_list):
+                    output_list = []
+                    for item in input_list:
+                        if item not in output_list:
+                            output_list.append(item)
+                    return output_list
+
+                temp_list = remove_duplicate_dicts(temp_list)
+                temp_list2 = remove_duplicate_dicts(temp_list2)
+        inner_monologue.append({'role': 'system', 'content': f"{temp_list}"})       
+        intuition.append({'role': 'system', 'content': f"{temp_list2}"})                    
         db_search_3, db_search_4, db_search_5, db_search_6 = None, None, None, None
         
         try:
@@ -973,6 +1062,8 @@ async def Aetherius_Agent(user_input, username, user_id, bot_name):
     memcheck2 = list()
     webcheck = list()
     cat_list = list()
+    domain_extraction = list()
+    input_expansion = list()
     counter = 0
     counter2 = 0
     mem_counter = 0
@@ -1012,6 +1103,94 @@ async def Aetherius_Agent(user_input, username, user_id, bot_name):
         timestamp = time()
         timestring = timestamp_to_datetime(timestamp)
         vector_input = embeddings(user_input)
+        
+        
+        
+        
+        input_expansion.append({'role': 'user', 'content': f"PREVIOUS CONVERSATION HISTORY: {con_hist}\n\n\n"})
+        input_expansion.append({'role': 'system', 'content': f"You are a task rephraser. Your primary task is to rephrase the user's most recent input succinctly and accurately. Please return the rephrased version of the user’s most recent input. USER'S MOST RECENT INPUT: {user_input} [/INST]"})
+      #  input_expansion.append({'role': 'user', 'content': f"\n"})
+        input_expansion.append({'role': 'user', 'content': f"TASK REPHRASER: Sure! Here's the rephrased version of the user's most recent input: "})
+
+
+
+
+        prompt = ''.join([message_dict['content'] for message_dict in input_expansion])
+        expanded_input = await oobabooga_input_expansion(prompt, username, bot_name)
+        print(f"Expanded User Input: {expanded_input}")
+        
+        
+        domain_extraction.append({'role': 'user', 'content': f"You are a knowledge domain extractor.  Your task is to analyze the user's inquiry, then choose the single most salent generalized knowledge domain needed to complete the user's inquiry from the list of existing domains.  Your response should only contain the single existing knowledge domain.\n"})
+        domain_extraction.append({'role': 'user', 'content': f"USER INPUT: {expanded_input} [/INST] "})
+        
+        prompt = ''.join([message_dict['content'] for message_dict in domain_extraction])
+        extracted_domain = await oobabooga_domain_extraction(prompt, username, bot_name)
+        if ":" in extracted_domain:
+            extracted_domain = extracted_domain.split(":")[-1]
+            extracted_domain = extracted_domain.replace("\n", "")
+            extracted_domain = extracted_domain.upper()
+        domain_extraction.clear()
+        
+        
+        vector1 = embeddings(extracted_domain)
+        try:
+            hits = client.search(
+                collection_name=f"Bot_{bot_name}_Knowledge_Domains",
+                query_vector=vector1,
+                query_filter=Filter(
+                    must=[
+                        FieldCondition(
+                            key="user",
+                            match=MatchValue(value=f"{user_id}")
+                        )
+                    ]
+                ),
+                limit=15
+            )
+            domain_search = [hit.payload['knowledge_domain'] for hit in hits]
+            print(f"Knowledge Domains: {domain_search}")
+        except Exception as e:
+            if "Not found: Collection" in str(e):
+                print("Collection does not exist.")
+                domain_search = "No Collection"
+            else:
+                print(f"An unexpected error occurred: {str(e)}")
+        
+        
+        domain_extraction.append({'role': 'user', 'content': f"Please return the existing knowledge domains. [/INST]"})
+        domain_extraction.append({'role': 'user', 'content': f"EXISTING KNOWLEGE DOMAINS: {domain_search}"})
+        domain_extraction.append({'role': 'user', 'content': f"[INST] You are a knowledge domain selector.  Your task is to analyze the user's inquiry, then choose the single most salent generalized knowledge domain from the given list needed to complete the user's inquiry.  Your response should only contain the single existing knowledge domain.\n"})
+        domain_extraction.append({'role': 'user', 'content': f"USER INPUT: {expanded_input} [/INST] "})
+        
+        prompt = ''.join([message_dict['content'] for message_dict in domain_extraction])
+        extracted_domain = await oobabooga_domain_selection(prompt, username, bot_name)
+        if ":" in extracted_domain:
+            extracted_domain = extracted_domain.split(":")[-1]
+            extracted_domain = extracted_domain.replace("\n", "")
+            extracted_domain = extracted_domain.upper()
+        print(f"Extracted Domain: {extracted_domain}")
+        
+        
+        
+        
+        
+        conversation_history = main_conversation.get_last_entry()
+        con_hist = f'{conversation_history}'
+        
+        vector_input1 = embeddings(expanded_input)
+        
+        
+
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         # # Check for Commands
         # # Check for "Clear Memory"
         agent_inner_monologue.append({'role': 'system', 'content': f"SYSTEM: {main_prompt}"})
@@ -1108,9 +1287,13 @@ async def Aetherius_Agent(user_input, username, user_id, bot_name):
         db_term_result2 = {}
         tasklist_counter = 0
         tasklist_counter2 = 0
-        vector_input1 = embeddings(user_input)
-        # # Split bullet points into separate lines to be used as individual queries during a parallel db search     
-        for line in lines:   
+        
+        
+        
+        
+        temp_list = list()
+        temp_list2 = list()
+        for line in lines:
             if External_Research_Search == 'True':
                 try:
                     hits = client.search(
@@ -1137,74 +1320,99 @@ async def Aetherius_Agent(user_input, username, user_id, bot_name):
             else:
                 external_scrape = "No External Resources Selected"
          #       print(external_scrape)
-
+         
             try:
                 hits = client.search(
                     collection_name=f"Bot_{bot_name}",
                     query_vector=vector_input1,
                     query_filter=Filter(
                         must=[
-                            models.FieldCondition(
+                            FieldCondition(
                                 key="memory_type",
-                                match=models.MatchValue(value="Explicit_Long_Term"),
+                                match=MatchValue(value="Explicit_Long_Term"),
                             ),
-                            models.FieldCondition(
+                            FieldCondition(
+                                key="knowledge_domain",
+                                match=MatchValue(value=extracted_domain),
+                            ),
+                            FieldCondition(
                                 key="user",
                                 match=models.MatchValue(value=f"{user_id}"),
                             ),
                         ]
                     ),
-                    limit=3
-               )
-                    # Print the result
-                #    for hit in hits:
-                #        print(hit.payload['message'])
-                unsorted_table = [(hit.payload['timestring'], hit.payload['message']) for hit in hits]
-                sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'timestring' field
-                db_search_16 = "\n".join([f"{message}" for timestring, message in sorted_table])
-                agent_inner_monologue.append({'role': 'assistant', 'content': f"{db_search_16}\n"})
-                if tasklist_counter < 2:
-                    agent_intuition.append({'role': 'assistant', 'content': f"{db_search_16}\n"})
-                tasklist_counter + 1
-            except Exception as e:
-                print(f"An unexpected error occurred: {str(e)}")
-            try:
-                hits = client.search(
-                    collection_name=f"Bot_{bot_name}",
-                    query_vector=vector_input1,
-                    query_filter=Filter(
-                        must=[
-                            models.FieldCondition(
-                                key="memory_type",
-                                match=models.MatchValue(value="Implicit_Long_Term"),
-                            ),
-                            models.FieldCondition(
-                                key="user",
-                                match=models.MatchValue(value=f"{user_id}"),
-                            ),
-                        ]
-                    ),
-                    limit=1
+                    limit=5
                 )
-                # Print the result
-            #    for hit in hits:
-            #        print(hit.payload['message'])
                 unsorted_table = [(hit.payload['timestring'], hit.payload['message']) for hit in hits]
                 sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'timestring' field
-                db_search_17 = "\n".join([f"{message}" for timestring, message in sorted_table])
-                agent_inner_monologue.append({'role': 'assistant', 'content': f"{db_search_17}\n"})
-                if external_scrape != 'No External Resources Selected':
+                db_search_1 = "\n".join([f"{message}" for timestring, message in sorted_table])
+                temp_list.append({'role': 'assistant', 'content': f"{db_search_1}  "})
+                if tasklist_counter < 4:
+                    temp_list2.append({'role': 'assistant', 'content': f"{db_search_1}  "})
                     if External_Research_Search == 'True':
-                        agent_inner_monologue.append({'role': 'assistant', 'content': f"EXTERNAL RESOURCES: {external_scrape}\n"})
-                if tasklist_counter2 < 2:
-                    agent_intuition.append({'role': 'assistant', 'content': f"{db_search_17}\n"})
-                    if external_scrape != 'No External Resources Selected':
-                        if External_Research_Search == 'True':
-                            agent_intuition.append({'role': 'assistant', 'content': f"EXTERNAL RESOURCES: {external_scrape}\n"})
-                tasklist_counter2 + 1
-            #    print(db_search_17)
+                        temp_list.append({'role': 'assistant', 'content': f"{external_scrape}"})
+                        temp_list2.append({'role': 'assistant', 'content': f"{external_scrape}"})
+                tasklist_counter + 1
+                if DB_Search_Output == 'True':
+                    print(db_search_1)
             except Exception as e:
-                print(f"An unexpected error occurred: {str(e)}")
+                if DB_Search_Output == 'True':
+                    if "Not found: Collection" in str(e):
+                        print("Collection does not exist.")
+                    else:
+                        print(f"An unexpected error occurred: {str(e)}")
+    
+            try:
+                hits = client.search(
+                    collection_name=f"Bot_{bot_name}",
+                    query_vector=vector_input1,
+                    query_filter=Filter(
+                        must=[
+                            FieldCondition(
+                                key="memory_type",
+                                match=MatchValue(value="Implicit_Long_Term"),
+                            ),
+                            FieldCondition(
+                                key="user",
+                                match=models.MatchValue(value=f"{user_id}"),
+                            ),
+                        ]
+                    ),
+                    limit=6
+                )
+                unsorted_table = [(hit.payload['timestring'], hit.payload['message']) for hit in hits]
+                sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'timestring' field
+                db_search_2 = "\n".join([f"{message}" for timestring, message in sorted_table])
+                temp_list.append({'role': 'assistant', 'content': f"{db_search_2}  "})
+                if tasklist_counter2 < 4:
+                    temp_list2.append({'role': 'assistant', 'content': f"{db_search_2}  "})
+                tasklist_counter2 + 1
+                if DB_Search_Output == 'True':
+                    print(db_search_2)
+            except Exception as e:
+                if DB_Search_Output == 'True':
+                    if "Not found: Collection" in str(e):
+                        print("Collection does not exist.")
+                    else:
+                        print(f"An unexpected error occurred: {str(e)}")
+                        
+            def remove_duplicate_dicts(input_list):
+                output_list = []
+                for item in input_list:
+                    if item not in output_list:
+                        output_list.append(item)
+                return output_list
+
+            temp_list = remove_duplicate_dicts(temp_list)
+            temp_list2 = remove_duplicate_dicts(temp_list2)
+        agent_inner_monologue.append({'role': 'system', 'content': f"{temp_list}"})       
+        agent_intuition.append({'role': 'system', 'content': f"{temp_list2}"})   
+        
+        temp_list.clear()
+        temp_list2.clear()
+        
+        
+
 
         db_search_1, db_search_2, db_search_3, db_search_14 = None, None, None, None
         try:
@@ -1825,7 +2033,7 @@ async def process_line(host, host_queue, bot_name, username, line, task_counter,
         conversation.append({'role': 'assistant', 'content': f"ASSIGNED TASK: {line}. [/INST]"})
 
 
-        prompt = ''.join([message_dict['content'] for message_dict in conversation])
+        prompt = '\n'.join([message_dict['content'] for message_dict in conversation])
         task_expansion = await agent_oobabooga_process_line_response2(host, prompt, username, bot_name)
         if Sub_Module_Output == 'True':
             print("\n\n----------------------------------\n\n")
@@ -2523,6 +2731,7 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
     counter = 0
     counter2 = 0
     importance_score = list()
+    domain_extraction = list()
     mem_counter = 0
     with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
         settings = json.load(f)
@@ -2828,14 +3037,28 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
                         importance_score.append({'role': 'system', 'content': f"{botnameupper}: Sure thing! Here's the memory rated on a scale of 1-100:\nRating: "})
                         prompt = ''.join([message_dict['content'] for message_dict in importance_score])
                         score = 75
-                        # print(score)
                         importance_score.clear()
+                        
+                        
+                        domain_extraction.append({'role': 'user', 'content': f"You are a knowledge domain extractor.  Your task is to analyze the user's inquiry, then extract the single most salent generalized knowledge domain needed to complete the user's inquiry.  Your response should be a single word.\n"})
+                        domain_extraction.append({'role': 'user', 'content': f"USER INPUT: {segment} [/INST] "})
+                        
+                        prompt = ''.join([message_dict['content'] for message_dict in domain_extraction])
+                        extracted_domain = await oobabooga_domain_extraction(prompt, username, bot_name)
+                        if ":" in extracted_domain:
+                            extracted_domain = extracted_domain.split(":")[-1]
+                        extracted_domain = extracted_domain.replace("\n", "")
+                        extracted_domain = extracted_domain.upper()
+                        
+                        domain_extraction.clear()
+                        
                         metadata = {
                             'bot': bot_name,
                             'user': user_id,
                             'time': timestamp,
                             'rating': score,
                             'message': segment,
+                            'knowledge_domain': extracted_domain,
                             'timestring': timestring,
                             'uuid': unique_id,
                             'memory_type': 'Explicit_Long_Term',
@@ -2843,6 +3066,55 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
                         client.upsert(collection_name=collection_name,
                                              points=[PointStruct(id=unique_id, vector=vector1, payload=metadata)])   
                         payload.clear()
+                        
+                        
+                        vector1 = embeddings(extracted_domain) 
+                        
+                        try:
+                            hits = client.search(
+                                collection_name=f"Bot_{bot_name}_Knowledge_Domains",
+                                query_vector=vector1,
+                                query_filter=Filter(
+                                    must=[
+                                        FieldCondition(
+                                            key="user",
+                                            match=MatchValue(value=f"{user_id}")
+                                        )
+                                    ]
+                                ),
+                                limit=5
+                            )
+                            domain_search = [hit.payload['knowledge_domain'] for hit in hits]
+                        except Exception as e:
+                            if "Not found: Collection" in str(e):
+                                print("Collection does not exist.")
+                                domain_search = "No Collection"
+                            else:
+                                print(f"An unexpected error occurred: {str(e)}")
+                        
+                        
+                        if extracted_domain not in domain_search:
+                            collection_name = f"Bot_{bot_name}_Knowledge_Domains"
+                            # Create the collection only if it doesn't exist
+                            try:
+                                collection_info = client.get_collection(collection_name=collection_name)
+                            except:
+                                client.create_collection(
+                                    collection_name=collection_name,
+                                    vectors_config=VectorParams(size=embed_size, distance=Distance.COSINE),
+                                )
+                            unique_id = str(uuid4())
+                            metadata = {
+                                'bot': bot_name,
+                                'user': user_id,
+                                'knowledge_domain': extracted_domain,
+                                'uuid': unique_id,
+                            }
+                            client.upsert(collection_name=collection_name,
+                                                 points=[PointStruct(id=unique_id, vector=vector1, payload=metadata)])   
+                            payload.clear()
+                        
+                        
                 client.delete(
                     collection_name=f"Bot_{bot_name}_Explicit_Short_Term",
                     points_selector=models.FilterSelector(
@@ -2975,6 +3247,9 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
                             importance_score.append({'role': 'system', 'content': f"{botnameupper}: Sure thing! Here's the memory rated on a scale of 1-100:\nRating: "})
                             prompt = ''.join([message_dict['content'] for message_dict in importance_score])
                             score = 75
+                            
+
+                            
                             # print(score)
                             importance_score.clear()
                             metadata = {
@@ -3201,6 +3476,20 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
                             importance_score.append({'role': 'system', 'content': f"{botnameupper}: Sure thing! Here's the memory rated on a scale of 1-100:\nRating: "})
                             prompt = ''.join([message_dict['content'] for message_dict in importance_score])
                             score = 75
+                            
+                            
+                            domain_extraction.append({'role': 'user', 'content': f"You are a knowledge domain extractor.  Your task is to analyze the user's inquiry, then extract the single most salent generalized knowledge domain needed to complete the user's inquiry.  Your response should be a single word.\n"})
+                            domain_extraction.append({'role': 'user', 'content': f"USER INPUT: {segment} [/INST] "})
+                            
+                            prompt = ''.join([message_dict['content'] for message_dict in domain_extraction])
+                            extracted_domain = await oobabooga_domain_extraction(prompt, username, bot_name)
+                            if ":" in extracted_domain:
+                                extracted_domain = extracted_domain.split(":")[-1]
+                            extracted_domain = extracted_domain.replace("\n", "")
+                            extracted_domain = extracted_domain.upper()
+                            domain_extraction.clear()
+                            
+                            vector2 = embeddings(extracted_domain)
                             # print(score)
                             importance_score.clear()
                             metadata = {
@@ -3209,6 +3498,7 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
                                 'time': timestamp,
                                 'rating': score,
                                 'message': segment,
+                                'knowledge_domain': extracted_domain,
                                 'timestring': timestring,
                                 'uuid': unique_id,
                                 'memory_type': 'Explicit_Long_Term',
@@ -3216,6 +3506,52 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
                             client.upsert(collection_name=collection_name,
                                                  points=[PointStruct(id=unique_id, vector=vector1, payload=metadata)])   
                             payload.clear()
+                            
+                            try:
+                                hits = client.search(
+                                    collection_name=f"Bot_{bot_name}_Knowledge_Domains",
+                                    query_vector=vector1,
+                                    query_filter=Filter(
+                                        must=[
+                                            FieldCondition(
+                                                key="user",
+                                                match=MatchValue(value=f"{user_id}")
+                                            )
+                                        ]
+                                    ),
+                                    limit=5
+                                )
+                                domain_search = [hit.payload['knowledge_domain'] for hit in hits]
+                            except Exception as e:
+                                if "Not found: Collection" in str(e):
+                                    print("Collection does not exist.")
+                                    domain_search = "No Collection"
+                                else:
+                                    print(f"An unexpected error occurred: {str(e)}")
+                            
+                            
+                            if extracted_domain not in domain_search:
+                                collection_name = f"Bot_{bot_name}_Knowledge_Domains"
+                                # Create the collection only if it doesn't exist
+                                try:
+                                    collection_info = client.get_collection(collection_name=collection_name)
+                                except:
+                                    client.create_collection(
+                                        collection_name=collection_name,
+                                        vectors_config=VectorParams(size=embed_size, distance=Distance.COSINE),
+                                    )
+                                unique_id = str(uuid4())
+                                metadata = {
+                                    'bot': bot_name,
+                                    'user': user_id,
+                                    'knowledge_domain': extracted_domain,
+                                    'uuid': unique_id,
+                                }
+                                client.upsert(collection_name=collection_name,
+                                                     points=[PointStruct(id=unique_id, vector=vector2, payload=metadata)])   
+                                payload.clear()
+                            
+                            
                     try:
                         client.delete(
                             collection_name=f"Bot_{bot_name}",

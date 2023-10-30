@@ -176,6 +176,177 @@ async def oobabooga_terms(prompt, username, bot_name):
         
         decoded_string = html.unescape(result['visible'][-1][1])
         return decoded_string
+        
+        
+async def oobabooga_domain_selection(prompt, username, bot_name):
+    history = {'internal': [], 'visible': []}
+    request = {
+        'user_input': prompt,
+        'max_new_tokens': 100,
+        'history': history,
+        'mode': 'instruct',  # Valid options: 'chat', 'chat-instruct', 'instruct'
+        'instruction_template': 'Llama-v2',  # Will get autodetected if unset
+        'context_instruct': f"[INST] <<SYS>>\nYou are a knowledge domain extractor.  Your task is to analyze the given input, then extract the single most salient generalized knowledge domain representative of the input from the list of existing domains.  Your response should be a single word.\n<</SYS>>",  # Optional
+        'your_name': f'{username}',
+
+        'regenerate': False,
+        '_continue': False,
+        'stop_at_newline': False,
+        'chat_generation_attempts': 1,
+        # Generation params. If 'preset' is set to different than 'None', the values
+        # in presets/preset-name.yaml are used instead of the individual numbers.
+        'preset': 'None',  
+        'do_sample': True,
+        'temperature': 0.75,
+        'top_p': 0.4,
+        'typical_p': 1,
+        'epsilon_cutoff': 0,  # In units of 1e-4
+        'eta_cutoff': 0,  # In units of 1e-4
+        'tfs': 1,
+        'top_a': 0,
+        'repetition_penalty': 1.07,
+        'top_k': 40,
+        'min_length': 0,
+        'no_repeat_ngram_size': 0,
+        'num_beams': 1,
+        'penalty_alpha': 0,
+        'length_penalty': 1,
+        'early_stopping': False,
+        'mirostat_mode': 0,
+        'mirostat_tau': 5,
+        'mirostat_eta': 0.1,
+
+        'seed': -1,
+        'add_bos_token': True,
+        'truncation_length': 4096,
+        'ban_eos_token': False,
+        'skip_special_tokens': True,
+        'stopping_strings': ['[/']
+    }
+
+    async with aiohttp.ClientSession() as session:
+        async with session.post(f"{open_file_first('HOST_Oobabooga')}/v1/chat", json=request) as response:
+            if response.status == 200:
+                json_response = await response.json()
+                result = json_response['results'][0]['history']
+    #    print(json.dumps(result, indent=4))
+        
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
+        
+        
+async def oobabooga_domain_extraction(prompt, username, bot_name):
+    history = {'internal': [], 'visible': []}
+    request = {
+        'user_input': prompt,
+        'max_new_tokens': 100,
+        'history': history,
+        'mode': 'instruct',  # Valid options: 'chat', 'chat-instruct', 'instruct'
+        'instruction_template': 'Llama-v2',  # Will get autodetected if unset
+        'context_instruct': f"[INST] <<SYS>>\nYou are a knowledge domain extractor.  Your task is to analyze the given input, then extract the single most salient generalized knowledge domain representative of the input.  Your response should be a single word.\n<</SYS>>",  # Optional
+        'your_name': f'{username}',
+
+        'regenerate': False,
+        '_continue': False,
+        'stop_at_newline': False,
+        'chat_generation_attempts': 1,
+        # Generation params. If 'preset' is set to different than 'None', the values
+        # in presets/preset-name.yaml are used instead of the individual numbers.
+        'preset': 'None',  
+        'do_sample': True,
+        'temperature': 0.75,
+        'top_p': 0.4,
+        'typical_p': 1,
+        'epsilon_cutoff': 0,  # In units of 1e-4
+        'eta_cutoff': 0,  # In units of 1e-4
+        'tfs': 1,
+        'top_a': 0,
+        'repetition_penalty': 1.10,
+        'top_k': 40,
+        'min_length': 0,
+        'no_repeat_ngram_size': 0,
+        'num_beams': 1,
+        'penalty_alpha': 0,
+        'length_penalty': 1,
+        'early_stopping': False,
+        'mirostat_mode': 0,
+        'mirostat_tau': 5,
+        'mirostat_eta': 0.1,
+
+        'seed': -1,
+        'add_bos_token': True,
+        'truncation_length': 4096,
+        'ban_eos_token': False,
+        'skip_special_tokens': True,
+        'stopping_strings': ['[/']
+    }
+
+    async with aiohttp.ClientSession() as session:
+        async with session.post(f"{open_file_first('HOST_Oobabooga')}/v1/chat", json=request) as response:
+            if response.status == 200:
+                json_response = await response.json()
+                result = json_response['results'][0]['history']
+    #    print(json.dumps(result, indent=4))
+        
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
+        
+        
+async def oobabooga_input_expansion(prompt, username, bot_name):
+    history = {'internal': [], 'visible': []}
+    request = {
+        'user_input': prompt,
+        'max_new_tokens': 100,
+        'history': history,
+        'mode': 'instruct',  # Valid options: 'chat', 'chat-instruct', 'instruct'
+        'instruction_template': 'Llama-v2',  # Will get autodetected if unset
+        'context_instruct': f"[INST] <<SYS>>\nYou are a task rephraser. Your primary task is to rephrase the user's input in a way that ensures it contains the full context needed to know what is asked. Please return the rephrased version of the user’s most recent input.\n<</SYS>>",  # Optional
+        'your_name': f'{username}',
+
+        'regenerate': False,
+        '_continue': False,
+        'stop_at_newline': False,
+        'chat_generation_attempts': 1,
+        # Generation params. If 'preset' is set to different than 'None', the values
+        # in presets/preset-name.yaml are used instead of the individual numbers.
+        'preset': 'None',  
+        'do_sample': True,
+        'temperature': 0.3,
+        'top_p': 0.35,
+        'typical_p': 1,
+        'epsilon_cutoff': 0,  # In units of 1e-4
+        'eta_cutoff': 0,  # In units of 1e-4
+        'tfs': 1,
+        'top_a': 0,
+        'repetition_penalty': 1.08,
+        'top_k': 25,
+        'min_length': 0,
+        'no_repeat_ngram_size': 0,
+        'num_beams': 1,
+        'penalty_alpha': 0,
+        'length_penalty': 1,
+        'early_stopping': False,
+        'mirostat_mode': 0,
+        'mirostat_tau': 5,
+        'mirostat_eta': 0.1,
+
+        'seed': -1,
+        'add_bos_token': True,
+        'truncation_length': 4096,
+        'ban_eos_token': False,
+        'skip_special_tokens': True,
+        'stopping_strings': ['[/']
+    }
+
+    async with aiohttp.ClientSession() as session:
+        async with session.post(f"{open_file_first('HOST_Oobabooga')}/v1/chat", json=request) as response:
+            if response.status == 200:
+                json_response = await response.json()
+                result = json_response['results'][0]['history']
+
+        decoded_string = html.unescape(result['visible'][-1][1])
+        return decoded_string
+        
 
 
 async def oobabooga_inner_monologue(prompt, username, bot_name):

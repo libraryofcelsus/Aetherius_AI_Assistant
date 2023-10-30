@@ -78,7 +78,7 @@ def timestamp_to_datetime(unix_time):
 
         
         
-async def search_explicit_db(line_vec, user_id, bot_name):
+async def search_explicit_db(line_vec, extracted_domain, user_id, bot_name):
     try:
         memories1 = None
         memories2 = None
@@ -91,6 +91,10 @@ async def search_explicit_db(line_vec, user_id, bot_name):
                         FieldCondition(
                             key="memory_type",
                             match=models.MatchValue(value="Explicit_Long_Term"),
+                        ),
+                        FieldCondition(
+                            key="knowledge_domain",
+                            match=MatchValue(value=extracted_domain),
                         ),
                         FieldCondition(
                             key="user",
@@ -168,8 +172,64 @@ async def Explicit_Memory_Search(host, bot_name, username, user_id, line, task_c
         usernameupper = username.upper()
         task_completion = "Task Failed"
         line_vec = embeddings(line)
+        
+       
+        
+        
+        domain_extraction.append({'role': 'user', 'content': f"You are a knowledge domain extractor.  Your task is to analyze the user's inquiry, then choose the single most salent generalized knowledge domain needed to complete the user's inquiry from the list of existing domains.  Your response should only contain the single existing knowledge domain.\n"})
+        domain_extraction.append({'role': 'user', 'content': f"USER INPUT: {line} [/INST] "})
+        
+        prompt = ''.join([message_dict['content'] for message_dict in domain_extraction])
+        extracted_domain = await oobabooga_domain_extraction(prompt, username, bot_name)
+        if ":" in extracted_domain:
+            extracted_domain = extracted_domain.split(":")[-1]
+            extracted_domain = extracted_domain.replace("\n", "")
+            extracted_domain = extracted_domain.upper()
+        domain_extraction.clear()
+        
+        
+        vector1 = embeddings(extracted_domain)
         try:
-            result = await search_explicit_db(line_vec, user_id, bot_name)
+            hits = client.search(
+                collection_name=f"Bot_{bot_name}_Knowledge_Domains",
+                query_vector=vector1,
+                query_filter=Filter(
+                    must=[
+                        FieldCondition(
+                            key="user",
+                            match=MatchValue(value=f"{user_id}")
+                        )
+                    ]
+                ),
+                limit=15
+            )
+            domain_search = [hit.payload['knowledge_domain'] for hit in hits]
+            print(f"Knowledge Domains: {domain_search}")
+        except Exception as e:
+            if "Not found: Collection" in str(e):
+                print("Collection does not exist.")
+                domain_search = "No Collection"
+            else:
+                print(f"An unexpected error occurred: {str(e)}")
+        
+        
+        domain_extraction.append({'role': 'user', 'content': f"Please return the existing knowledge domains. [/INST]"})
+        domain_extraction.append({'role': 'user', 'content': f"EXISTING KNOWLEGE DOMAINS: {domain_search}"})
+        domain_extraction.append({'role': 'user', 'content': f"[INST] You are a knowledge domain selector.  Your task is to analyze the user's inquiry, then choose the single most salent generalized knowledge domain from the given list needed to complete the user's inquiry.  Your response should only contain the single existing knowledge domain.\n"})
+        domain_extraction.append({'role': 'user', 'content': f"USER INPUT: {expanded_input} [/INST] "})
+        
+        prompt = ''.join([message_dict['content'] for message_dict in domain_extraction])
+        extracted_domain = await oobabooga_domain_selection(prompt, username, bot_name)
+        if ":" in extracted_domain:
+            extracted_domain = extracted_domain.split(":")[-1]
+            extracted_domain = extracted_domain.replace("\n", "")
+            extracted_domain = extracted_domain.upper()
+        print(f"Extracted Domain: {extracted_domain}")
+        
+        
+        
+        try:
+            result = await search_explicit_db(line_vec, extracted_domain, user_id, bot_name)
             conversation.append({'role': 'assistant', 'content': f"MEMORIES: {result}\n\n"})
 
         except Exception as e:

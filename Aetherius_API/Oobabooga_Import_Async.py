@@ -281,6 +281,7 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name):
                 domain_search = "No Collection"
             else:
                 print(f"An unexpected error occurred: {str(e)}")
+                domain_search = "No Collection"
         
         
         domain_extraction.append({'role': 'user', 'content': "Could you provide the current list of knowledge domains? [/INST]"})

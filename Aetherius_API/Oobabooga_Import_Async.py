@@ -271,7 +271,7 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name):
                         )
                     ]
                 ),
-                limit=15
+                limit=25
             )
             domain_search = [hit.payload['knowledge_domain'] for hit in hits]
             print(f"Knowledge Domains: {domain_search}")
@@ -283,10 +283,12 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name):
                 print(f"An unexpected error occurred: {str(e)}")
         
         
-        domain_extraction.append({'role': 'user', 'content': f"Please return the existing knowledge domains. [/INST]"})
-        domain_extraction.append({'role': 'user', 'content': f"EXISTING KNOWLEGE DOMAINS: {domain_search}"})
-        domain_extraction.append({'role': 'user', 'content': f"[INST] You are a knowledge domain selector.  Your task is to analyze the user's inquiry, then choose the single most salent generalized knowledge domain from the given list needed to complete the user's inquiry.  Your response should only contain the single existing knowledge domain.\n"})
-        domain_extraction.append({'role': 'user', 'content': f"USER INPUT: {expanded_input} [/INST] "})
+        domain_extraction.append({'role': 'user', 'content': "Could you provide the current list of knowledge domains? [/INST]"})
+        domain_extraction.append({'role': 'user', 'content': f"CURRENT KNOWLEDGE DOMAINS: {domain_search}"})
+        domain_extraction.append({'role': 'user', 'content': "[INST] Your role as a Knowledge Domain Selector is to analyze the user's question and identify the most relevant knowledge domain from the provided list. Ensure that your choice is from the existing domains, and avoid creating or using any not listed. Respond with the name of the single selected knowledge domain.\n"})
+        domain_extraction.append({'role': 'user', 'content': f"USER QUESTION: {user_input}\nADDITIONAL CONTEXT: {expanded_input} [/INST]"})
+
+
         
         prompt = ''.join([message_dict['content'] for message_dict in domain_extraction])
         extracted_domain = await oobabooga_domain_selection(prompt, username, bot_name)
@@ -294,11 +296,8 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name):
             extracted_domain = extracted_domain.split(":")[-1]
             extracted_domain = extracted_domain.replace("\n", "")
             extracted_domain = extracted_domain.upper()
+        
         print(f"Extracted Domain: {extracted_domain}")
-        
-        
-        
-        
         
         conversation_history = main_conversation.get_last_entry()
         con_hist = f'{conversation_history}'
@@ -1157,10 +1156,10 @@ async def Aetherius_Agent(user_input, username, user_id, bot_name):
                 print(f"An unexpected error occurred: {str(e)}")
         
         
-        domain_extraction.append({'role': 'user', 'content': f"Please return the existing knowledge domains. [/INST]"})
-        domain_extraction.append({'role': 'user', 'content': f"EXISTING KNOWLEGE DOMAINS: {domain_search}"})
-        domain_extraction.append({'role': 'user', 'content': f"[INST] You are a knowledge domain selector.  Your task is to analyze the user's inquiry, then choose the single most salent generalized knowledge domain from the given list needed to complete the user's inquiry.  Your response should only contain the single existing knowledge domain.\n"})
-        domain_extraction.append({'role': 'user', 'content': f"USER INPUT: {expanded_input} [/INST] "})
+        domain_extraction.append({'role': 'user', 'content': "Could you provide the current list of knowledge domains? [/INST]"})
+        domain_extraction.append({'role': 'user', 'content': f"CURRENT KNOWLEDGE DOMAINS: {domain_search}"})
+        domain_extraction.append({'role': 'user', 'content': "[INST] Your role as a Knowledge Domain Selector is to analyze the user's question and identify the most relevant knowledge domain from the provided list. Ensure that your choice is from the existing domains, and avoid creating or using any not listed. Respond with the name of the single selected knowledge domain.\n"})
+        domain_extraction.append({'role': 'user', 'content': f"USER QUESTION: {user_input}\nADDITIONAL CONTEXT: {expanded_input} [/INST]"})
         
         prompt = ''.join([message_dict['content'] for message_dict in domain_extraction])
         extracted_domain = await oobabooga_domain_selection(prompt, username, bot_name)
@@ -2066,11 +2065,11 @@ async def process_line(host, host_queue, bot_name, username, line, task_counter,
                 print(f"Trying to execute function from {subagent_selection}...")
             if not subagent_selection:
                 print("Error with Module, using fallback")
-                fallback_path = "Aetherius_API\Sub_Agents\Llama_2_Async\Research\External_Resource_DB_Search.py"
+                fallback_path = ".\Aetherius_API\Sub_Agents\Llama_2_Async\Research\External_Resource_DB_Search.py"
                 subagent_selection = [os.path.basename(fallback_path)]
             for filename_with_extension in subagent_selection:
                 filename = filename_with_extension.rstrip('.py')
-                script_path = os.path.join(f'Aetherius_API\Sub_Agents\Llama_2_Async\{line_cat}', filename_with_extension)
+                script_path = os.path.join(f'.\Aetherius_API\Sub_Agents\Llama_2_Async\{line_cat}', filename_with_extension)
 
                 if os.path.exists(script_path):
                     spec = spec_from_file_location(filename, script_path)

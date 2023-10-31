@@ -167,6 +167,8 @@ async def Explicit_Memory_Search(host, bot_name, username, user_id, line, task_c
         memcheck  = list()
         memcheck2 = list()
         sub_agent_completion = list()
+        domain_extraction = list()
+        
         sub_agent_completion.append({'role': 'user', 'content': f"TASK: {line} [/INST] "})
         botnameupper = bot_name.upper()
         usernameupper = username.upper()
@@ -216,7 +218,7 @@ async def Explicit_Memory_Search(host, bot_name, username, user_id, line, task_c
         domain_extraction.append({'role': 'user', 'content': f"Please return the existing knowledge domains. [/INST]"})
         domain_extraction.append({'role': 'user', 'content': f"EXISTING KNOWLEGE DOMAINS: {domain_search}"})
         domain_extraction.append({'role': 'user', 'content': f"[INST] You are a knowledge domain selector.  Your task is to analyze the user's inquiry, then choose the single most salent generalized knowledge domain from the given list needed to complete the user's inquiry.  Your response should only contain the single existing knowledge domain.\n"})
-        domain_extraction.append({'role': 'user', 'content': f"USER INPUT: {expanded_input} [/INST] "})
+        domain_extraction.append({'role': 'user', 'content': f"USER INPUT: {line} [/INST] "})
         
         prompt = ''.join([message_dict['content'] for message_dict in domain_extraction])
         extracted_domain = await oobabooga_domain_selection(prompt, username, bot_name)

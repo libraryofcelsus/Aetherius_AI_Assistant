@@ -3,10 +3,16 @@ Version .045d of the Aetherius Ai Personal Assistant/Agent/Companion by Libraryo
 
 Aetherius is in a state of constant iterative development.  If you like the version you are using, keep a backup.  Expect Bugs.
 
-For a quick demo deployment or if you do not have a GPU see: [Public Oobabooga Api Colab](https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Oobabooga_Public_Api.ipynb)
+If you do not have a GPU see: [Public Oobabooga Api Colab](https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Oobabooga_Public_Api.ipynb)
+
+**Ui is out of date, it will be updated after the new sub-agent system is finished. For the most current version, use the discord bot.**
 
 ------
 **Recent Changes**
+
+• 10/31 Worked on Knowledge Domain Selection. Async API Version Only.
+
+• 10/31 Fixed No Collection Bug for External Resource Search. Async API Version Only.
 
 • 10/30 Added Experimental Knowledge Domains for Explicit Long-term Memory.  Async API Version Only.
 
@@ -47,20 +53,6 @@ For a quick demo deployment or if you do not have a GPU see: [Public Oobabooga A
 • 9/24 Continued to work on Sub-Agent system.
 
 • 9/23 Added Memory Search Sub-Agent and an autonomous web-search if the needed information is not in the External Resources DB.
-
-• 9/23 Continued to work on Sub-Agent framework
-
-• 9/22 Added Sub-Agents/Multi-Agent mode for the Llama 2 version of Aetherius.  See the Sub-Agent folder for an example template. (Still a work in progress)
-
-• 9/19 Added Log writing for Agent mode internal research, can be found in ./logs/Datasets folder
-
-• 9/18 Converted Llama 2 Chatbot to use Json for settings.
-
-• 9/18 Worked on Memory Loop and added better sorting of Hosts during parallel task loop.
-
-• 9/16 Worked on internal prompts and fixed the auto memory not triggering the memory loop bug.
-
-• 9/13 Added check for unfinished sentences for each response.
 
 
 ------
@@ -199,6 +191,8 @@ Inspired by https://github.com/daveshap/
 
 # Changelog:
 **0.045c**
+
+
 
 • Added Sub-Agent script.  You can now create custom sub-agents for Aetherius's parallel processing loop.
 

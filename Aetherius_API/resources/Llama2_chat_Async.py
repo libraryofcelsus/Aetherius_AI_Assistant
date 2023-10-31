@@ -182,11 +182,11 @@ async def oobabooga_domain_selection(prompt, username, bot_name):
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
-        'max_new_tokens': 100,
+        'max_new_tokens': 25,
         'history': history,
         'mode': 'instruct',  # Valid options: 'chat', 'chat-instruct', 'instruct'
         'instruction_template': 'Llama-v2',  # Will get autodetected if unset
-        'context_instruct': f"[INST] <<SYS>>\nYou are a knowledge domain extractor.  Your task is to analyze the given input, then extract the single most salient generalized knowledge domain representative of the input from the list of existing domains.  Your response should be a single word.\n<</SYS>>",  # Optional
+        'context_instruct': f"[INST] <<SYS>>\nYou are a Knowledge Domain Selector. Your role is to identify the most relevant knowledge domain based on the user's question. Choose only from the provided list and do not create or use any domains outside of it. Your response should be limited to naming the single chosen knowledge domain from the list, do not include anything but the knowledge domain.\n<</SYS>>",  # Optional
         'your_name': f'{username}',
 
         'regenerate': False,
@@ -197,15 +197,16 @@ async def oobabooga_domain_selection(prompt, username, bot_name):
         # in presets/preset-name.yaml are used instead of the individual numbers.
         'preset': 'None',  
         'do_sample': True,
-        'temperature': 0.75,
-        'top_p': 0.4,
+        'temperature': 0.2,
+        'top_p': 0.20,
         'typical_p': 1,
         'epsilon_cutoff': 0,  # In units of 1e-4
         'eta_cutoff': 0,  # In units of 1e-4
         'tfs': 1,
         'top_a': 0,
-        'repetition_penalty': 1.07,
-        'top_k': 40,
+        'repetition_penalty': 1.00,
+        'encoder_repetition_penalty': 1.26,
+        'top_k': 20,
         'min_length': 0,
         'no_repeat_ngram_size': 0,
         'num_beams': 1,

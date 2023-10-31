@@ -276,6 +276,17 @@ async def External_Resource_DB_Search(host, bot_name, username, user_id, line, t
         conversation.append({'role': 'assistant', 'content': f"Bot {task_counter}: I have studied the given tasklist. The task I have chosen to complete is: {line}."})
         vector_input1 = await embeddings(line)
         table = "No External Resources in DB"
+        # Define the collection name
+        collection_name = f"Bot_{bot_name}_External_Knowledgebase"
+        try:
+            collection_info = client.get_collection(collection_name=collection_name)
+            print(collection_info)
+        except:
+            client.create_collection(
+            collection_name=collection_name,
+            vectors_config=VectorParams(size=embed_size, distance=Distance.COSINE),
+        )
+        
         try:
             hits = client.search(
                 collection_name=f"Bot_{bot_name}_External_Knowledgebase",

@@ -8,9 +8,9 @@ import asyncio
 
 
 async def chat_with_Aetherius(message, history):
-    user_id = "libraryofcelsus"
-    bot_name = "Aetherius"
     username = "Celsus"
+    bot_name = "Aetherius"
+    user_id = username
     
 
     response = await Aetherius_Chatbot(message, username, user_id, bot_name)

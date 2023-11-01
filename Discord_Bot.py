@@ -6,6 +6,25 @@ import logging
 
 # All Indents must be enabled, give the bot admin privileges
 
+# COMMANDS
+
+# !Agent <ENTER QUERY TO BOT> 
+# (Activates Aetherius's Sub-Agent Mode)
+
+# !Heuristics <ENTER HEURISTIC>
+# (Allows you to upload a Heuristic)
+
+# !ImplicitSTM <ENTER SHORT TERM MEMORY>
+# (Allows you to upload a Short Term Implicit Memory)
+
+# !ExplicitSTM <ENTER SHORT TERM MEMORY>
+# (Allows you to upload a Short Term Explicit Memory)
+
+# !ImplicitLTM <ENTER LONG TERM MEMORY>
+# (Allows you to upload a Long Term Implicit Memory)
+
+# !ExplicitLTM <ENTER LONG TERM MEMORY>
+# (Allows you to upload a Long Term Explicit Memory)
 
 TOKEN = 'REPLACE WITH DISCORD BOT TOKEN'
 

@@ -254,7 +254,8 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name):
             extracted_domain = extracted_domain.split(":")[-1]
             extracted_domain = extracted_domain.replace("\n", "")
             extracted_domain = extracted_domain.upper()
-        
+            extracted_domain = re.sub(r'[^A-Z]', '', extracted_domain)
+            extracted_domain = extracted_domain.replace("_", " ")
         domain_extraction.clear()
         
         
@@ -274,7 +275,6 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name):
                 limit=25
             )
             domain_search = [hit.payload['knowledge_domain'] for hit in hits]
-            print(f"Knowledge Domains: {domain_search}")
         except Exception as e:
             if "Not found: Collection" in str(e):
                 print("Collection does not exist.")
@@ -282,12 +282,22 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name):
             else:
                 print(f"An unexpected error occurred: {str(e)}")
                 domain_search = "No Collection"
-        
+                
+                
+        def remove_duplicate_dicts(input_list):
+            output_list = []
+            for item in input_list:
+                if item not in output_list:
+                    output_list.append(item)
+            return output_list
+
+        domain_search = remove_duplicate_dicts(domain_search)
+        print(f"Knowledge Domains: {domain_search}")
         
         domain_extraction.append({'role': 'user', 'content': "Could you provide the current list of knowledge domains? [/INST]"})
         domain_extraction.append({'role': 'user', 'content': f"CURRENT KNOWLEDGE DOMAINS: {domain_search}"})
         domain_extraction.append({'role': 'user', 'content': "[INST] Your role as a Knowledge Domain Selector is to analyze the user's question and identify the most relevant knowledge domain from the provided list. Ensure that your choice is from the existing domains, and avoid creating or using any not listed. Respond with the name of the single selected knowledge domain.\n"})
-        domain_extraction.append({'role': 'user', 'content': f"USER QUESTION: {user_input}\nADDITIONAL CONTEXT: {expanded_input} [/INST]"})
+        domain_extraction.append({'role': 'user', 'content': f"USER QUESTION: {user_input}\nADDITIONAL CONTEXT: {expanded_input} [/INST]  EXTRACTED KNOWLEDGE DOMAIN: "})
 
 
         
@@ -297,6 +307,8 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name):
             extracted_domain = extracted_domain.split(":")[-1]
             extracted_domain = extracted_domain.replace("\n", "")
             extracted_domain = extracted_domain.upper()
+            extracted_domain = re.sub(r'[^A-Z]', '', extracted_domain)
+            extracted_domain = extracted_domain.replace("_", " ")
         
         print(f"Extracted Domain: {extracted_domain}")
         
@@ -1129,6 +1141,8 @@ async def Aetherius_Agent(user_input, username, user_id, bot_name):
             extracted_domain = extracted_domain.split(":")[-1]
             extracted_domain = extracted_domain.replace("\n", "")
             extracted_domain = extracted_domain.upper()
+            extracted_domain = re.sub(r'[^A-Z]', '', extracted_domain)
+            extracted_domain = extracted_domain.replace("_", " ")
         domain_extraction.clear()
         
         
@@ -1168,6 +1182,8 @@ async def Aetherius_Agent(user_input, username, user_id, bot_name):
             extracted_domain = extracted_domain.split(":")[-1]
             extracted_domain = extracted_domain.replace("\n", "")
             extracted_domain = extracted_domain.upper()
+            extracted_domain = re.sub(r'[^A-Z]', '', extracted_domain)
+            extracted_domain = extracted_domain.replace("_", " ")
         print(f"Extracted Domain: {extracted_domain}")
         
         
@@ -3049,7 +3065,8 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
                             extracted_domain = extracted_domain.split(":")[-1]
                         extracted_domain = extracted_domain.replace("\n", "")
                         extracted_domain = extracted_domain.upper()
-                        
+                        extracted_domain = re.sub(r'[^A-Z]', '', extracted_domain)
+                        extracted_domain = extracted_domain.replace("_", " ")
                         domain_extraction.clear()
                         
                         metadata = {
@@ -3082,7 +3099,7 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
                                         )
                                     ]
                                 ),
-                                limit=5
+                                limit=20
                             )
                             domain_search = [hit.payload['knowledge_domain'] for hit in hits]
                         except Exception as e:
@@ -3487,6 +3504,8 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
                                 extracted_domain = extracted_domain.split(":")[-1]
                             extracted_domain = extracted_domain.replace("\n", "")
                             extracted_domain = extracted_domain.upper()
+                            extracted_domain = re.sub(r'[^A-Z]', '', extracted_domain)
+                            extracted_domain = extracted_domain.replace("_", " ")
                             domain_extraction.clear()
                             
                             vector2 = embeddings(extracted_domain)
@@ -3519,7 +3538,7 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
                                             )
                                         ]
                                     ),
-                                    limit=5
+                                    limit=20
                                 )
                                 domain_search = [hit.payload['knowledge_domain'] for hit in hits]
                             except Exception as e:

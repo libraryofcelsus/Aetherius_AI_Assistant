@@ -182,7 +182,7 @@ async def oobabooga_domain_selection(prompt, username, bot_name):
     history = {'internal': [], 'visible': []}
     request = {
         'user_input': prompt,
-        'max_new_tokens': 25,
+        'max_new_tokens': 30,
         'history': history,
         'mode': 'instruct',  # Valid options: 'chat', 'chat-instruct', 'instruct'
         'instruction_template': 'Llama-v2',  # Will get autodetected if unset

@@ -10,6 +10,8 @@ If you do not have a GPU see: [Public Oobabooga Api Colab](https://colab.researc
 ------
 **Recent Changes**
 
+• 10/31 Added Temporary Gradio Ui until other ui is redone.
+
 • 10/31 Worked on Knowledge Domain Selection. Async API Version Only.
 
 • 10/31 Fixed No Collection Bug for External Resource Search. Async API Version Only.

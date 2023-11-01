@@ -9,7 +9,7 @@ import asyncio
 
 async def chat_with_Aetherius(message, history):
     user_id = "libraryofcelsus"
-    bot_name = "Aetheria"
+    bot_name = "Aetherius"
     username = "Celsus"
     
 

@@ -10,7 +10,11 @@ If you do not have a GPU see: [Public Oobabooga Api Colab](https://colab.researc
 ------
 **Recent Changes**
 
-• 10/31 Added Temporary Gradio Ui for testing agent mode until other ui is redone.  Username and Botname must be changed in "Gradio-Ui.py"  If using Discord Bot, user_id must be set to discord username.
+• 11/05 Various Backend Changes, no additional functionality for now, mostly for future stuff.
+
+• 11/05 Fixed Sub-Agent Selection Bug.
+
+• 10/31 Added Temporary Gradio Ui for testing agent mode until other ui is redone. Username and Botname must be changed in "Gradio-Ui.py" If using Discord Bot, user_id must be set to discord username.
 
 • 10/31 Worked on Knowledge Domain Selection. Async API Version Only.
 

@@ -125,6 +125,8 @@ Aetherius's development is self-funded by my day job, consider supporting me if 
 
 ------
 
+**Documentation not up to date :(**
+
 [Aetherius Usage Guide](https://www.libraryofcelsus.com/research/aetherius-usage-guide/)
 
 [Skip to installation guide](#installation-guide)
@@ -349,31 +351,35 @@ The final step will be to run the actual Aetherius Script.  You can install it l
 
 ## Installer bat
 
-Install Python 3.10.6, Make sure you add it to PATH: **https://www.python.org/downloads/release/python-3106/**
+1. Install Python 3.10.6, Make sure you add it to PATH: **https://www.python.org/downloads/release/python-3106/**
 
-Run the Installer Bat as admin, it is located at: https://github.com/libraryofcelsus/Aetherius_AI_Assistant/blob/main/scripts/resources/install.bat
+2. Run the Windows_Installer Bat as admin.
 
 (If you get an error when installing requirements run: **python -m pip cache purge**)
 
-![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/05/Capture11111111.png)
+(If using Ui, edit settings outside of api folder.  If using Api, edit settings inside the Api Folder.  Discord and Gradio use the Api.)
 
-Copy your OpenAi and Qdrant API/URL keys to the api_keys folder inside of the created Aetherius_Ai_Assistant folder if you are using the OpenAi version.
+3. Copy your OpenAi and Qdrant API/URL keys to the api_keys folder inside of the created Aetherius_Ai_Assistant folder if you are using the OpenAi version or GPT Vision.
 
-Copy your Google CSE Key and Api Key to the api_keys folder or set Web_Search to False in the External Resources Sub-Agent.  You can also change the search engine to Bing.
+4. Copy your Google CSE Key and Api Key to the api_keys folder or set Web_Search to False in the External Resources Sub-Agent.  You can also change the search engine to Bing.
 
-To run Aetherius on Google Colab with Oobabooga using a public Api, use the Notebook file in the "./Colab Notebooks" Folder.  To use the Public Api with Aetherius, change the "Set Oobabooga Host" in the Config Menu to the given non-streaming Url. <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Oobabooga_Public_Api.ipynb">
+5. To run Aetherius on Google Colab with Oobabooga using a public Api, use the Notebook file in the "./Colab Notebooks" Folder.  To use the Public Api with Aetherius, change the "Set Oobabooga Host" in the Config Menu to the given non-streaming Url. <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Oobabooga_Public_Api.ipynb">
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
 </a>
 
-To run Aetherius Locally using Oobabooga, first install the web-ui at: https://github.com/oobabooga/text-generation-webui
+6. To run Aetherius Locally using Oobabooga, first install the web-ui at: https://github.com/oobabooga/text-generation-webui
 
-Then, under the "Interface Mode" tab, enable the api checkbox in both fields. Then click apply and restart the interface.
+Oobabooga Text-Ui just changed how their api works.  The most up to date version that works is snapshot-2023-10-29
 
-Next, navigate to the models tab. Uncheck the autoload models box and then input "TheBloke/Llama-2-13B-chat-GPTQ" into the downloads box (7B model can be used for faster results, but it occasionally breaks format and has a tendency to make things up.  Wouldn't recommend if you need factual data). Other models may work, but this is the one that is tested.
+7. Then, under the "Interface Mode" tab, enable the api checkbox in both fields. Then click apply and restart the interface.
 
-Once the download is completed, reload the model selection menu and then select the model. Change the model loader to Exllama and set the max_seq_len to "4096".  Set the "gpu_split" to 1 GB under your Gpu's max Vram.
+8. Next, navigate to the models tab. Uncheck the autoload models box and then input "TheBloke/Llama-2-13B-chat-GPTQ" into the downloads box (7B model can be used for faster results, but it occasionally breaks format and has a tendency to make things up.  Wouldn't recommend if you need factual data). Other models may work, but this is the one that is tested.
 
-Click the "load" button and load the model. The Aetherius should now work!
+9. Once the download is completed, reload the model selection menu and then select the model. Change the model loader to Exllama and set the max_seq_len to "4096".  Set the "gpu_split" to 1 GB under your Gpu's max Vram.
+
+10. Click the "load" button and load the model. The Aetherius should now work!
+
+11. Set up Qdrant
 
 Qdrant Cloud: https://qdrant.to/cloud
 
@@ -387,9 +393,10 @@ Once the local Qdrant server is running, it should be auto detected by Aetherius
 
 If No Qdrant server is running, Aetherius will save to disk.
 
-Launch Aetherius with **run.bat**
+12. Launch Aetherius with one of the **run.bat** files.
 
-Upload heuristics to DB and change the Bot and User name to start chatting with Aetherius!  
+13. Upload heuristics to DB and change the Bot and User name to start chatting with Aetherius!  
+
 Heuristic examples, and files to modify prompts can be found in the config folder.  Prompts can also be edited through the Config Menu.
 
 Photo OCR (jpg, jpeg, png) requires tesseract: https://github.com/UB-Mannheim/tesseract/wiki
@@ -398,6 +405,46 @@ Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aethe
  To get Whisper working with cuda, you may need to run the commands: **.\venv\Scripts\activate**  **pip uninstall torch torchaudio**    **pip install torch torchvision torchaudio -f https://download.pytorch.org/whl/cu118/torch_stable.html**
 
 [Aetherius Usage Guide](https://www.libraryofcelsus.com/research/aetherius-usage-guide/)
+
+## For Discord Bot
+
+1. Go to: https://discord.com/developers and create a New Application for your Bot.
+
+2. Go to the Bot Tab in the Application and enable all Privileged Gateway Intents.
+
+3. Copy the Bot Token into the Discord_Bot.py script for Aetherius.
+
+4. Change the bots name if desired.  (If using in a server and you don't want the memories to be per user, replace "str(ctx.author)" with something like "server".)
+
+5. Go to the OAuth2 tab and click the URL Generator sub-tab.
+
+6. Enable the bot and applications.commands checkboxes in "SCOPES"
+
+7. Enable the Administrator checkbox in "BOT PERMISSIONS"
+
+8. Use the link to add the bot to a server.
+
+9. DM the bot.
+
+*Bot Commands*
+
+!Agent <ENTER QUERY TO BOT>  
+(Activates Aetherius's Sub-Agent Mode)
+
+!Heuristics <ENTER HEURISTIC>  
+(Allows you to upload a Heuristic) 
+
+!ImplicitSTM <ENTER SHORT TERM MEMORY>   
+(Allows you to upload a Short Term Implicit Memory) 
+
+!ExplicitSTM <ENTER SHORT TERM MEMORY> 
+(Allows you to upload a Short Term Explicit Memory) 
+
+!ImplicitLTM <ENTER LONG TERM MEMORY>  
+(Allows you to upload a Long Term Implicit Memory) 
+
+!ExplicitLTM <ENTER LONG TERM MEMORY> 
+(Allows you to upload a Long Term Explicit Memory) 
 
 ## Windows Installation
 
@@ -443,6 +490,8 @@ Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aethe
 20. Once the local Qdrant server is running, it should be auto detected by Aetherius.  If No Qdrant server is running, Aetherius will save to disk.   
 (See: https://docs.docker.com/desktop/backup-and-restore/ for how to make backups.)
 
+(If using Ui, edit settings outside of api folder.  If using Api, edit settings inside the Api Folder.  Discord and Gradio use the Api.)
+
 21. Copy your Google Api key to key_google.txt  (You can disable the External Resources Web_Search in the script file.)
 
 22. Copy your Google CSE ID to key_google_cse.txt
@@ -450,8 +499,7 @@ Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aethe
 23. If you plan on using Photo OCR (jpg, jpeg, png Text Recognition), it requires tesseract: https://github.com/UB-Mannheim/tesseract/wiki
     Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aetherius_Ai_Assistant" Folder.  Photos must be placed in the ./Upload/SCANS folder.
 
-24. Run main.py by typing **python main.py** in cmd or **run.bat** as admin to start Aetherius. (Using run.bat will let you skip opening CMD and activating the 
-    environment.)
+24. Run main.py by typing **python main.py** in cmd or one of the **run.bat** files as admin to start Aetherius. (Using run.bat will let you skip opening CMD and activating the environment.)
 
 25. Select DB Upload Heuristics from the DB Management menu to upload Heuristics for the bot, this DB can also function as a Personality DB. An example of how to do 
     this can be found in "personality_db_input_examples.txt" in the config folder.
@@ -479,6 +527,7 @@ Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aethe
 
 34. Click the "load" button and load the model.  The Oobabooga API bots should now work!
 
+
 -----
 
 ## About Me
@@ -490,5 +539,4 @@ Discord: libraryofcelsus      -> Old Username Style: Celsus#0262
 
 MEGA Chat: https://mega.nz/C!pmNmEIZQ
 
-Email: libraryofcelsusofficial@gmail.com
 

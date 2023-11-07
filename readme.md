@@ -7,6 +7,8 @@ If you do not have a GPU see: [Public Oobabooga Api Colab](https://colab.researc
 
 **Ui is out of date, it will be updated after the new sub-agent system is finished. For the most current version, use the discord bot.**
 
+Oobabooga Text-Ui just changed how their api works.  The most up to date version that works is snapshot-2023-10-29
+
 ------
 **Currently Working On**
 - Implimenting Open Ai Features

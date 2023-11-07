@@ -194,7 +194,7 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
     Intuition_Output = settings.get('Output_Intuition', 'False')
     Response_Output = settings.get('Output_Response', 'True')
     DB_Search_Output = settings.get('Output_DB_Search', 'False')
-    memory_mode = settings.get('Memory_Mode', 'Auto')
+    memory_mode = settings.get('Memory_Mode', 'Forced')
     Update_Bot_Personality_Description = settings.get('Update_Bot_Personality_Description', 'False')
     Update_User_Personality_Description = settings.get('Update_User_Personality_Description', 'False')
     Use_Bot_Personality_Description = settings.get('Use_Bot_Personality_Description', 'False')
@@ -1122,7 +1122,7 @@ async def Aetherius_Agent(user_input, username, user_id, bot_name, image_path=No
     Intuition_Output = settings.get('Output_Intuition', 'False')
     Response_Output = settings.get('Output_Response', 'True')
     DB_Search_Output = settings.get('Output_DB_Search', 'False')
-    memory_mode = settings.get('Memory_Mode', 'Auto')
+    memory_mode = settings.get('Memory_Mode', 'Forced')
     Sub_Module_Output = settings.get('Output_Sub_Module', 'False')
     Update_Bot_Personality_Description = settings.get('Update_Bot_Personality_Description', 'False')
     Update_User_Personality_Description = settings.get('Update_User_Personality_Description', 'False')
@@ -2275,9 +2275,9 @@ async def Aetherius_Implicit_Memory(user_input, output_one, bot_name, username, 
         HOST = settings.get('HOST_Oobabooga', 'http://localhost:5000/api')
         embed_size = settings['embed_size']
         DB_Search_Output = settings.get('Output_DB_Search', 'False')
-        memory_mode = settings.get('Memory_Mode', 'Auto')
-        Update_Bot_Personality_Description = settings.get('Update_Bot_Personality_Description', 'False')
-        Update_User_Personality_Description = settings.get('Update_User_Personality_Description', 'False')
+        memory_mode = settings.get('Memory_Mode', 'Forced')
+        Update_Bot_Personality_Description = settings.get('Update_Bot_Personality_Description', 'True')
+        Update_User_Personality_Description = settings.get('Update_User_Personality_Description', 'True')
         backend_model = settings.get('Model_Backend', 'Llama_2')
         timestamp = time()
         botnameupper = bot_name.upper()
@@ -2325,10 +2325,6 @@ async def Aetherius_Implicit_Memory(user_input, output_one, bot_name, username, 
             auto.append({'role': 'system', 'content': "CURRENT SYSTEM PROMPT: You are a sub-module designed to reflect on your thought process. You are only able to respond with integers on a scale of 1-10, being incapable of printing letters.\n"})
             auto.append({'role': 'user', 'content': f"USER INPUT: {user_input}\nCHATBOTS INNER THOUGHTS: {output_one}\nPlease rate the chatbot's inner thoughts on a scale of 1 to 10. The rating will be directly input into a field, so ensure you only print a single number between 1 and 10. You are incapable of responding with anything other than a single number. {user_input_end}"})
             auto.append({'role': 'assistant', 'content': f"RATING: Sure, here is a numerical rating between 1 and 10: "})
-
-
-
-
 
             auto_int = None
             while auto_int is None:
@@ -2428,6 +2424,8 @@ async def Aetherius_Implicit_Memory(user_input, output_one, bot_name, username, 
                 client.upsert(collection_name=collection_name,
                                      points=[PointStruct(id=unique_id, vector=vector1, payload=metadata)])  
                 payload.clear()
+                
+                
         if memory_mode == 'Training':
             print(f"Upload Implicit Memories?\n{inner_loop_response}\n\n")
             mem_upload_yescheck = input("Enter 'Y' or 'N': ")
@@ -2494,7 +2492,7 @@ async def Aetherius_Implicit_Memory(user_input, output_one, bot_name, username, 
                 if ':' in personality_gen:
                     personality_gen = personality_gen.split(':', 1)[1].strip()
                 
-                print(f"PRINT OF PERSONALITY FILE: {personality_gen}")
+                print(f"\n\nPRINT OF BOT PERSONALITY FILE: {personality_gen}")
                 new_personality_content = personality_gen
                 
                 def safe_encode(content):
@@ -2553,9 +2551,9 @@ async def Aetherius_Explicit_Memory(user_input, vector_input, vector_monologue, 
         HOST = settings.get('HOST_Oobabooga', 'http://localhost:5000/api')
         embed_size = settings['embed_size']
         DB_Search_Output = settings.get('Output_DB_Search', 'False')
-        memory_mode = settings.get('Memory_Mode', 'Auto')
-        Update_Bot_Personality_Description = settings.get('Update_Bot_Personality_Description', 'False')
-        Update_User_Personality_Description = settings.get('Update_User_Personality_Description', 'False')
+        memory_mode = settings.get('Memory_Mode', 'Forced')
+        Update_Bot_Personality_Description = settings.get('Update_Bot_Personality_Description', 'True')
+        Update_User_Personality_Description = settings.get('Update_User_Personality_Description', 'True')
         backend_model = settings.get('Model_Backend', 'Llama_2')
         usernameupper = username.upper()
         botnameupper = bot_name.upper()
@@ -2623,7 +2621,7 @@ async def Aetherius_Explicit_Memory(user_input, vector_input, vector_monologue, 
                             continue  
                         if index == total_segments - 1 and not segment[-1] in ['.', '!', '?']:
                             continue
-              #          print(segment)
+                        print(f"\n{segment}")
                         payload = list()       
                         collection_name = f"Bot_{bot_name}_Explicit_Short_Term"
                         try:
@@ -2665,39 +2663,42 @@ async def Aetherius_Explicit_Memory(user_input, vector_input, vector_monologue, 
             task = asyncio.create_task(Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_input, vector_monologue, output_one, response_two))
 
         if memory_mode == 'Forced':
-            segments = re.split(r'•|\n\s*\n', db_upsert)
-            total_segments = len(segments)
-            for index, segment in enumerate(segments):
-                segment = segment.strip()
-                if segment == '': 
-                    continue  
-                if index == total_segments - 1 and not segment[-1] in ['.', '!', '?']:
-                    continue
-      #          print(segment)
-                payload = list()       
-                collection_name = f"Bot_{bot_name}_Explicit_Short_Term"
-                try:
-                    collection_info = client.get_collection(collection_name=collection_name)
-                except:
-                    client.create_collection(
-                        collection_name=collection_name,
-                        vectors_config=VectorParams(size=embed_size, distance=Distance.COSINE),
-                    )
-                vector1 = embeddings(segment)
-                unique_id = str(uuid4())
-                point_id = unique_id + str(int(timestamp))
-                metadata = {
-                    'bot': bot_name,
-                    'time': timestamp,
-                    'message': segment,
-                    'timestring': timestring,
-                    'uuid': unique_id,
-                    'user': user_id,
-                    'memory_type': 'Explicit_Short_Term',
-                }
-                client.upsert(collection_name=collection_name,
-                                     points=[PointStruct(id=unique_id, vector=vector1, payload=metadata)])    
-                payload.clear()
+            try:
+                segments = re.split(r'•|\n\s*\n', db_upsert)
+                total_segments = len(segments)
+                for index, segment in enumerate(segments):
+                    segment = segment.strip()
+                    if segment == '': 
+                        continue  
+                    if index == total_segments - 1 and not segment[-1] in ['.', '!', '?']:
+                        continue
+                    print(f"\n{segment}")
+                    payload = list()       
+                    collection_name = f"Bot_{bot_name}_Explicit_Short_Term"
+                    try:
+                        collection_info = client.get_collection(collection_name=collection_name)
+                    except:
+                        client.create_collection(
+                            collection_name=collection_name,
+                            vectors_config=VectorParams(size=embed_size, distance=Distance.COSINE),
+                        )
+                    vector1 = embeddings(segment)
+                    unique_id = str(uuid4())
+                    point_id = unique_id + str(int(timestamp))
+                    metadata = {
+                        'bot': bot_name,
+                        'time': timestamp,
+                        'message': segment,
+                        'timestring': timestring,
+                        'uuid': unique_id,
+                        'user': user_id,
+                        'memory_type': 'Explicit_Short_Term',
+                    }
+                    client.upsert(collection_name=collection_name,
+                                         points=[PointStruct(id=unique_id, vector=vector1, payload=metadata)])    
+                    payload.clear()
+            except Exception as e:
+                print(e)
             task = asyncio.create_task(Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_input, vector_monologue, output_one, response_two))
         
         if memory_mode == 'Training':
@@ -2776,7 +2777,7 @@ async def Aetherius_Explicit_Memory(user_input, vector_input, vector_monologue, 
                 if ':' in personality_gen:
                     personality_gen = personality_gen.split(':', 1)[1].strip()
                 
-                print(f"PRINT OF USER PERSONALITY FILE: {personality_gen}")
+                print(f"\n\nPRINT OF USER PERSONALITY FILE: {personality_gen}")
                 new_personality_content = personality_gen
                 
                 def safe_encode(content):
@@ -2932,6 +2933,7 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
         settings = json.load(f)
     embed_size = settings['embed_size']
     backend_model = settings.get('Model_Backend', 'Llama_2')
+    DB_Search_Output = settings.get('Output_DB_Search', 'False')
     conversation = list()
     conversation2 = list()
     summary = list()
@@ -2978,9 +2980,6 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
         timestring = timestamp_to_datetime(timestamp)
         counter += 1
         conversation.clear()
-        
-        
-        
         conversation.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a sub-module of {bot_name}, an AI entity designed for autonomous interaction. Your specialized function is to distill each conversation with {username} into a single, short and concise narrative sentence. This sentence should serve as {bot_name}'s autobiographical memory of the conversation, capturing the most significant events, context, and emotions experienced by either {bot_name} or {username}. Note that 'autobiographical memory' refers to a detailed recollection of a specific event, often including emotions and sensory experiences. Your task is to focus on preserving the most crucial elements without omitting key context or feelings. After that, please print the user's message followed by your response. {user_input_end}"})
         conversation.append({'role': 'user', 'content': f"USER: {a}\n"})
         conversation.append({'role': 'user', 'content': f"{botnameupper}'s INNER MONOLOGUE: {output_one}\n"})
@@ -3061,7 +3060,10 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
         
         # # Flashbulb Memory Generation
         collection_name = f"Flash_Counter_Bot_{bot_name}_{user_id}"
-        collection_info = client.get_collection(collection_name=collection_name)
+        try:
+            collection_info = client.get_collection(collection_name=collection_name)
+        except:
+            collection_info.vectors_count = 0
         if collection_info.vectors_count > 8:
             flash_db = None
             try:

@@ -8,6 +8,12 @@ If you do not have a GPU see: [Public Oobabooga Api Colab](https://colab.researc
 **Ui is out of date, it will be updated after the new sub-agent system is finished. For the most current version, use the discord bot.**
 
 ------
+**Currently Working On**
+- Setting up a backend for easy switching between models using the same script.
+- Improving Sub-Agent System and adding sub-agent collaboration.  
+- Adding old features to Api (sidelined till sub-agent system is finished)
+- Improving Reliability. 
+------
 **Recent Changes**
 
 • 11/05 Various Backend Changes, no additional functionality for now, mostly for future stuff.

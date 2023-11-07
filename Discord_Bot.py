@@ -6,8 +6,6 @@ import logging
 
 # All Indents must be enabled, give the bot admin privileges
 
-# You can now send images to Aetherius!
-
 # COMMANDS
 
 # !Agent <ENTER QUERY TO BOT> 
@@ -107,6 +105,7 @@ async def WebScrape(ctx, *, query):
 
 @client.event
 async def on_message(message):
+    image_path = None
     # Avoid responding to ourselves
     if message.author == client.user:
         return
@@ -114,10 +113,14 @@ async def on_message(message):
     # If the bot is not mentioned in a guild, do nothing
     if message.guild is not None and client.user not in message.mentions:
         return
+        
+    if message.attachments:
+        # Get the URL of the first attachment (assuming it's an image)
+        image_path = message.attachments[0].url
     
     # If the message doesn't start with '!', interact as a chatbot
     if not message.content.startswith('!'):
-        response = await Aetherius_Chatbot(message.content, str(message.author.display_name), str(message.author), BOTNAME)
+        response = await Aetherius_Chatbot(message.content, str(message.author.display_name), str(message.author), BOTNAME, image_path)
         for chunk in split_response(response):
             await message.channel.send(chunk)
 

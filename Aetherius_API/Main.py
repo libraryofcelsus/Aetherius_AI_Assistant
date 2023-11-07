@@ -2494,7 +2494,7 @@ async def Aetherius_Implicit_Memory(user_input, output_one, bot_name, username, 
                 print(f"PRINT OF PERSONALITY FILE: {personality_gen}")
                 new_personality_content = personality_gen
                 
-                async with aiofiles.open(file_path, 'w') as file:
+                async with aiofiles.open(file_path, 'w', encoding='utf-8') as file:
                     await file.write(new_personality_content)
                 
     except Exception as e:
@@ -2765,7 +2765,7 @@ async def Aetherius_Explicit_Memory(user_input, vector_input, vector_monologue, 
                 print(f"PRINT OF USER PERSONALITY FILE: {personality_gen}")
                 new_personality_content = personality_gen
                 
-                async with aiofiles.open(file_path, 'w') as file:
+                async with aiofiles.open(file_path, 'w', encoding='utf-8') as file:
                     await file.write(new_personality_content)
     except Exception as e:
         print(e)

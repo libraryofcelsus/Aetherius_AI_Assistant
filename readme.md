@@ -19,6 +19,8 @@ If you do not have a GPU see: [Public Oobabooga Api Colab](https://colab.researc
 ------
 **Recent Changes**
 
+• 11/07 Fixed Unicode encoding error when writing personality files.
+
 • 11/07 Added GPT Vision to Agent mode.
 
 • 11/06 Added GPT Vision Support.  I recommend using the discord bot for this.

@@ -1,1 +1,0 @@
-This Tool Category is dedicated to probing a memory database to retrieve historical information related to specific users or bots. It meticulously searches past interactions and stored data associated with <<USERNAME>> or <<BOTNAME>>, ensuring that the extracted information is both relevant and accurate for the task at hand.

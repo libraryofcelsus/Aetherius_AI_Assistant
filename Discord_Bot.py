@@ -28,6 +28,9 @@ import logging
 
 TOKEN = 'REPLACE WITH DISCORD BOT TOKEN'
 
+# All Indents must be enabled in discord dev menu, give the bot admin privileges
+# When in a server, you must @ the bot.  I recommend just DMing it.
+
 BOTNAME = 'Aetherius'
 
 intents = discord.Intents.all()
@@ -56,7 +59,11 @@ def split_response(response, limit=1999):
 @client.command()
 async def Agent(ctx, *, inquiry):
     """Handle the !Agent command"""
-    response = await Aetherius_Agent(inquiry, str(ctx.author.display_name), str(ctx.author), BOTNAME)
+    image_path  = None
+    if ctx.message.attachments:
+        # Get the URL of the first attachment (assuming it's an image)
+        image_path = ctx.message.attachments[0].url
+    response = await Aetherius_Agent(inquiry, str(ctx.author.display_name), str(ctx.author), BOTNAME, image_path)
 
     for chunk in split_response(response):
         await ctx.send(chunk)

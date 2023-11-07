@@ -13,7 +13,7 @@ async def chat_with_Aetherius(message, history):
     user_id = username
     
     # Change Function to either "Aetherius_Chatbot" or "Aetherius_Agent"
-    response = await Aetherius_Chatbot(message, username, user_id, bot_name)
+    response = await Aetherius_Agent(message, username, user_id, bot_name)
 
     return response
 

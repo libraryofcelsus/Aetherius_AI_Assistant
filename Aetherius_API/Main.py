@@ -1110,7 +1110,7 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
         
         
         
-async def Aetherius_Agent(user_input, username, user_id, bot_name):
+async def Aetherius_Agent(user_input, username, user_id, bot_name, image_path=None):
     with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
         settings = json.load(f)
     HOST = settings.get('HOST_Oobabooga', 'http://localhost:5000/api')
@@ -1185,6 +1185,15 @@ async def Aetherius_Agent(user_input, username, user_id, bot_name):
         con_hist = f'{conversation_history}'
         timestamp = time()
         timestring = timestamp_to_datetime(timestamp)
+
+        input_2 = None
+        if len(user_input) > 2:
+            input_2 = user_input
+        if image_path is not None:
+            user_input = gpt_vision(user_input, image_path)
+            if input_2 is not None and len(input_2) > 2:
+                user_input = f"VISION: {user_input}\nORIGINAL USER INQUIRY: {input_2}"
+        
         vector_input = embeddings(user_input)
         
         

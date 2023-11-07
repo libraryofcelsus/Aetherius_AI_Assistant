@@ -4,7 +4,7 @@
     "embed_size": "768",
 	"Model_Backend": "Llama_2",
 	"LLM_Model": "Llama_2",
-	"Vision_Model": "eyes",
+	"Vision_Model": "eyes_url",
     "HOST_Oobabooga": "http://localhost:5000/api",
 	"Embeddings": "Embeddings_Sentence_Xformer",
 	"TTS": "gTTS",

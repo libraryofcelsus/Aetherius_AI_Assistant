@@ -1,6 +1,6 @@
 ## How to use the Aetherius Api Package
 
-To use the Api Package, you must first put it in the project directory you wish to use it from.
+To use the Api Package, you must first put the "Aetherius_API" folder in the project directory you wish to use it from.
 
 Then you need to import the functions from the script using:
 
@@ -22,13 +22,14 @@ query = User Input
 username = User's Display Name
 user_id = Unique User Id
 bot_name = Chatbot Name
+image_path = Url to an image for GPT Vision to analyze. Local upload coming later.
 
 The Available Functions are:
 
 **Aetherius_Chatbot(query, username, user_id, bot_name, image_path)**
 (This Function is the basic version of Aetherius.  It only includes the Inner Monologue, Intuition, and Response Loops.  This mode does not use sub-agents.  The User Input, Username, and the Bot name must be passed through.  The image_path variable is optional, sending an image url in its place will let Aetherius see the image.)
 
-**Aetherius_Agent(query, username, user_id, bot_name)**
+**Aetherius_Agent(query, username, user_id, bot_name, image_path)**
 (This Function is the multi-agent mode of Aetherius.  It will use the sub-agents in the sub_agents folder to answer a generated Tasklist.  If using this mode it is recommended to use multiple hosts.
 
 **Upload_Heuristics(query, username, user_id, bot_name)**
@@ -49,14 +50,6 @@ The Available Functions are:
 **TTS_Generation(query)**
 (This function will use the set TTS in the settings to generate speech.)
 
-## OpenAi_Import Functions
-
-Work in Progress.
-
-
-
-
-
 
 ## Aetherius Settings JSON
 
@@ -66,11 +59,15 @@ The current settings include:
 
 Conversation_Length: This settings will allow you to set the Conversation Length of Aetherius.
 
-Memory_Mode: This will allow you to set the memory upload mode for Aetherius.  Current modes are: None, Auto, Training, and Manual
+Memory_Mode: This will allow you to set the memory upload mode for Aetherius.  Current modes are: None, Forced, Auto, Training, and Manual
 
 Embed_Size: This setting will allow you to change the size of the embeddings used for the Qdrant Database.
 
-Model: This setting will allow you to choose what model to use from OpenAi.  (Open Ai import script not finished.)
+Model_Backend: This setting will let you choose what format should be used for internal prompts.
+
+LLM_Model: This setting will allow you to choose what LLM model to use.  Only "Llama_2" for now.  "Open_Ai" coming soon.
+
+Vision_Model: This setting will allow you to set the model for Vision.  Only "eyes_url" available for now, "eyes_file" will come soon.
 
 HOST_Oobabooga: This setting is for setting the Oobabooga Host.  Separate Multiple Hosts by a space.
 

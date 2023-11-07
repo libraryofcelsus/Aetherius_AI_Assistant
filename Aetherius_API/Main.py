@@ -2442,17 +2442,20 @@ async def Aetherius_Implicit_Memory(user_input, output_one, bot_name, username, 
 
                 async def write_prompts():
                     try:
-                        async with aiofiles.open(file_path, 'w') as txt_file:
+                        # Specify encoding as utf-8 when writing to the file
+                        async with aiofiles.open(file_path, 'w', encoding='utf-8') as txt_file:
                             await txt_file.write(default_prompts)
                     except Exception as e:
                         print(f"Failed to write to file: {e}")
                 await write_prompts()
 
             try:
-                async with aiofiles.open(file_path, mode='r') as file:
+                # Specify encoding as utf-8 when reading from the file
+                async with aiofiles.open(file_path, mode='r', encoding='utf-8') as file:
                     personality_file = await file.read()
             except FileNotFoundError:
                 personality_file = "File not found."
+
                 
                 
             
@@ -2494,11 +2497,19 @@ async def Aetherius_Implicit_Memory(user_input, output_one, bot_name, username, 
                 print(f"PRINT OF PERSONALITY FILE: {personality_gen}")
                 new_personality_content = personality_gen
                 
+                def safe_encode(content):
+                    return content.encode('utf-8', errors='ignore').decode('utf-8')
+
+                # Use the safe_encode function before writing to the file
                 async with aiofiles.open(file_path, 'w', encoding='utf-8') as file:
-                    await file.write(new_personality_content)
+                    safe_content = safe_encode(new_personality_content)
+                    await file.write(safe_content)
+
                 
     except Exception as e:
-        print(e)
+        traceback_details = traceback.format_exc()  # This will give you the full traceback
+        print(f"ERROR WITH IMPLICIT MEM MODULE: {e}")
+        print(traceback_details) 
         
         
 async def Upload_Implicit_Short_Term_Memories(query, username, user_id, bot_name):
@@ -2708,13 +2719,16 @@ async def Aetherius_Explicit_Memory(user_input, vector_input, vector_monologue, 
                 default_prompts = f"The user {user_id} does not yet have a personality file."
                 async def write_prompts():
                     try:
-                        async with aiofiles.open(file_path, 'w') as txt_file:
+                        # Specify encoding as UTF-8 when writing the file
+                        async with aiofiles.open(file_path, 'w', encoding='utf-8') as txt_file:
                             await txt_file.write(default_prompts)
                     except Exception as e:
                         print(f"Failed to write to file: {e}")
                 await write_prompts()
+
             try:
-                async with aiofiles.open(file_path, mode='r') as file:
+                # Specify encoding as UTF-8 when reading the file
+                async with aiofiles.open(file_path, mode='r', encoding='utf-8') as file:
                     personality_file = await file.read()
             except FileNotFoundError:
                 personality_file = "File not found."
@@ -2765,10 +2779,17 @@ async def Aetherius_Explicit_Memory(user_input, vector_input, vector_monologue, 
                 print(f"PRINT OF USER PERSONALITY FILE: {personality_gen}")
                 new_personality_content = personality_gen
                 
+                def safe_encode(content):
+                    return content.encode('utf-8', errors='ignore').decode('utf-8')
+
+                # Use the safe_encode function before writing to the file
                 async with aiofiles.open(file_path, 'w', encoding='utf-8') as file:
-                    await file.write(new_personality_content)
+                    safe_content = safe_encode(new_personality_content)
+                    await file.write(safe_content)
     except Exception as e:
-        print(e)
+        traceback_details = traceback.format_exc()  # This will give you the full traceback
+        print(f"ERROR WITH IMPLICIT MEM MODULE: {e}")
+        print(traceback_details) 
         
         
 async def Upload_Heuristics(query, username, user_id, bot_name):

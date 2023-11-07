@@ -7,6 +7,8 @@ If you do not have a GPU see: [Public Oobabooga Api Colab](https://colab.researc
 
 **Ui is out of date, it will be updated after the new sub-agent system is finished. For the most current version, use the discord bot.**
 
+**Oobabooga Text-Ui just changed how their api works.  The most up to date version that works is snapshot-2023-10-29**
+
 ------
 **Currently Working On**
 - Implimenting Open Ai Features
@@ -40,39 +42,6 @@ If you do not have a GPU see: [Public Oobabooga Api Colab](https://colab.researc
 • 10/24 Fixed Bug Causing Multiple Categories to be loaded into category list.  Also fixed Empty Prompt Bug.  Async API Version Only.
 
 • 10/19 Added New Category System for Sub-Agents, only in Async API script for now.
-
-• 10/15 Added Bot/User profile Descriptions to Agent mode
-
-• 10/14 Updated Ui External Resource Sub-Agent and fixed no collection error printing.
-
-• 10/9 Worked on profile description prompts.
-
-• 10/8 Added Experimental Bot and User profile descriptions.  This can be disabled in the Api settings json.
-
-• 10/4 Continued to work on Api.  Added more advanced webscrape for external resources sub-agent.
-
-• 10/2 Continued to work on Discord Bot. !WebScrape added.
-
-• 10/2  Added !Agent command to the Discord Bot.
-
-• 10/2 Converted .txt setting files to json
-
-• 10/1 Added Async Version of Api as well as fixed discord bot
-
-• 9/28 Added Discord Bot Script using Api in ./Aetherius_API/Examples
-
-• 9/28 Added basic API script that can be imported to use Aetherius programmatically. (Still an early work in progress)
-
-• 9/26 Continued to work on Sub-Agent System
-
-• 9/25 Updated OpenAi Version of Aetherius with Llama 2 versions features.
-
-• 9/24 Better outlined dependencies to increase requirements.txt install time.
-
-• 9/24 Continued to work on Sub-Agent system.
-
-• 9/23 Added Memory Search Sub-Agent and an autonomous web-search if the needed information is not in the External Resources DB.
-
 
 ------
 
@@ -117,6 +86,7 @@ Aetherius is a versatile, modular AI assistant that adapts to your needs. Its ca
 Aetherius offers multiple modes tailored to your preferences:
 
 **Main Aetherius Chatbot**: A framework for the creation of custom sub-agents for Aetherius.
+- *Forced Memory Mode*: Aetherius will always upload it's memories.
 - *Auto Memory Mode*: Aetherius autonomously manages memory uploads.
 - *Manual Memory Mode*: You decide when to upload memories.
 - *Training Memory Mode*: Control memory uploads for each memory type.
@@ -211,7 +181,15 @@ Inspired by https://github.com/daveshap/
 # Changelog:
 **0.045c**
 
+• Added Bot and User profile descriptions.  This can be disabled in the Api settings json.
 
+• Converted .txt setting files to json
+
+• Added Discord Bot Script using Api in ./Aetherius_API/Examples
+
+• Added basic API script that can be imported to use Aetherius programmatically. (Still an early work in progress)
+
+• Added Memory Search Sub-Agent and an autonomous web-search if the needed information is not in the External Resources DB.
 
 • Added Sub-Agent script.  You can now create custom sub-agents for Aetherius's parallel processing loop.
 

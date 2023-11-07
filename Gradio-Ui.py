@@ -1,5 +1,5 @@
 import os
-from Aetherius_API.Oobabooga_Import_Async import *
+from Aetherius_API.Main import *
 import logging
 import gradio as gr
 import json
@@ -8,12 +8,12 @@ import asyncio
 
 
 async def chat_with_Aetherius(message, history):
-    username = "Celsus"
+    username = "USER"
     bot_name = "Aetherius"
     user_id = username
     
     # Change Function to either "Aetherius_Chatbot" or "Aetherius_Agent"
-    response = await Aetherius_Agent(message, username, user_id, bot_name)
+    response = await Aetherius_Chatbot(message, username, user_id, bot_name)
 
     return response
 

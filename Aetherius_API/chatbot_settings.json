@@ -1,0 +1,23 @@
+{
+    "Conversation_Length": "2",
+	"memory_mode": "Forced",
+    "embed_size": "768",
+	"Model_Backend": "Llama_2",
+	"LLM_Model": "Llama_2",
+	"Vision_Model": "eyes",
+    "HOST_Oobabooga": "http://localhost:5000/api",
+	"Embeddings": "Embeddings_Sentence_Xformer",
+	"TTS": "gTTS",
+	"Search_External_Resource_DB": "False",
+	"Search_Web": "True",
+	"WebScrape_Type": "WebScrape_Summary_Async",
+	"Search_Engine": "Google",
+	"Output_Inner_Monologue": "True",
+	"Output_Intuition": "False",
+	"Output_Response": "True",
+	"Output_Sub_Module": "True",
+	"Update_Bot_Personality_Description": "True",
+	"Update_User_Personality_Description": "True",
+	"Use_Bot_Personality_Description": "True",
+	"Use_User_Personality_Description": "True"
+}

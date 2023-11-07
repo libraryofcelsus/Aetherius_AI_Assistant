@@ -9,12 +9,17 @@ If you do not have a GPU see: [Public Oobabooga Api Colab](https://colab.researc
 
 ------
 **Currently Working On**
+- Implimenting Open Ai Features
 - Setting up a backend for easy switching between models using the same script.
 - Improving Sub-Agent System and adding sub-agent collaboration.  
 - Adding old features to Api (sidelined till sub-agent system is finished)
 - Improving Reliability. 
 ------
 **Recent Changes**
+
+• 11/06 Added GPT Vision Support.  I recommend using the discord bot for this.
+
+• 11/06 Added Forced Memory Upload Mode.
 
 • 11/05 Various Backend Changes, no additional functionality for now, mostly for future stuff.
 

@@ -1,0 +1,8 @@
+sentence-transformers==2.2.2
+qdrant-client==1.4.0
+keyboard==0.13.5
+scipy==1.11.2
+pandas<=2.1.0
+aiofiles
+aiohttp
+beautifulsoup4==4.12.2

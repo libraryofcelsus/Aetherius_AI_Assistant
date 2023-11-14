@@ -1,7 +1,7 @@
 import os
 import sys
 sys.path.insert(0, './Aetherius_API/resources')
-from Llama2_chat_Async import *
+from Open_Ai_GPT_35 import *
 import time
 from datetime import datetime
 from uuid import uuid4
@@ -76,12 +76,11 @@ def timestamp_to_datetime(unix_time):
     return datetime_str
 
 
-
         
-        
-async def search_flashbulb_db(line_vec, user_id, bot_name):
+async def search_implicit_db(line_vec, user_id, bot_name):
     try:
-        memories = None
+        memories1 = None
+        memories2  = None
         try:
             hits = client.search(
                 collection_name=f"Bot_{bot_name}",
@@ -90,7 +89,7 @@ async def search_flashbulb_db(line_vec, user_id, bot_name):
                     must=[
                         FieldCondition(
                             key="memory_type",
-                            match=MatchValue(value="Flashbulb")
+                            match=MatchValue(value="Implicit_Long_Term")
                         ),
                         FieldCondition(
                             key="user",
@@ -98,32 +97,63 @@ async def search_flashbulb_db(line_vec, user_id, bot_name):
                         ),
                     ]
                 ),
-                limit=2
+                limit=3
             )
                 # Print the result
-            memories = [hit.payload['message'] for hit in hits]
+            memories1 = [hit.payload['message'] for hit in hits]
+        except Exception as e:
+            if "Not found: Collection" in str(e):
+                print("Collection has no memories.")
+            else:
+                if "Not found: Collection" in str(e):
+                    print("Collection has no memories.")
+                else:
+                    print(f"An unexpected error occurred: {str(e)}")
+    
+        try:
+            hits = client.search(
+                collection_name=f"Bot_{bot_name}_Implicit_Short_Term",
+                query_vector=line_vec,
+                query_filter=Filter(
+                    must=[
+                        FieldCondition(
+                            key="memory_type",
+                            match=MatchValue(value="Implicit_Short_Term")
+                        ),
+                        FieldCondition(
+                            key="user",
+                            match=MatchValue(value="user_id")
+                        ),
+                    ]
+                ),
+                limit=5
+            )
+                # Print the result
+            memories2 = [hit.payload['message'] for hit in hits]
         except Exception as e:
             if "Not found: Collection" in str(e):
                 print("Collection has no memories.")
             else:
                 print(f"An unexpected error occurred: {str(e)}")
+            
+        memories = f'{memories1}\n{memories2}'    
         return memories
     except Exception as e:
         print(e)
         memories = "Error"
-        return memories 
+        return memories
+        
         
 
 
-
 # Create a Description for the Module
-def Flashbulb_Memory_Search_Description(username, bot_name):
-    description = f"Flashbulb_Memory_Search.py: A module dedicated to {bot_name}'s simulated Flashbulb Memories. Flashbulb memories are vivid, detailed memories of surprising and consequential events. In this context, {bot_name} creates responses that mimic the clarity and detail typical of such memories, aiming to produce interactions that feel exceptionally vivid and memorable. This module does not verify factual accuracy but enhances the richness of conversational experiences."
+def Implicit_Memory_Search_Description(username, bot_name):
+    description = f"Implicit_Memory_Search.py: A module focused on {bot_name}'s simulated Implicit Memories. Implicit memories influence behaviors without conscious awareness, often related to skills and habits. In this module, {bot_name} generates responses that subtly reflect learned behaviors or knowledge, enhancing the natural flow of interaction. Not intended for factual verification but to enrich conversational realism."
     return description
     
     
 # Add your custom code Here
-async def Flashbulb_Memory_Search(host, bot_name, username, user_id, line, task_counter, output_one, output_two, master_tasklist_output, user_input):
+async def Implicit_Memory_Search(host, bot_name, username, user_id, line, task_counter, output_one, output_two, master_tasklist_output, user_input):
     try:
         async with aiofiles.open('./Aetherius_API/chatbot_settings.json', mode='r', encoding='utf-8') as f:
             settings = json.loads(await f.read())
@@ -141,15 +171,15 @@ async def Flashbulb_Memory_Search(host, bot_name, username, user_id, line, task_
         task_completion = "Task Failed"
         line_vec = embeddings(line)
         try:
-            result = await search_flashbulb_db(line_vec, user_id, bot_name)
+            result = await search_implicit_db(line_vec, user_id, bot_name)
             conversation.append({'role': 'assistant', 'content': f"MEMORIES: {result}\n\n"})
 
         except Exception as e:
             print(e)
         conversation.append({'role': 'user', 'content': f"[INST] SYSTEM: Summarize the pertinent information from the given memories related to the given task. Present the summarized data in a single, easy-to-understand paragraph. Do not generalize, expand upon, or use any latent knowledge in your summary, only return a truncated version of previously given information. [/INST] Bot {task_counter}: Sure, here is a short summary combining the relevant information needed to complete the given task: "})
         conversation.append({'role': 'assistant', 'content': f"BOT {task_counter}: Sure, here's an overview of the scraped text: "})
-        prompt = ''.join([message_dict['content'] for message_dict in conversation])
-        task_completion = await Agent_Process_Line_Response_Call(host, prompt, username, bot_name)
+     #   prompt = ''.join([message_dict['content'] for message_dict in conversation])
+        task_completion = Agent_Process_Line_Response_Call(host, prompt, username, bot_name)
         # chatgpt35_completion(conversation),
         conversation.clear()
         sub_agent_completion.append({'role': 'assistant', 'content': f"COMPLETED TASK: {task_completion} [INST] "})

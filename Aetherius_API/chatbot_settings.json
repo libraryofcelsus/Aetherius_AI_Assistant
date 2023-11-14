@@ -1,23 +1,51 @@
 {
     "Conversation_Length": "2",
+	
 	"memory_mode": "Forced",
+	"_comment_memory_mode": "The available memory modes are: Forced, Auto, Manual, and Training",
+	
     "embed_size": "768",
+	
 	"Model_Backend": "Llama_2",
-	"LLM_Model": "Llama_2",
+	"_comment_Model_Backend": "The available Model Backends are: Llama_2 and Open_Ai",
+	
+	"LLM_Model": "Oobabooga_Llama_2",
+	"_comment_LLM_Model": "The available LLM Models are: Oobabooga_Llama_2, AetherNode_Llama_2, Open_Ai_GPT_35, and Open_Ai_GPT_4",
+	
+	"API": "Oobabooga",
+	"_comment_API": "The available API's are: Oobabooga, AetherNode, Open_Ai",
+	
 	"Vision_Model": "eyes_url",
+	
     "HOST_Oobabooga": "http://localhost:5000/api",
+	
 	"Embeddings": "Embeddings_Sentence_Xformer",
+	"_comment_Embeddings": "The available embedding methods are: Embeddings_Sentence_Xformer",
+	
 	"TTS": "gTTS",
+	"_comment_TTS": "The available TTS methods are: gTTS",
+	
 	"Search_External_Resource_DB": "False",
+	
 	"Search_Web": "True",
+	
 	"WebScrape_Type": "WebScrape_Summary_Async",
+	
 	"Search_Engine": "Google",
+	
 	"Output_Inner_Monologue": "True",
+	
 	"Output_Intuition": "False",
+	
 	"Output_Response": "True",
+	
 	"Output_Sub_Module": "True",
+	
 	"Update_Bot_Personality_Description": "True",
+	
 	"Update_User_Personality_Description": "True",
+	
 	"Use_Bot_Personality_Description": "True",
+	
 	"Use_User_Personality_Description": "True"
 }

@@ -1,7 +1,7 @@
 import os
 import sys
 sys.path.insert(0, './Aetherius_API/resources')
-from Llama2_chat_Async import *
+from Open_Ai_GPT_35 import *
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams, PointStruct, Filter, FieldCondition, Range, MatchValue
 from qdrant_client.http import models
@@ -310,13 +310,13 @@ async def External_Resource_DB_Search(host, bot_name, username, user_id, line, t
             
         if Web_Search == 'True':    
             websearch_check.append({'role': 'assistant', 'content': f"You are a selection agent for an autonomous AI chatbot.  Your job is to decide if the given database queries contain the needed information to answer the user's inquiry. If the information isn't given or if it needs to be updated, print 'NO'.  Only respond with either 'YES' or 'NO'.\n\nGIVEN DATABASE QUERIES: {table}\n\nUSER INQUIRY: {user_input} [/INST] "})
-            prompt = ''.join([message_dict['content'] for message_dict in websearch_check])
-            web_check = await Agent_Memory_DB_Check_Call(host, prompt, username, bot_name)
+        #    prompt = ''.join([message_dict['content'] for message_dict in websearch_check])
+            web_check = Agent_Memory_DB_Check_Call(prompt, username, bot_name)
             print(web_check)
             if "NO" in web_check:
                 websearch_rephrase.append({'role': 'assistant', 'content': f"Rephrase the user's inquiry into a google search query that will return the requested information.  Only print the search query, do not include anything about the External Resources Module.  The search query should be a natural sounding question.\nUSER INQUIRY: {line} [/INST] Google Search Query: "})
-                prompt = ''.join([message_dict['content'] for message_dict in websearch_rephrase])
-                rephrased_query = await Google_Rephrase_Call(host, prompt, username, bot_name)
+            #    prompt = ''.join([message_dict['content'] for message_dict in websearch_rephrase])
+                rephrased_query = Google_Rephrase_Call(prompt, username, bot_name)
                 if '"' in rephrased_query:
                     rephrased_query = rephrased_query.replace('"', '')
                 print(rephrased_query)
@@ -464,8 +464,8 @@ async def External_Resource_DB_Search(host, bot_name, username, user_id, line, t
         conversation.append({'role': 'user', 'content': f"Bot {task_counter}: EXTERNAL RESOURCES: {table}"})
         conversation.append({'role': 'user', 'content': f"[INST] SYSTEM: Summarize the pertinent information from the given external sources related to the given task. Present the summarized data in a single, easy-to-understand paragraph. Do not generalize, expand upon, or use any latent knowledge in your summary, only return a truncated version of previously given information. [/INST] Bot {task_counter}: Sure, here is a short summary combining the relevant information needed to complete the given task: "})
         conversation.append({'role': 'assistant', 'content': f"BOT {task_counter}: Sure, here's an overview of the scraped text: "})
-        prompt = ''.join([message_dict['content'] for message_dict in conversation])
-        task_completion = await Agent_Process_Line_Response_Call(host, prompt, username, bot_name)
+    #    prompt = ''.join([message_dict['content'] for message_dict in conversation])
+        task_completion = Agent_Process_Line_Response_Call(prompt, username, bot_name)
             # chatgpt35_completion(conversation),
             # conversation.clear(),
             # tasklist_completion.append({'role': 'assistant', 'content': f"MEMORIES: {memories}\n\n"}),

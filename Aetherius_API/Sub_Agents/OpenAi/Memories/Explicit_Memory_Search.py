@@ -1,7 +1,7 @@
 import os
 import sys
 sys.path.insert(0, './Aetherius_API/resources')
-from Llama2_chat_Async import *
+from Open_Ai_GPT_35 import *
 import time
 from datetime import datetime
 from uuid import uuid4
@@ -181,8 +181,8 @@ async def Explicit_Memory_Search(host, bot_name, username, user_id, line, task_c
         domain_extraction.append({'role': 'user', 'content': f"You are a knowledge domain extractor.  Your task is to analyze the user's inquiry, then choose the single most salent generalized knowledge domain needed to complete the user's inquiry from the list of existing domains.  Your response should only contain the single existing knowledge domain.\n"})
         domain_extraction.append({'role': 'user', 'content': f"USER INPUT: {line} [/INST] "})
         
-        prompt = ''.join([message_dict['content'] for message_dict in domain_extraction])
-        extracted_domain = await Domain_Extraction_Call(prompt, username, bot_name)
+    #    prompt = ''.join([message_dict['content'] for message_dict in domain_extraction])
+        extracted_domain = Domain_Extraction_Call(prompt, username, bot_name)
         if ":" in extracted_domain:
             extracted_domain = extracted_domain.split(":")[-1]
             extracted_domain = extracted_domain.replace("\n", "")
@@ -220,8 +220,8 @@ async def Explicit_Memory_Search(host, bot_name, username, user_id, line, task_c
         domain_extraction.append({'role': 'user', 'content': f"[INST] You are a knowledge domain selector.  Your task is to analyze the user's inquiry, then choose the single most salent generalized knowledge domain from the given list needed to complete the user's inquiry.  Your response should only contain the single existing knowledge domain.\n"})
         domain_extraction.append({'role': 'user', 'content': f"USER INPUT: {line} [/INST] "})
         
-        prompt = ''.join([message_dict['content'] for message_dict in domain_extraction])
-        extracted_domain = await Domain_Selection_Call(prompt, username, bot_name)
+    #    prompt = ''.join([message_dict['content'] for message_dict in domain_extraction])
+        extracted_domain = Domain_Selection_Call(prompt, username, bot_name)
         if ":" in extracted_domain:
             extracted_domain = extracted_domain.split(":")[-1]
             extracted_domain = extracted_domain.replace("\n", "")
@@ -238,8 +238,8 @@ async def Explicit_Memory_Search(host, bot_name, username, user_id, line, task_c
             print(e)
         conversation.append({'role': 'user', 'content': f"[INST] SYSTEM: Summarize the pertinent information from the given memories related to the given task. Present the summarized data in a single, easy-to-understand paragraph. Do not generalize, expand upon, or use any latent knowledge in your summary, only return a truncated version of previously given information. [/INST] Bot {task_counter}: Sure, here is a short summary combining the relevant information needed to complete the given task: "})
         conversation.append({'role': 'assistant', 'content': f"BOT {task_counter}: Sure, here's an overview of the scraped text: "})
-        prompt = ''.join([message_dict['content'] for message_dict in conversation])
-        task_completion = await Agent_Process_Line_Response_Call(host, prompt, username, bot_name)
+    #    prompt = ''.join([message_dict['content'] for message_dict in conversation])
+        task_completion = Agent_Process_Line_Response_Call(host, prompt, username, bot_name)
         # chatgpt35_completion(conversation),
         conversation.clear()
         sub_agent_completion.append({'role': 'assistant', 'content': f"COMPLETED TASK: {task_completion} [INST] "})

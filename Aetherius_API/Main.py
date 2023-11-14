@@ -95,7 +95,17 @@ import_functions_from_script(script_path2, "TTS_module")
 script_path3 = get_script_path_from_file(json_file_path, "LLM_Model", base_folder='./Aetherius_API/resources/')
 import_functions_from_script(script_path3, "model_module")
 
-script_path4 = get_script_path_from_file(json_file_path, "Vision_Model", base_folder='./Aetherius_API/Tools/Llama_2_Async/')
+
+with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
+    settings = json.load(f)
+select_api = settings.get('API', 'Oobabooga')
+
+if select_api == "Oobabooga":
+    script_path4 = get_script_path_from_file(json_file_path, "Vision_Model", base_folder='./Aetherius_API/Tools/Llama_2_Async/')
+if select_api == "AetherNode":
+    script_path4 = get_script_path_from_file(json_file_path, "Vision_Model", base_folder='./Aetherius_API/Tools/AetherNode_Llama_2/')
+if select_api == "Open_Ai":
+    script_path4 = get_script_path_from_file(json_file_path, "Vision_Model", base_folder='./Aetherius_API/Tools/Open_Ai/')
 import_functions_from_script(script_path4, "eyes_module")
 
 
@@ -311,10 +321,9 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
         print(f"Knowledge Domains: {domain_search}")
         
         
-        
+        domain_extraction.append({'role': 'system', 'content': f"{user_input_start} Your role as a Knowledge Domain Selector is to analyze the user's question and identify the most relevant knowledge domain from the provided list. Ensure that your choice is from the existing domains, and avoid creating or using any not listed. Respond with the name of the single selected knowledge domain.\n"})
         domain_extraction.append({'role': 'user', 'content': f"Could you provide the current list of knowledge domains? {user_input_end}"})
         domain_extraction.append({'role': 'assistant', 'content': f"CURRENT KNOWLEDGE DOMAINS: {domain_search}"})
-        domain_extraction.append({'role': 'system', 'content': f"{user_input_start} Your role as a Knowledge Domain Selector is to analyze the user's question and identify the most relevant knowledge domain from the provided list. Ensure that your choice is from the existing domains, and avoid creating or using any not listed. Respond with the name of the single selected knowledge domain.\n"})
         domain_extraction.append({'role': 'user', 'content': f"USER QUESTION: {user_input}\nADDITIONAL CONTEXT: {expanded_input} {user_input_end}"})
         domain_extraction.append({'role': 'assistant', 'content': f"EXTRACTED KNOWLEDGE DOMAIN: "})
 
@@ -436,7 +445,7 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
                     return None
                 else:
                     user_personality = [line.strip() for line in file_content]
-                intuition.append({'role': 'assistant', 'content': f"{usernameupper}'S PERSONALITY DESCRIPTION: {user_personality}\n\n"})
+                intuition.append({'role': 'user', 'content': f"{usernameupper}'S PERSONALITY DESCRIPTION: {user_personality}\n\n"})
             except:
                 pass
                 
@@ -715,7 +724,9 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
                         
                         
                         
-        inner_monologue.append({'role': 'assistant', 'content': f"{botnameupper}'S EPISODIC MEMORIES: {db_search_3}\n{db_search_5}\n{botnameupper}'S SHORT-TERM MEMORIES: {db_search_4}\n{botnameupper}'s HEURISTICS: {db_search_6} {user_input_start} Now return and analyze the current conversation history. {user_input_end} CURRENT CONVERSATION HISTORY: {con_hist} {user_input_start} SYSTEM: Compose a short silent soliloquy to serve as {bot_name}'s internal monologue/narrative.  Ensure it includes {bot_name}'s contemplations in relation to {username}'s request and does not exceed a paragraph in length.\n{usernameupper}/USER'S REQUEST: {user_input} {user_input_end} {botnameupper}: "})
+        inner_monologue.append({'role': 'assistant', 'content': f"{botnameupper}'S EPISODIC MEMORIES: {db_search_3}\n{db_search_5}\n{botnameupper}'S SHORT-TERM MEMORIES: {db_search_4}\n{botnameupper}'s HEURISTICS: {db_search_6} {user_input_start} Now return and analyze the current conversation history. {user_input_end} CURRENT CONVERSATION HISTORY: {con_hist} "})
+        inner_monologue.append({'role': 'user', 'content': f"{user_input_start} SYSTEM: Compose a short silent soliloquy to serve as {bot_name}'s internal monologue/narrative.  Ensure it includes {bot_name}'s contemplations in relation to {username}'s request and does not exceed a paragraph in length.\n{usernameupper}/USER'S REQUEST: {user_input} {user_input_end} "})
+        inner_monologue.append({'role': 'assistant', 'content': f"{botnameupper}: "})
         
         if backend_model == "Llama_2":
             prompt = ''.join([message_dict['content'] for message_dict in inner_monologue])
@@ -862,7 +873,9 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
 
    
         # # Intuition Generation
-        intuition.append({'role': 'assistant', 'content': f"{botnameupper}'S FLASHBULB MEMORIES: {db_search_9}\n{botnameupper}'S EXPLICIT MEMORIES: {db_search_8}\n{botnameupper}'s HEURISTICS: {db_search_10}\n{botnameupper}'S INNER THOUGHTS: {output_one}\n{botnameupper}'S EPISODIC MEMORIES: {db_search_7} {user_input_start} Now return and analyze the previous conversation history. {user_input_end} PREVIOUS CONVERSATION HISTORY: {con_hist} {user_input_start} SYSTEM: Transmute the user, {username}'s message as {bot_name} by devising a truncated predictive action plan in the third person point of view on how to best respond to {username}'s most recent message. You do not have access to external resources.  If the user's message is casual conversation, print 'No Plan Needed'. Only create an action plan for informational requests or if requested to complete a complex task.  If the user is requesting information on a subjector asking a question, predict what information needs to be provided. Do not give examples, only the action plan. {usernameupper}: {user_input} {user_input_end} {botnameupper}: "}) 
+        intuition.append({'role': 'assistant', 'content': f"{botnameupper}'S FLASHBULB MEMORIES: {db_search_9}\n{botnameupper}'S EXPLICIT MEMORIES: {db_search_8}\n{botnameupper}'s HEURISTICS: {db_search_10}\n{botnameupper}'S INNER THOUGHTS: {output_one}\n{botnameupper}'S EPISODIC MEMORIES: {db_search_7} {user_input_start} Now return and analyze the previous conversation history. {user_input_end} PREVIOUS CONVERSATION HISTORY: {con_hist} "})
+        intuition.append({'role': 'user', 'content': f"{user_input_start} SYSTEM: Transmute the user, {username}'s message as {bot_name} by devising a truncated predictive action plan in the third person point of view on how to best respond to {username}'s most recent message. You do not have access to external resources.  If the user's message is casual conversation, print 'No Plan Needed'. Only create an action plan for informational requests or if requested to complete a complex task.  If the user is requesting information on a subjector asking a question, predict what information needs to be provided. Do not give examples, only the action plan. {usernameupper}: {user_input} {user_input_end} "})
+        intuition.append({'role': 'assistant', 'content': f"{botnameupper}: "}) 
         
         if backend_model == "Llama_2":
             prompt = ''.join([message_dict['content'] for message_dict in intuition])
@@ -1130,6 +1143,7 @@ async def Aetherius_Agent(user_input, username, user_id, bot_name, image_path=No
     Use_User_Personality_Description = settings.get('Use_User_Personality_Description', 'False')
     backend_model = settings.get('Model_Backend', 'Llama_2')
     LLM_Model = settings.get('LLM_Model', 'Llama_2')
+    select_api = settings.get('API', 'Oobabooga')
     tasklist = list()
     agent_inner_monologue = list()
     agent_intuition = list()
@@ -1715,7 +1729,13 @@ async def Aetherius_Agent(user_input, username, user_id, bot_name, image_path=No
             print(f"An unexpected error occurred: {str(e)}")
             
         cwd = os.getcwd()
-        sub_agent_path = "Aetherius_API\Sub_Agents\Llama_2_Async"
+        if select_api == "Oobabooga":
+            sub_agent_path = "Aetherius_API\Sub_Agents\Llama_2_Async"
+        if select_api == "AetherNode":
+            sub_agent_path = "Aetherius_API\Sub_Agents\AetherNode_Llama_2"
+        if select_api == "Open_Ai":
+            sub_agent_path = "Aetherius_API\Sub_Agents\OpenAi"
+        
         folder_path = os.path.join(cwd, sub_agent_path.lstrip('/'))
         filename_description_map = await load_filenames_and_descriptions(folder_path, username, user_id, bot_name)
 
@@ -1961,7 +1981,7 @@ async def Aetherius_Agent(user_input, username, user_id, bot_name, image_path=No
         try:            
             tasklist_completion.append({'role': 'assistant', 'content': f"{user_input_start} USER'S INITIAL INPUT: {user_input} {user_input_end} {botnameupper}'S INNER_MONOLOGUE: {output_one}"})
             tasklist_completion.append({'role': 'system', 'content': f"{user_input_start} SYSTEM: You are tasked with crafting a comprehensive response for {username}. Use the insights and information gathered from the completed tasks during the research task loop to formulate your answer. Since {username} did not have access to the research process, ensure that your reply is self-contained, providing all necessary context and information. Do not introduce information beyond what was discovered during the research tasks, and ensure that factual accuracy is maintained throughout your response. \nUSER'S INITIAL INPUT: {user_input}\nYour research and planning phase is concluded. Concentrate on composing a detailed, coherent, and conversational reply that fully addresses the user's question based on the completed research tasks. {user_input_end} "})
-            tasklist_completion.append({'role': 'assistant', 'content': f"{botnameupper}: "})
+        #    tasklist_completion.append({'role': 'assistant', 'content': f"{botnameupper}: "})
 
             if backend_model == "Llama_2":
                 prompt = ''.join([message_dict['content'] for message_dict in tasklist_completion])
@@ -1974,7 +1994,7 @@ async def Aetherius_Agent(user_input, username, user_id, bot_name, image_path=No
                 
             if Response_Output == 'True':
                 print("\n\n----------------------------------\n\n")
-                print(response_two)
+                print(f"RESPONSE: {response_two}")
         except Exception as e:
             traceback.print_exc()
             print(f"An error occurred: {e}")
@@ -2050,6 +2070,7 @@ async def process_line(host, host_queue, bot_name, username, line, task_counter,
         Sub_Module_Output = settings.get('Output_Sub_Module', 'False')
         completed_task = "Error Completing Task"
         backend_model = settings.get('Model_Backend', 'Llama_2')
+        select_api = settings.get('API', 'Oobabooga')
         tasklist_completion2 = list()
         conversation = list()
         cat_list = list()
@@ -2135,9 +2156,9 @@ async def process_line(host, host_queue, bot_name, username, line, task_counter,
         
         
         tasklist_completion2.append({'role': 'user', 'content': f"TASK: {line} {user_input_end} "})
-        conversation.append({'role': 'assistant', 'content': f"First, please refer to your tool database to identify the tools that are currently available to you. {user_input_end} "})
+        conversation.append({'role': 'assistant', 'content': f"First, please query your tool database to identify the tools that are currently available to you. Remember, you can only use these tools. {user_input_end} "})
         conversation.append({'role': 'assistant', 'content': f"AVAILABLE TOOLS: {subagent_list} "})
-        conversation.append({'role': 'assistant', 'content': f"{user_input_start} Your task is to select the necessary tool to complete the assigned task from the provided list of available tools. Ensure that your choice is strictly based on the options provided, and do not suggest or introduce tools that are not part of the list. Your response should be a concise paragraph that distinctly identifies the chosen tool without going into the operational process or detailed usage of the tool.\n"})
+        conversation.append({'role': 'user', 'content': f"{user_input_start} Your task is to select the necessary tool to complete the assigned task from the provided list of available tools. Ensure that your choice is strictly based on the options provided, and do not suggest or introduce tools that are not part of the list. Your response should be a concise paragraph that distinctly identifies the chosen tool without going into the operational process or detailed usage of the tool.\n"})
         conversation.append({'role': 'assistant', 'content': f"ASSIGNED TASK: {line}. {user_input_end}"})
 
         if backend_model == "Llama_2":
@@ -2182,14 +2203,23 @@ async def process_line(host, host_queue, bot_name, username, line, task_counter,
                 print("Error with Module, using fallback")
                 
                 if backend_model == "Llama_2":
-                    fallback_path = ".\Aetherius_API\Sub_Agents\Llama_2_Async\Research\External_Resource_DB_Search.py"
+                    if select_api == "Oobabooga":
+                        fallback_path = ".\Aetherius_API\Sub_Agents\Llama_2_Async\Research\External_Resource_DB_Search.py"
+                    if select_api == "AetherNode":
+                        fallback_path = ".\Aetherius_API\Sub_Agents\AetherNode_Llama_2\Research\External_Resource_DB_Search.py"
+                    if select_api == "Open_Ai":
+                        fallback_path = ".\Aetherius_API\Sub_Agents\OpenAi\Research\External_Resource_DB_Search.py"
                 
                 subagent_selection = [os.path.basename(fallback_path)]
             for filename_with_extension in subagent_selection:
                 filename = filename_with_extension.rstrip('.py')
                 
                 if backend_model == "Llama_2":
-                    script_path = os.path.join(f'.\Aetherius_API\Sub_Agents\Llama_2_Async\{line_cat}', filename_with_extension)
+                    if select_api == "Oobabooga":
+                        script_path = os.path.join(f'.\Aetherius_API\Sub_Agents\Llama_2_Async\{line_cat}', filename_with_extension)
+                    if select_api == "AetherNode":
+                        script_path = os.path.join(f'.\Aetherius_API\Sub_Agents\AetherNode_Llama_2\{line_cat}', filename_with_extension)
+                    
 
                 if os.path.exists(script_path):
                     spec = spec_from_file_location(filename, script_path)

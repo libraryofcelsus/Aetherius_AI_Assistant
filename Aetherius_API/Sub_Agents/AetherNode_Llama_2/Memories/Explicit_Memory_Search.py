@@ -1,7 +1,7 @@
 import os
 import sys
 sys.path.insert(0, './Aetherius_API/resources')
-from Llama2_chat_Async import *
+from AetherNode_Llama_2 import *
 import time
 from datetime import datetime
 from uuid import uuid4
@@ -182,7 +182,7 @@ async def Explicit_Memory_Search(host, bot_name, username, user_id, line, task_c
         domain_extraction.append({'role': 'user', 'content': f"USER INPUT: {line} [/INST] "})
         
         prompt = ''.join([message_dict['content'] for message_dict in domain_extraction])
-        extracted_domain = await Domain_Extraction_Call(prompt, username, bot_name)
+        extracted_domain = await Domain_Selection_Call(prompt, username, bot_name)
         if ":" in extracted_domain:
             extracted_domain = extracted_domain.split(":")[-1]
             extracted_domain = extracted_domain.replace("\n", "")

@@ -1,7 +1,7 @@
 import os
 import sys
 sys.path.insert(0, './Aetherius_API/resources')
-from Llama2_chat_Async import *
+from AetherNode_Llama_2 import *
 import time
 from datetime import datetime
 from uuid import uuid4
@@ -76,10 +76,7 @@ def timestamp_to_datetime(unix_time):
     return datetime_str
 
 
-
-        
-        
-async def search_flashbulb_db(line_vec, user_id, bot_name):
+async def search_episodic_db(line_vec, user_id, bot_name):
     try:
         memories = None
         try:
@@ -90,15 +87,15 @@ async def search_flashbulb_db(line_vec, user_id, bot_name):
                     must=[
                         FieldCondition(
                             key="memory_type",
-                            match=MatchValue(value="Flashbulb")
+                            match=MatchValue(value="Episodic")
                         ),
                         FieldCondition(
                             key="user",
-                            match=MatchValue(value="user_id")
+                            match=models.MatchValue(value=f"{user_id}"),
                         ),
                     ]
                 ),
-                limit=2
+                limit=5
             )
                 # Print the result
             memories = [hit.payload['message'] for hit in hits]
@@ -111,19 +108,19 @@ async def search_flashbulb_db(line_vec, user_id, bot_name):
     except Exception as e:
         print(e)
         memories = "Error"
-        return memories 
+        return memories
         
 
 
 
 # Create a Description for the Module
-def Flashbulb_Memory_Search_Description(username, bot_name):
-    description = f"Flashbulb_Memory_Search.py: A module dedicated to {bot_name}'s simulated Flashbulb Memories. Flashbulb memories are vivid, detailed memories of surprising and consequential events. In this context, {bot_name} creates responses that mimic the clarity and detail typical of such memories, aiming to produce interactions that feel exceptionally vivid and memorable. This module does not verify factual accuracy but enhances the richness of conversational experiences."
+def Episodic_Memory_Search_Description(username, bot_name):
+    description = f"Episodic_Memory_Search.py: A module dedicated to {bot_name}'s simulated Episodic Memories. Episodic memories represent personal experiences tied to specific times and places. For {bot_name}, this means generating responses based on hypothetical past events, not actual history. This isn't for factual validation but to enhance contextually relevant interactions."
     return description
     
     
 # Add your custom code Here
-async def Flashbulb_Memory_Search(host, bot_name, username, user_id, line, task_counter, output_one, output_two, master_tasklist_output, user_input):
+async def Episodic_Memory_Search(host, bot_name, username, user_id, line, task_counter, output_one, output_two, master_tasklist_output, user_input):
     try:
         async with aiofiles.open('./Aetherius_API/chatbot_settings.json', mode='r', encoding='utf-8') as f:
             settings = json.loads(await f.read())
@@ -141,7 +138,7 @@ async def Flashbulb_Memory_Search(host, bot_name, username, user_id, line, task_
         task_completion = "Task Failed"
         line_vec = embeddings(line)
         try:
-            result = await search_flashbulb_db(line_vec, user_id, bot_name)
+            result = await search_episodic_db(line_vec, user_id, bot_name)
             conversation.append({'role': 'assistant', 'content': f"MEMORIES: {result}\n\n"})
 
         except Exception as e:

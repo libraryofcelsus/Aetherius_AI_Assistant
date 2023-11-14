@@ -1,12 +1,19 @@
 import os
 import sys
 sys.path.insert(0, './Aetherius_API/resources')
-from Llama2_chat_Async import *
+from Open_Ai_GPT_35 import *
 import asyncio
 import aiofiles
+from datetime import datetime
 import aiohttp
 from bs4 import BeautifulSoup
+from uuid import uuid4
 
+
+def timestamp_to_datetime(unix_time):
+    datetime_obj = datetime.datetime.fromtimestamp(unix_time)
+    datetime_str = datetime_obj.strftime("%A, %B %d, %Y at %I:%M%p %Z")
+    return datetime_str
 
 
 async def fetch_html(url):
@@ -111,27 +118,8 @@ async def summarized_chunk_from_url(host, chunk, collection_name, bot_name, user
     try:
         weblist = list()
         websum = list()
-        websum.append({'role': 'system', 'content': "MAIN SYSTEM PROMPT: You are an ai text summarizer.  Your job is to take the given text from a scraped article, then return the text in a summarized article form.  Do not generalize, rephrase, or add information in your summary, keep the same semantic meaning.  If no article is given, print no article.\n\n\n"})
-        websum.append({'role': 'user', 'content': f"SCRAPED ARTICLE: {chunk}\n\nINSTRUCTIONS: Summarize the article without losing any factual data or semantic meaning.  Ensure to maintain full context and information. Only print the truncated article, do not include any additional text or comments. [/INST] SUMMARIZER BOT: Sure! Here is the summarized article based on the scraped text: "})
-        prompt = ''.join([message_dict['content'] for message_dict in websum])
-            
-        text = await Webscrape_Call(host, prompt, username, bot_name)
-        if text.startswith("Sure! Here is the summarized article based on the scraped text:"):
-                # Remove the specified text from the variable
-            text = text[len("Sure! Here is the summarized article based on the scraped text:"):]
-        if len(text) < 20:
-            text = "No Webscrape available"
-        #    text = chatgpt35_completion(websum)
-        #    paragraphs = text.split('\n\n')  # Split into paragraphs
-        #    for paragraph in paragraphs:  # Process each paragraph individually, add a check to see if paragraph contained actual information.
-        webcheck = list()
-        webcheck.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a sub-agent for an automated webscraping tool. Your task is to decide if the previous Ai sub-agent scraped legible information. The scraped text should contain some form of text, if it does, print 'YES'.  If the webscrape failed or is illegible, print: 'NO'."})
-        webcheck.append({'role': 'user', 'content': f"ORIGINAL TEXT FROM SCRAPE: {chunk}[/INST]"})
-        webcheck.append({'role': 'user', 'content': f"PROCESSED WEBSCRAPE: {text}\n\n"})
-        webcheck.append({'role': 'user', 'content': f"[INST]SYSTEM: You are responding for a Yes or No input field. You are only capible of printing Yes or No. Use the format: [AI AGENT: <'Yes'/'No'>][/INST]\n\nASSISTANT: "})
+        chunk = text
 
-        prompt = ''.join([message_dict['content'] for message_dict in webcheck])
-        #    webyescheck = agent_oobabooga_webcheckyesno(prompt)
         webyescheck = 'yes'
         if 'no webscrape' in text.lower():
             text = chunk
@@ -159,15 +147,13 @@ async def summarized_chunk_from_url(host, chunk, collection_name, bot_name, user
             print('Summarization Failed')
             pass                
         else:
-            if 'cannot provide a summary of' in text.lower():
-                text = chunk
             if 'yes' in webyescheck.lower():
                 semanticterm = list()
                 semanticterm.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a bot responsible for taging articles with a title for database queries.  Your job is to read the given text, then create a title in question form representative of what the article is about, focusing on its main subject.  The title should be semantically identical to the overview of the article and not include extraneous info.  The article is from the URL: {url}. Use the format: [<TITLE IN QUESTION FORM>].\n\n"})
                 semanticterm.append({'role': 'user', 'content': f"ARTICLE: {text}\n\n"})
                 semanticterm.append({'role': 'user', 'content': f"SYSTEM: Create a short, single question that encapsulates the semantic meaning of the Article.  Use the format: [<QUESTION TITLE>].  Please only print the title, it will be directly input in front of the article.[/INST]\n\nASSISTANT: Sure! Here's the summary of the webscrape: "})
                 prompt = ''.join([message_dict['content'] for message_dict in semanticterm])
-                semantic_db_term = await Webscrape_Call(host, prompt, username, bot_name)
+                semantic_db_term = Webscrape_Call(prompt, username, bot_name)
                 if 'cannot provide a summary of' in semantic_db_term.lower():
                     semantic_db_term = 'Tag Censored by Model'
                 print('---------')

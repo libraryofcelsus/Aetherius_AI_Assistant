@@ -1,7 +1,7 @@
 import os
 import sys
 sys.path.insert(0, './Aetherius_API/resources')
-from Llama2_chat_Async import *
+from AetherNode_Llama_2 import *
 import time
 from datetime import datetime
 from uuid import uuid4

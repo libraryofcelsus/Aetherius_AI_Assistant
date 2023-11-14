@@ -19,6 +19,10 @@ If you do not have a GPU see: [Public Oobabooga Api Colab](https://colab.researc
 ------
 **Recent Changes**
 
+• 11/14 Added ability to use a new API I am working on.  It can be found here: https://github.com/libraryofcelsus/AetherNode
+
+• 11/14 Added Open Ai to Api.
+
 • 11/07 Fixed Unicode encoding error when writing personality files.
 
 • 11/07 Added GPT Vision to Agent mode.

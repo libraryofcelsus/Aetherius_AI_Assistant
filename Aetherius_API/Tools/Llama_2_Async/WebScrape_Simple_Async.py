@@ -153,7 +153,7 @@ async def summarized_chunk_from_url(host, chunk, collection_name, bot_name, user
                 semanticterm.append({'role': 'user', 'content': f"ARTICLE: {text}\n\n"})
                 semanticterm.append({'role': 'user', 'content': f"SYSTEM: Create a short, single question that encapsulates the semantic meaning of the Article.  Use the format: [<QUESTION TITLE>].  Please only print the title, it will be directly input in front of the article.[/INST]\n\nASSISTANT: Sure! Here's the summary of the webscrape: "})
                 prompt = ''.join([message_dict['content'] for message_dict in semanticterm])
-                semantic_db_term = await scrape_oobabooga_scrape(host, prompt, username, bot_name)
+                semantic_db_term = await Webscrape_Call(host, prompt, username, bot_name)
                 if 'cannot provide a summary of' in semantic_db_term.lower():
                     semantic_db_term = 'Tag Censored by Model'
                 print('---------')

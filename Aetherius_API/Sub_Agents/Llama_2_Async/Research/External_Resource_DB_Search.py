@@ -1,7 +1,7 @@
 import os
 import sys
 sys.path.insert(0, './Aetherius_API/resources')
-from Llama2_chat_Async import *
+from Oobabooga_Llama_2 import *
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams, PointStruct, Filter, FieldCondition, Range, MatchValue
 from qdrant_client.http import models

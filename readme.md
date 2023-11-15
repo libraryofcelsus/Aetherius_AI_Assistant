@@ -19,6 +19,8 @@ If you do not have a GPU see: [Public Oobabooga Api Colab](https://colab.researc
 ------
 **Recent Changes**
 
+• 11/15 Set Google Collab Public API to latest snapshot before Oobabooga Api Change.  Also changed its loading method to Exllamav2
+
 • 11/15 Improved Tool Selection Prompt
 
 • 11/15 Moved Old Ui to its own folder to avoid confusion when modifying settings.

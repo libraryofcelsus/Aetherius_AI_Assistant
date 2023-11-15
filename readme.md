@@ -5,7 +5,7 @@ Aetherius is in a state of constant iterative development.  If you like the vers
 
 If you do not have a GPU see: [Public Oobabooga Api Colab](https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Oobabooga_Public_Api.ipynb)
 
-**Ui is out of date, it will be updated after the new sub-agent system is finished. For the most current version, use the discord bot.**
+**Ui is out of date, it will be updated after the new sub-agent system is finished. For the most current version, use the discord bot.  Gradio Ui is just for testing purposes.**
 
 **Oobabooga Text-Ui just changed how their api works.  The most up to date version that works is snapshot-2023-10-29**
 
@@ -18,6 +18,8 @@ If you do not have a GPU see: [Public Oobabooga Api Colab](https://colab.researc
 - Improving Reliability. 
 ------
 **Recent Changes**
+
+• 11/15 Moved Old Ui to its own folder to avoid confusion when modifying settings.
 
 • 11/14 Added ability to use a new API I am working on.  It can be found here: https://github.com/libraryofcelsus/AetherNode
 
@@ -123,7 +125,7 @@ With Aetherius, you have an arsenal of tools to explore and use:
 
 ------
 
-Aetherius's development is self-funded by my day job, consider supporting me if you use it frequently, want development speed to increase, or if you want help setting up a custom version of Aetherius for your use case.
+Aetherius's development is self-funded by my day job, consider supporting me if you use it frequently and want development speed to increase.
 
 <a href='https://ko-fi.com/libraryofcelsus' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi3.png?v=3' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
 

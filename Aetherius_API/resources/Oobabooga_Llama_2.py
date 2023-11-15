@@ -1781,7 +1781,7 @@ async def Agent_Master_Tasklist_Call(prompt, username, bot_name):
         'history': history,
         'mode': 'instruct',  # Valid options: 'chat', 'chat-instruct', 'instruct'
         'instruction_template': 'Llama-v2',  # Will get autodetected if unset
-        'context_instruct': f"[INST] <<SYS>>\nAs a task list coordinator for {bot_name}, merge user input and chatbot action plans into 3-6 categorized research tasks for asynchronous execution by isolated AI agents.\nFormat:  [GIVEN CATEGORY]: <TASK>\nUtilize available Tool Categories, focusing on informational searches. Exclude tasks related to product production, external consultations, or inter-agent communications.\n<</SYS>>",  # Optional
+        'context_instruct': f"[INST] <<SYS>>\nAs a task list coordinator for {bot_name}, merge user input and chatbot action plans into 3-6 categorized research tasks for asynchronous execution by isolated AI agents.\nUse the Following Format:  [GIVEN CATEGORY]: <TASK>\nUtilize available Tool Categories, focusing on informational searches. Exclude tasks related to product production, external consultations, or inter-agent communications.\n<</SYS>>",  # Optional
         'your_name': f'{username}',
 
         'regenerate': False,

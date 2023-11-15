@@ -19,6 +19,8 @@ If you do not have a GPU see: [Public Oobabooga Api Colab](https://colab.researc
 ------
 **Recent Changes**
 
+• 11/15 Improved Tool Selection Prompt
+
 • 11/15 Moved Old Ui to its own folder to avoid confusion when modifying settings.
 
 • 11/14 Added ability to use a new API I am working on.  It can be found here: https://github.com/libraryofcelsus/AetherNode

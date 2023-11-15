@@ -1294,13 +1294,13 @@ async def Agent_Master_Tasklist_Call(prompt, username, bot_name):
         "LLM_Template": "Llama_2_Chat",
         "Username": username,
         "Bot_Name": bot_name,
-        "system_prompt": f"As a task list coordinator for {bot_name}, merge user input and chatbot action plans into 3-6 categorized research tasks for asynchronous execution by isolated AI agents.\nFormat:  [GIVEN CATEGORY]: <TASK>\nUtilize available Tool Categories, focusing on informational searches. Exclude tasks related to product production, external consultations, or inter-agent communications.",
+        "system_prompt": f"As a task list coordinator for {bot_name}, merge user input and chatbot action plans into 3-6 categorized research tasks for asynchronous execution by isolated AI agents.\nUse the Following Format:  [GIVEN CATEGORY]: <TASK>\nUtilize available Tool Categories, focusing on informational searches. Exclude tasks related to product production, external consultations, or inter-agent communications.",
         "prompt": prompt,
-        "max_new_tokens": max_tokens,
-        "temperature": temperature,
-        "top_p": top_p,
+        "max_new_tokens": 500,
+        "temperature": 0.5,
+        "top_p": 30,
         "top_k": top_k,
-        "repetition_penalty": rep_pen
+        "repetition_penalty": 1.16
     }
     
 

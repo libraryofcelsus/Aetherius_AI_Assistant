@@ -18,6 +18,7 @@
 	"Vision_Model": "eyes_url",
 	
     "HOST_Oobabooga": "http://localhost:5000/api",
+	"_comment_HOST_Oobabooga": "To use multiple hosts, separate them with a space.  First host should be the fastest.  Second Host will be used for memories.  Additional hosts will be used for Agent Mode.",
 	
 	"Embeddings": "Embeddings_Sentence_Xformer",
 	"_comment_Embeddings": "The available embedding methods are: Embeddings_Sentence_Xformer",

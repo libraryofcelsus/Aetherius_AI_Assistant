@@ -1,5 +1,5 @@
 # Aetherius
-Version .045d of the Aetherius Ai Personal Assistant/Agent/Companion by LibraryofCelsus.com
+Version .046 of the Aetherius Ai Personal Assistant/Agent/Companion by LibraryofCelsus.com
 
 Aetherius is in a state of constant iterative development.  If you like the version you are using, keep a backup.  Expect Bugs.
 
@@ -16,8 +16,11 @@ If you do not have a GPU see: [Public Oobabooga Api Colab](https://colab.researc
 - Improving Sub-Agent System and adding sub-agent collaboration.  
 - Adding old features to Api (sidelined till sub-agent system is finished)
 - Improving Reliability. 
+- Update Documentation
 ------
 **Recent Changes**
+
+• 11/16 Modified Prompts
 
 • 11/15 Set Google Collab Public API to latest snapshot before Oobabooga Api Change.  Also changed its loading method to Exllamav2
 
@@ -41,20 +44,6 @@ If you do not have a GPU see: [Public Oobabooga Api Colab](https://colab.researc
 
 • 11/05 Fixed Sub-Agent Selection Bug.
 
-• 10/31 Added Temporary Gradio Ui for testing agent mode until other ui is redone. Username and Botname must be changed in "Gradio-Ui.py" If using Discord Bot, user_id must be set to discord username.
-
-• 10/31 Worked on Knowledge Domain Selection. Async API Version Only.
-
-• 10/31 Fixed No Collection Bug for External Resource Search. Async API Version Only.
-
-• 10/30 Added Experimental Knowledge Domains for Explicit Long-term Memory.  Async API Version Only.
-
-• 10/24 Added Seperate Scripts for Memory Sub-Agent Category.  Async API Version Only.
-
-• 10/24 Fixed Bug Causing Multiple Categories to be loaded into category list.  Also fixed Empty Prompt Bug.  Async API Version Only.
-
-• 10/19 Added New Category System for Sub-Agents, only in Async API script for now.
-
 ------
 
 ### What is Aetherius?
@@ -77,7 +66,7 @@ At the heart of Aetherius lies a custom Long-Term Memory (LLM) Retrieval Framewo
 
 **Unlock the Potential**
 
-Aetherius is a versatile, modular AI assistant that adapts to your needs. Its capabilities extend far beyond conventional chatbots:
+Aetherius is a versatile, modular AI Assistant/Multi-Agent Framework that adapts to your needs. Its capabilities extend beyond conventional chatbots:
 
 ***Reflective Journal***: Speak your mind freely and receive thoughtful feedback without judgment or fear.
 
@@ -91,6 +80,8 @@ Aetherius is a versatile, modular AI assistant that adapts to your needs. Its ca
 
 ***Multi-Agent Framework***: Aetherius gives you the ability to easily create subagents for whatever usecase you have.
 
+***Real Time Data ***: Aetherius has access to search the web in agent mode, allowing for data that isn't contained in the base model.
+
 ------
 
 ### Customize Your Experience
@@ -103,13 +94,16 @@ Aetherius offers multiple modes tailored to your preferences:
 - *Manual Memory Mode*: You decide when to upload memories.
 - *Training Memory Mode*: Control memory uploads for each memory type.
 - *Agent Mode*: Activate the use of any Sub-Agents for use in Aetherius's agent loop
-- *External Resources*: Allow Aetherius to use External Resources in it's inner thoughts to provide better domain specific information.
+- *External Resources*: Allow Aetherius to use its External Resource Database from Webscrapes and Filescrapes in it's inner thoughts to provide better domain specific information.
 
 **Current Sub-Agents**
 - *External Resources*: Will search Aetherius's External Resource Database. (Database from Web and File Scrapes) If the information cannot be found, it will do a simple websearch for the information.  You can disable the websearch and change the engine in the script file.
-- *Memory DB Search*: Will search Aetherius's memories for the information needed for the task.
+- *Implicit Memory Search*: Will search Aetherius's Implicit Memories to complete the task.
+- *Explicit Memory Search*: Will search Aetherius's Explicit Memories to complete the task.
+- *Episodic Memory Search*: Will search Aetherius's Episodic Memories to complete the task.
+- *Flashbulb Memory Search*: Will search Aetherius's Flashbulb Memories to complete the task.
 
-**Old Chatbot**: Your personal companion with realistic long-term memory.
+**Old Ui Chatbot**: Your personal companion with realistic long-term memory.
 - *Auto Memory Mode*: Aetherius autonomously manages memory uploads.
 - *Manual Memory Mode*: You decide when to upload memories.
 - *Training Memory Mode*: Control memory uploads for each memory type.
@@ -126,6 +120,7 @@ With Aetherius, you have an arsenal of tools to explore and use:
 
 - **Web Scrape/Search**: Gather information from websites with ease.
 - **File Processor**: Process a variety of file types for insights and knowledge.  The supported file types are: .epub, .pdf, .txt, .png, .jpg, .jpeg, .mp4, .mkv, .flv, and .av
+- **Photo Analysis**: Aetherius can see photo's you send and complete tasks based on them.
 
 ------
 
@@ -193,6 +188,22 @@ Inspired by https://github.com/daveshap/
 • Launch Ai Tutorial YouTube Channel
 
 # Changelog:
+**0.046a**
+• Added New Category System for Sub-Agents, only in Async API script for now.
+
+• Fixed Bug Causing Multiple Categories to be loaded into category list.  Also fixed Empty Prompt Bug.  Async API Version Only.
+
+• Added Seperate Scripts for Memory Sub-Agent Category.  Async API Version Only.
+
+• Added Experimental Knowledge Domains for Explicit Long-term Memory.  Async API Version Only.
+
+• Fixed No Collection Bug for External Resource Search. Async API Version Only.
+
+• Worked on Knowledge Domain Selection. Async API Version Only.
+
+• Added Temporary Gradio Ui for testing agent mode until other ui is redone. Username and Botname must be changed in "Gradio-Ui.py" If using Discord Bot, user_id must be set to discord username.
+
+
 **0.045c**
 
 • Added Bot and User profile descriptions.  This can be disabled in the Api settings json.

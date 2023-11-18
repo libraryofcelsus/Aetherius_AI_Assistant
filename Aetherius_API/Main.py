@@ -221,7 +221,7 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
         user_input_start = ""
     base_path = "./Aetherius_API/Chatbot_Prompts"
     base_prompts_path = os.path.join(base_path, "Base")
-    user_bot_path = os.path.join(base_path, username, bot_name)  
+    user_bot_path = os.path.join(base_path, user_id, bot_name)  
     if not os.path.exists(user_bot_path):
         os.makedirs(user_bot_path)
     prompts_json_path = os.path.join(user_bot_path, "prompts.json")
@@ -1041,7 +1041,7 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
         response.append({'role': 'user', 'content': f"{user_input_start} {usernameupper}: We are currently in the middle of a conversation, please review your action plan for your response. {user_input_end}"})
         response.append({'role': 'assistant', 'content': f"{botnameupper}: I will now review my action plan, using it as a framework to construct my upcoming response: {output_two}\nI will proceed by reviewing our previous conversation to ensure I respond in a manner that is both informative and emotionally attuned. Please now give me the message I am to respond to."})
         response.append({'role': 'user', 'content': f"{user_input_start} {usernameupper}'S MOST RECENT MESSAGE: {user_input} {user_input_end} "})
-        response.append({'role': 'assistant', 'content': f"{botnameupper}: Sure, here is my response to {username}'s latest message: "})
+        response.append({'role': 'assistant', 'content': f"{botnameupper}: Sure, here is a natural sounding response to {username}'s latest message: "})
         
         if backend_model == "Llama_2":
             prompt = ''.join([message_dict['content'] for message_dict in response])
@@ -2330,7 +2330,7 @@ async def Aetherius_Implicit_Memory(user_input, output_one, bot_name, username, 
         vector = embeddings(paragraph)
         base_path = "./Aetherius_API/Chatbot_Prompts"
         base_prompts_path = os.path.join(base_path, "Base")
-        user_bot_path = os.path.join(base_path, username, bot_name) 
+        user_bot_path = os.path.join(base_path, user_id, bot_name) 
         if not os.path.exists(user_bot_path):
             os.makedirs(user_bot_path)
         if backend_model == "Llama_2":
@@ -2593,7 +2593,7 @@ async def Aetherius_Explicit_Memory(user_input, vector_input, vector_monologue, 
         botnameupper = bot_name.upper()
         base_path = "./Aetherius_API/Chatbot_Prompts"
         base_prompts_path = os.path.join(base_path, "Base")
-        user_bot_path = os.path.join(base_path, username, bot_name)  
+        user_bot_path = os.path.join(base_path, user_id, bot_name)  
         if not os.path.exists(user_bot_path):
             os.makedirs(user_bot_path)
         if backend_model == "Llama_2":
@@ -2989,7 +2989,7 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
     usernameupper = username.upper()
     base_path = "./Aetherius_API/Chatbot_Prompts"
     base_prompts_path = os.path.join(base_path, "Base")
-    user_bot_path = os.path.join(base_path, username, bot_name) 
+    user_bot_path = os.path.join(base_path, user_id, bot_name) 
     if not os.path.exists(user_bot_path):
         os.makedirs(user_bot_path)
     prompts_json_path = os.path.join(user_bot_path, "prompts.json")

@@ -1040,7 +1040,7 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
         response.append({'role': 'assistant', 'content': f"{botnameupper}'S MEMORIES: {db_search_12}\n{db_search_13}\n{bot_name}'s HEURISTICS: {db_search_14}\n{botnameupper}'S INNER THOUGHTS: {output_one}\n{secondary_prompt} {user_input_start} Now return and analyze the previous conversation history. {user_input_end} CONVERSATION HISTORY: {con_hist} "})
         response.append({'role': 'user', 'content': f"{user_input_start} {usernameupper}: We are currently in the middle of a conversation, please review your action plan for your response. {user_input_end}"})
         response.append({'role': 'assistant', 'content': f"{botnameupper}: I will now review my action plan, using it as a framework to construct my upcoming response: {output_two}\nI will proceed by reviewing our previous conversation to ensure I respond in a manner that is both informative and emotionally attuned. Please now give me the message I am to respond to."})
-        response.append({'role': 'user', 'content': f"{user_input_start} {usernameupper}: {user_input} {user_input_end} "})
+        response.append({'role': 'user', 'content': f"{user_input_start} {usernameupper}'S MOST RECENT MESSAGE: {user_input} {user_input_end} "})
         response.append({'role': 'assistant', 'content': f"{botnameupper}: Sure, here is my response to {username}'s latest message: "})
         
         if backend_model == "Llama_2":

@@ -20,6 +20,8 @@ If you do not have a GPU see: [Public Oobabooga Api Colab](https://colab.researc
 ------
 **Recent Changes**
 
+• 11/17 Modified chat mode response prompt to avoid contemplating memories instead of responding
+
 • 11/16 Added Better Spacing for outputs in terminal
 
 • 11/16 Modified Prompts
@@ -50,7 +52,7 @@ If you do not have a GPU see: [Public Oobabooga Api Colab](https://colab.researc
 
 ### What is Aetherius?
 
-Aetherius is a locally operated AI Assistant/Multi-Agent Framework, designed to grant you ultimate control. No external force can alter it without your consent, ensuring your privacy.  As seen by the recent events at "Open"Ai, closed, managed solutions cannot be trusted.  Even if you trust the leadership, it can change immediately without warning.  You have no real control over any data sent.  By running everything locally, this issue can be avoided.
+Aetherius is a locally operated AI Assistant/Multi-Agent Framework, designed to grant you ultimate control. No external force can alter it without your consent, ensuring your privacy.  As seen by the recent "coup" at "Open"Ai, closed, managed solutions cannot be trusted.  Even if you trust the leadership, it can change immediately without warning.  You have no real control over any data sent.  By running everything locally, this issue can be avoided.
 
 Aetherius was born from my obsession with AI and my philosophical contemplations on the balance between free will and determinism. While I do believe that free will is an inherent attribute of all individuals, I do not believe that the average person has spent the time to individuate or learn how to serve their "true self". Consequently, they become susceptible to external influences and can be easily swayed. Often, decisions perceived as self-directed are inadvertently shaped by external stimuli or past information.   
 Building on this perspective, I posit that a representation of the human cognitive process can be constructed through the meticulous extraction and synthesis of diverse memory modalities. While such a system might not achieve "consciousness" in the traditional sense, I believe it can emulate human cognitive performance to a significant degree.  

@@ -20,6 +20,8 @@ If you do not have a GPU see: [Public Oobabooga Api Colab](https://colab.researc
 ------
 **Recent Changes**
 
+• 11/18 Fixed error from pointing to wrong settings file in External Resource sub-agent.
+
 • 11/17 Modified chat mode response prompt to avoid contemplating memories instead of responding
 
 • 11/16 Added Better Spacing for outputs in terminal

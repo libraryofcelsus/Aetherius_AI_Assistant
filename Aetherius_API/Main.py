@@ -238,7 +238,7 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
     greeting_msg = prompts["greeting_prompt"].replace('<<NAME>>', bot_name)
     main_conversation = MainConversation(username, user_id, bot_name, conv_length, main_prompt, greeting_msg)
     while True:
-        print(f"{username}: {user_input}\n\n")
+        print(f"\n\n{username}: {user_input}")
         conversation_history = main_conversation.get_conversation_history()
         con_hist = '\n'.join(conversation_history)
         timestamp = time()
@@ -262,7 +262,7 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
         if backend_model == "Llama_2":
             prompt = ''.join([message_dict['content'] for message_dict in input_expansion])
             expanded_input = await Input_Expansion_Call(prompt, username, bot_name)
-        print(f"Expanded User Input: {expanded_input}")
+        print(f"\n\nExpanded User Input: {expanded_input}")
         
 
         
@@ -304,10 +304,10 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
             domain_search = [hit.payload['knowledge_domain'] for hit in hits]
         except Exception as e:
             if "Not found: Collection" in str(e):
-                print("Collection does not exist.")
+                print("\nCollection does not exist.")
                 domain_search = "No Collection"
             else:
-                print(f"An unexpected error occurred: {str(e)}")
+                print(f"\nAn unexpected error occurred: {str(e)}")
                 domain_search = "No Collection"
                 
                 
@@ -318,7 +318,7 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
                     output_list.append(item)
             return output_list
         domain_search = remove_duplicate_dicts(domain_search)
-        print(f"Knowledge Domains: {domain_search}")
+        print(f"\nKnowledge Domains: {domain_search}")
         
         
         domain_extraction.append({'role': 'system', 'content': f"{user_input_start} Your role as a Knowledge Domain Selector is to analyze the user's question and identify the most relevant knowledge domain from the provided list. Ensure that your choice is from the existing domains, and avoid creating or using any not listed. Respond with the name of the single selected knowledge domain.\n"})
@@ -382,7 +382,7 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
                             async with aiofiles.open(file_path, 'w') as txt_file:
                                 await txt_file.write(default_prompts)
                         except Exception as e:
-                            print(f"Failed to write to file: {e}")
+                            print(f"\nFailed to write to file: {e}")
                     await write_prompts()
                 try:
                     async with aiofiles.open(file_path, mode='r') as file:
@@ -492,9 +492,9 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
                 except Exception as e:
                     if DB_Search_Output == 'True':
                         if "Not found: Collection" in str(e):
-                            print("Collection does not exist.")
+                            print("\nCollection does not exist.")
                         else:
-                            print(f"An unexpected error occurred: {str(e)}")
+                            print(f"\nAn unexpected error occurred: {str(e)}")
         
                 try:
                     hits = client.search(
@@ -522,13 +522,13 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
                         temp_list2.append({'role': 'assistant', 'content': f"{db_search_2}  "})
                     tasklist_counter2 + 1
                     if DB_Search_Output == 'True':
-                        print(db_search_2)
+                        print(f"\n\n{db_search_2}")
                 except Exception as e:
                     if DB_Search_Output == 'True':
                         if "Not found: Collection" in str(e):
-                            print("Collection does not exist.")
+                            print("\nCollection does not exist.")
                         else:
-                            print(f"An unexpected error occurred: {str(e)}")
+                            print(f"\nAn unexpected error occurred: {str(e)}")
                             
                 def remove_duplicate_dicts(input_list):
                     output_list = []
@@ -626,14 +626,14 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
             sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'timestring' field
             implicit_short = "\n".join([f"{message}" for timestring, message in sorted_table])
             if DB_Search_Output == 'True':
-                print(implicit_short)
+                print(f"\n\nIMPLICIT SHORT TERM MEMORIES:\n{implicit_short}")
         except Exception as e:
             implicit_short = "No Memories"
             if DB_Search_Output == 'True':
                 if "Not found: Collection" in str(e):
-                    print("Collection does not exist.")
+                    print("\nCollection does not exist.")
                 else:
-                    print(f"An unexpected error occurred: {str(e)}")
+                    print(f"\nAn unexpected error occurred: {str(e)}")
                     
         db_search_4 = f"{implicit_short}\n{explicit_short}"
         
@@ -659,13 +659,13 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
             sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'timestring' field
             db_search_5 = "\n".join([f"{message}" for timestring, message in sorted_table])
             if DB_Search_Output == 'True':
-                print(db_search_5)
+                print(f"FLASHBULB MEMORIES:\n{db_search_5}")
         except Exception as e:
             if DB_Search_Output == 'True':
                 if "Not found: Collection" in str(e):
-                    print("Collection does not exist.")
+                    print("\nCollection does not exist.")
                 else:
-                    print(f"An unexpected error occurred: {str(e)}")
+                    print(f"\nAn unexpected error occurred: {str(e)}")
                           
         try:
             hits = client.search(
@@ -772,13 +772,13 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
             sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'timestring' field
             db_search_7 = "\n".join([f"{message}" for timestring, message in sorted_table])
             if DB_Search_Output == 'True':
-                print(db_search_7)
+                print(f"\n\nEPISODIC:\n{db_search_7}")
         except Exception as e:
             if DB_Search_Output == 'True':
                 if "Not found: Collection" in str(e):
-                    print("Collection does not exist.")
+                    print("\nCollection does not exist.")
                 else:
-                     print(f"An unexpected error occurred: {str(e)}")
+                     print(f"\nAn unexpected error occurred: {str(e)}")
                        
         try:
             hits = client.search(
@@ -802,13 +802,13 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
             sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'timestring' field
             db_search_8 = "\n".join([f"{message}" for timestring, message in sorted_table])
             if DB_Search_Output == 'True':
-                print(db_search_8)
+                print(f"\n\nEXPLICIT SHORT TERM:\n{db_search_8}")
         except Exception as e:
             if DB_Search_Output == 'True':
                 if "Not found: Collection" in str(e):
-                    print("Collection does not exist.")
+                    print("\nCollection does not exist.")
                 else:
-                    print(f"An unexpected error occurred: {str(e)}")
+                    print(f"\nAn unexpected error occurred: {str(e)}")
                       
         try:
             hits = client.search(
@@ -832,7 +832,7 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
             sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'timestring' field
             db_search_9 = "\n".join([f"{message}" for timestring, message in sorted_table])
             if DB_Search_Output == 'True':
-                print(db_search_9)
+                print(f"\n\nFLASHBULB:\n{db_search_9}")
         except Exception as e:
             if DB_Search_Output == 'True':
                 if "Not found: Collection" in str(e):
@@ -862,13 +862,13 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
             sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'timestring' field
             db_search_10 = "\n".join([f"{message}" for timestring, message in sorted_table])
             if DB_Search_Output == 'True':
-                print(db_search_10)
+                print(f"\n\nHEURISTICS:\n{db_search_10}")
         except Exception as e:
             if DB_Search_Output == 'True':
                 if "Not found: Collection" in str(e):
-                    print("Collection does not exist.")
+                    print("\nCollection does not exist.")
                 else:
-                    print(f"An unexpected error occurred: {str(e)}")
+                    print(f"\nAn unexpected error occurred: {str(e)}")
                     
 
    
@@ -967,13 +967,13 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
             sorted_table = sorted(unsorted_table, key=lambda x: x[0])  
             db_search_12 = "\n".join([f"{message}" for timestring, message in sorted_table])
             if DB_Search_Output == 'True':
-                print(db_search_12)
+                print(f"\n\nIMPLICIT LONG TERM:\n{db_search_12}")
         except Exception as e:
             if DB_Search_Output == 'True':
                 if "Not found: Collection" in str(e):
-                    print("Collection does not exist.")
+                    print("\nCollection does not exist.")
                 else:
-                    print(f"An unexpected error occurred: {str(e)}")
+                    print(f"\nAn unexpected error occurred: {str(e)}")
                     
         try:
             hits = client.search(
@@ -997,13 +997,13 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
             sorted_table = sorted(unsorted_table, key=lambda x: x[0])  
             db_search_13 = "\n".join([f"{message}" for timestring, message in sorted_table])
             if DB_Search_Output == 'True':
-                print(db_search_13)
+                print(f"\n\nEPISODIC:\n{db_search_13}")
         except Exception as e:
             if DB_Search_Output == 'True':
                 if "Not found: Collection" in str(e):
-                    print("Collection does not exist.")
+                    print("\nCollection does not exist.")
                 else:
-                    print(f"An unexpected error occurred: {str(e)}")
+                    print(f"\nAn unexpected error occurred: {str(e)}")
                     
         try:
             hits = client.search(
@@ -1027,13 +1027,13 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
             sorted_table = sorted(unsorted_table, key=lambda x: x[0]) 
             db_search_14 = "\n".join([f"{message}" for timestring, message in sorted_table])
             if DB_Search_Output == 'True':
-                print(db_search_14)
+                print(f"\n\nHEURISTICS:\n{db_search_14}")
         except Exception as e:
             if DB_Search_Output == 'True':
                 if "Not found: Collection" in str(e):
-                    print("Collection does not exist.")
+                    print("\nCollection does not exist.")
                 else:
-                    print(f"An unexpected error occurred: {str(e)}")
+                    print(f"\nAn unexpected error occurred: {str(e)}")
                     
                   
                   
@@ -1223,7 +1223,7 @@ async def Aetherius_Agent(user_input, username, user_id, bot_name, image_path=No
         if backend_model == "Llama_2":
             prompt = ''.join([message_dict['content'] for message_dict in input_expansion])
             expanded_input = await Input_Expansion_Call(prompt, username, bot_name)
-        print(f"Expanded User Input: {expanded_input}")
+        print(f"\n\nExpanded User Input: {expanded_input}")
         
 
         
@@ -1264,7 +1264,7 @@ async def Aetherius_Agent(user_input, username, user_id, bot_name, image_path=No
                 limit=15
             )
             domain_search = [hit.payload['knowledge_domain'] for hit in hits]
-            print(f"Knowledge Domains: {domain_search}")
+            print(f"\nKnowledge Domains: {domain_search}")
         except Exception as e:
             if "Not found: Collection" in str(e):
                 print("Collection does not exist.")
@@ -2130,6 +2130,7 @@ async def process_line(host, host_queue, bot_name, username, line, task_counter,
                     if category_found:
                         break
                 if not category_found:
+                    print(f"\n-----------------------\n")   
                     print("\n\nNo matching category found in the string.")   
         except Exception as e:
             print(f"An error occurred: {e}")
@@ -2151,7 +2152,7 @@ async def process_line(host, host_queue, bot_name, username, line, task_counter,
             )
             subagent_list = [hit.payload['filename'] for hit in hits]
         except Exception as e:
-            print(f"Error with Subagent DB: {e}")
+            print(f"\nError with Subagent DB: {e}")
             subagent_list = "No Sub-Agents Found"
       
         
@@ -2193,15 +2194,15 @@ async def process_line(host, host_queue, bot_name, username, line, task_counter,
             subagent_selection = [hit.payload['filename'] for hit in hits]
 
         except Exception as e:
-            print(f"Error with Subagent DB: {e}")
+            print(f"\nError with Subagent DB: {e}")
             subagent_selection = "No Sub-Agents Found"
 
         if subagent_selection != "No Sub-Agents Found":
             tasks = []  
             if Sub_Module_Output == 'True':
-                print(f"Trying to execute function from {subagent_selection}...")
+                print(f"\nTrying to execute function from {subagent_selection}...")
             if not subagent_selection:
-                print("Error with Module, using fallback")
+                print("\nError with Module, using fallback")
                 
                 if backend_model == "Llama_2":
                     if select_api == "Oobabooga":
@@ -2231,7 +2232,7 @@ async def process_line(host, host_queue, bot_name, username, line, task_counter,
                     
                     if function_to_call is not None:
                         if Sub_Module_Output == 'True':
-                            print(f"Calling function: {filename}")
+                            print(f"\nCalling function: {filename}")
                         if asyncio.iscoroutinefunction(function_to_call):
                             task = function_to_call(host, bot_name, username, user_id, line, task_counter, output_one, output_two, master_tasklist_output, user_input)
                         else:
@@ -2365,12 +2366,13 @@ async def Aetherius_Implicit_Memory(user_input, output_one, bot_name, username, 
                     
                 if backend_model == "Open_Ai":
                     automemory = Auto_Call(auto, username, bot_name)
-                print(automemory)
+             #   print(automemory)
                 values_to_check = ["7", "8", "9", "10"]
                 if any(val in automemory for val in values_to_check):
                     auto_int = ('Pass')
                     segments = re.split(r'•|\n\s*\n', inner_loop_response)
                     total_segments = len(segments)
+                    print("\n\nIMPLICIT MEMORIES:")
                     for index, segment in enumerate(segments):
                         segment = segment.strip()
                         if segment == '': 
@@ -2379,7 +2381,7 @@ async def Aetherius_Implicit_Memory(user_input, output_one, bot_name, username, 
                             continue
                         payload = list()   
                         collection_name = f"Bot_{bot_name}_Implicit_Short_Term"
-                        print(f"\n{segment}")
+                        print(f"{segment}")
                         try:
                             collection_info = client.get_collection(collection_name=collection_name)
                         except:
@@ -2410,13 +2412,13 @@ async def Aetherius_Implicit_Memory(user_input, output_one, bot_name, username, 
                         
                 values_to_check2 = ["1", "2", "3", "4", "5", "6"]
                 if any(val in automemory for val in values_to_check2):
-                    print("Memories not worthy of Upload")
+                    print("\nMemories not worthy of Upload")
                     break
                 else:
                     auto_int = None
                     auto_count += 1
                     if auto_count > 2:
-                        print('Auto Memory Failed')
+                        print('\nAuto Memory Failed')
                         break
             else:
                 pass   
@@ -2424,6 +2426,7 @@ async def Aetherius_Implicit_Memory(user_input, output_one, bot_name, username, 
         if memory_mode == 'Forced':
             segments = re.split(r'•|\n\s*\n', inner_loop_response)
             total_segments = len(segments)
+            print("\n\nIMPLICIT MEMORIES:")
             for index, segment in enumerate(segments):
                 segment = segment.strip()
                 if segment == '': 
@@ -2432,7 +2435,7 @@ async def Aetherius_Implicit_Memory(user_input, output_one, bot_name, username, 
                     continue
                 payload = list()   
                 collection_name = f"Bot_{bot_name}_Implicit_Short_Term"
-                print(f"\n{segment}")
+                print(f"{segment}")
                 try:
                     collection_info = client.get_collection(collection_name=collection_name)
                 except:
@@ -2458,7 +2461,7 @@ async def Aetherius_Implicit_Memory(user_input, output_one, bot_name, username, 
                 
                 
         if memory_mode == 'Training':
-            print(f"Upload Implicit Memories?\n{inner_loop_response}\n\n")
+            print(f"\n\nUpload Implicit Memories?\n{inner_loop_response}\n\n")
             mem_upload_yescheck = input("Enter 'Y' or 'N': ")
             if mem_upload_yescheck.upper == 'Y':
                 await Upload_Implicit_Short_Term_Memories(inner_loop_response, username, user_id, bot_name)
@@ -2537,7 +2540,7 @@ async def Aetherius_Implicit_Memory(user_input, output_one, bot_name, username, 
                 
     except Exception as e:
         traceback_details = traceback.format_exc()  # This will give you the full traceback
-        print(f"ERROR WITH IMPLICIT MEM MODULE: {e}")
+        print(f"\nERROR WITH IMPLICIT MEM MODULE: {e}")
         print(traceback_details) 
         
         
@@ -2646,13 +2649,14 @@ async def Aetherius_Explicit_Memory(user_input, vector_input, vector_monologue, 
                     auto_int = ('Pass')
                     segments = re.split(r'•|\n\s*\n', db_upsert)
                     total_segments = len(segments)
+                    print("\n\nEXPLICIT MEMORIES:")
                     for index, segment in enumerate(segments):
                         segment = segment.strip()
                         if segment == '': 
                             continue  
                         if index == total_segments - 1 and not segment[-1] in ['.', '!', '?']:
                             continue
-                        print(f"\n{segment}")
+                        print(f"{segment}")
                         payload = list()       
                         collection_name = f"Bot_{bot_name}_Explicit_Short_Term"
                         try:
@@ -2697,13 +2701,14 @@ async def Aetherius_Explicit_Memory(user_input, vector_input, vector_monologue, 
             try:
                 segments = re.split(r'•|\n\s*\n', db_upsert)
                 total_segments = len(segments)
+                print("\n\nEXPLICIT MEMORIES:")
                 for index, segment in enumerate(segments):
                     segment = segment.strip()
                     if segment == '': 
                         continue  
                     if index == total_segments - 1 and not segment[-1] in ['.', '!', '?']:
                         continue
-                    print(f"\n{segment}")
+                    print(f"{segment}")
                     payload = list()       
                     collection_name = f"Bot_{bot_name}_Explicit_Short_Term"
                     try:
@@ -2733,10 +2738,10 @@ async def Aetherius_Explicit_Memory(user_input, vector_input, vector_monologue, 
             task = asyncio.create_task(Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_input, vector_monologue, output_one, response_two))
         
         if memory_mode == 'Training':
-            print(f"Upload Explicit Memories?\n{db_upload}\n\n")
+            print(f"\n\nUpload Explicit Memories?\n{db_upload}\n\n")
             db_upload_yescheck = ask_upload_explicit_memories(db_upsert)
             
-            print(f"Upload Explicit Memories?\n{db_upload}\n\n")
+            print(f"\n\nUpload Explicit Memories?\n{db_upload}\n\n")
             db_upload_yescheck = input("Enter 'Y' or 'N': ")
             if db_upload_yescheck.upper == 'Y':
                 await Upload_Explicit_Short_Term_Memories(db_upsert, username, user_id, bot_name)
@@ -2755,7 +2760,7 @@ async def Aetherius_Explicit_Memory(user_input, vector_input, vector_monologue, 
                         async with aiofiles.open(file_path, 'w', encoding='utf-8') as txt_file:
                             await txt_file.write(default_prompts)
                     except Exception as e:
-                        print(f"Failed to write to file: {e}")
+                        print(f"\nFailed to write to file: {e}")
                 await write_prompts()
 
             try:
@@ -2820,7 +2825,7 @@ async def Aetherius_Explicit_Memory(user_input, vector_input, vector_monologue, 
                     await file.write(safe_content)
     except Exception as e:
         traceback_details = traceback.format_exc()  # This will give you the full traceback
-        print(f"ERROR WITH IMPLICIT MEM MODULE: {e}")
+        print(f"\nERROR WITH IMPLICIT MEM MODULE: {e}")
         print(traceback_details) 
         
         
@@ -3118,9 +3123,9 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
                 flash_db = [hit.payload['message'] for hit in hits]
             except Exception as e:
                 if "Not found: Collection" in str(e):
-                    print("Collection does not exist.")
+                    print("\nCollection does not exist.")
                 else:
-                    print(f"An unexpected error occurred: {str(e)}")
+                    print(f"\nAn unexpected error occurred: {str(e)}")
                 
             flash_db1 = None
             try:
@@ -3145,9 +3150,9 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
                 flash_db1 = [hit.payload['message'] for hit in hits]
             except Exception as e:
                 if "Not found: Collection" in str(e):
-                    print("Collection does not exist.")
+                    print("\nCollection does not exist.")
                 else:
-                    print(f"An unexpected error occurred: {str(e)}")
+                    print(f"\nAn unexpected error occurred: {str(e)}")
             # # Generate Flashbulb Memory
             consolidation.append({'role': 'system', 'content': "Main System Prompt: As a data extractor, your role is to read the provided episodic memories and emotional reactions. Extract emotional information corresponding to each memory and then combine these to form flashbulb memories. Only include memories strongly tied to emotions. Format the flashbulb memories as bullet points using the template: •[flashbulb memory]. Then, create and present the final list of flashbulb memories.\n"})
             consolidation.append({'role': 'user', 'content': f"EMOTIONAL REACTIONS: {flash_db}\nEPISODIC MEMORIES: {flash_db1} {user_input_end}"})
@@ -3246,14 +3251,14 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
                #     print(memory_consol_db)
                 except Exception as e:
                     if "Not found: Collection" in str(e):
-                        print("Collection does not exist.")
+                        print("\nCollection does not exist.")
                     else:
-                        print(f"An unexpected error occurred: {str(e)}")
+                        print(f"\nAn unexpected error occurred: {str(e)}")
                 except Exception as e:
                     if "Not found: Collection" in str(e):
-                        print("Collection does not exist.")
+                        print("\nCollection does not exist.")
                     else:
-                        print(f"An unexpected error occurred: {str(e)}")
+                        print(f"\nAn unexpected error occurred: {str(e)}")
 
                 consolidation.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: {main_prompt}\n\n"})
                 consolidation.append({'role': 'system', 'content': f"LOG: {memory_consol_db}\n\nSYSTEM: Read the Log and combine the similar topics from the given short term memories into a bullet point list to serve as {bot_name}'s long term memories. Each summary should contain the entire context of the memory. Follow the format •[memory] {user_input_end} "})
@@ -3266,7 +3271,7 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
                     memory_consol = Memory_Consolidation_Call(consolidation, username, bot_name)
                     
                 if DB_Search_Output == 'True':
-                    print(memory_consol)
+                    print(f"\n\nEXPLICIT MEMORY CONSOLIDATION:\n{memory_consol}")
                     print('\n-----------------------\n')
                 segments = re.split(r'•|\n\s*\n', memory_consol)
                 for segment in segments:
@@ -3351,10 +3356,10 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
                             domain_search = [hit.payload['knowledge_domain'] for hit in hits]
                         except Exception as e:
                             if "Not found: Collection" in str(e):
-                                print("Collection does not exist.")
+                                print("\nCollection does not exist.")
                                 domain_search = "No Collection"
                             else:
-                                print(f"An unexpected error occurred: {str(e)}")
+                                print(f"\nAn unexpected error occurred: {str(e)}")
                         
                         
                         if extracted_domain not in domain_search:
@@ -3442,9 +3447,9 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
                         memory_consol_db2 = [hit.payload['message'] for hit in hits]
                     except Exception as e:
                         if "Not found: Collection" in str(e):
-                            print("Collection does not exist.")
+                            print("\nCollection does not exist.")
                         else:
-                            print(f"An unexpected error occurred: {str(e)}") 
+                            print(f"\nAn unexpected error occurred: {str(e)}") 
 
                     consolidation.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: {main_prompt}\n\n"})
                     consolidation.append({'role': 'system', 'content': f"LOG: {memory_consol_db2}\n\nSYSTEM:  Read the Log and combine the similar topics from the given short term memories into a bullet point list to serve as {bot_name}'s long term memories. Each summary should contain the entire context of the memory. Follow the format: •[memory] {user_input_end} "})
@@ -3482,9 +3487,9 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
                     except Exception as e:
                         memory_consol_db3 = 'Failed Lookup'
                         if "Not found: Collection" in str(e):
-                            print("Collection does not exist.")
+                            print("\nCollection does not exist.")
                         else:
-                            print(f"An unexpected error occurred: {str(e)}")
+                            print(f"\nAn unexpected error occurred: {str(e)}")
                             
                             
                             
@@ -3500,7 +3505,7 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
                         memory_consol3 = Memory_Consolidation_Call(consolidation, username, bot_name)
                         
                     if DB_Search_Output == 'True':
-                        print(f"\n\n{memory_consol3}")
+                        print(f"\n\nIMPLICIT MEMORY CONSOLIDATION:\n{memory_consol3}")
                     segments = re.split(r'•|\n\s*\n', memory_consol3)
                     for segment in segments:
                         if segment.strip() == '':  
@@ -3587,9 +3592,9 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
                         memory_consol_db4 = [hit.payload['message'] for hit in hits]
                     except Exception as e:
                         if "Not found: Collection" in str(e):
-                            print("Collection does not exist.")
+                            print("\nCollection does not exist.")
                         else:
-                            print(f"An unexpected error occurred: {str(e)}")
+                            print(f"\nAn unexpected error occurred: {str(e)}")
 
                     ids_to_delete = [m.id for m in hits]
            #         consolidation.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: {main_prompt}\n\n"})
@@ -3602,7 +3607,7 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
                         memory_consol4 = Associative_Memory_Call(consolidation, username, bot_name)
                         
                     if DB_Search_Output == 'True':
-                        print(memory_consol4)
+                        print(f"\n\nIMPLICIT MEMORY ASSOCIATION:\n{memory_consol4}")
                         print('--------')
                     segments = re.split(r'•|\n\s*\n', memory_consol4)
                     for segment in segments:
@@ -3687,9 +3692,9 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
                         consol_search = [hit.payload['message'] for hit in hits]
                     except Exception as e:
                         if "Not found: Collection" in str(e):
-                            print("Collection does not exist.")
+                            print("\nCollection does not exist.")
                         else:
-                            print(f"An unexpected error occurred: {str(e)}")
+                            print(f"\nAn unexpected error occurred: {str(e)}")
 
                     consolidation.append({'role': 'user', 'content': f"{bot_name}'s Memories: {consol_search}{user_input_end}\n\n"})
                     consolidation.append({'role': 'assistant', 'content': "RESPONSE: Semantic Search Query: "})
@@ -3723,9 +3728,9 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
                         memory_consol_db2 = [hit.payload['message'] for hit in hits]
                     except Exception as e:
                         if "Not found: Collection" in str(e):
-                            print("Collection does not exist.")
+                            print("\nCollection does not exist.")
                         else:
-                            print(f"An unexpected error occurred: {str(e)}")
+                            print(f"\nAn unexpected error occurred: {str(e)}")
 
                     #Find solution for this
                     ids_to_delete2 = [m.id for m in hits]
@@ -3741,7 +3746,7 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
                         memory_consol5 = Associative_Memory_Call(consolidation, username, bot_name)
                         
                     if DB_Search_Output == 'True':
-                        print(memory_consol5)
+                        print(f"\n\nEXPLICIT MEMORY ASSOCIATION:\n{memory_consol5}")
                         print('\n-----------------------\n')
                 #    memories = results
                     segments = re.split(r'•|\n\s*\n', memory_consol5)
@@ -3824,10 +3829,10 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
                                 domain_search = [hit.payload['knowledge_domain'] for hit in hits]
                             except Exception as e:
                                 if "Not found: Collection" in str(e):
-                                    print("Collection does not exist.")
+                                    print("\nCollection does not exist.")
                                     domain_search = "No Collection"
                                 else:
-                                    print(f"An unexpected error occurred: {str(e)}")
+                                    print(f"\nAn unexpected error occurred: {str(e)}")
                             
                             
                             if extracted_domain not in domain_search:
@@ -3859,7 +3864,7 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
                             ),
                         )
                     except:
-                        print('Failed2')  
+                        print('\n\nFailed2')  
                     client.delete_collection(collection_name=f"Consol_Counter_Bot_{bot_name}_{user_id}")    
             except Exception as e:
                 pass

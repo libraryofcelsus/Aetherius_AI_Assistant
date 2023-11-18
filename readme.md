@@ -64,13 +64,15 @@ Aetherius is an ongoing research project, expect there to be bugs and for things
 
 ### Aetherius - Your Personal Digital Assistant
 
-**Documentation not up to date :(**
-
 At the heart of Aetherius lies a custom Long-Term Memory (LLM) Retrieval Framework, fueled by the Llama 2 and Oobabooga API (Free Tier Colab Available) or OpenAi's ChatGPT.  Qdrant is used for a robust, efficient database, ensuring Aetherius evolves with you.
 
 **Unlock the Potential**
 
 Aetherius is a versatile, modular AI Assistant/Multi-Agent Framework that adapts to your needs. Its capabilities extend beyond conventional chatbots:
+
+***Real Time Data***: Aetherius has access to search the web or your own data in agent mode, allowing for information that isn't contained in the base model.
+
+***Multi-Agent Framework***: Aetherius gives you the ability to create sub-agents for whatever use case you have.
 
 ***Reflective Journal***: Speak your mind freely and receive thoughtful feedback without judgment or fear.
 
@@ -81,10 +83,6 @@ Aetherius is a versatile, modular AI Assistant/Multi-Agent Framework that adapts
 ***Cognitive Offload***: A second brain that's entirely private, aiding you in organizing thoughts and ideas.
 
 ***Content Generation***: Easily Generate Content based off of files or webscrapes.
-
-***Multi-Agent Framework***: Aetherius gives you the ability to create subagents for whatever use case you have.
-
-***Real Time Data***: Aetherius has access to search the web in agent mode, allowing for data that isn't contained in the base model.
 
 ------
 
@@ -158,7 +156,29 @@ Inspired by https://github.com/daveshap/
 
 ------
 
-## Example
+## Agent Architecture
+
+| Loop                            | Description                                                                                                       |
+| ------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| **User Input**                  | The interaction is initiated by the user sending a request to Aetherius.                                          |
+| **Input Expansion**             | Expands user input with conversation history for enhanced meaning in database searches.                           |
+| **Knowledge Domain Extraction** | Selects a Knowledge Domain from available options for explicit memory search.                                     |
+| **Semantic Term Separation**    | Separates user input into synonymous terms to capture nuanced meanings.                                           |
+| **First Memory DB Search**      | Searches Aetherius's memories to generate an inner monologue.                                                     |
+| **Inner Monologue Generation**  | Generates an inner monologue reflecting past experiences, consolidating database search info, and extending user input meaning. |
+| **Second Memory DB Search**     | Searches Aetherius's memories again to formulate its intuition.                                                   |
+| **Intuition Generation**        | Creates an action plan based on memories and the inner monologue.                                                 |
+| **Implicit Memory Generation**  | Generates short-term implicit memories from its internal processes.                                               |
+| **Master Tasklist Generation**  | Generates a list of asynchronous tasks using available Sub-Agent categories.                                      |
+| **Sub-Agent Selection**         | Chooses a sub-agent from a category to complete the task.                                                         |
+| **Final Response Generation**   | Utilizes the inner monologue, conversation history, and completed tasks to respond to the user.                   |
+| **Explicit Memory Generation**  | Produces explicit short-term memories based on the inner monologue and final response.                            |
+| **Episodic Memory Generation**  | Generates a timestamped summary of the current interaction for episodic memory storage.                           |
+| **Flashbulb Memory Generation** | Forms meaningful memories/goals using long-term and episodic memories periodically.                               |
+| **Short-Term Memory Consolidation** | Consolidates short-term memories and assigns them knowledge domains before uploading as long-term memories.      |
+| **Long-Term Memory Association**| Manages database size by condensing long-term memories and clustering related topics.                             |
+
+## Example using the Old Ui
 (Uses Llama2-Chat-13B and a webscrape of this Github page.)
 
 ![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/08/Aetherius-Example-3.png)
@@ -166,10 +186,6 @@ Inspired by https://github.com/daveshap/
 ## Database Visualization with Qdrant
 
 ![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/08/Qdrant-Visulization.png)
-
-## Agent Architecture
-
-![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/07/AetheriusArch.png)
 
 ## Future Plans
 
@@ -186,6 +202,8 @@ Inspired by https://github.com/daveshap/
 • Data Comparison Tool
 
 • Add more LLM models
+
+• Create a Custom API for running Local LLM models (https://github.com/libraryofcelsus/AetherNode)
 
 • Launch Ai Tutorial YouTube Channel
 

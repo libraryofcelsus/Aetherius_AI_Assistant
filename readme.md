@@ -7,7 +7,7 @@ If you do not have a GPU see: [Public Oobabooga Api Colab](https://colab.researc
 
 **Ui is out of date, it will be updated after the new sub-agent system is finished. For the most current version, use the discord bot.  Gradio Ui is just for testing purposes.**
 
-**Oobabooga Text-Ui just changed how their api works.  The most up to date version that works is snapshot-2023-10-29**
+**Oobabooga Text-Ui changed how their api works.  The most up to date version that works is snapshot-2023-11-05. Do not use the OpenAi Extension.**
 
 ------
 **Currently Working On**
@@ -19,8 +19,6 @@ If you do not have a GPU see: [Public Oobabooga Api Colab](https://colab.researc
 - Update Documentation
 ------
 **Recent Changes**
-
-• 11/20 Switched Recommended Oobabooga Version back to snapshot-2023-10-29
 
 • 11/20 Modified Intuition Prompt for basic chatbot to provide better reasoning abilities.  
 
@@ -215,6 +213,7 @@ Inspired by https://github.com/daveshap/
 
 # Changelog:
 **0.046a**
+
 • Added New Category System for Sub-Agents, only in Async API script for now.
 
 • Fixed Bug Causing Multiple Categories to be loaded into category list.  Also fixed Empty Prompt Bug.  Async API Version Only.
@@ -309,77 +308,7 @@ Inspired by https://github.com/daveshap/
 
 • Added Source tag for external data scrapes
 
-**0.043**
-
-• Converted to Qdrant.  Aetherius can now be ran 100% locally!
-
-• Removed OpenAi and Pinecone Api key check from main menu and added it to the individual scripts.
-
-• Cleaned up Llama 2 code
-
-• Reworked Input Window, now handles larger text strings better.
-
-• Updated OpenAi scripts, they should now follow the conversation track better.
-
-• Added Delete Button to Edit Conversation in Llama 2 Chatbot
-
-• Added Long Term Memory Upload in Llama 2 Chatbot
-
-• Updated Delete Menu in DB Management in Llama 2 Chatbot
-
-• Fixed Bug where only one Implicit and Explicit Memory were uploaded
-
-• Improved Memory Prompts, works alot better with the 7B model of Llama 2 now.  Still wouldn't recommend using the 7B model though.
-
-• Improved Auto Memory Upload.
-
-• Various Bug Fixes
-
-**0.042**
-
-• Added GUI for Aetherius.  Very basic for now.
-
-• Local Llama 2 update, works well, but still needs to be improved.
-
-• Added Edit Conversation
-
-• Added Model Selection
-
-• Added GPT 3.5 Turbo 16k
-
-• Added Webscrape Delete Button
-
-• Small Webscrape prompt rework
-
-• Various Bug Fixes
-
-**0.041**
-
-• Reworked Conversation History, it will now persist past shutdown.
-
-• Added .TXT, .PDF, and .EPUB text extractors. For now it just functions similarly to the webscrape. Place file in the "Upload" folder in its extension's respective folder.  Then run "GPT_4_Text_Extractor.py" to extract all of the files, they will be moved to the "Finished" folder once done.
-
-• Added Photo OCR to the Text Extractor.  To use, place the desired photo in the /Upload/SCANS folder.  Using this feature requires tesseract: https://github.com/UB-Mannheim/tesseract/wiki    Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aetherius_Ai_Assistant" Folder.  This will allow you to take Screenshots with the windows snipping tool and upload them to Aetherius for processing.
-
-**0.04**
-
-• New User System Implemented.  Change the username prompt in the config folder to change users.  This will allow you to have multiple versions of Aetherius on the same index.
-
-• First iteration of Aether Search/Scrape implemented. This will be the eventual websearch system.  As of now it requires a Google CSE key and Google API key, other options coming soon.
-
-• Autonomous Tasklist Generation
-
-• Aetherius now decides for itself whether or not each task in its generated tasklist requires a websearch, memory search, or both.
-
-• Switched to Username based DB to Bot Name based DB, will add user's again later.
-
-• Re-added Users
-
-• Various Bug Fixes
-
-• Intuition Prompt Rework
-
-• Various Bug Fixes
+Older Changelogs can be found at: https://www.libraryofcelsus.com/aetherius/
 
 # Installation Guide
 
@@ -414,12 +343,12 @@ The final step will be to run the actual Aetherius Script.  You can install it l
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
 </a>
 
-6. To run Aetherius Locally using Oobabooga, first install the web-ui at: https://github.com/oobabooga/text-generation-webui/releases/tag/snapshot-2023-10-29
+6. To run Aetherius Locally using Oobabooga, first install the web-ui at: https://github.com/oobabooga/text-generation-webui/releases/tag/snapshot-2023-11-05
 
-Oobabooga Text-Ui just changed how their api works.  The most up to date version that works is snapshot-2023-10-29 
-This can be done through the release menu or **git clone https://github.com/oobabooga/text-generation-webui --build snapshot-2023-10-29**
+Oobabooga Text-Ui just changed how their api works.  The most up to date version that works is snapshot-2023-11-05
+This can be done through the release menu or **git clone https://github.com/oobabooga/text-generation-webui --build snapshot-2023-11-05**
 
-7. Then, under the "Interface Mode" tab, enable the api checkbox in both fields. Then click apply and restart the interface.
+7. Then, under the "Interface Mode" tab, enable the api checkbox in the "Available Extensions" field only. Then click apply and restart the interface.
 
 8. Next, navigate to the models tab. Uncheck the autoload models box and then input "TheBloke/Llama-2-13B-chat-GPTQ" into the downloads box (7B model can be used for faster results, but it occasionally breaks format and has a tendency to make things up.  Wouldn't recommend if you need factual data). Other models may work, but this is the one that is tested.
 
@@ -562,15 +491,15 @@ Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aethe
 
 29. Once you have made a backup, you can start using the "Auto" mode, this mode has Aetherius decide for itself whether or not it should upload to its memories.
 
-30. To run Aetherius Locally using Oobabooga, first install the web-ui at: https://github.com/oobabooga/text-generation-webui/releases/tag/snapshot-2023-10-29
+30. To run Aetherius Locally using Oobabooga, first install the web-ui at: https://github.com/oobabooga/text-generation-webui/releases/tag/snapshot-2023-11-05
 (To use Google Colab, use the Notebook file in the "./Colab Notebooks" Folder.  To use the Public Api with Aetherius, change the "HOST_Oobabooga" in the settings json to the given non-streaming Url.  To use multiple Hosts, separate them with a space.)  <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Oobabooga_Public_Api.ipynb">
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
 </a>
 
-Oobabooga Text-Ui just changed how their api works.  The most up to date version that works is snapshot-2023-10-29
-This can be done through the release menu or **git clone https://github.com/oobabooga/text-generation-webui --build snapshot-2023-10-29**
+Oobabooga Text-Ui just changed how their api works.  The most up to date version that works is snapshot-2023-11-05
+This can be done through the release menu or **git clone https://github.com/oobabooga/text-generation-webui --build snapshot-2023-11-05**
 
-31. Then, under the "Interface Mode" tab, enable the api checkbox in both fields.  Then click apply and restart the interface.
+31. Then, under the "Interface Mode" tab, enable the api checkbox in the "Available Extensions" field only.  Then click apply and restart the interface.
 
 32. Next, navigate to the models tab. Uncheck the autoload models box and then input "TheBloke/Llama-2-13B-chat-GPTQ" into the downloads box. Other models may work, but this is the one that is tested.
 

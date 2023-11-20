@@ -7,7 +7,7 @@ If you do not have a GPU see: [Public Oobabooga Api Colab](https://colab.researc
 
 **Ui is out of date, it will be updated after the new sub-agent system is finished. For the most current version, use the discord bot.  Gradio Ui is just for testing purposes.**
 
-**Oobabooga Text-Ui just changed how their api works.  The most up to date version that works is snapshot-2023-11-05**
+**Oobabooga Text-Ui just changed how their api works.  The most up to date version that works is snapshot-2023-10-29**
 
 ------
 **Currently Working On**
@@ -19,6 +19,8 @@ If you do not have a GPU see: [Public Oobabooga Api Colab](https://colab.researc
 - Update Documentation
 ------
 **Recent Changes**
+
+• 11/20 Switched Recommended Oobabooga Version back to snapshot-2023-10-29
 
 • 11/20 Modified Intuition Prompt for basic chatbot to provide better reasoning abilities.  
 
@@ -412,10 +414,10 @@ The final step will be to run the actual Aetherius Script.  You can install it l
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
 </a>
 
-6. To run Aetherius Locally using Oobabooga, first install the web-ui at: https://github.com/oobabooga/text-generation-webui/releases/tag/snapshot-2023-11-05
+6. To run Aetherius Locally using Oobabooga, first install the web-ui at: https://github.com/oobabooga/text-generation-webui/releases/tag/snapshot-2023-10-29
 
-Oobabooga Text-Ui just changed how their api works.  The most up to date version that works is snapshot-2023-11-05  
-This can be done through the release menu or **git clone https://github.com/oobabooga/text-generation-webui --build snapshot-2023-11-05**
+Oobabooga Text-Ui just changed how their api works.  The most up to date version that works is snapshot-2023-10-29 
+This can be done through the release menu or **git clone https://github.com/oobabooga/text-generation-webui --build snapshot-2023-10-29**
 
 7. Then, under the "Interface Mode" tab, enable the api checkbox in both fields. Then click apply and restart the interface.
 
@@ -560,13 +562,13 @@ Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aethe
 
 29. Once you have made a backup, you can start using the "Auto" mode, this mode has Aetherius decide for itself whether or not it should upload to its memories.
 
-30. To run Aetherius Locally using Oobabooga, first install the web-ui at: https://github.com/oobabooga/text-generation-webui/releases/tag/snapshot-2023-11-05
+30. To run Aetherius Locally using Oobabooga, first install the web-ui at: https://github.com/oobabooga/text-generation-webui/releases/tag/snapshot-2023-10-29
 (To use Google Colab, use the Notebook file in the "./Colab Notebooks" Folder.  To use the Public Api with Aetherius, change the "HOST_Oobabooga" in the settings json to the given non-streaming Url.  To use multiple Hosts, separate them with a space.)  <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Oobabooga_Public_Api.ipynb">
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
 </a>
 
-Oobabooga Text-Ui just changed how their api works.  The most up to date version that works is snapshot-2023-11-05  
-This can be done through the release menu or **git clone https://github.com/oobabooga/text-generation-webui --build snapshot-2023-11-05**
+Oobabooga Text-Ui just changed how their api works.  The most up to date version that works is snapshot-2023-10-29
+This can be done through the release menu or **git clone https://github.com/oobabooga/text-generation-webui --build snapshot-2023-10-29**
 
 31. Then, under the "Interface Mode" tab, enable the api checkbox in both fields.  Then click apply and restart the interface.
 

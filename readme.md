@@ -9,6 +9,8 @@ If you do not have a GPU see: [Public Oobabooga Api Colab](https://colab.researc
 
 **Oobabooga Text-Ui changed how their api works.  The most up to date version that works is snapshot-2023-11-05. Do not use the OpenAi Extension.**
 
+**I have just made a new API for Llama-2-Chat.  Please give me feedback: https://github.com/libraryofcelsus/AetherNode**
+
 ------
 **Currently Working On**
 - Implementing Open Ai Features
@@ -19,6 +21,8 @@ If you do not have a GPU see: [Public Oobabooga Api Colab](https://colab.researc
 - Update Documentation
 ------
 **Recent Changes**
+
+• 11/22 Switched Default API to AetherNode, a new API I made to avoid backend changes.  It can be found here: https://github.com/libraryofcelsus/AetherNode
 
 • 11/20 Modified Intuition Prompt for basic chatbot to provide better reasoning abilities.  
 
@@ -337,24 +341,29 @@ The final step will be to run the actual Aetherius Script.  You can install it l
 
 4. Copy your Google CSE Key and Api Key to the api_keys folder or set Web_Search to False in the External Resources Sub-Agent.  You can also change the search engine to Bing.
 
-5. To run Aetherius on Google Colab with Oobabooga using a public Api, use the Notebook file in the "./Colab Notebooks" Folder.  To use the Public Api with Aetherius, change the "HOST_Oobabooga" in the settings json to the given non-streaming Url.  To use multiple Hosts, separate them with a space. <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Oobabooga_Public_Api.ipynb">
-  <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
-</a>
+5. To run Aetherius with it's custom API, download and install: https://github.com/libraryofcelsus/AetherNode    
+This is the new default API for Aetherius.  Installation Instructions can be found on the github page.
 
 6. To run Aetherius Locally using Oobabooga, first install the web-ui at: https://github.com/oobabooga/text-generation-webui/releases/tag/snapshot-2023-11-05
 
 Oobabooga Text-Ui just changed how their api works.  The most up to date version that works is snapshot-2023-11-05
 This can be done through the release menu or **git clone https://github.com/oobabooga/text-generation-webui --build snapshot-2023-11-05**
 
-7. Then, under the "Interface Mode" tab, enable the api checkbox in the "Available Extensions" field only. Then click apply and restart the interface.
+To run Aetherius on Google Colab with Oobabooga using a public Api, use the Notebook file in the "./Colab Notebooks" Folder.  To use the Public Api with Aetherius, change the "HOST_Oobabooga" in the settings json to the given non-streaming Url.  To use multiple Hosts, separate them with a space. <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Oobabooga_Public_Api.ipynb">
+  <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
+</a>
 
-8. Next, navigate to the models tab. Uncheck the autoload models box and then input "TheBloke/Llama-2-13B-chat-GPTQ" into the downloads box (7B model can be used for faster results, but it occasionally breaks format and has a tendency to make things up.  Wouldn't recommend if you need factual data). Other models may work, but this is the one that is tested.
+Then, under the "Interface Mode" tab, enable the api checkbox in the "Available Extensions" field only. Then click apply and restart the interface.
 
-9. Once the download is completed, reload the model selection menu and then select the model. Change the model loader to Exllamav2 and set the max_seq_len to "4096".  Set the "gpu_split" to 1 GB under your Gpu's max Vram.
+Next, navigate to the models tab. Uncheck the autoload models box and then input "TheBloke/Llama-2-13B-chat-GPTQ" into the downloads box (7B model can be used for faster results, but it occasionally breaks format and has a tendency to make things up.  Wouldn't recommend if you need factual data). Other models may work, but this is the one that is tested.
 
-10. Click the "load" button and load the model. The Aetherius should now work!
+Once the download is completed, reload the model selection menu and then select the model. Change the model loader to Exllamav2 and set the max_seq_len to "4096".  Set the "gpu_split" to 1 GB under your Gpu's max Vram.
 
-11. Set up Qdrant
+Click the "load" button and load the model. 
+
+Now, go into the chatbot_settings.json file in the Aetherius_API folder and change the API to Oobabooga instead of AetherNode. Aetherius should now work!
+
+7. Set up Qdrant
 
 Qdrant Cloud: https://qdrant.to/cloud
 
@@ -368,9 +377,9 @@ Once the local Qdrant server is running, it should be auto detected by Aetherius
 
 If No Qdrant server is running, Aetherius will save to disk.
 
-12. Launch Aetherius with one of the **run.bat** files.
+8. Launch Aetherius with one of the **run.bat** files.
 
-13. Upload heuristics to DB and change the Bot and User name to start chatting with Aetherius!  
+9. Upload heuristics to DB and change the Bot and User name to start chatting with Aetherius!  
 
 Settings and Prompts can be found in the Aetherius_API folder.
 
@@ -489,23 +498,31 @@ Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aethe
 
 29. Once you have made a backup, you can start using the "Auto" mode, this mode has Aetherius decide for itself whether or not it should upload to its memories.
 
-30. To run Aetherius Locally using Oobabooga, first install the web-ui at: https://github.com/oobabooga/text-generation-webui/releases/tag/snapshot-2023-11-05
-(To use Google Colab, use the Notebook file in the "./Colab Notebooks" Folder.  To use the Public Api with Aetherius, change the "HOST_Oobabooga" in the settings json to the given non-streaming Url.  To use multiple Hosts, separate them with a space.)  <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Oobabooga_Public_Api.ipynb">
-  <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
-</a>
+30. To run Aetherius with it's custom API, download and install: https://github.com/libraryofcelsus/AetherNode    
+This is the new default API for Aetherius.  Installation Instructions can be found on the github page.
+
+31. To run Aetherius Locally using Oobabooga, first install the web-ui at: https://github.com/oobabooga/text-generation-webui/releases/tag/snapshot-2023-11-05
 
 Oobabooga Text-Ui just changed how their api works.  The most up to date version that works is snapshot-2023-11-05
 This can be done through the release menu or **git clone https://github.com/oobabooga/text-generation-webui --build snapshot-2023-11-05**
 
-31. Then, under the "Interface Mode" tab, enable the api checkbox in the "Available Extensions" field only.  Then click apply and restart the interface.
+To run Aetherius on Google Colab with Oobabooga using a public Api, use the Notebook file in the "./Colab Notebooks" Folder.  To use the Public Api with Aetherius, change the "HOST_Oobabooga" in the settings json to the given non-streaming Url.  To use multiple Hosts, separate them with a space. <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Oobabooga_Public_Api.ipynb">
+  <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
+</a>
 
-32. Next, navigate to the models tab. Uncheck the autoload models box and then input "TheBloke/Llama-2-13B-chat-GPTQ" into the downloads box. Other models may work, but this is the one that is tested.
+Then, under the "Interface Mode" tab, enable the api checkbox in the "Available Extensions" field only. Then click apply and restart the interface.
 
-33. Once the download is completed, reload the model selection menu and then select the model. Change the model loader to Exllamav2 and set the max_seq_len to "4096". Set the "gpu_split" to .5 under your Gpu's max Vram.
+Next, navigate to the models tab. Uncheck the autoload models box and then input "TheBloke/Llama-2-13B-chat-GPTQ" into the downloads box (7B model can be used for faster results, but it occasionally breaks format and has a tendency to make things up.  Wouldn't recommend if you need factual data). Other models may work, but this is the one that is tested.
 
-34. Click the "load" button and load the model.  The Oobabooga API bots should now work!
+Once the download is completed, reload the model selection menu and then select the model. Change the model loader to Exllamav2 and set the max_seq_len to "4096".  Set the "gpu_split" to 1 GB under your Gpu's max Vram.
 
-Settings Json and Prompts can be found in the Aetherius_API folder.
+Click the "load" button and load the model. 
+
+Now, go into the chatbot_settings.json file in the Aetherius_API folder and change the API to Oobabooga instead of AetherNode. Aetherius should now work!
+
+
+
+32. Settings Json and Prompts can be found in the Aetherius_API folder.
 
 -----
 

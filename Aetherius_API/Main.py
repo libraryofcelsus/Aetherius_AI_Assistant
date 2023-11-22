@@ -735,12 +735,27 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
         if backend_model == "Open_Ai":
             output_one = Inner_Monologue_Call(inner_monologue, username, bot_name)
         
+       
         
         
+        bot_monologue_pattern = re.compile(rf"^{re.escape(bot_name)}[\s:-]+", re.IGNORECASE)
+
+        output_one = output_one.strip()
+        match = bot_monologue_pattern.search(output_one)
+        if match:
+            output_one = output_one[match.end():]
+
         sentences = re.split(r'(?<=[.!?])\s+', output_one)
         if sentences and not re.search(r'[.!?]$', sentences[-1]):
             sentences.pop()
         output_one = ' '.join(sentences)
+        
+        
+        
+        
+        
+        
+        
         inner_output = (f'{output_one}\n\n')
         paragraph = output_one
         if Inner_Monologue_Output == 'True':
@@ -1049,13 +1064,15 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
         
         if backend_model == "Open_Ai":
             response_two = Response_Call(response, username, bot_name)
+
         
-        
-        
-        if response_two.startswith(f"{bot_name}") or response_two.startswith(f"{botnameupper}"):
-            colon_index = response_two.find(":")
-            if colon_index != -1:
-                response_two = response_two[colon_index + 1:].lstrip()
+        bot_name_pattern = re.compile(rf"^{re.escape(bot_name)}[\s:-]+", re.IGNORECASE)
+
+        response_two = response_two.strip()
+        match = bot_name_pattern.search(response_two)
+        if match:
+            response_two = response_two[match.end():]
+
         sentences = re.split(r'(?<=[.!?])\s+', response_two)
         if sentences and not re.search(r'[.!?]$', sentences[-1]):
             sentences.pop()
@@ -2505,7 +2522,7 @@ async def Aetherius_Implicit_Memory(user_input, output_one, bot_name, username, 
             if backend_model == "Open_Ai":
                 personality_check = Bot_Personality_Check_Call(personality_list, username, bot_name)
                   
-            print(personality_check)
+            print(f"\n\nPERSONALITY CHECK: {personality_check}")
                 
                 
             if 'YES' in personality_check.upper():

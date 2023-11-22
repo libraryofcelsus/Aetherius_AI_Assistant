@@ -9,10 +9,10 @@
 	"Model_Backend": "Llama_2",
 	"_comment_Model_Backend": "The available Model Backends are: Llama_2 and Open_Ai",
 	
-	"LLM_Model": "Oobabooga_Llama_2",
+	"LLM_Model": "AetherNode_Llama_2",
 	"_comment_LLM_Model": "The available LLM Models are: Oobabooga_Llama_2, AetherNode_Llama_2, Open_Ai_GPT_35, and Open_Ai_GPT_4",
 	
-	"API": "Oobabooga",
+	"API": "AetherNode",
 	"_comment_API": "The available API's are: Oobabooga, AetherNode, Open_Ai",
 	
 	"Vision_Model": "eyes_url",

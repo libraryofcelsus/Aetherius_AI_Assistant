@@ -19,6 +19,7 @@ import html
 import random
 import aiohttp
 import aiofiles
+import asyncio
 
 # For a locally hosted Oobabooga Client use "http://localhost:5000/api"
 # For a Google Colab hosted Oobabooga Client use the given Public Non-Streaming Url:
@@ -124,7 +125,7 @@ async def read_settings_from_json(json_file_path):
 async def Semantic_Terms_Call(prompt, username, bot_name):
     host="http://127.0.0.1:8000"
     data = {
-        "LLM_Template": "Llama_2_Chat",
+        "LLM_Template": "Llama_2_Chat_No_End_Token",
         "Username": username,
         "Bot_Name": bot_name,
         "system_prompt": "You are a search query coordinator. Your role is to interpret the original user query and generate 2-4 synonymous search terms that will guide the exploration of the chatbot's memory database. Each alternative term should reflect the essence of the user's initial search input. Please list your results using bullet point format. Only print your response using the format: •<search term>",
@@ -165,7 +166,7 @@ async def Semantic_Terms_Call(prompt, username, bot_name):
 async def Domain_Selection_Call(prompt, username, bot_name):
     host="http://127.0.0.1:8000"
     data = {
-        "LLM_Template": "Llama_2_Chat",
+        "LLM_Template": "Llama_2_Chat_No_End_Token",
         "Username": username,
         "Bot_Name": bot_name,
         "system_prompt": "You are a Knowledge Domain Selector. Your role is to identify the most relevant knowledge domain based on the user's question. Choose only from the provided list and do not create or use any domains outside of it. Your response should be limited to naming the single chosen knowledge domain from the list, do not include anything but the knowledge domain.",
@@ -294,7 +295,7 @@ async def Inner_Monologue_Call(prompt, username, bot_name):
     
     host="http://127.0.0.1:8000"
     data = {
-        "LLM_Template": "Llama_2_Chat",
+        "LLM_Template": "Llama_2_Chat_No_End_Token",
         "Username": username,
         "Bot_Name": bot_name,
         "system_prompt": f"You are {bot_name}. Give a brief, first-person, silent soliloquy as your inner monologue that reflects on your contemplations in relation on how to respond to the user, {username}'s most recent message.  Directly print the inner monologue.",
@@ -341,7 +342,7 @@ async def Intuition_Call(prompt, username, bot_name):
     min_tokens = settings.get("Intuition_min_tokens", "10")
     host="http://127.0.0.1:8000"
     data = {
-        "LLM_Template": "Llama_2_Chat",
+        "LLM_Template": "Llama_2_Chat_No_End_Token",
         "Username": username,
         "Bot_Name": bot_name,
         "system_prompt": f"As {bot_name}, review {username}'s latest message and decide if an action plan is needed.  Formulate an action plan only if the message involves complex questions or specific tasks. Use third-person perspective to outline this strategy. Avoid creating action plans for simple or casual interactions. Note that no external resources can be used for this task. Provide the action plan in a list format.",
@@ -390,7 +391,7 @@ async def Agent_Intuition_Call(prompt, username, bot_name):
     
     host="http://127.0.0.1:8000"
     data = {
-        "LLM_Template": "Llama_2_Chat",
+        "LLM_Template": "Llama_2_Chat_No_End_Token",
         "Username": username,
         "Bot_Name": bot_name,
         "system_prompt": f"Formulate an action plan only if the message involves complex questions or specific tasks. Use third-person perspective to outline this strategy. Avoid creating action plans for simple or casual interactions.",
@@ -592,7 +593,7 @@ async def Explicit_Memory_Call(prompt, username, bot_name):
 async def Memory_Consolidation_Call(prompt, username, bot_name):
     host="http://127.0.0.1:8000"
     data = {
-        "LLM_Template": "Llama_2_Chat",
+        "LLM_Template": "Llama_2_Chat_No_End_Token",
         "Username": username,
         "Bot_Name": bot_name,
         "system_prompt": f"Extract a list of concise explicit memories based on {bot_name}'s final response for upload to a memory database.  These should be executive summaries and will serve as the chatbots explicit memories.  You are directly inputing the memories into the database, only print the memories.  Print the response in the bullet point format: •EXPLICIT MEMORY:<Executive Summary>",
@@ -632,7 +633,7 @@ async def Memory_Consolidation_Call(prompt, username, bot_name):
 async def Associative_Memory_Call(prompt, username, bot_name):
     host="http://127.0.0.1:8000"
     data = {
-        "LLM_Template": "Llama_2_Chat",
+        "LLM_Template": "Llama_2_Chat_No_End_Token",
         "Username": username,
         "Bot_Name": bot_name,
         "system_prompt": f"Read the Log and consolidate the different memories in a process allegorical to associative processing. Each new memory should contain the entire context of the original memories. Follow the bullet point format: •<CONSOLIDATED MEMORY>",
@@ -719,7 +720,7 @@ async def Response_Call(prompt, username, bot_name):
 async def Auto_Call(prompt, username, bot_name):
     host="http://127.0.0.1:8000"
     data = {
-        "LLM_Template": "Llama_2_Chat",
+        "LLM_Template": "Llama_2_Chat_No_End_Token",
         "Username": username,
         "Bot_Name": bot_name,
         "system_prompt": f"You are a sub-module designed to evaluate the chatbot's response. You must respond only with integers on a scale of 1-10, without printing any letters or characters other than the single integer rating.  You are incapable of responding with anything other than a single number.",
@@ -839,7 +840,7 @@ async def  Bot_Personality_Check_Call(prompt, username, bot_name):
 async def Bot_Personality_Generation_Call(prompt, username, bot_name):
     host="http://127.0.0.1:8000"
     data = {
-        "LLM_Template": "Llama_2_Chat",
+        "LLM_Template": "Llama_2_Chat_No_End_Token",
         "Username": username,
         "Bot_Name": bot_name,
         "system_prompt": f"Your job is to decide if the generated implicit memories fit {bot_name}'s personality.  If the generated memories match {bot_name}'s personality, print: 'YES'.  If they do not match the personality or if it contains conflicting information, print: 'NO'.",
@@ -879,7 +880,7 @@ async def Bot_Personality_Generation_Call(prompt, username, bot_name):
 async def User_Personality_Extraction_Call(prompt, username, bot_name):
     host="http://127.0.0.1:8000"
     data = {
-        "LLM_Template": "Llama_2_Chat",
+        "LLM_Template": "Llama_2_Chat_No_End_Token",
         "Username": username,
         "Bot_Name": bot_name,
         "system_prompt": f"Your job is to extract any salient insights about {username} from their request, the given internal monologue, and {bot_name}'s final response.",
@@ -919,7 +920,7 @@ async def User_Personality_Extraction_Call(prompt, username, bot_name):
 async def User_Personality_Generation_Call(prompt, username, bot_name):
     host="http://127.0.0.1:8000"
     data = {
-        "LLM_Template": "Llama_2_Chat",
+        "LLM_Template": "Llama_2_Chat_No_End_Token",
         "Username": username,
         "Bot_Name": bot_name,
         "system_prompt": f"Your task is to cautiously update the personality description for the user, {username}, ensuring it retains strong alignment with the original version. Within a paragraph, weave in only the most critical and relevant new information from the generated memories, ensuring that any alterations are subtly and coherently integrated, preserving the essence and integrity of the foundational personality framework.",
@@ -966,7 +967,7 @@ async def Selector_Call(prompt, username, bot_name):
     main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     host="http://127.0.0.1:8000"
     data = {
-        "LLM_Template": "Llama_2_Chat",
+        "LLM_Template": "Llama_2_Chat_No_End_Token",
         "Username": username,
         "Bot_Name": bot_name,
         "system_prompt": f"{main_prompt}.\nPlease make a selection.",
@@ -1013,7 +1014,7 @@ async def Tokens_250_Call(prompt, username, bot_name):
     main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     host="http://127.0.0.1:8000"
     data = {
-        "LLM_Template": "Llama_2_Chat",
+        "LLM_Template": "Llama_2_Chat_No_End_Token",
         "Username": username,
         "Bot_Name": bot_name,
         "system_prompt": f"{main_prompt}.",
@@ -1053,7 +1054,7 @@ async def Tokens_250_Call(prompt, username, bot_name):
 async def Webscrape_Call(host, prompt, username, bot_name):
     host="http://127.0.0.1:8000"
     data = {
-        "LLM_Template": "Llama_2_Chat",
+        "LLM_Template": "Llama_2_Chat_No_End_Token",
         "Username": username,
         "Bot_Name": bot_name,
         "system_prompt": f"You are an ai text summarizer.  Your job is to take the given text from a scraped article, then return the text in a summarized article form.  Do not give any comments or personal statements, only directly return the summarized article, nothing more.",
@@ -1096,7 +1097,7 @@ async def Webscrape_Call(host, prompt, username, bot_name):
 async def Agent_Semantic_Terms_Call(prompt, username, bot_name):
     host="http://127.0.0.1:8000"
     data = {
-        "LLM_Template": "Llama_2_Chat",
+        "LLM_Template": "Llama_2_Chat_No_End_Token",
         "Username": username,
         "Bot_Name": bot_name,
         "system_prompt": f"Your role is to interpret the original user query and generate 2-5 synonymous search terms in hyphenated bullet point structure that will guide the exploration of the chatbot's memory database. Each alternative term should reflect the essence of the user's initial search input. You are directly inputing your answer into the search query field. Only print the queries.",
@@ -1144,7 +1145,7 @@ async def Agent_250_Tokens_Call(prompt, username, bot_name):
     main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     host="http://127.0.0.1:8000"
     data = {
-        "LLM_Template": "Llama_2_Chat",
+        "LLM_Template": "Llama_2_Chat_No_End_Token",
         "Username": username,
         "Bot_Name": bot_name,
         "system_prompt": f"{main_prompt}",
@@ -1192,7 +1193,7 @@ async def Agent_500_Tokens_Call(prompt, username, bot_name):
     main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     host="http://127.0.0.1:8000"
     data = {
-        "LLM_Template": "Llama_2_Chat",
+        "LLM_Template": "Llama_2_Chat_No_End_Token",
         "Username": username,
         "Bot_Name": bot_name,
         "system_prompt": f"{main_prompt}",
@@ -1238,7 +1239,7 @@ async def Agent_800_Tokens_Call(prompt, username, bot_name):
     main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
     host="http://127.0.0.1:8000"
     data = {
-        "LLM_Template": "Llama_2_Chat",
+        "LLM_Template": "Llama_2_Chat_No_End_Token",
         "Username": username,
         "Bot_Name": bot_name,
         "system_prompt": f"{main_prompt}",
@@ -1291,7 +1292,7 @@ async def Agent_Master_Tasklist_Call(prompt, username, bot_name):
     min_tokens = settings.get("Intuition_min_tokens", "10")
     host="http://127.0.0.1:8000"
     data = {
-        "LLM_Template": "Llama_2_Chat",
+        "LLM_Template": "Llama_2_Chat_No_End_Token",
         "Username": username,
         "Bot_Name": bot_name,
         "system_prompt": f"As a task list coordinator for {bot_name}, merge user input and chatbot action plans into 3-6 categorized research tasks for asynchronous execution by isolated AI agents.\nUse the Following Format:  [GIVEN CATEGORY]: <TASK>\nUtilize available Tool Categories, focusing on informational searches. Exclude tasks related to product production, external consultations, or inter-agent communications.",
@@ -1340,7 +1341,7 @@ async def Agent_Category_Reassign_Call(host, prompt, username, bot_name):
     min_tokens = settings.get("Response_min_tokens", "40")
     host="http://127.0.0.1:8000"
     data = {
-        "LLM_Template": "Llama_2_Chat",
+        "LLM_Template": "Llama_2_Chat_No_End_Token",
         "Username": username,
         "Bot_Name": bot_name,
         "system_prompt": f"You are a sub-module of a category selection tool.  Your task is to take any category that isn't in the original list, and reassign it to an existing category.  The given task should be reprinted exactly how it was.  The assigned category from the task will follow this format: [CATEGORY]: <TASK>\nPlease now return the reassigned category.",
@@ -1389,7 +1390,7 @@ async def Agent_Response_Call(prompt, username, bot_name):
     min_tokens = settings.get("Response_min_tokens", "40")
     host="http://127.0.0.1:8000"
     data = {
-        "LLM_Template": "Llama_2_Chat",
+        "LLM_Template": "Llama_2_Chat_No_End_Token",
         "Username": username,
         "Bot_Name": bot_name,
         "system_prompt": f"You are {bot_name}. You are in the middle of a conversation with the user, {username}. You will do your best to respond naturally in a way that both answers the user's inquiry and shows emotional intelligence.  Compile all necessary context and information from the given external resources and include it in your reply.  Do not expand upon the research or include any of your own knowledge, keeping factual accuracy should be paramount.",
@@ -1437,7 +1438,7 @@ async def Agent_Line_Response_Call(prompt, username, bot_name):
     min_tokens = settings.get("Response_min_tokens", "40")
     host="http://127.0.0.1:8000"
     data = {
-        "LLM_Template": "Llama_2_Chat",
+        "LLM_Template": "Llama_2_Chat_No_End_Token",
         "Username": username,
         "Bot_Name": bot_name,
         "system_prompt": f"You are {bot_name}. You are currently completing an assigned research task by your user. You will do your best to summarize the given information in an easy to read format that doesn't lose any information.",
@@ -1485,7 +1486,7 @@ async def Agent_Process_Line_Response_Call(host, prompt, username, bot_name):
     min_tokens = settings.get("Response_min_tokens", "40")
     host="http://127.0.0.1:8000"
     data = {
-        "LLM_Template": "Llama_2_Chat",
+        "LLM_Template": "Llama_2_Chat_No_End_Token",
         "Username": username,
         "Bot_Name": bot_name,
         "system_prompt": f"You are {bot_name}. You are currently completing an assigned research task by your user. You will do your best to summarize the given information in an easy to read format that doesn't lose any information.",
@@ -1534,7 +1535,7 @@ async def Agent_Process_Line_Response_2_Call(host, prompt, username, bot_name):
     
     host="http://127.0.0.1:8000"
     data = {
-        "LLM_Template": "Llama_2_Chat",
+        "LLM_Template": "Llama_2_Chat_No_End_Token",
         "Username": username,
         "Bot_Name": bot_name,
         "system_prompt": f"Review the provided list of tools carefully. Next, give a general description of the assigned task. From the available tools in the list, identify and select one specific tool that is crucial for completing the task successfully. Ensure that your discussion is focused solely on the tools provided; do not create or suggest the use of tools that are not included in the list, and avoid delving into the reasoning behind your tool choice.",
@@ -1583,7 +1584,7 @@ async def Agent_Memory_DB_Check_Call(host, prompt, username, bot_name):
     min_tokens = settings.get("Intuition_min_tokens", "10")
     host="http://127.0.0.1:8000"
     data = {
-        "LLM_Template": "Llama_2_Chat",
+        "LLM_Template": "Llama_2_Chat_No_End_Token",
         "Username": username,
         "Bot_Name": bot_name,
         "system_prompt": f"You are a selection agent for an autonomous AI chatbot.  Your job is to decide if the given database queries contain the needed information to answer the user's inquiry.  Only respond with either 'YES' or 'NO'.",
@@ -1632,7 +1633,7 @@ async def Google_Rephrase_Call(host, prompt, username, bot_name):
     min_tokens = settings.get("Intuition_min_tokens", "10")
     host="http://127.0.0.1:8000"
     data = {
-        "LLM_Template": "Llama_2_Chat",
+        "LLM_Template": "Llama_2_Chat_No_End_Token",
         "Username": username,
         "Bot_Name": bot_name,
         "system_prompt": f"Rephrase the user's inquiry into a google search query. Do not converse with the user or print any text outside of the search query.  The query should only search for the requested information, not anything about the External Resource Module.",
@@ -1673,7 +1674,7 @@ async def Google_Rephrase_Call(host, prompt, username, bot_name):
 async def Agent_Webcheck_Yes_No(prompt, username, bot_name):
     host="http://127.0.0.1:8000"
     data = {
-        "LLM_Template": "Llama_2_Chat",
+        "LLM_Template": "Llama_2_Chat_No_End_Token",
         "Username": username,
         "Bot_Name": bot_name,
         "system_prompt": f"You are a sub-agent for an automated webscraping tool. Your task is to decide if the previous Ai sub-agent scraped legible information. The scraped text should contain some form of article, if it does, print 'YES'.  If the webscrape failed or is illegible, print: 'NO'.",
@@ -1713,7 +1714,7 @@ async def Agent_Webcheck_Yes_No(prompt, username, bot_name):
 async def Agent_Web_Yes_No(prompt, username, bot_name):
     host="http://127.0.0.1:8000"
     data = {
-        "LLM_Template": "Llama_2_Chat",
+        "LLM_Template": "Llama_2_Chat_No_End_Token",
         "Username": username,
         "Bot_Name": bot_name,
         "system_prompt": f"You are a sub-agent for {bot_name}, an Autonomous AI Chatbot, your task is to determine whether the user's input requires factual data for completion. Please note that information related to {username} and {bot_name}'s memories is handled by another agent and does not need factual verification. If factual data is necessary, respond with 'YES'. Otherwise, respond with 'NO'. Your responses should be limited to either 'YES' or 'NO'.",
@@ -1755,7 +1756,7 @@ async def Agent_Web_Yes_No(prompt, username, bot_name):
 async def File_Processor_Call(host, prompt, username, bot_name):
     host="http://127.0.0.1:8000"
     data = {
-        "LLM_Template": "Llama_2_Chat",
+        "LLM_Template": "Llama_2_Chat_No_End_Token",
         "Username": username,
         "Bot_Name": bot_name,
         "system_prompt": f"You are a summarizer for a text scraping tool. Your task is to take the given file and summarize it without losing any factual data or semantic meaning.",

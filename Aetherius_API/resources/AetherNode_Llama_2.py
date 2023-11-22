@@ -1292,7 +1292,7 @@ async def Agent_Master_Tasklist_Call(prompt, username, bot_name):
     min_tokens = settings.get("Intuition_min_tokens", "10")
     host="http://127.0.0.1:8000"
     data = {
-        "LLM_Template": "Llama_2_Chat_No_End_Token",
+        "LLM_Template": "Llama_2_Chat",
         "Username": username,
         "Bot_Name": bot_name,
         "system_prompt": f"As a task list coordinator for {bot_name}, merge user input and chatbot action plans into 3-6 categorized research tasks for asynchronous execution by isolated AI agents.\nUse the Following Format:  [GIVEN CATEGORY]: <TASK>\nUtilize available Tool Categories, focusing on informational searches. Exclude tasks related to product production, external consultations, or inter-agent communications.",
@@ -1535,7 +1535,7 @@ async def Agent_Process_Line_Response_2_Call(host, prompt, username, bot_name):
     
     host="http://127.0.0.1:8000"
     data = {
-        "LLM_Template": "Llama_2_Chat_No_End_Token",
+        "LLM_Template": "Llama_2_Chat",
         "Username": username,
         "Bot_Name": bot_name,
         "system_prompt": f"Review the provided list of tools carefully. Next, give a general description of the assigned task. From the available tools in the list, identify and select one specific tool that is crucial for completing the task successfully. Ensure that your discussion is focused solely on the tools provided; do not create or suggest the use of tools that are not included in the list, and avoid delving into the reasoning behind your tool choice.",

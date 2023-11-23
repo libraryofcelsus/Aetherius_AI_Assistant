@@ -2538,8 +2538,9 @@ async def Aetherius_Implicit_Memory(user_input, output_one, bot_name, username, 
                 
             if backend_model == "Open_Ai":
                 personality_check = Bot_Personality_Check_Call(personality_list, username, bot_name)
-                  
-            print(f"\n\nPERSONALITY CHECK: {personality_check}")
+             
+            if Print_Personality_Description == "True": 
+                print(f"\n\nPERSONALITY CHECK: {personality_check}")
                 
                 
             if 'YES' in personality_check.upper():
@@ -2829,8 +2830,9 @@ async def Aetherius_Explicit_Memory(user_input, vector_input, vector_monologue, 
                 
             if backend_model == "Open_Ai":
                 personality_extraction = User_Personality_Extraction_Call(personality_list, username, bot_name)
-                
-            print(personality_extraction)
+               
+            if Print_Personality_Description == "True":   
+                print(personality_extraction)
             
             
             personality_check = 'YES'   

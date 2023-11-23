@@ -2,7 +2,7 @@
 REM Change directory to the script's location
 cd %~dp0
 
-git clone https://github.com/libraryofcelsus/AetherNode
+git clone https://github.com/libraryofcelsus/AetherNode --branch 0.03
 
 cd AetherNode
 

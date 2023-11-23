@@ -1030,7 +1030,6 @@ async def Tokens_250_Call(prompt, username, bot_name):
         
         
 async def Webscrape_Call(host, prompt, username, bot_name):
-    host="http://127.0.0.1:8000"
     data = {
         "LLM_Template": "Llama_2_Chat_No_End_Token",
         "Username": username,
@@ -1073,7 +1072,6 @@ async def Webscrape_Call(host, prompt, username, bot_name):
 
 
 async def Agent_Semantic_Terms_Call(prompt, username, bot_name):
-    host="http://127.0.0.1:8000"
     data = {
         "LLM_Template": "Llama_2_Chat_No_End_Token",
         "Username": username,
@@ -1088,7 +1086,7 @@ async def Agent_Semantic_Terms_Call(prompt, username, bot_name):
     }
 
     async with aiohttp.ClientSession() as session:
-        async with session.post(f"{host}/generate-text/", json=data) as post_response: # POST request to generate text
+        async with session.post(f"{open_file_first('HOST_AetherNode')}/generate-text/", json=data) as post_response: # POST request to generate text
             if post_response.status == 200:
                 post_data = await post_response.json()
                 request_id = post_data['request_id']
@@ -1097,7 +1095,7 @@ async def Agent_Semantic_Terms_Call(prompt, username, bot_name):
                 attempts = 0
                 delay_seconds = 5  # Delay between each polling attempt
                 while attempts < max_attempts:
-                    async with session.get(f"{host}/retrieve-text/{request_id}") as get_response:
+                    async with session.get(f"{open_file_first('HOST_AetherNode')}/retrieve-text/{request_id}") as get_response:
                         if get_response.status == 200:
                             get_data = await get_response.json()
                             if "generated_text" in get_data:
@@ -1121,7 +1119,6 @@ async def Agent_250_Tokens_Call(prompt, username, bot_name):
     async with aiofiles.open(prompts_json_path, 'r') as file:
         prompts = json.loads(await file.read())
     main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
-    host="http://127.0.0.1:8000"
     data = {
         "LLM_Template": "Llama_2_Chat_No_End_Token",
         "Username": username,
@@ -1137,7 +1134,7 @@ async def Agent_250_Tokens_Call(prompt, username, bot_name):
 
 
     async with aiohttp.ClientSession() as session:
-        async with session.post(f"{host}/generate-text/", json=data) as post_response: # POST request to generate text
+        async with session.post(f"{open_file_first('HOST_AetherNode')}/generate-text/", json=data) as post_response: # POST request to generate text
             if post_response.status == 200:
                 post_data = await post_response.json()
                 request_id = post_data['request_id']
@@ -1146,7 +1143,7 @@ async def Agent_250_Tokens_Call(prompt, username, bot_name):
                 attempts = 0
                 delay_seconds = 5  # Delay between each polling attempt
                 while attempts < max_attempts:
-                    async with session.get(f"{host}/retrieve-text/{request_id}") as get_response:
+                    async with session.get(f"{open_file_first('HOST_AetherNode')}/retrieve-text/{request_id}") as get_response:
                         if get_response.status == 200:
                             get_data = await get_response.json()
                             if "generated_text" in get_data:
@@ -1169,7 +1166,6 @@ async def Agent_500_Tokens_Call(prompt, username, bot_name):
     async with aiofiles.open(prompts_json_path, 'r') as file:
         prompts = json.loads(await file.read())
     main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
-    host="http://127.0.0.1:8000"
     data = {
         "LLM_Template": "Llama_2_Chat_No_End_Token",
         "Username": username,
@@ -1184,7 +1180,7 @@ async def Agent_500_Tokens_Call(prompt, username, bot_name):
     }
 
     async with aiohttp.ClientSession() as session:
-        async with session.post(f"{host}/generate-text/", json=data) as post_response: # POST request to generate text
+        async with session.post(f"{open_file_first('HOST_AetherNode')}/generate-text/", json=data) as post_response: # POST request to generate text
             if post_response.status == 200:
                 post_data = await post_response.json()
                 request_id = post_data['request_id']
@@ -1193,7 +1189,7 @@ async def Agent_500_Tokens_Call(prompt, username, bot_name):
                 attempts = 0
                 delay_seconds = 5  # Delay between each polling attempt
                 while attempts < max_attempts:
-                    async with session.get(f"{host}/retrieve-text/{request_id}") as get_response:
+                    async with session.get(f"{open_file_first('HOST_AetherNode')}/retrieve-text/{request_id}") as get_response:
                         if get_response.status == 200:
                             get_data = await get_response.json()
                             if "generated_text" in get_data:
@@ -1215,7 +1211,6 @@ async def Agent_800_Tokens_Call(prompt, username, bot_name):
     async with aiofiles.open(prompts_json_path, 'r') as file:
         prompts = json.loads(await file.read())
     main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
-    host="http://127.0.0.1:8000"
     data = {
         "LLM_Template": "Llama_2_Chat_No_End_Token",
         "Username": username,
@@ -1231,7 +1226,7 @@ async def Agent_800_Tokens_Call(prompt, username, bot_name):
 
 
     async with aiohttp.ClientSession() as session:
-        async with session.post(f"{host}/generate-text/", json=data) as post_response: # POST request to generate text
+        async with session.post(f"{open_file_first('HOST_AetherNode')}/generate-text/", json=data) as post_response: # POST request to generate text
             if post_response.status == 200:
                 post_data = await post_response.json()
                 request_id = post_data['request_id']
@@ -1240,7 +1235,7 @@ async def Agent_800_Tokens_Call(prompt, username, bot_name):
                 attempts = 0
                 delay_seconds = 5  # Delay between each polling attempt
                 while attempts < max_attempts:
-                    async with session.get(f"{host}/retrieve-text/{request_id}") as get_response:
+                    async with session.get(f"{open_file_first('HOST_AetherNode')}/retrieve-text/{request_id}") as get_response:
                         if get_response.status == 200:
                             get_data = await get_response.json()
                             if "generated_text" in get_data:
@@ -1268,7 +1263,6 @@ async def Agent_Master_Tasklist_Call(prompt, username, bot_name):
     max_tokens = settings.get("Intuition_max_tokens", "450")
     top_k = settings.get("Intuition_top_k", "35")
     min_tokens = settings.get("Intuition_min_tokens", "10")
-    host="http://127.0.0.1:8000"
     data = {
         "LLM_Template": "Llama_2_Chat",
         "Username": username,
@@ -1285,7 +1279,7 @@ async def Agent_Master_Tasklist_Call(prompt, username, bot_name):
 
 
     async with aiohttp.ClientSession() as session:
-        async with session.post(f"{host}/generate-text/", json=data) as post_response: # POST request to generate text
+        async with session.post(f"{open_file_first('HOST_AetherNode')}/generate-text/", json=data) as post_response: # POST request to generate text
             if post_response.status == 200:
                 post_data = await post_response.json()
                 request_id = post_data['request_id']
@@ -1294,7 +1288,7 @@ async def Agent_Master_Tasklist_Call(prompt, username, bot_name):
                 attempts = 0
                 delay_seconds = 5  # Delay between each polling attempt
                 while attempts < max_attempts:
-                    async with session.get(f"{host}/retrieve-text/{request_id}") as get_response:
+                    async with session.get(f"{open_file_first('HOST_AetherNode')}/retrieve-text/{request_id}") as get_response:
                         if get_response.status == 200:
                             get_data = await get_response.json()
                             if "generated_text" in get_data:
@@ -1317,7 +1311,6 @@ async def Agent_Category_Reassign_Call(host, prompt, username, bot_name):
     max_tokens = settings.get("Response_max_tokens", "1500")
     top_k = settings.get("Response_top_k", "35")
     min_tokens = settings.get("Response_min_tokens", "40")
-    host="http://127.0.0.1:8000"
     data = {
         "LLM_Template": "Llama_2_Chat_No_End_Token",
         "Username": username,
@@ -1366,9 +1359,8 @@ async def Agent_Response_Call(prompt, username, bot_name):
     max_tokens = settings.get("Response_max_tokens", "1500")
     top_k = settings.get("Response_top_k", "35")
     min_tokens = settings.get("Response_min_tokens", "40")
-    host="http://127.0.0.1:8000"
     data = {
-        "LLM_Template": "Llama_2_Chat_No_End_Token",
+        "LLM_Template": "Llama_2_Chat",
         "Username": username,
         "Bot_Name": bot_name,
         "system_prompt": f"You are {bot_name}. You are in the middle of a conversation with the user, {username}. You will do your best to respond naturally in a way that both answers the user's inquiry and shows emotional intelligence.  Compile all necessary context and information from the given external resources and include it in your reply.  Do not expand upon the research or include any of your own knowledge, keeping factual accuracy should be paramount.",
@@ -1381,7 +1373,7 @@ async def Agent_Response_Call(prompt, username, bot_name):
     }
     
     async with aiohttp.ClientSession() as session:
-        async with session.post(f"{host}/generate-text/", json=data) as post_response: # POST request to generate text
+        async with session.post(f"{open_file_first('HOST_AetherNode')}/generate-text/", json=data) as post_response: # POST request to generate text
             if post_response.status == 200:
                 post_data = await post_response.json()
                 request_id = post_data['request_id']
@@ -1390,7 +1382,7 @@ async def Agent_Response_Call(prompt, username, bot_name):
                 attempts = 0
                 delay_seconds = 5  # Delay between each polling attempt
                 while attempts < max_attempts:
-                    async with session.get(f"{host}/retrieve-text/{request_id}") as get_response:
+                    async with session.get(f"{open_file_first('HOST_AetherNode')}/retrieve-text/{request_id}") as get_response:
                         if get_response.status == 200:
                             get_data = await get_response.json()
                             if "generated_text" in get_data:
@@ -1414,7 +1406,6 @@ async def Agent_Line_Response_Call(prompt, username, bot_name):
     max_tokens = settings.get("Response_max_tokens", "1500")
     top_k = settings.get("Response_top_k", "35")
     min_tokens = settings.get("Response_min_tokens", "40")
-    host="http://127.0.0.1:8000"
     data = {
         "LLM_Template": "Llama_2_Chat_No_End_Token",
         "Username": username,
@@ -1428,9 +1419,11 @@ async def Agent_Line_Response_Call(prompt, username, bot_name):
         "repetition_penalty": rep_pen
     }
 
+
+    next_host = get_next_host('HOST_AetherNode')
     
     async with aiohttp.ClientSession() as session:
-        async with session.post(f"{host}/generate-text/", json=data) as post_response: # POST request to generate text
+        async with session.post(f"{next_host}/generate-text/", json=data) as post_response: # POST request to generate text
             if post_response.status == 200:
                 post_data = await post_response.json()
                 request_id = post_data['request_id']
@@ -1439,7 +1432,7 @@ async def Agent_Line_Response_Call(prompt, username, bot_name):
                 attempts = 0
                 delay_seconds = 5  # Delay between each polling attempt
                 while attempts < max_attempts:
-                    async with session.get(f"{host}/retrieve-text/{request_id}") as get_response:
+                    async with session.get(f"{next_host}/retrieve-text/{request_id}") as get_response:
                         if get_response.status == 200:
                             get_data = await get_response.json()
                             if "generated_text" in get_data:
@@ -1462,7 +1455,6 @@ async def Agent_Process_Line_Response_Call(host, prompt, username, bot_name):
     max_tokens = settings.get("Response_max_tokens", "1500")
     top_k = settings.get("Response_top_k", "35")
     min_tokens = settings.get("Response_min_tokens", "40")
-    host="http://127.0.0.1:8000"
     data = {
         "LLM_Template": "Llama_2_Chat_No_End_Token",
         "Username": username,
@@ -1511,7 +1503,6 @@ async def Agent_Process_Line_Response_2_Call(host, prompt, username, bot_name):
     top_k = settings.get("Response_top_k", "35")
     min_tokens = settings.get("Response_min_tokens", "40")
     
-    host="http://127.0.0.1:8000"
     data = {
         "LLM_Template": "Llama_2_Chat",
         "Username": username,
@@ -1560,7 +1551,6 @@ async def Agent_Memory_DB_Check_Call(host, prompt, username, bot_name):
     max_tokens = settings.get("Intuition_max_tokens", "450")
     top_k = settings.get("Intuition_top_k", "35")
     min_tokens = settings.get("Intuition_min_tokens", "10")
-    host="http://127.0.0.1:8000"
     data = {
         "LLM_Template": "Llama_2_Chat_No_End_Token",
         "Username": username,
@@ -1609,7 +1599,6 @@ async def Google_Rephrase_Call(host, prompt, username, bot_name):
     max_tokens = settings.get("Intuition_max_tokens", "450")
     top_k = settings.get("Intuition_top_k", "35")
     min_tokens = settings.get("Intuition_min_tokens", "10")
-    host="http://127.0.0.1:8000"
     data = {
         "LLM_Template": "Llama_2_Chat_No_End_Token",
         "Username": username,
@@ -1650,7 +1639,6 @@ async def Google_Rephrase_Call(host, prompt, username, bot_name):
         
         
 async def Agent_Webcheck_Yes_No(prompt, username, bot_name):
-    host="http://127.0.0.1:8000"
     data = {
         "LLM_Template": "Llama_2_Chat_No_End_Token",
         "Username": username,
@@ -1666,7 +1654,7 @@ async def Agent_Webcheck_Yes_No(prompt, username, bot_name):
 
 
     async with aiohttp.ClientSession() as session:
-        async with session.post(f"{host}/generate-text/", json=data) as post_response: # POST request to generate text
+        async with session.post(f"{open_file_second('HOST_AetherNode')}/generate-text/", json=data) as post_response: # POST request to generate text
             if post_response.status == 200:
                 post_data = await post_response.json()
                 request_id = post_data['request_id']
@@ -1675,7 +1663,7 @@ async def Agent_Webcheck_Yes_No(prompt, username, bot_name):
                 attempts = 0
                 delay_seconds = 5  # Delay between each polling attempt
                 while attempts < max_attempts:
-                    async with session.get(f"{host}/retrieve-text/{request_id}") as get_response:
+                    async with session.get(f"{open_file_second('HOST_AetherNode')}/retrieve-text/{request_id}") as get_response:
                         if get_response.status == 200:
                             get_data = await get_response.json()
                             if "generated_text" in get_data:
@@ -1690,7 +1678,6 @@ async def Agent_Webcheck_Yes_No(prompt, username, bot_name):
         
         
 async def Agent_Web_Yes_No(prompt, username, bot_name):
-    host="http://127.0.0.1:8000"
     data = {
         "LLM_Template": "Llama_2_Chat_No_End_Token",
         "Username": username,
@@ -1706,7 +1693,7 @@ async def Agent_Web_Yes_No(prompt, username, bot_name):
 
 
     async with aiohttp.ClientSession() as session:
-        async with session.post(f"{host}/generate-text/", json=data) as post_response: # POST request to generate text
+        async with session.post(f"{open_file_second('HOST_AetherNode')}/generate-text/", json=data) as post_response: # POST request to generate text
             if post_response.status == 200:
                 post_data = await post_response.json()
                 request_id = post_data['request_id']
@@ -1715,7 +1702,7 @@ async def Agent_Web_Yes_No(prompt, username, bot_name):
                 attempts = 0
                 delay_seconds = 5  # Delay between each polling attempt
                 while attempts < max_attempts:
-                    async with session.get(f"{host}/retrieve-text/{request_id}") as get_response:
+                    async with session.get(f"{open_file_second('HOST_AetherNode')}/retrieve-text/{request_id}") as get_response:
                         if get_response.status == 200:
                             get_data = await get_response.json()
                             if "generated_text" in get_data:
@@ -1732,7 +1719,6 @@ async def Agent_Web_Yes_No(prompt, username, bot_name):
         
         
 async def File_Processor_Call(host, prompt, username, bot_name):
-    host="http://127.0.0.1:8000"
     data = {
         "LLM_Template": "Llama_2_Chat_No_End_Token",
         "Username": username,

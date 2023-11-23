@@ -322,7 +322,11 @@ To run Aetherius on Google Colab, first run the Oobabooga Public Api: <a target=
 
 Then, go to Qdrant and get an API key and URL: https://qdrant.to/cloud
 
-The final step will be to run the actual Aetherius Script.  You can install it locally or run it on a colab notebook found here: <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Aetherius_Colab_Edition_Oobabooga.ipynb">
+The final step will be to run the actual Aetherius Script.
+
+To use it locally, change the api in the chatbot_settings.json in the Aetherius_API folder to use Oobabooga instead of AetherNode.  Then change Host_Oobabooga to the given public url from the colab.
+
+To run it on a colab notebook click here: <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Aetherius_Colab_Edition_Oobabooga.ipynb">
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
 </a>   
 (Note: The colab version of Aetherius is rarely updated and is more meant as a demo.)

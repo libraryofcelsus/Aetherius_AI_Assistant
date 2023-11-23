@@ -13,6 +13,7 @@ If you do not have a GPU see: [Public Oobabooga Api Colab](https://colab.researc
 
 ------
 **Currently Working On**
+- Improving the new LLM API
 - Implementing Open Ai Features
 - Setting up a backend for easy switching between models using the same script.
 - Improving Sub-Agent System and adding sub-agent collaboration.  
@@ -21,6 +22,8 @@ If you do not have a GPU see: [Public Oobabooga Api Colab](https://colab.researc
 - Update Documentation
 ------
 **Recent Changes**
+
+• 11/23 Added Ability to use multiple hosts with AetherNode
 
 • 11/22 Switched Default API to AetherNode, a new API I made to avoid backend changes.  It can be found here: https://github.com/libraryofcelsus/AetherNode
 

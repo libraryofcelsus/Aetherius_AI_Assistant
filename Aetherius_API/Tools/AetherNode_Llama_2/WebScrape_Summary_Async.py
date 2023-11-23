@@ -49,7 +49,7 @@ async def async_chunk_text_from_url(url, username, bot_name, chunk_size=380, ove
         try:
             with open('config/chatbot_settings.json', 'r', encoding='utf-8') as f:
                 settings = json.load(f)
-            host_data = settings.get('HOST_Oobabooga', '').strip()
+            host_data = settings.get('HOST_AetherNode', '').strip()
             hosts = host_data.split(' ')
             num_hosts = len(hosts)
         except Exception as e:

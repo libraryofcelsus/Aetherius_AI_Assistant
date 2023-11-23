@@ -196,7 +196,11 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
     mem_counter = 0
     with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
         settings = json.load(f)
-    HOST = settings.get('HOST_Oobabooga', 'http://localhost:5000/api')
+    API = settings.get('API', 'AetherNode')
+    if API == "Oobabooga":
+        HOST = settings.get('HOST_Oobabooga', 'http://localhost:5000/api')
+    if API == "AetherNode":
+        HOST = settings.get('HOST_AetherNode', 'http://127.0.0.1:8000')
     External_Research_Search = settings.get('Search_External_Resource_DB', 'False')
     conv_length = settings.get('Conversation_Length', '3')
     Web_Search = settings.get('Search_Web', 'False')
@@ -1143,7 +1147,11 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
 async def Aetherius_Agent(user_input, username, user_id, bot_name, image_path=None):
     with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
         settings = json.load(f)
-    HOST = settings.get('HOST_Oobabooga', 'http://localhost:5000/api')
+    API = settings.get('API', 'AetherNode')
+    if API == "Oobabooga":
+        HOST = settings.get('HOST_Oobabooga', 'http://localhost:5000/api')
+    if API == "AetherNode":
+        HOST = settings.get('HOST_AetherNode', 'http://127.0.0.1:8000')
     embed_size = settings['embed_size']
     External_Research_Search = settings.get('Search_External_Resource_DB', 'False')
     conv_length = settings.get('Conversation_Length', '3')
@@ -1921,7 +1929,11 @@ async def Aetherius_Agent(user_input, username, user_id, bot_name, image_path=No
         try:
             with open('Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
                 settings = json.load(f)
-            host_data = settings.get('HOST_Oobabooga', '').strip()
+                
+            if API == "Oobabooga":
+                host_data = settings.get('HOST_Oobabooga', 'http://localhost:5000/api').strip()
+            if API == "AetherNode":
+                host_data = settings.get('HOST_AetherNode', 'http://127.0.0.1:8000').strip()
             hosts = host_data.split(' ')
             num_hosts = len(hosts)
         except Exception as e:
@@ -2321,13 +2333,18 @@ async def Aetherius_Implicit_Memory(user_input, output_one, bot_name, username, 
     try:
         with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
             settings = json.load(f)
-        HOST = settings.get('HOST_Oobabooga', 'http://localhost:5000/api')
+        API = settings.get('API', 'AetherNode')
+        if API == "Oobabooga":
+            HOST = settings.get('HOST_Oobabooga', 'http://localhost:5000/api')
+        if API == "AetherNode":
+            HOST = settings.get('HOST_AetherNode', 'http://127.0.0.1:8000')
         embed_size = settings['embed_size']
         DB_Search_Output = settings.get('Output_DB_Search', 'False')
         memory_mode = settings.get('Memory_Mode', 'Forced')
         Update_Bot_Personality_Description = settings.get('Update_Bot_Personality_Description', 'True')
-        Update_User_Personality_Description = settings.get('Update_User_Personality_Description', 'True')
+        Use_Bot_Personality_Description = settings.get('Use_Bot_Personality_Description', 'True')
         backend_model = settings.get('Model_Backend', 'Llama_2')
+        Print_Personality_Description = settings.get('Print_Personality_Descriptions', 'True')
         timestamp = time()
         botnameupper = bot_name.upper()
         usernameupper = username.upper()
@@ -2543,7 +2560,8 @@ async def Aetherius_Implicit_Memory(user_input, output_one, bot_name, username, 
                 if ':' in personality_gen:
                     personality_gen = personality_gen.split(':', 1)[1].strip()
                 
-                print(f"\n\nPRINT OF BOT PERSONALITY FILE: {personality_gen}")
+                if Print_Personality_Description == "True":
+                    print(f"\n\nPRINT OF BOT PERSONALITY FILE: {personality_gen}")
                 new_personality_content = personality_gen
                 
                 def safe_encode(content):
@@ -2599,13 +2617,18 @@ async def Aetherius_Explicit_Memory(user_input, vector_input, vector_monologue, 
     try:
         with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
             settings = json.load(f)
-        HOST = settings.get('HOST_Oobabooga', 'http://localhost:5000/api')
+        API = settings.get('API', 'AetherNode')
+        if API == "Oobabooga":
+            HOST = settings.get('HOST_Oobabooga', 'http://localhost:5000/api')
+        if API == "AetherNode":
+            HOST = settings.get('HOST_AetherNode', 'http://127.0.0.1:8000')
         embed_size = settings['embed_size']
         DB_Search_Output = settings.get('Output_DB_Search', 'False')
         memory_mode = settings.get('Memory_Mode', 'Forced')
-        Update_Bot_Personality_Description = settings.get('Update_Bot_Personality_Description', 'True')
-        Update_User_Personality_Description = settings.get('Update_User_Personality_Description', 'True')
+        Update_User_Personality_Description = settings.get('Update_Bot_Personality_Description', 'True')
+        Use_User_Personality_Description = settings.get('Use_User_Personality_Description', 'True')
         backend_model = settings.get('Model_Backend', 'Llama_2')
+        Print_Personality_Description = settings.get('Print_Personality_Descriptions', 'True')
         usernameupper = username.upper()
         botnameupper = bot_name.upper()
         base_path = "./Aetherius_API/Chatbot_Prompts"
@@ -2830,7 +2853,8 @@ async def Aetherius_Explicit_Memory(user_input, vector_input, vector_monologue, 
                 if ':' in personality_gen:
                     personality_gen = personality_gen.split(':', 1)[1].strip()
                 
-                print(f"\n\nPRINT OF USER PERSONALITY FILE: {personality_gen}")
+                if Print_Personality_Description == "True":
+                    print(f"\n\nPRINT OF USER PERSONALITY FILE: {personality_gen}")
                 new_personality_content = personality_gen
                 
                 def safe_encode(content):

@@ -141,7 +141,7 @@ async def chunk_text_from_url(url, username, bot_name, task_counter, chunk_size=
         weblist = list()
 
         try:
-            async with aiofiles.open('config/chatbot_settings.json', mode='r', encoding='utf-8') as f:
+            async with aiofiles.open('./Aetherius_API/chatbot_settings.json', mode='r', encoding='utf-8') as f:
                 contents = await f.read()
             settings = json.loads(contents)
             host_data = settings.get('HOST_Oobabooga', '').strip()

@@ -169,11 +169,11 @@ async def Domain_Selection_Call(prompt, username, bot_name):
         "Bot_Name": bot_name,
         "system_prompt": "You are a Knowledge Domain Selector. Your role is to identify the most relevant knowledge domain based on the user's question. Choose only from the provided list and do not create or use any domains outside of it. Your response should be limited to naming the single chosen knowledge domain from the list, do not include anything but the knowledge domain.",
         "prompt": prompt,
-        "max_new_tokens": 30,
+        "max_new_tokens": 20,
         "temperature": 0.2,
         "top_p": 0.2,
         "top_k": 20,
-        "repetition_penalty": 1.15
+        "repetition_penalty": 1.10
     }
 
 

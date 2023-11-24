@@ -333,10 +333,10 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
 
         if backend_model == "Llama_2":
             prompt = ''.join([message_dict['content'] for message_dict in domain_extraction])
-            extracted_domain = await Domain_Extraction_Call(prompt, username, bot_name)
+            extracted_domain = await Domain_Selection_Call(prompt, username, bot_name)
             
         if backend_model == "Open_Ai":
-            extracted_domain = Domain_Extraction_Call(domain_extraction, username, bot_name)
+            extracted_domain = Domain_Selection_Call(domain_extraction, username, bot_name)
             
             
             

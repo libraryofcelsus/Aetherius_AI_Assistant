@@ -26,7 +26,15 @@ import logging
 # !ExplicitLTM <ENTER LONG TERM MEMORY>
 # (Allows you to upload a Long Term Explicit Memory)
 
-TOKEN = 'REPLACE WITH DISCORD BOT TOKEN'
+print("\nTo support Aetherius, give a star on github and share the project with friends!")
+print("GitHub: https://github.com/libraryofcelsus/Aetherius_AI_Assistant\n")
+print("For help or suggestions, join my discord server: https://discord.gg/pb5zcNa7zE\n")
+
+
+# Set Discord Bot Token from Developer Console
+TOKEN = 'REPLACE WITH BOT TOKEN'
+
+
 
 # All Indents must be enabled in discord dev menu, give the bot admin privileges
 # When in a server, you must @ the bot.  I recommend just DMing it.
@@ -38,6 +46,7 @@ client = Bot(command_prefix='!', intents=intents)
 
 logger = logging.getLogger('discord')
 logger.setLevel(logging.ERROR)
+
 
 def split_response(response, limit=1999):
     """Splits the response into chunks that don't exceed the provided limit."""

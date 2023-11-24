@@ -1,4 +1,4 @@
-# Aetherius
+# Aetherius Ai Assistant
 Version .046 of the Aetherius Ai Personal Assistant/Agent/Companion by LibraryofCelsus.com
 
 Aetherius is in a state of constant iterative development.  If you like the version you are using, keep a backup.  Expect Bugs.
@@ -6,8 +6,6 @@ Aetherius is in a state of constant iterative development.  If you like the vers
 If you do not have a GPU see: [Google Colabs](#installation-guide)
 
 **Ui is out of date, it will be updated after the new sub-agent system is finished. For the most current version, use the discord bot.  Gradio Ui is just for testing purposes.**
-
-**Oobabooga Text-Ui changed how their api works.  The most up to date version that works is snapshot-2023-11-05. Do not use the OpenAi Extension.**
 
 **I have just made a new API for Llama-2-Chat.  Please give me feedback: https://github.com/libraryofcelsus/AetherNode**  <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/AetherNode_Public_Api.ipynb">
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
@@ -53,18 +51,6 @@ If you do not have a GPU see: [Google Colabs](#installation-guide)
 
 • 11/14 Added Open Ai to Api.
 
-• 11/07 Fixed Unicode encoding error when writing personality files.
-
-• 11/07 Added GPT Vision to Agent mode.
-
-• 11/06 Added GPT Vision Support.  I recommend using the discord bot for this.
-
-• 11/06 Added Forced Memory Upload Mode.
-
-• 11/05 Various Backend Changes, no additional functionality for now, mostly for future stuff.
-
-• 11/05 Fixed Sub-Agent Selection Bug.
-
 ------
 
 ### What is Aetherius?
@@ -73,7 +59,7 @@ Aetherius is a locally operated AI Assistant/Multi-Agent Framework, designed to 
 As seen by the attempted “coup” at “Open”Ai, closed, managed solutions cannot be trusted. Even if you trust the leadership, it can change immediately without warning. You have no real control over any data sent.  
 By running everything locally, this issue can be avoided.  
 
-At the heart of Aetherius lies a custom Long-Term Memory (LLM) Retrieval Framework, fueled by the Llama 2 and the custom AetherNode API (Free Tier Colab Available), Oobabooga Text-Ui, or OpenAi’s ChatGPT. Different Memory types are extracted and combined to provide a more realistic and creative thought process than other Chatbots.
+At the heart of Aetherius lies a custom Long-Term Memory (LLM) Retrieval Framework, fueled by the Llama 2 and the custom AetherNode API (Free Tier Colab Available), Oobabooga Text-Ui, or OpenAi’s ChatGPT.  Different Memory types are extracted and combined to provide a more realistic and creative thought process than other Chatbots.  Since it is a framework, Aetherius is able to use multiple hosts, offloading compute to multiple machines to increase compute time.
 
 Beyond serving as a basic chatbot, Aetherius can also use Sub-Agents. These allow Aetherius to better search through it’s memories or connect to external data. Sub-Agents are ran by triggering a script, so Aetherius can theoretically use most things that can be triggered by python. Aetherius can also “see” now thanks to GPT-4 Vision.
 
@@ -89,11 +75,11 @@ Aetherius is an ongoing research project, expect there to be bugs and for things
 
 **Unlock the Potential**
 
-Aetherius is a versatile, modular AI Assistant/Multi-Agent Framework that adapts to your needs. Its capabilities extend beyond conventional chatbots:
+Aetherius is a versatile, modular AI Assistant/Sub-Agent Framework that adapts to your needs. Its capabilities extend beyond conventional chatbots:
 
 ***Real Time Data***: Aetherius has access to search the web or your own data in agent mode, allowing for information that isn't contained in the base model.
 
-***Multi-Agent Framework***: Aetherius gives you the ability to create sub-agents for whatever use case you have.
+***Multi-Agent Framework***: Aetherius gives you the ability to create sub-agents for whatever use case you have.  Alternativly you can have it trigger python scripts instead.
 
 ***Reflective Journal***: Speak your mind freely and receive thoughtful feedback without judgment or fear.
 
@@ -107,6 +93,16 @@ Aetherius is a versatile, modular AI Assistant/Multi-Agent Framework that adapts
 
 ------
 
+### Current Tools
+
+With Aetherius, you have an arsenal of tools to explore and use:
+
+- **Web Scrape/Search**: Gather information from websites with ease.
+- **File Processor**: Process a variety of file types for insights and knowledge.  The supported file types are: .epub, .pdf, .txt, .png, .jpg, .jpeg, .mp4, .mkv, .flv, and .av
+- **Photo Analysis**: Aetherius can see photos you send and complete tasks based on them.
+
+------
+
 ### Customize Your Experience
 
 **Main Aetherius Chatbot**: A framework for the creation of custom sub-agents for Aetherius.
@@ -115,7 +111,6 @@ Aetherius is a versatile, modular AI Assistant/Multi-Agent Framework that adapts
 - *Manual Memory Mode*: You decide when to upload memories.
 - *Training Memory Mode*: Control memory uploads for each memory type.
 - *Agent Mode*: Activate the use of any Sub-Agents for use in Aetherius's agent loop
-- *External Resources*: Allow Aetherius to use its External Resource Database from Webscrapes and Filescrapes in it's inner thoughts to provide better domain specific information.
 
 **Current Sub-Agents**
 - *External Resources*: Will search Aetherius's External Resource Database. (Database from Web and File Scrapes) If the information cannot be found, it will do a simple websearch for the information.  You can disable the websearch and change the engine in the script file.
@@ -129,19 +124,10 @@ Aetherius is a versatile, modular AI Assistant/Multi-Agent Framework that adapts
 - *Manual Memory Mode*: You decide when to upload memories.
 - *Training Memory Mode*: Control memory uploads for each memory type.
 - **Agent Mode**: Unleash Aetherius's research prowess and connect to external data sources.
+- *External Resources*: Allow Aetherius to use its External Resource Database from Webscrapes and Filescrapes in it's inner thoughts to provide better domain specific information.
 - *Web DB*: Access web-scraped data effortlessly.
 - *File DB*: Extract insights from various file formats.
 - *Memory DB*: Efficiently search the most relevant memories.
-
-------
-
-### Current Tools
-
-With Aetherius, you have an arsenal of tools to explore and use:
-
-- **Web Scrape/Search**: Gather information from websites with ease.
-- **File Processor**: Process a variety of file types for insights and knowledge.  The supported file types are: .epub, .pdf, .txt, .png, .jpg, .jpeg, .mp4, .mkv, .flv, and .av
-- **Photo Analysis**: Aetherius can see photos you send and complete tasks based on them.
 
 ------
 
@@ -188,7 +174,7 @@ Inspired by https://github.com/daveshap/
 | **First Memory DB Search**      | Searches Aetherius's memories to generate an inner monologue.                                                     |
 | **Inner Monologue Generation**  | Generates an inner monologue reflecting past experiences, consolidating database search info, and extending user input meaning. |
 | **Second Memory DB Search**     | Searches Aetherius's memories again to formulate its intuition.                                                   |
-| **Intuition Generation**        | Creates an action plan based on memories and the inner monologue.                                                 |
+| **Intuition Generation**        | Creates an action plan based on memories and the inner monologue.  Serves as an automatic chain-of-thought prompt strategy. |
 | **Implicit Memory Generation**  | Generates short-term implicit memories from its internal processes.                                               |
 | **Master Tasklist Generation**  | Generates a list of asynchronous tasks using available Sub-Agent categories.                                      |
 | **Sub-Agent Selection**         | Chooses a sub-agent from a category to complete the task.                                                         |
@@ -229,6 +215,21 @@ Inspired by https://github.com/daveshap/
 • Launch Ai Tutorial YouTube Channel
 
 # Changelog:
+
+**0.046b**
+
+• 11/07 Fixed Unicode encoding error when writing personality files.
+
+• 11/07 Added GPT Vision to Agent mode.
+
+• 11/06 Added GPT Vision Support.  I recommend using the discord bot for this.
+
+• 11/06 Added Forced Memory Upload Mode.
+
+• 11/05 Various Backend Changes, no additional functionality for now, mostly for future stuff.
+
+• 11/05 Fixed Sub-Agent Selection Bug.
+
 **0.046a**
 
 • Added New Category System for Sub-Agents, only in Async API script for now.

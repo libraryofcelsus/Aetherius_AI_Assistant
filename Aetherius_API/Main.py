@@ -208,7 +208,7 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
     Intuition_Output = settings.get('Output_Intuition', 'False')
     Response_Output = settings.get('Output_Response', 'True')
     DB_Search_Output = settings.get('Output_DB_Search', 'False')
-    memory_mode = settings.get('Memory_Mode', 'Forced')
+    memory_mode = settings.get('memory_mode', 'Forced')
     Update_Bot_Personality_Description = settings.get('Update_Bot_Personality_Description', 'False')
     Update_User_Personality_Description = settings.get('Update_User_Personality_Description', 'False')
     Use_Bot_Personality_Description = settings.get('Use_Bot_Personality_Description', 'False')
@@ -1160,7 +1160,7 @@ async def Aetherius_Agent(user_input, username, user_id, bot_name, image_path=No
     Intuition_Output = settings.get('Output_Intuition', 'False')
     Response_Output = settings.get('Output_Response', 'True')
     DB_Search_Output = settings.get('Output_DB_Search', 'False')
-    memory_mode = settings.get('Memory_Mode', 'Forced')
+    memory_mode = settings.get('memory_mode', 'Forced')
     Sub_Module_Output = settings.get('Output_Sub_Module', 'False')
     Update_Bot_Personality_Description = settings.get('Update_Bot_Personality_Description', 'False')
     Update_User_Personality_Description = settings.get('Update_User_Personality_Description', 'False')
@@ -2340,7 +2340,7 @@ async def Aetherius_Implicit_Memory(user_input, output_one, bot_name, username, 
             HOST = settings.get('HOST_AetherNode', 'http://127.0.0.1:8000')
         embed_size = settings['embed_size']
         DB_Search_Output = settings.get('Output_DB_Search', 'False')
-        memory_mode = settings.get('Memory_Mode', 'Forced')
+        memory_mode = settings.get('memory_mode', 'Forced')
         Update_Bot_Personality_Description = settings.get('Update_Bot_Personality_Description', 'True')
         Use_Bot_Personality_Description = settings.get('Use_Bot_Personality_Description', 'True')
         backend_model = settings.get('Model_Backend', 'Llama_2')
@@ -2385,11 +2385,34 @@ async def Aetherius_Implicit_Memory(user_input, output_one, bot_name, username, 
         main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
         secondary_prompt = prompts["secondary_prompt"]
         greeting_msg = prompts["greeting_prompt"].replace('<<NAME>>', bot_name)
+        
+        
+        file_path = f"./Chatbot_Personalities/{bot_name}/{user_id}/{bot_name}_personality_file.txt"
+        if not os.path.exists(file_path):
+            os.makedirs(os.path.dirname(file_path), exist_ok=True)
+            default_prompts = f"{main_prompt}\n{secondary_prompt}\n{greeting_msg}"
+
+            async def write_prompts():
+                try:
+                    # Specify encoding as utf-8 when writing to the file
+                    async with aiofiles.open(file_path, 'w', encoding='utf-8') as txt_file:
+                        await txt_file.write(default_prompts)
+                except Exception as e:
+                    print(f"Failed to write to file: {e}")
+            await write_prompts()
+
+        try:
+            # Specify encoding as utf-8 when reading from the file
+            async with aiofiles.open(file_path, mode='r', encoding='utf-8') as file:
+                personality_file = await file.read()
+        except FileNotFoundError:
+            personality_file = "File not found."
+        
         if memory_mode == 'Auto': 
             auto_count = 0
             auto.clear()
-            auto.append({'role': 'system', 'content': "CURRENT SYSTEM PROMPT: You are a sub-module designed to reflect on your thought process. You are only able to respond with integers on a scale of 1-10, being incapable of printing letters.\n"})
-            auto.append({'role': 'user', 'content': f"USER INPUT: {user_input}\nCHATBOTS INNER THOUGHTS: {output_one}\nPlease rate the chatbot's inner thoughts on a scale of 1 to 10. The rating will be directly input into a field, so ensure you only print a single number between 1 and 10. You are incapable of responding with anything other than a single number. {user_input_end}"})
+            auto.append({'role': 'system', 'content': "CURRENT SYSTEM PROMPT: You are a sub-module designed to reflect on your generated memories. You are only able to respond with integers on a scale of 1-10, being incapable of printing letters.\n"})
+            auto.append({'role': 'user', 'content': f"CHATBOT PERSONALITY FILE: {personality_file}\nUSER INPUT: {user_input} CHATBOTS GENERATED MEMORIES: {inner_loop_response}\n\nPlease rate the chatbot's generated memories against its personality file on a scale of 1 to 10. You are rating the relevance and how well they align with the given personality.  The rating will be directly input into a field, so ensure you only print a single number between 1 and 10. You are incapable of responding with anything other than a single number. {user_input_end}"})
             auto.append({'role': 'assistant', 'content': f"RATING: Sure, here is a numerical rating between 1 and 10: "})
 
             auto_int = None
@@ -2397,16 +2420,18 @@ async def Aetherius_Implicit_Memory(user_input, output_one, bot_name, username, 
                 if backend_model == "Llama_2":
                     prompt = ''.join([message_dict['content'] for message_dict in auto])
                     automemory = await Auto_Call(prompt, username, bot_name)
-                    
+                    automemory = automemory.replace("RATING: Sure, here is a numerical rating between 1 and 10: ", "", 1)
                 if backend_model == "Open_Ai":
                     automemory = Auto_Call(auto, username, bot_name)
-             #   print(automemory)
+
+                print(f"\nIMPLICIT MEMORY RATING: {automemory}") 
                 values_to_check = ["7", "8", "9", "10"]
                 if any(val in automemory for val in values_to_check):
                     auto_int = ('Pass')
                     segments = re.split(r'•|\n\s*\n', inner_loop_response)
                     total_segments = len(segments)
-                    print("\n\nIMPLICIT MEMORIES:")
+                    
+                    print("\n\nIMPLICIT SHORT-TERM MEMORIES:")
                     for index, segment in enumerate(segments):
                         segment = segment.strip()
                         if segment == '': 
@@ -2456,11 +2481,10 @@ async def Aetherius_Implicit_Memory(user_input, output_one, bot_name, username, 
                         break
             else:
                 pass   
-                
         if memory_mode == 'Forced':
             segments = re.split(r'•|\n\s*\n', inner_loop_response)
             total_segments = len(segments)
-            print("\n\nIMPLICIT MEMORIES:")
+            print("\n\nIMPLICIT SHORT-TERM MEMORIES:")
             for index, segment in enumerate(segments):
                 segment = segment.strip()
                 if segment == '': 
@@ -2501,29 +2525,7 @@ async def Aetherius_Implicit_Memory(user_input, output_one, bot_name, username, 
                 await Upload_Implicit_Short_Term_Memories(inner_loop_response, username, user_id, bot_name)
                 
         if Update_Bot_Personality_Description == 'True':        
-            file_path = f"./Chatbot_Personalities/{bot_name}/{user_id}/{bot_name}_personality_file.txt"
-            if not os.path.exists(file_path):
-                os.makedirs(os.path.dirname(file_path), exist_ok=True)
-                default_prompts = f"{main_prompt}\n{secondary_prompt}\n{greeting_msg}"
-
-                async def write_prompts():
-                    try:
-                        # Specify encoding as utf-8 when writing to the file
-                        async with aiofiles.open(file_path, 'w', encoding='utf-8') as txt_file:
-                            await txt_file.write(default_prompts)
-                    except Exception as e:
-                        print(f"Failed to write to file: {e}")
-                await write_prompts()
-
-            try:
-                # Specify encoding as utf-8 when reading from the file
-                async with aiofiles.open(file_path, mode='r', encoding='utf-8') as file:
-                    personality_file = await file.read()
-            except FileNotFoundError:
-                personality_file = "File not found."
-
-                
-                
+ 
             
             personality_list.append({'role': 'system', 'content': f"You are a sub-module for the autonomous Ai Entity {bot_name}.  Your job is to decide if the generated implicit memories fit {bot_name}'s personality.  If the generated memories match {bot_name}'s personality, print: 'YES'.  If they do not match the personality or if it contains conflicting information, print: 'NO'.{user_input_end}"})
             personality_list.append({'role': 'assistant', 'content': f"I will only print 'YES' or 'NO' in determination of if the given implicit memories match {bot_name}'s personality."})
@@ -2625,7 +2627,7 @@ async def Aetherius_Explicit_Memory(user_input, vector_input, vector_monologue, 
             HOST = settings.get('HOST_AetherNode', 'http://127.0.0.1:8000')
         embed_size = settings['embed_size']
         DB_Search_Output = settings.get('Output_DB_Search', 'False')
-        memory_mode = settings.get('Memory_Mode', 'Forced')
+        memory_mode = settings.get('memory_mode', 'Forced')
         Update_User_Personality_Description = settings.get('Update_Bot_Personality_Description', 'True')
         Use_User_Personality_Description = settings.get('Use_User_Personality_Description', 'True')
         backend_model = settings.get('Model_Backend', 'Llama_2')
@@ -2665,32 +2667,52 @@ async def Aetherius_Explicit_Memory(user_input, vector_input, vector_monologue, 
         if backend_model == "Open_Ai":
             db_upload = Explicit_Memory_Call(prompt_explicit, username, bot_name)
         db_upsert = db_upload
+        
+        file_path = f"./Chatbot_Personalities/{bot_name}/{user_id}/{bot_name}_personality_file.txt"
+        if not os.path.exists(file_path):
+            os.makedirs(os.path.dirname(file_path), exist_ok=True)
+            default_prompts = f"{main_prompt}\n{secondary_prompt}\n{greeting_msg}"
+
+            async def write_prompts():
+                try:
+                    # Specify encoding as utf-8 when writing to the file
+                    async with aiofiles.open(file_path, 'w', encoding='utf-8') as txt_file:
+                        await txt_file.write(default_prompts)
+                except Exception as e:
+                    print(f"Failed to write to file: {e}")
+            await write_prompts()
+
+        try:
+            # Specify encoding as utf-8 when reading from the file
+            async with aiofiles.open(file_path, mode='r', encoding='utf-8') as file:
+                personality_file = await file.read()
+        except FileNotFoundError:
+            personality_file = "File not found."
+        
         if memory_mode == 'Auto': 
             auto_count = 0
             auto.clear()
             
-            
-            auto.append({'role': 'system', 'content': "CURRENT SYSTEM PROMPT: You are a sub-module designed to reflect on your response to the user. You are only able to respond with integers on a scale of 1-10, being incapable of printing letters.\n"})
-            auto.append({'role': 'user', 'content': f"USER INPUT: {user_input} CHATBOTS RESPONSE: {response_two}\nPlease rate the chatbot's response on a scale of 1 to 10. The rating will be directly input into a field, so ensure you only print a single number between 1 and 10. You are incapable of responding with anything other than a single number. {user_input_end}"})
+            auto.append({'role': 'system', 'content': "CURRENT SYSTEM PROMPT: You are a sub-module designed to reflect on your generated memories. You are only able to respond with integers on a scale of 1-10, being incapable of printing letters.\n"})
+            auto.append({'role': 'user', 'content': f"CHATBOT PERSONALITY FILE: {personality_file}\nUSER INPUT: {user_input} CHATBOTS GENERATED MEMORIES: {db_upload}\n\nPlease rate the chatbot's generated memories against its personality file on a scale of 1 to 10. You are rating the relevance and how well they align with the given personality. The rating will be directly input into a field, so ensure you only print a single number between 1 and 10. You are incapable of responding with anything other than a single number. {user_input_end}"})
             auto.append({'role': 'assistant', 'content': f"RATING: Sure, here is a numerical rating between 1 and 10: "})
-            
             
             auto_int = None
             while auto_int is None:
                 if backend_model == "Llama_2":
                     prompt = ''.join([message_dict['content'] for message_dict in auto])
                     automemory = await Auto_Call(prompt, username, bot_name)
-                    
+                    automemory = automemory.replace("RATING: Sure, here is a numerical rating between 1 and 10: ", "", 1)
                 if backend_model == "Open_Ai":
                     automemory = Auto_Call(auto, username, bot_name)
                     
-          #      print(f"EXPLICIT RATING: {automemory}")
+                print(f"\nEXPLICIT MEMORY RATING: {automemory}")
                 values_to_check = ["7", "8", "9", "10"]
                 if any(val in automemory for val in values_to_check):
                     auto_int = ('Pass')
                     segments = re.split(r'•|\n\s*\n', db_upsert)
                     total_segments = len(segments)
-                    print("\n\nEXPLICIT MEMORIES:")
+                    print("\n\nEXPLICIT SHORT-TERM MEMORIES:")
                     for index, segment in enumerate(segments):
                         segment = segment.strip()
                         if segment == '': 
@@ -2724,6 +2746,7 @@ async def Aetherius_Explicit_Memory(user_input, vector_input, vector_monologue, 
                         payload.clear()
                     else:
                         break
+                
                 values_to_check2 = ["1", "2", "3", "4", "5", "6"]
                 if any(val in automemory for val in values_to_check2):
                     print("Memories not worthy of Upload")
@@ -2742,7 +2765,7 @@ async def Aetherius_Explicit_Memory(user_input, vector_input, vector_monologue, 
             try:
                 segments = re.split(r'•|\n\s*\n', db_upsert)
                 total_segments = len(segments)
-                print("\n\nEXPLICIT MEMORIES:")
+                print("\n\nEXPLICIT SHORT-TERM MEMORIES:")
                 for index, segment in enumerate(segments):
                     segment = segment.strip()
                     if segment == '': 

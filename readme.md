@@ -23,6 +23,10 @@ If you do not have a GPU see: [Google Colabs](#installation-guide)
 ------
 **Recent Changes**
 
+• 11/24 Improved Auto Memory Prompts
+
+• 11/24 Fixed wrong tag for memory_mode, switching modes should work now.
+
 • 11/23 Added Public API Google Colab for AetherNode: <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/AetherNode_Public_Api.ipynb">
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
 </a>

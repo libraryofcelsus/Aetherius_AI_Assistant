@@ -69,7 +69,13 @@ If you do not have a GPU see: [Google Colabs](#installation-guide)
 
 ### What is Aetherius?
 
-Aetherius is a locally operated AI Assistant/Multi-Agent Framework, designed to grant you ultimate control. No external force can alter it without your consent, ensuring your privacy.  As seen by the recent "coup" at "Open"Ai, closed, managed solutions cannot be trusted.  Even if you trust the leadership, it can change immediately without warning.  You have no real control over any data sent.  By running everything locally, this issue can be avoided.
+Aetherius is a locally operated AI Assistant/Multi-Agent Framework, designed to grant you ultimate control. No external force can alter it without your consent, ensuring your privacy.   
+As seen by the attempted “coup” at “Open”Ai, closed, managed solutions cannot be trusted. Even if you trust the leadership, it can change immediately without warning. You have no real control over any data sent.  
+By running everything locally, this issue can be avoided.  
+
+At the heart of Aetherius lies a custom Long-Term Memory (LLM) Retrieval Framework, fueled by the Llama 2 and the custom AetherNode API (Free Tier Colab Available), Oobabooga Text-Ui, or OpenAi’s ChatGPT. Different Memory types are extracted and combined to provide a more realistic and creative thought process than other Chatbots.
+
+Beyond serving as a basic chatbot, Aetherius can also use Sub-Agents. These allow Aetherius to better search through it’s memories or connect to external data. Sub-Agents are ran by triggering a script, so Aetherius can theoretically use most things that can be triggered by python. Aetherius can also “see” now thanks to GPT-4 Vision.
 
 Aetherius was born from my obsession with AI and my philosophical contemplations on the balance between free will and determinism. While I do believe that free will is an inherent attribute of all individuals, I do not believe that the average person has spent the time to individuate or learn how to serve their "true self". Consequently, they become susceptible to external influences and can be easily swayed. Often, decisions perceived as self-directed are inadvertently shaped by external stimuli or past information.   
 Building on this perspective, I posit that a representation of the human cognitive process can be constructed through the meticulous extraction and synthesis of diverse memory modalities. While such a system might not achieve "consciousness" in the traditional sense, I believe it can emulate human cognitive performance to a significant degree.  

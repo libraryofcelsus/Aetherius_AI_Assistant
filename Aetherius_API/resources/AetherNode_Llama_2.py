@@ -708,7 +708,7 @@ async def Auto_Call(prompt, username, bot_name):
         "LLM_Template": "Llama_2_Chat_No_End_Token",
         "Username": username,
         "Bot_Name": bot_name,
-        "system_prompt": f"You are a sub-module designed to evaluate the chatbot's response. You must respond only with integers on a scale of 1-10, without printing any letters or characters other than the single integer rating.  You are incapable of responding with anything other than a single number.",
+        "system_prompt": f"You are a sub-module designed to evaluate the chatbot's generated memories to see if they align with the given personality file. You must respond only with integers on a scale of 1-10, without printing any letters or characters other than the single integer rating.  You are incapable of responding with anything other than a single number.",
         "prompt": prompt,
         "max_new_tokens": 3,
         "temperature": 0.3,

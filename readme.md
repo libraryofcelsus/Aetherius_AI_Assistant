@@ -1,7 +1,7 @@
 # Aetherius Ai Assistant
-Version .046 of the Aetherius Ai Personal Assistant/Agent/Companion by LibraryofCelsus.com
+Version .046 of the Aetherius Ai Personal Assistant/Agent by LibraryofCelsus.com
 
-Aetherius is in a state of constant iterative development.  If you like the version you are using, keep a backup.  Expect Bugs.
+Aetherius is in a state of constant iterative development.  If you like the version you are using, keep a backup or make a fork.  Expect Bugs.
 
 If you do not have a GPU see: [Google Colabs](#installation-guide)
 
@@ -79,8 +79,6 @@ Aetherius is an ongoing research project, expect there to be bugs and for things
 
 ### Aetherius - Your Personal Digital Assistant
 
-**Unlock the Potential**
-
 Aetherius is a versatile, modular AI Assistant/Sub-Agent Framework that adapts to your needs. Its capabilities extend beyond conventional chatbots:
 
 ***Real Time Data***: Aetherius has access to search the web or your own data in agent mode, allowing for information that isn't contained in the base model.
@@ -142,8 +140,6 @@ Aetherius's development is self-funded by my day job, consider supporting me if 
 <a href='https://ko-fi.com/libraryofcelsus' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi3.png?v=3' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
 
 ------
-
-**Usage guide not up to date :(**
 
 [Aetherius Usage Guide](https://www.libraryofcelsus.com/research/aetherius-usage-guide/)
 
@@ -215,8 +211,6 @@ Inspired by https://github.com/daveshap/
 • Data Comparison Tool
 
 • Add more LLM models
-
-• Create a Custom API for running Local LLM models (https://github.com/libraryofcelsus/AetherNode)
 
 • Launch Ai Tutorial YouTube Channel
 

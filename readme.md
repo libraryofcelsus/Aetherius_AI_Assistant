@@ -377,7 +377,7 @@ AetherNode Google Colab if you don't have a GPU: <a target="_blank" href="https:
 7. To run Aetherius Locally using Oobabooga, first install the web-ui at: https://github.com/oobabooga/text-generation-webui/releases/tag/snapshot-2023-11-05
 
 Oobabooga Text-Ui just changed how their api works.  The most up to date version that works is snapshot-2023-11-05
-This can be done through the release menu or **git clone https://github.com/oobabooga/text-generation-webui --build snapshot-2023-11-05**
+This can be done through the release menu or **git clone https://github.com/oobabooga/text-generation-webui --branch snapshot-2023-11-05**
 
 To run Aetherius on Google Colab with Oobabooga using a public Api, use the Notebook file in the "./Colab Notebooks" Folder.  To use the Public Api with Aetherius, change the "HOST_Oobabooga" in the settings json to the given non-streaming Url.  To use multiple Hosts, separate them with a space. <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Oobabooga_Public_Api.ipynb">
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
@@ -538,7 +538,7 @@ AetherNode Google Colab if you don't have a GPU: <a target="_blank" href="https:
 32. To run Aetherius Locally using Oobabooga, first install the web-ui at: https://github.com/oobabooga/text-generation-webui/releases/tag/snapshot-2023-11-05
 
 Oobabooga Text-Ui just changed how their api works.  The most up to date version that works is snapshot-2023-11-05
-This can be done through the release menu or **git clone https://github.com/oobabooga/text-generation-webui --build snapshot-2023-11-05**
+This can be done through the release menu or **git clone https://github.com/oobabooga/text-generation-webui --branch snapshot-2023-11-05**
 
 To run Aetherius on Google Colab with Oobabooga using a public Api, use the Notebook file in the "./Colab Notebooks" Folder.  To use the Public Api with Aetherius, change the "HOST_Oobabooga" in the settings json to the given non-streaming Url.  To use multiple Hosts, separate them with a space. <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Oobabooga_Public_Api.ipynb">
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>

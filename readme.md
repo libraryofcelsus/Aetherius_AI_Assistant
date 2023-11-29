@@ -23,6 +23,8 @@ If you do not have a GPU see: [Google Colabs](#installation-guide)
 ------
 **Recent Changes**
 
+• 11/29 Added Alpaca Model formating to AetherNode.  Tested with: TheBloke/Nous-Hermes-Llama2-GPTQ
+
 • 11/24 Swapped Knowledge Domain Selection to use proper call
 
 • 11/24 Improved Auto Memory Prompts

@@ -1,7 +1,7 @@
 import os
 import sys
 sys.path.insert(0, './Aetherius_API/resources')
-from AetherNode_Llama_2 import *
+from AetherNode import *
 import asyncio
 import aiofiles
 import aiohttp

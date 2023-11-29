@@ -1,5 +1,6 @@
 {
     "Conversation_Length": "2",
+	"_comment_Conversation_Length": "Due to model token lengths, this is set to a lower number to fit more long term memories",
 	
 	"memory_mode": "Forced",
 	"_comment_memory_mode": "The available memory modes are: Forced, Auto, Manual, and Training",
@@ -8,14 +9,14 @@
 	
 	"Vision_Model": "eyes_url",
 	
-	"Model_Backend": "Llama_2",
-	"_comment_Model_Backend": "The available Model Backends are: Llama_2 and Open_Ai",
+	"Model_Backend": "Llama_2_Chat",
+	"_comment_Model_Backend": "The available Model Backends are: Llama_2_Chat, Alpaca, and OpenAi.",
 	
-	"LLM_Model": "AetherNode_Llama_2",
-	"_comment_LLM_Model": "The available LLM Models are: Oobabooga_Llama_2, AetherNode_Llama_2, Open_Ai_GPT_35, and Open_Ai_GPT_4",
+	"LLM_Model": "AetherNode",
+	"_comment_LLM_Model": "The available LLM Models are: Oobabooga_Llama_2, AetherNode, Open_Ai_GPT_35, and Open_Ai_GPT_4.  AetherNode will take the model from Model_Backend.",
 	
 	"API": "AetherNode",
-	"_comment_API": "The available API's are: Oobabooga, AetherNode, Open_Ai",
+	"_comment_API": "The available API's are: Oobabooga, AetherNode, OpenAi",
 	
 	"HOST_AetherNode": "http://127.0.0.1:8000",
 	"_comment_HOST_AetherNode": "To use multiple hosts, separate them with a space.  First host should be the fastest.  Second Host will be used for memories.  Additional hosts will be used for Agent Mode.",
@@ -46,6 +47,8 @@
 	"Output_Sub_Module": "True",
 	
 	"Output_DB_Search": "False",
+	
+	"Output_Short_Term_Memory": "False",
 	
 	"Output_Personality_Descriptions": "False",
 	

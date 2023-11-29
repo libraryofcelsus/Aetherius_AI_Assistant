@@ -104,8 +104,8 @@ if select_api == "Oobabooga":
     script_path4 = get_script_path_from_file(json_file_path, "Vision_Model", base_folder='./Aetherius_API/Tools/Llama_2_Async/')
 if select_api == "AetherNode":
     script_path4 = get_script_path_from_file(json_file_path, "Vision_Model", base_folder='./Aetherius_API/Tools/AetherNode_Llama_2/')
-if select_api == "Open_Ai":
-    script_path4 = get_script_path_from_file(json_file_path, "Vision_Model", base_folder='./Aetherius_API/Tools/Open_Ai/')
+if select_api == "OpenAi":
+    script_path4 = get_script_path_from_file(json_file_path, "Vision_Model", base_folder='./Aetherius_API/Tools/OpenAi/')
 import_functions_from_script(script_path4, "eyes_module")
 
 
@@ -213,16 +213,19 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
     Update_User_Personality_Description = settings.get('Update_User_Personality_Description', 'False')
     Use_Bot_Personality_Description = settings.get('Use_Bot_Personality_Description', 'False')
     Use_User_Personality_Description = settings.get('Use_User_Personality_Description', 'False')
-    backend_model = settings.get('Model_Backend', 'Llama_2')
-    LLM_Model = settings.get('LLM_Model', 'Llama_2')
+    backend_model = settings.get('Model_Backend', 'Llama_2_Chat')
+    LLM_Model = settings.get('LLM_Model', 'AetherNode')
     botnameupper = bot_name.upper()
     usernameupper = username.upper()
-    if backend_model == "Llama_2":
+    if backend_model == "Llama_2_Chat":
         user_input_end = "[/INST]"
         user_input_start = "[INST]"
-    if backend_model == "Open_Ai":
+    if backend_model == "OpenAi":
         user_input_end = ""
         user_input_start = ""
+    if backend_model == "Alpaca":
+        user_input_start = "\n\n### Instruction:"
+        user_input_end = "\n\n### Response:"
     base_path = "./Aetherius_API/Chatbot_Prompts"
     base_prompts_path = os.path.join(base_path, "Base")
     user_bot_path = os.path.join(base_path, user_id, bot_name)  
@@ -260,10 +263,10 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
         input_expansion.append({'role': 'assistant', 'content': f"TASK REPHRASER: Sure! Here's the rephrased version of the user's most recent input: "})
     #    print(input_expansion)
         
-        if backend_model == "Open_Ai":
+        if API == "OpenAi":
             expanded_input = Input_Expansion_Call(input_expansion, username, bot_name)
 
-        if backend_model == "Llama_2":
+        if API == "AetherNode" or API == "Oobabooga":
             prompt = ''.join([message_dict['content'] for message_dict in input_expansion])
             expanded_input = await Input_Expansion_Call(prompt, username, bot_name)
         print(f"\n\nExpanded User Input: {expanded_input}")
@@ -274,11 +277,11 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
         domain_extraction.append({'role': 'system', 'content': f"You are a knowledge domain extractor.  Your task is to analyze the user's inquiry, then choose the single most salent generalized knowledge domain needed to complete the user's inquiry from the list of existing domains.  Your response should only contain the single existing knowledge domain.\n"})
         domain_extraction.append({'role': 'user', 'content': f"USER INPUT: {expanded_input} {user_input_end} "})
         
-        if backend_model == "Llama_2":
+        if API == "AetherNode" or API == "Oobabooga":
             prompt = ''.join([message_dict['content'] for message_dict in domain_extraction])
             extracted_domain = await Domain_Extraction_Call(prompt, username, bot_name)
             
-        if backend_model == "Open_Ai":
+        if API == "OpenAi":
             extracted_domain = Domain_Extraction_Call(domain_extraction, username, bot_name)
             
         domain_extraction.clear()
@@ -322,7 +325,8 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
                     output_list.append(item)
             return output_list
         domain_search = remove_duplicate_dicts(domain_search)
-        print(f"\nKnowledge Domains: {domain_search}")
+        if DB_Search_Output == 'True':
+            print(f"\nKnowledge Domains: {domain_search}")
         
         
         domain_extraction.append({'role': 'system', 'content': f"{user_input_start} Your role as a Knowledge Domain Selector is to analyze the user's question and identify the most relevant knowledge domain from the provided list. Ensure that your choice is from the existing domains, and avoid creating or using any not listed. Respond with the name of the single selected knowledge domain.\n"})
@@ -331,11 +335,11 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
         domain_extraction.append({'role': 'user', 'content': f"USER QUESTION: {user_input}\nADDITIONAL CONTEXT: {expanded_input} {user_input_end}"})
         domain_extraction.append({'role': 'assistant', 'content': f"EXTRACTED KNOWLEDGE DOMAIN: "})
 
-        if backend_model == "Llama_2":
+        if API == "AetherNode" or API == "Oobabooga":
             prompt = ''.join([message_dict['content'] for message_dict in domain_extraction])
             extracted_domain = await Domain_Selection_Call(prompt, username, bot_name)
             
-        if backend_model == "Open_Ai":
+        if API == "OpenAi":
             extracted_domain = Domain_Selection_Call(domain_extraction, username, bot_name)
             
             
@@ -346,7 +350,8 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
         extracted_domain = extracted_domain.upper()
         extracted_domain = re.sub(r'[^A-Z]', '', extracted_domain)
         extracted_domain = extracted_domain.replace("_", " ")
-        print(f"Extracted Domain: {extracted_domain}")
+        if DB_Search_Output == 'True':
+            print(f"Extracted Domain: {extracted_domain}")
         conversation_history = main_conversation.get_last_entry()
         con_hist = f'{conversation_history}'
         vector_input = embeddings(expanded_input)
@@ -357,11 +362,11 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
         tasklist.append({'role': 'user', 'content': f"USER: {user_input}\nUse the format: •Search Query {user_input_end} "})
         tasklist.append({'role': 'assistant', 'content': f"ASSISTANT: Sure, I'd be happy to help! Here are 2-4 synonymous search terms: "})
         
-        if backend_model == "Llama_2":
+        if API == "AetherNode" or API == "Oobabooga":
             prompt = ''.join([message_dict['content'] for message_dict in tasklist])
             tasklist_output = await Semantic_Terms_Call(prompt, username, bot_name)
         
-        if backend_model == "Open_Ai":
+        if API == "OpenAi":
             tasklist_output = Semantic_Terms_Call(tasklist, username, bot_name)
         
         
@@ -732,11 +737,11 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
         inner_monologue.append({'role': 'user', 'content': f"{user_input_start} SYSTEM: Compose a short silent soliloquy to serve as {bot_name}'s internal monologue/narrative.  Ensure it includes {bot_name}'s contemplations in relation to {username}'s request and does not exceed a paragraph in length.\n{usernameupper}/USER'S REQUEST: {user_input} {user_input_end} "})
         inner_monologue.append({'role': 'assistant', 'content': f"{botnameupper}: "})
         
-        if backend_model == "Llama_2":
+        if API == "AetherNode" or API == "Oobabooga":
             prompt = ''.join([message_dict['content'] for message_dict in inner_monologue])
             output_one = await Inner_Monologue_Call(prompt, username, bot_name)
         
-        if backend_model == "Open_Ai":
+        if API == "OpenAi":
             output_one = Inner_Monologue_Call(inner_monologue, username, bot_name)
         
        
@@ -896,11 +901,11 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
         intuition.append({'role': 'user', 'content': f"{user_input_start} SYSTEM: Using syllogistic reasoning, transmute the user, {username}'s message as {bot_name} by devising a truncated predictive action plan in the third person point of view on how to best respond to {username}'s most recent message. You do not have access to external resources.  If the user's message is casual conversation, print 'No Plan Needed'. Only create a syllogistic action plan for informational requests or if requested to complete a complex task.  If the user is requesting information on a subject or asking a question, predict what information needs to be provided with syllogistic reasoning, ensuring to double check your work. Do not give examples, only the action plan. {usernameupper}: {user_input} {user_input_end} "})
         intuition.append({'role': 'assistant', 'content': f"{botnameupper}: "}) 
         
-        if backend_model == "Llama_2":
+        if API == "AetherNode" or API == "Oobabooga":
             prompt = ''.join([message_dict['content'] for message_dict in intuition])
             output_two = await Intuition_Call(prompt, username, bot_name)
             
-        if backend_model == "Open_Ai":
+        if API == "OpenAi":
             output_two = Intuition_Call(intuition, username, bot_name)
             
             
@@ -915,10 +920,10 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
             implicit_short_term_memory = f'\nUSER: {user_input}\nINNER_MONOLOGUE: {output_one}'
             implicit_memory.append({'role': 'assistant', 'content': f"LOG: {implicit_short_term_memory} {user_input_start} SYSTEM: Read the log to identify key interactions between {bot_name} and {username} from the chatbot's inner monologue. Create 3-5 bullet-point summaries that will serve as automatic, unconscious memories for {bot_name}'s future interactions. These memories should not be easily verbalized but should capture the essence of skills, habits, or associations learned during interactions. Each bullet point should contain enough context to understand the significance without tying to explicit reasoning or verbal explanation. Use the following bullet point format: •[memory] {user_input_end} {botnameupper}: Sure! Here are the bullet-point summaries which will serve as memories based on {bot_name}'s internal thoughts:"})
             
-            if backend_model == "Llama_2":
+            if API == "AetherNode" or API == "Oobabooga":
                 prompt_implicit = ''.join([message_dict['content'] for message_dict in implicit_memory])
                 
-            if backend_model == "Open_Ai":
+            if API == "OpenAi":
                 prompt_implicit = implicit_memory
                 
             
@@ -1062,11 +1067,11 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
         response.append({'role': 'user', 'content': f"{user_input_start} {usernameupper}'S MOST RECENT MESSAGE: {user_input} {user_input_end} "})
         response.append({'role': 'assistant', 'content': f"{botnameupper}: Sure, here is a natural sounding response to {username}'s latest message: "})
         
-        if backend_model == "Llama_2":
+        if API == "AetherNode" or API == "Oobabooga":
             prompt = ''.join([message_dict['content'] for message_dict in response])
             response_two = await Response_Call(prompt, username, bot_name)
         
-        if backend_model == "Open_Ai":
+        if API == "OpenAi":
             response_two = Response_Call(response, username, bot_name)
 
         
@@ -1092,10 +1097,10 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
             explicit_memory.append({'role': 'system', 'content': f"LOG: {db_msg} {user_input_start} SYSTEM: Use the log to extract salient points about interactions between {bot_name} and {username}, as well as any informational topics mentioned in the chatbot's inner monologue and responses. These points should be used to create concise executive summaries in bullet point format, intended to serve as explicit memories for {bot_name}'s future interactions. These memories should be consciously recollected and easily talked about, focusing on general knowledge and facts discussed or learned. Each bullet point should be rich in detail, providing all the essential context for full recollection and articulation. Each bullet point should be considered a separate memory and contain full context. Use the following bullet point format: •[memory] {user_input_end} "})
             explicit_memory.append({'role': 'assistant', 'content': f"{botnameupper}: Sure! Here are 3-5 bullet-point summaries that will serve as memories based on {bot_name}'s responses:"})
             
-            if backend_model == "Llama_2":
+            if API == "AetherNode" or API == "Oobabooga":
                 prompt_explicit = ''.join([message_dict['content'] for message_dict in explicit_memory])
         
-            if backend_model == "Open_Ai":
+            if API == "OpenAi":
                 prompt_explicit = explicit_memory
         
         
@@ -1108,11 +1113,11 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
         
         
         if memory_mode == 'Manual':
-            if backend_model == "Llama_2":
+            if API == "AetherNode" or API == "Oobabooga":
                 inner_loop_memory = await Implicit_Memory_Call(prompt_implicit, username, bot_name)
                 response_memory = await Explicit_Memory_Call(prompt_explicit, username, bot_name)
                 
-            if backend_model == "Open_Ai":
+            if API == "OpenAi":
                 inner_loop_memory = Implicit_Memory_Call(prompt_implicit)
                 response_memory = Explicit_Memory_Call(prompt_explicit)
                 
@@ -1166,8 +1171,8 @@ async def Aetherius_Agent(user_input, username, user_id, bot_name, image_path=No
     Update_User_Personality_Description = settings.get('Update_User_Personality_Description', 'False')
     Use_Bot_Personality_Description = settings.get('Use_Bot_Personality_Description', 'False')
     Use_User_Personality_Description = settings.get('Use_User_Personality_Description', 'False')
-    backend_model = settings.get('Model_Backend', 'Llama_2')
-    LLM_Model = settings.get('LLM_Model', 'Llama_2')
+    backend_model = settings.get('Model_Backend', 'Llama_2_Chat')
+    LLM_Model = settings.get('LLM_Model', 'AetherNode')
     select_api = settings.get('API', 'Oobabooga')
     tasklist = list()
     agent_inner_monologue = list()
@@ -1194,12 +1199,15 @@ async def Aetherius_Agent(user_input, username, user_id, bot_name, image_path=No
     mem_counter = 0
     botnameupper = bot_name.upper()
     usernameupper = username.upper()
-    if backend_model == "Llama_2":
+    if backend_model == "Llama_2_Chat":
         user_input_end = "[/INST]"
         user_input_start = "[INST]"
-    if backend_model == "Open_Ai":
+    if backend_model == "OpenAi":
         user_input_end = ""
         user_input_start = ""
+    if backend_model == "Alpaca":
+        user_input_start = "\n\n### Instruction:"
+        user_input_end = "\n\n### Response:"
     base_path = "./Aetherius_API/Chatbot_Prompts"
     base_prompts_path = os.path.join(base_path, "Base")
     user_bot_path = os.path.join(base_path, user_id, bot_name)
@@ -1242,10 +1250,10 @@ async def Aetherius_Agent(user_input, username, user_id, bot_name, image_path=No
         input_expansion.append({'role': 'system', 'content': f"You are a task rephraser. Your primary task is to rephrase the user's most recent input succinctly and accurately. Please return the rephrased version of the user’s most recent input. USER'S MOST RECENT INPUT: {user_input} {user_input_end}"})
         input_expansion.append({'role': 'user', 'content': f"TASK REPHRASER: Sure! Here's the rephrased version of the user's most recent input: "})
         
-        if backend_model == "Open_Ai":
+        if API == "OpenAi":
             expanded_input = Input_Expansion_Call(input_expansion, username, bot_name)
 
-        if backend_model == "Llama_2":
+        if API == "AetherNode" or API == "Oobabooga":
             prompt = ''.join([message_dict['content'] for message_dict in input_expansion])
             expanded_input = await Input_Expansion_Call(prompt, username, bot_name)
         print(f"\n\nExpanded User Input: {expanded_input}")
@@ -1257,11 +1265,11 @@ async def Aetherius_Agent(user_input, username, user_id, bot_name, image_path=No
         domain_extraction.append({'role': 'user', 'content': f"You are a knowledge domain extractor.  Your task is to analyze the user's inquiry, then choose the single most salent generalized knowledge domain needed to complete the user's inquiry from the list of existing domains.  Your response should only contain the single existing knowledge domain.\n"})
         domain_extraction.append({'role': 'user', 'content': f"USER INPUT: {expanded_input} {user_input_end} "})
         
-        if backend_model == "Llama_2":
+        if API == "AetherNode" or API == "Oobabooga":
             prompt = ''.join([message_dict['content'] for message_dict in domain_extraction])
             extracted_domain = await Domain_Extraction_Call(prompt, username, bot_name)
             
-        if backend_model == "Open_Ai":
+        if API == "OpenAi":
             extracted_domain = Domain_Extraction_Call(domain_extraction, username, bot_name)
           
             
@@ -1289,7 +1297,8 @@ async def Aetherius_Agent(user_input, username, user_id, bot_name, image_path=No
                 limit=15
             )
             domain_search = [hit.payload['knowledge_domain'] for hit in hits]
-            print(f"\nKnowledge Domains: {domain_search}")
+            if DB_Search_Output == 'True':
+                print(f"\nKnowledge Domains: {domain_search}")
         except Exception as e:
             if "Not found: Collection" in str(e):
                 print("Collection does not exist.")
@@ -1305,11 +1314,11 @@ async def Aetherius_Agent(user_input, username, user_id, bot_name, image_path=No
         domain_extraction.append({'role': 'user', 'content': f"{user_input_start} Your role as a Knowledge Domain Selector is to analyze the user's question and identify the most relevant knowledge domain from the provided list. Ensure that your choice is from the existing domains, and avoid creating or using any not listed. Respond with the name of the single selected knowledge domain.\n"})
         domain_extraction.append({'role': 'user', 'content': f"USER QUESTION: {user_input}\nADDITIONAL CONTEXT: {expanded_input} {user_input_end}"})
         
-        if backend_model == "Llama_2":
+        if API == "AetherNode" or API == "Oobabooga":
             prompt = ''.join([message_dict['content'] for message_dict in domain_extraction])
             extracted_domain = await Domain_Selection_Call(prompt, username, bot_name)
             
-        if backend_model == "Open_Ai":
+        if API == "OpenAi":
             extracted_domain = Domain_Selection_Call(domain_extraction, username, bot_name)
             
             
@@ -1319,7 +1328,8 @@ async def Aetherius_Agent(user_input, username, user_id, bot_name, image_path=No
             extracted_domain = extracted_domain.upper()
             extracted_domain = re.sub(r'[^A-Z]', '', extracted_domain)
             extracted_domain = extracted_domain.replace("_", " ")
-        print(f"Extracted Domain: {extracted_domain}")
+        if DB_Search_Output == 'True':
+            print(f"Extracted Domain: {extracted_domain}")
         
 
         conversation_history = main_conversation.get_last_entry()
@@ -1414,11 +1424,11 @@ async def Aetherius_Agent(user_input, username, user_id, bot_name, image_path=No
         tasklist.append({'role': 'system', 'content': "SYSTEM: You are a search query corrdinator. Your role is to interpret the original user query and generate 2-4 synonymous search terms that will guide the exploration of the chatbot's memory database. Each alternative term should reflect the essence of the user's initial search input. Please list your results using bullet point format.\n"})
         tasklist.append({'role': 'user', 'content': f"USER: %s {user_input_end} ASSISTANT: Sure, I'd be happy to help! Here are 1-3 synonymous search terms: " % user_input})
         
-        if backend_model == "Llama_2":
+        if API == "AetherNode" or API == "Oobabooga":
             prompt = ''.join([message_dict['content'] for message_dict in tasklist])
             tasklist_output = await Semantic_Terms_Call(prompt, username, bot_name)
        
-        if backend_model == "Open_Ai":
+        if API == "OpenAi":
             tasklist_output = Semantic_Terms_Call(tasklist, username, bot_name)
        
        
@@ -1665,11 +1675,11 @@ async def Aetherius_Agent(user_input, username, user_id, bot_name, image_path=No
         # # Inner Monologue Generation
         agent_inner_monologue.append({'role': 'assistant', 'content': f"{botnameupper}'S EPISODIC MEMORIES: {db_search_1}\n{bot_name}'s HEURISTICS: {db_search_14}\nPREVIOUS CONVERSATION HISTORY: {con_hist} {user_input_start} SYSTEM: Compose a truncated silent soliloquy to serve as {bot_name}'s internal monologue/narrative using the external resources.  Ensure it includes {bot_name}'s contemplations on how {username}'s request relates to the given external information.\n{usernameupper}: {user_input} {user_input_end} {botnameupper}: Sure, here is an internal narrative as {bot_name} on how the user's request relates to the Given External information: "})
         
-        if backend_model == "Llama_2":
+        if API == "AetherNode" or API == "Oobabooga":
             prompt = ''.join([message_dict['content'] for message_dict in agent_inner_monologue])
             output_one = await Inner_Monologue_Call(prompt, username, bot_name)
             
-        if backend_model == "Open_Ai":
+        if API == "OpenAi":
             output_one = Inner_Monologue_Call(agent_inner_monologue, username, bot_name)
             
             
@@ -1758,7 +1768,7 @@ async def Aetherius_Agent(user_input, username, user_id, bot_name, image_path=No
             sub_agent_path = "Aetherius_API\Sub_Agents\Llama_2_Async"
         if select_api == "AetherNode":
             sub_agent_path = "Aetherius_API\Sub_Agents\AetherNode_Llama_2"
-        if select_api == "Open_Ai":
+        if select_api == "OpenAi":
             sub_agent_path = "Aetherius_API\Sub_Agents\OpenAi"
         
         folder_path = os.path.join(cwd, sub_agent_path.lstrip('/'))
@@ -1836,11 +1846,11 @@ async def Aetherius_Agent(user_input, username, user_id, bot_name, image_path=No
         agent_intuition.append({'role': 'assistant', 'content': f"{botnameupper}: "})
         inner_loop_response = 'None'
         
-        if backend_model == "Llama_2":
+        if API == "AetherNode" or API == "Oobabooga":
             prompt = ''.join([message_dict['content'] for message_dict in agent_intuition])
             output_two = await Agent_Intuition_Call(prompt, username, bot_name)
         
-        if backend_model == "Open_Ai":
+        if API == "OpenAi":
             output_two = Agent_Intuition_Call(agent_intuition, username, bot_name)
         
         
@@ -1855,10 +1865,10 @@ async def Aetherius_Agent(user_input, username, user_id, bot_name, image_path=No
             implicit_memory.append({'role': 'system', 'content': f"LOG: {implicit_short_term_memory} {user_input_start} SYSTEM: Extract core facts and aspects of Aetherius's personality based on the dialogue interactions between {bot_name} and {username}. Formulate 1-5 bullet-point summaries to be embedded as subtle, non-verbalizable memories for {bot_name}'s future engagements. Ensure these encapsulations carry enough context to implicitly influence {bot_name}'s responses and actions, without being directly tied to verbal reasoning or explicit recall. Adhere to the bullet point format below: •[memory] {user_input_end} "})
             implicit_memory.append({'role': 'assistant', 'content': f"{botnameupper}: Certainly! The encapsulated memories derived from Aetherius's persona, as observed in the dialogues, are as follows: "})
             
-            if backend_model == "Llama_2":
+            if API == "AetherNode" or API == "Oobabooga":
                 prompt_implicit = ''.join([message_dict['content'] for message_dict in implicit_memory])
                 
-            if backend_model == "Open_Ai":
+            if API == "OpenAi":
                 prompt_implicit = implicit_memory
             
             
@@ -1901,11 +1911,11 @@ async def Aetherius_Agent(user_input, username, user_id, bot_name, image_path=No
         master_tasklist.append({'role': 'assistant', 'content': f"TASK COORDINATOR: Sure, here is a bullet point list of 3-6 tasks, each strictly assigned a category from the given Tool Categories: "})
 
 
-        if backend_model == "Llama_2":
+        if API == "AetherNode" or API == "Oobabooga":
             prompt = ' '.join([message_dict['content'] for message_dict in master_tasklist])
             master_tasklist_output = await Agent_Master_Tasklist_Call(prompt, username, bot_name)
             
-        if backend_model == "Open_Ai":
+        if API == "OpenAi":
             master_tasklist_output = Agent_Master_Tasklist_Call(master_tasklist, username, bot_name)
             
             
@@ -2013,11 +2023,11 @@ async def Aetherius_Agent(user_input, username, user_id, bot_name, image_path=No
             tasklist_completion.append({'role': 'system', 'content': f"{user_input_start} SYSTEM: You are tasked with crafting a comprehensive response for {username}. Use the insights and information gathered from the completed tasks during the research task loop to formulate your answer. Since {username} did not have access to the research process, ensure that your reply is self-contained, providing all necessary context and information. Do not introduce information beyond what was discovered during the research tasks, and ensure that factual accuracy is maintained throughout your response. \nUSER'S INITIAL INPUT: {user_input}\nYour research and planning phase is concluded. Concentrate on composing a detailed, coherent, and conversational reply that fully addresses the user's question based on the completed research tasks. {user_input_end} "})
         #    tasklist_completion.append({'role': 'assistant', 'content': f"{botnameupper}: "})
 
-            if backend_model == "Llama_2":
+            if API == "AetherNode" or API == "Oobabooga":
                 prompt = ''.join([message_dict['content'] for message_dict in tasklist_completion])
                 response_two = await Agent_Response_Call(prompt, username, bot_name)
                 
-            if backend_model == "Open_Ai":
+            if API == "OpenAi":
                 response_two = Agent_Response_Call(tasklist_completion, username, bot_name)
                 
                 
@@ -2037,10 +2047,10 @@ async def Aetherius_Agent(user_input, username, user_id, bot_name, image_path=No
             db_msg = f"USER: {user_input}\nINNER_MONOLOGUE: {output_one}\n{bot_name}'s RESPONSE: {response_two}"
             explicit_memory.append({'role': 'assistant', 'content': f"LOG: {db_msg} {user_input_start} SYSTEM: Use the log to extract salient points about interactions between {bot_name} and {username}, as well as any informational topics mentioned in the chatbot's inner monologue and responses. These points should be used to create concise executive summaries in bullet point format, intended to serve as explicit memories for {bot_name}'s future interactions. These memories should be consciously recollected and easily talked about, focusing on general knowledge and facts discussed or learned. Each bullet point should be rich in detail, providing all the essential context for full recollection and articulation. Each bullet point should be considered a separate memory and contain full context. Use the following bullet point format: •[memory] {user_input_end} {botnameupper}: Sure! Here are 1-5 bullet-point summaries that will serve as memories based on {bot_name}'s responses:"})
             
-            if backend_model == "Llama_2":
+            if API == "AetherNode" or API == "Oobabooga":
                 prompt_explicit = ''.join([message_dict['content'] for message_dict in explicit_memory])
                 
-            if backend_model == "Open_Ai":
+            if API == "OpenAi":
                 prompt_explicit = explicit_memory
         
         
@@ -2049,11 +2059,11 @@ async def Aetherius_Agent(user_input, username, user_id, bot_name, image_path=No
 
         conversation2.clear()
         if memory_mode == 'Manual':
-            if backend_model == "Llama_2":
+            if API == "AetherNode" or API == "Oobabooga":
                 inner_loop_memory = await Implicit_Memory_Call(prompt_implicit, username, bot_name)
                 response_memory = await Explicit_Memory_Call(prompt_explicit, username, bot_name)
                 
-            if backend_model == "Open_Ai":
+            if API == "OpenAi":
                 inner_loop_memory = Implicit_Memory_Call(prompt_implicit, username, bot_name)
                 response_memory = Explicit_Memory_Call(prompt_explicit, username, bot_name)
         
@@ -2097,10 +2107,25 @@ async def process_line(host, host_queue, bot_name, username, line, task_counter,
     try:
         with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
             settings = json.load(f)
+
+        API = settings.get('API', 'AetherNode')
+        if API == "Oobabooga":
+            HOST = settings.get('HOST_Oobabooga', 'http://localhost:5000/api')
+        if API == "AetherNode":
+            HOST = settings.get('HOST_AetherNode', 'http://127.0.0.1:8000')
         Sub_Module_Output = settings.get('Output_Sub_Module', 'False')
         completed_task = "Error Completing Task"
-        backend_model = settings.get('Model_Backend', 'Llama_2')
+        backend_model = settings.get('Model_Backend', 'Llama_2_Chat')
         select_api = settings.get('API', 'Oobabooga')
+        if backend_model == "Llama_2_Chat":
+            user_input_end = "[/INST]"
+            user_input_start = "[INST]"
+        if backend_model == "OpenAi":
+            user_input_end = ""
+            user_input_start = ""
+        if backend_model == "Alpaca":
+            user_input_start = "\n\n### Instruction:"
+            user_input_end = "\n\n### Response:"
         tasklist_completion2 = list()
         conversation = list()
         cat_list = list()
@@ -2109,10 +2134,10 @@ async def process_line(host, host_queue, bot_name, username, line, task_counter,
         usernameupper = username.upper()
         line_cat = "Research"
         try:
-            if backend_model == "Llama_2":
+            if backend_model == "Llama_2_Chat":
                 user_input_end = "[/INST]"
                 user_input_start = "[INST]"
-            if backend_model == "Open_Ai":
+            if select_api == "OpenAi":
                 user_input_end = ""
                 user_input_start = ""
 
@@ -2139,11 +2164,11 @@ async def process_line(host, host_queue, bot_name, username, line, task_counter,
                 cat_choose.append({'role': 'assistant', 'content': f"AVAILABLE TOOL CATEGORIES: {subagent_cat}"})
                 cat_choose.append({'role': 'user', 'content': f"TASK REQUIRING CATEGORY REASSIGNMENT: {line}"})
                 
-                if backend_model == "Llama_2":
+                if API == "AetherNode" or API == "Oobabooga":
                     prompt = ''.join([message_dict['content'] for message_dict in cat_choose])
                     task_expansion = await Agent_Category_Reassign_Call(host, prompt, username, bot_name)
                     
-                if backend_model == "Open_Ai":
+                if select_api == "OpenAi":
                     task_expansion = Agent_Category_Reassign_Call(cat_choose, username, bot_name)
                     
                 task_expansion = task_expansion.upper()
@@ -2192,11 +2217,11 @@ async def process_line(host, host_queue, bot_name, username, line, task_counter,
         conversation.append({'role': 'user', 'content': f"{user_input_start} Your task is to select one of the given tools to complete the assigned task from the provided list of available tools. Ensure that your choice is strictly based on the options provided, and do not suggest or introduce tools that are not part of the list. Your response should be a concise answer that distinctly identifies the chosen tool without going into the operational process or detailed usage of the tool.\n"})
         conversation.append({'role': 'assistant', 'content': f"ASSIGNED TASK: {line}. {user_input_end}"})
 
-        if backend_model == "Llama_2":
+        if API == "AetherNode" or API == "Oobabooga":
             prompt = '\n'.join([message_dict['content'] for message_dict in conversation])
             task_expansion = await Agent_Process_Line_Response_2_Call(host, prompt, username, bot_name)
             
-        if backend_model == "Open_Ai":
+        if select_api == "OpenAi":
             task_expansion = Agent_Process_Line_Response_2_Call(conversation, username, bot_name)
             
             
@@ -2233,24 +2258,23 @@ async def process_line(host, host_queue, bot_name, username, line, task_counter,
             if not subagent_selection:
                 print("\nError with Module, using fallback")
                 
-                if backend_model == "Llama_2":
-                    if select_api == "Oobabooga":
-                        fallback_path = ".\Aetherius_API\Sub_Agents\Llama_2_Async\Research\External_Resource_DB_Search.py"
-                    if select_api == "AetherNode":
-                        fallback_path = ".\Aetherius_API\Sub_Agents\AetherNode_Llama_2\Research\External_Resource_DB_Search.py"
-                    if select_api == "Open_Ai":
-                        fallback_path = ".\Aetherius_API\Sub_Agents\OpenAi\Research\External_Resource_DB_Search.py"
+                if select_api == "Oobabooga":
+                    fallback_path = ".\Aetherius_API\Sub_Agents\Llama_2_Async\Research\External_Resource_DB_Search.py"
+                if select_api == "AetherNode":
+                    fallback_path = ".\Aetherius_API\Sub_Agents\AetherNode_Llama_2\Research\External_Resource_DB_Search.py"
+                if select_api == "OpenAi":
+                    fallback_path = ".\Aetherius_API\Sub_Agents\OpenAi\Research\External_Resource_DB_Search.py"
                 
                 subagent_selection = [os.path.basename(fallback_path)]
             for filename_with_extension in subagent_selection:
                 filename = filename_with_extension.rstrip('.py')
                 
-                if backend_model == "Llama_2":
-                    if select_api == "Oobabooga":
-                        script_path = os.path.join(f'.\Aetherius_API\Sub_Agents\Llama_2_Async\{line_cat}', filename_with_extension)
-                    if select_api == "AetherNode":
-                        script_path = os.path.join(f'.\Aetherius_API\Sub_Agents\AetherNode_Llama_2\{line_cat}', filename_with_extension)
-                    
+                if select_api == "Oobabooga":
+                    script_path = os.path.join(f'.\Aetherius_API\Sub_Agents\Llama_2_Async\{line_cat}', filename_with_extension)
+                if select_api == "AetherNode":
+                    script_path = os.path.join(f'.\Aetherius_API\Sub_Agents\AetherNode_Llama_2\{line_cat}', filename_with_extension)
+                if select_api == "OpenAi":
+                    fallback_path = ".\Aetherius_API\Sub_Agents\OpenAi\Research\External_Resource_DB_Search.py"
 
                 if os.path.exists(script_path):
                     spec = spec_from_file_location(filename, script_path)
@@ -2340,10 +2364,20 @@ async def Aetherius_Implicit_Memory(user_input, output_one, bot_name, username, 
             HOST = settings.get('HOST_AetherNode', 'http://127.0.0.1:8000')
         embed_size = settings['embed_size']
         DB_Search_Output = settings.get('Output_DB_Search', 'False')
+        Short_Term_Memory_Output = settings.get('Output_Short_Term_Memory', 'False')
         memory_mode = settings.get('memory_mode', 'Forced')
         Update_Bot_Personality_Description = settings.get('Update_Bot_Personality_Description', 'True')
         Use_Bot_Personality_Description = settings.get('Use_Bot_Personality_Description', 'True')
         backend_model = settings.get('Model_Backend', 'Llama_2')
+        if backend_model == "Llama_2_Chat":
+            user_input_end = "[/INST]"
+            user_input_start = "[INST]"
+        if backend_model == "OpenAi":
+            user_input_end = ""
+            user_input_start = ""
+        if backend_model == "Alpaca":
+            user_input_start = "\n\n### Instruction:"
+            user_input_end = "\n\n### Response:"
         Print_Personality_Description = settings.get('Print_Personality_Descriptions', 'True')
         timestamp = time()
         botnameupper = bot_name.upper()
@@ -2353,10 +2387,10 @@ async def Aetherius_Implicit_Memory(user_input, output_one, bot_name, username, 
         personality_list = list()
         personality_update = list()
         
-        if backend_model == "Llama_2":
+        if API == "AetherNode" or API == "Oobabooga":
             inner_loop_response = await Implicit_Memory_Call(prompt_implicit, username, bot_name)
         
-        if backend_model == "Open_Ai":
+        if API == "OpenAi":
             inner_loop_response = Implicit_Memory_Call(prompt_implicit, username, bot_name)
         
         inner_loop_db = inner_loop_response
@@ -2367,12 +2401,6 @@ async def Aetherius_Implicit_Memory(user_input, output_one, bot_name, username, 
         user_bot_path = os.path.join(base_path, user_id, bot_name) 
         if not os.path.exists(user_bot_path):
             os.makedirs(user_bot_path)
-        if backend_model == "Llama_2":
-            user_input_end = "[/INST]"
-            user_input_start = "[INST]"
-        if backend_model == "Open_Ai":
-            user_input_end = ""
-            user_input_start = ""
         prompts_json_path = os.path.join(user_bot_path, "prompts.json")
         base_prompts_json_path = os.path.join(base_prompts_path, "prompts.json")
         if not os.path.exists(prompts_json_path) and os.path.exists(base_prompts_json_path):
@@ -2417,21 +2445,21 @@ async def Aetherius_Implicit_Memory(user_input, output_one, bot_name, username, 
 
             auto_int = None
             while auto_int is None:
-                if backend_model == "Llama_2":
+                if API == "AetherNode" or API == "Oobabooga":
                     prompt = ''.join([message_dict['content'] for message_dict in auto])
                     automemory = await Auto_Call(prompt, username, bot_name)
                     automemory = automemory.replace("RATING: Sure, here is a numerical rating between 1 and 10: ", "", 1)
-                if backend_model == "Open_Ai":
+                if API == "OpenAi":
                     automemory = Auto_Call(auto, username, bot_name)
-
-                print(f"\nIMPLICIT MEMORY RATING: {automemory}") 
+                if Short_Term_Memory_Output == 'True':
+                    print(f"\nIMPLICIT MEMORY RATING: {automemory}") 
                 values_to_check = ["7", "8", "9", "10"]
                 if any(val in automemory for val in values_to_check):
                     auto_int = ('Pass')
                     segments = re.split(r'•|\n\s*\n', inner_loop_response)
                     total_segments = len(segments)
-                    
-                    print("\n\nIMPLICIT SHORT-TERM MEMORIES:")
+                    if Short_Term_Memory_Output == 'True':
+                        print("\n\nIMPLICIT SHORT-TERM MEMORIES:")
                     for index, segment in enumerate(segments):
                         segment = segment.strip()
                         if segment == '': 
@@ -2440,7 +2468,8 @@ async def Aetherius_Implicit_Memory(user_input, output_one, bot_name, username, 
                             continue
                         payload = list()   
                         collection_name = f"Bot_{bot_name}_Implicit_Short_Term"
-                        print(f"{segment}")
+                        if Short_Term_Memory_Output == 'True':
+                            print(f"{segment}")
                         try:
                             collection_info = client.get_collection(collection_name=collection_name)
                         except:
@@ -2484,7 +2513,8 @@ async def Aetherius_Implicit_Memory(user_input, output_one, bot_name, username, 
         if memory_mode == 'Forced':
             segments = re.split(r'•|\n\s*\n', inner_loop_response)
             total_segments = len(segments)
-            print("\n\nIMPLICIT SHORT-TERM MEMORIES:")
+            if Short_Term_Memory_Output == 'True':
+                print("\n\nIMPLICIT SHORT-TERM MEMORIES:")
             for index, segment in enumerate(segments):
                 segment = segment.strip()
                 if segment == '': 
@@ -2493,7 +2523,8 @@ async def Aetherius_Implicit_Memory(user_input, output_one, bot_name, username, 
                     continue
                 payload = list()   
                 collection_name = f"Bot_{bot_name}_Implicit_Short_Term"
-                print(f"{segment}")
+                if Short_Term_Memory_Output == 'True':
+                    print(f"{segment}")
                 try:
                     collection_info = client.get_collection(collection_name=collection_name)
                 except:
@@ -2534,11 +2565,11 @@ async def Aetherius_Implicit_Memory(user_input, output_one, bot_name, username, 
             personality_list.append({'role': 'assistant', 'content': f"GENERATED IMPLICIT MEMORIES: {inner_loop_response}"})
             personality_list.append({'role': 'user', 'content': f"Now, please provide your 'YES' or 'NO' answer."})
             
-            if backend_model == "Llama_2":
+            if API == "AetherNode" or API == "Oobabooga":
                 prompt = ''.join([message_dict['content'] for message_dict in personality_list])
                 personality_check = await Bot_Personality_Check_Call(prompt, username, bot_name)
                 
-            if backend_model == "Open_Ai":
+            if API == "OpenAi":
                 personality_check = Bot_Personality_Check_Call(personality_list, username, bot_name)
              
             if Print_Personality_Description == "True": 
@@ -2553,11 +2584,11 @@ async def Aetherius_Implicit_Memory(user_input, output_one, bot_name, username, 
                 personality_update.append({'role': 'assistant', 'content': f"IMPLICIT MEMORIES: {inner_loop_response}"})
                 personality_update.append({'role': 'user', 'content': f"{user_input_start} Kindly return the refined personality list in a single paragraph. Note that you'll be writing directly to the personality file; refrain from conversational responses and only output the updated list. Please write in the third person. {user_input_end}"})
                 personality_update.append({'role': 'assistant', 'content': f"{botnameupper}'S PERSONALITY LIST: "})
-                if backend_model == "Llama_2":
+                if API == "AetherNode" or API == "Oobabooga":
                     prompt = ''.join([message_dict['content'] for message_dict in personality_update])
                     personality_gen = await Bot_Personality_Generation_Call(prompt, username, bot_name)
                     
-                if backend_model == "Open_Ai":
+                if API == "OpenAi":
                     personality_gen = Bot_Personality_Generation_Call(personality_update, username, bot_name)
                     
                 if ':' in personality_gen:
@@ -2627,10 +2658,20 @@ async def Aetherius_Explicit_Memory(user_input, vector_input, vector_monologue, 
             HOST = settings.get('HOST_AetherNode', 'http://127.0.0.1:8000')
         embed_size = settings['embed_size']
         DB_Search_Output = settings.get('Output_DB_Search', 'False')
+        Short_Term_Memory_Output = settings.get('Output_Short_Term_Memory', 'False')
         memory_mode = settings.get('memory_mode', 'Forced')
         Update_User_Personality_Description = settings.get('Update_Bot_Personality_Description', 'True')
         Use_User_Personality_Description = settings.get('Use_User_Personality_Description', 'True')
         backend_model = settings.get('Model_Backend', 'Llama_2')
+        if backend_model == "Llama_2_Chat":
+            user_input_end = "[/INST]"
+            user_input_start = "[INST]"
+        if backend_model == "OpenAi":
+            user_input_end = ""
+            user_input_start = ""
+        if backend_model == "Alpaca":
+            user_input_start = "\n\n### Instruction:"
+            user_input_end = "\n\n### Response:"
         Print_Personality_Description = settings.get('Print_Personality_Descriptions', 'True')
         usernameupper = username.upper()
         botnameupper = bot_name.upper()
@@ -2639,12 +2680,6 @@ async def Aetherius_Explicit_Memory(user_input, vector_input, vector_monologue, 
         user_bot_path = os.path.join(base_path, user_id, bot_name)  
         if not os.path.exists(user_bot_path):
             os.makedirs(user_bot_path)
-        if backend_model == "Llama_2":
-            user_input_end = "[/INST]"
-            user_input_start = "[INST]"
-        if backend_model == "Open_Ai":
-            user_input_end = ""
-            user_input_start = ""
         prompts_json_path = os.path.join(user_bot_path, "prompts.json")
         base_prompts_json_path = os.path.join(base_prompts_path, "prompts.json")
         if not os.path.exists(prompts_json_path) and os.path.exists(base_prompts_json_path):
@@ -2662,9 +2697,9 @@ async def Aetherius_Explicit_Memory(user_input, vector_input, vector_monologue, 
         personality_list = list()
         personality_update = list()
         auto = list()
-        if backend_model == "Llama_2":
+        if API == "AetherNode" or API == "Oobabooga":
             db_upload = await Explicit_Memory_Call(prompt_explicit, username, bot_name)
-        if backend_model == "Open_Ai":
+        if API == "OpenAi":
             db_upload = Explicit_Memory_Call(prompt_explicit, username, bot_name)
         db_upsert = db_upload
         
@@ -2699,27 +2734,29 @@ async def Aetherius_Explicit_Memory(user_input, vector_input, vector_monologue, 
             
             auto_int = None
             while auto_int is None:
-                if backend_model == "Llama_2":
+                if API == "AetherNode" or API == "Oobabooga":
                     prompt = ''.join([message_dict['content'] for message_dict in auto])
                     automemory = await Auto_Call(prompt, username, bot_name)
                     automemory = automemory.replace("RATING: Sure, here is a numerical rating between 1 and 10: ", "", 1)
-                if backend_model == "Open_Ai":
+                if API == "OpenAi":
                     automemory = Auto_Call(auto, username, bot_name)
-                    
-                print(f"\nEXPLICIT MEMORY RATING: {automemory}")
+                if Short_Term_Memory_Output == 'True':    
+                    print(f"\nEXPLICIT MEMORY RATING: {automemory}")
                 values_to_check = ["7", "8", "9", "10"]
                 if any(val in automemory for val in values_to_check):
                     auto_int = ('Pass')
                     segments = re.split(r'•|\n\s*\n', db_upsert)
                     total_segments = len(segments)
-                    print("\n\nEXPLICIT SHORT-TERM MEMORIES:")
+                    if Short_Term_Memory_Output == 'True':
+                        print("\n\nEXPLICIT SHORT-TERM MEMORIES:")
                     for index, segment in enumerate(segments):
                         segment = segment.strip()
                         if segment == '': 
                             continue  
                         if index == total_segments - 1 and not segment[-1] in ['.', '!', '?']:
                             continue
-                        print(f"{segment}")
+                        if Short_Term_Memory_Output == 'True':    
+                            print(f"{segment}")
                         payload = list()       
                         collection_name = f"Bot_{bot_name}_Explicit_Short_Term"
                         try:
@@ -2765,14 +2802,16 @@ async def Aetherius_Explicit_Memory(user_input, vector_input, vector_monologue, 
             try:
                 segments = re.split(r'•|\n\s*\n', db_upsert)
                 total_segments = len(segments)
-                print("\n\nEXPLICIT SHORT-TERM MEMORIES:")
+                if Short_Term_Memory_Output == 'True':
+                    print("\n\nEXPLICIT SHORT-TERM MEMORIES:")
                 for index, segment in enumerate(segments):
                     segment = segment.strip()
                     if segment == '': 
                         continue  
                     if index == total_segments - 1 and not segment[-1] in ['.', '!', '?']:
                         continue
-                    print(f"{segment}")
+                    if Short_Term_Memory_Output == 'True':    
+                        print(f"{segment}")
                     payload = list()       
                     collection_name = f"Bot_{bot_name}_Explicit_Short_Term"
                     try:
@@ -2847,11 +2886,11 @@ async def Aetherius_Explicit_Memory(user_input, vector_input, vector_monologue, 
             personality_list.append({'role': 'assistant', 'content': f"{botnameupper}'S FINAL RESPONSE: {response_two}"})
             personality_list.append({'role': 'user', 'content': f"{user_input_start} Now, please provide the extracted salient points about {username}. {user_input_end}"})
 
-            if backend_model == "Llama_2":
+            if API == "AetherNode" or API == "Oobabooga":
                 prompt = ''.join([message_dict['content'] for message_dict in personality_list])
                 personality_extraction = await User_Personality_Extraction_Call(prompt, username, bot_name)
                 
-            if backend_model == "Open_Ai":
+            if API == "OpenAi":
                 personality_extraction = User_Personality_Extraction_Call(personality_list, username, bot_name)
                
             if Print_Personality_Description == "True":   
@@ -2868,11 +2907,11 @@ async def Aetherius_Explicit_Memory(user_input, vector_input, vector_monologue, 
                 personality_update.append({'role': 'user', 'content': f"{user_input_start} Kindly return the refined user personality description in a single paragraph. Note that you'll be writing directly to the personality file; refrain from conversational responses and only output the updated description. Please write in the third person. {user_input_end}"})
                 personality_update.append({'role': 'assistant', 'content': f"{usernameupper}'S PERSONALITY DESCRIPTION: "})
 
-                if backend_model == "Llama_2":
+                if API == "AetherNode" or API == "Oobabooga":
                     prompt = ''.join([message_dict['content'] for message_dict in personality_update])
                     personality_gen = await User_Personality_Generation_Call(prompt, username, bot_name)
                     
-                if backend_model == "Open_Ai":
+                if API == "OpenAi":
                     personality_gen = User_Personality_Generation_Call(personality_update, username, bot_name)
                     
                 if ':' in personality_gen:
@@ -3034,7 +3073,6 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
     with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
         settings = json.load(f)
     embed_size = settings['embed_size']
-    backend_model = settings.get('Model_Backend', 'Llama_2')
     DB_Search_Output = settings.get('Output_DB_Search', 'False')
     conversation = list()
     conversation2 = list()
@@ -3051,6 +3089,17 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
         settings = json.load(f)
     length_config = int(settings['Conversation_Length'])
     conv_length = int(settings['Conversation_Length'])
+    API = settings.get('API', 'AetherNode')
+    backend_model = settings.get('Model_Backend', 'Llama_2_Chat')
+    if backend_model == "Llama_2_Chat":
+        user_input_end = "[/INST]"
+        user_input_start = "[INST]"
+    if backend_model == "OpenAi":
+        user_input_end = ""
+        user_input_start = ""
+    if backend_model == "Alpaca":
+        user_input_start = "\n\n### Instruction:"
+        user_input_end = "\n\n### Response:"
     botnameupper = bot_name.upper()
     usernameupper = username.upper()
     base_path = "./Aetherius_API/Chatbot_Prompts"
@@ -3071,12 +3120,6 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
     secondary_prompt = prompts["secondary_prompt"]
     greeting_msg = prompts["greeting_prompt"].replace('<<NAME>>', bot_name)
     while True:
-        if backend_model == "Llama_2":
-            user_input_end = "[/INST]"
-            user_input_start = "[INST]"
-        if backend_model == "Open_Ai":
-            user_input_end = ""
-            user_input_start = ""
         a = user_input
         timestamp = time()
         timestring = timestamp_to_datetime(timestamp)
@@ -3089,14 +3132,13 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
         conversation.append({'role': 'user', 'content': f"{user_input_start} Please now generate an autobiographical memory for {bot_name}. {user_input_end}"})
         conversation.append({'role': 'assistant', 'content': f"THIRD-PERSON AUTOBIOGRAPHICAL MEMORY: "})
 
-        if backend_model == "Llama_2":
+        if API == "AetherNode" or API == "Oobabooga":
             prompt = ''.join([message_dict['content'] for message_dict in conversation])
             conv_summary = await Episodic_Memory_Call(prompt, username, bot_name)
             
-        if backend_model == "Open_Ai":
+        if API == "OpenAi":
             conv_summary = Episodic_Memory_Call(conversation, username, bot_name)
         
-            
         sentences = re.split(r'(?<=[.!?])\s+', conv_summary)
         if sentences and not re.search(r'[.!?]$', sentences[-1]):
             sentences.pop()
@@ -3119,7 +3161,7 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
         importance_score.append({'role': 'system', 'content': f"MEMORY TO RATE: {episodic_msg}\n"})
         importance_score.append({'role': 'system', 'content': f"{usernameupper}: Please now rate the given memory on a scale of 1-100. Only print the numerical rating as a digit. {user_input_end}"})
         importance_score.append({'role': 'system', 'content': f"{botnameupper}: Sure thing! Here's the memory rated on a scale of 1-100:\nRating: "})
-        if backend_model == "Llama_2":
+        if API == "AetherNode" or API == "Oobabooga":
             prompt = ''.join([message_dict['content'] for message_dict in importance_score])
         score = 75
         importance_score.clear()
@@ -3224,11 +3266,11 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
             consolidation.append({'role': 'user', 'content': f"EMOTIONAL REACTIONS: {flash_db}\nEPISODIC MEMORIES: {flash_db1} {user_input_end}"})
             consolidation.append({'role': 'user', 'content': f"{user_input_start} FORMAT: Use the format: •[Flashbulb Memory] {user_input_end}"})
             consolidation.append({'role': 'assistant', 'content': f"{botnameupper}: I will now combine the extracted data to form flashbulb memories in bullet point format, combining associated data. I will only include memories with a strong emotion attached: "})
-            if backend_model == "Llama_2":
+            if API == "AetherNode" or API == "Oobabooga":
                 prompt = ''.join([message_dict['content'] for message_dict in consolidation])
                 flash_response = await Flash_Memory_Call(prompt, username, bot_name)
                 
-            if backend_model == "Open_Ai":
+            if API == "OpenAi":
                 flash_response = Flash_Memory_Call(consolidation, username, bot_name)
                 
         #    memories = results
@@ -3256,7 +3298,7 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
                     importance_score.append({'role': 'system', 'content': f"MEMORY TO RATE: {flash_mem}\n"})
                     importance_score.append({'role': 'system', 'content': f"{usernameupper}: Please now rate the given memory on a scale of 1-100. Only print the numerical rating as a digit. {user_input_end}"})
                     importance_score.append({'role': 'system', 'content': f"{botnameupper}: Sure thing! Here's the memory rated on a scale of 1-100:\nRating: "})
-                    if backend_model == "Llama_2":
+                    if API == "AetherNode" or API == "Oobabooga":
                         prompt = ''.join([message_dict['content'] for message_dict in importance_score])
                     score = 75
                     # print(score)
@@ -3329,11 +3371,11 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
                 consolidation.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: {main_prompt}\n\n"})
                 consolidation.append({'role': 'system', 'content': f"LOG: {memory_consol_db}\n\nSYSTEM: Read the Log and combine the similar topics from the given short term memories into a bullet point list to serve as {bot_name}'s long term memories. Each summary should contain the entire context of the memory. Follow the format •[memory] {user_input_end} "})
                 consolidation.append({'role': 'assistant', 'content': f"{botnameupper}: Sure, here is the list of consolidated memories: "})
-                if backend_model == "Llama_2":
+                if API == "AetherNode" or API == "Oobabooga":
                     prompt = ''.join([message_dict['content'] for message_dict in consolidation])
                     memory_consol = await Memory_Consolidation_Call(prompt, username, bot_name)
                     
-                if backend_model == "Open_Ai":
+                if API == "OpenAi":
                     memory_consol = Memory_Consolidation_Call(consolidation, username, bot_name)
                     
                 if DB_Search_Output == 'True':
@@ -3371,11 +3413,11 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
                         domain_extraction.append({'role': 'system', 'content': f"You are a knowledge domain extractor.  Your task is to analyze the user's inquiry, then extract the single most salent generalized knowledge domain needed to complete the user's inquiry.  Your response should be a single word.\n"})
                         domain_extraction.append({'role': 'user', 'content': f"USER INPUT: {segment} {user_input_end} "})
                         
-                        if backend_model == "Llama_2":
+                        if API == "AetherNode" or API == "Oobabooga":
                             prompt = ''.join([message_dict['content'] for message_dict in domain_extraction])
                             extracted_domain = await Domain_Extraction_Call(prompt, username, bot_name)
                             
-                        if backend_model == "Open_Ai":
+                        if API == "OpenAi":
                             extracted_domain = Domain_Extraction_Call(domain_extraction, username, bot_name)
                             
                             
@@ -3520,11 +3562,11 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
                     consolidation.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: {main_prompt}\n\n"})
                     consolidation.append({'role': 'system', 'content': f"LOG: {memory_consol_db2}\n\nSYSTEM:  Read the Log and combine the similar topics from the given short term memories into a bullet point list to serve as {bot_name}'s long term memories. Each summary should contain the entire context of the memory. Follow the format: •[memory] {user_input_end} "})
                     consolidation.append({'role': 'assistant', 'content': f"{bot_name}: Sure, here is the list of consolidated memories: "})
-                    if backend_model == "Llama_2":
+                    if API == "AetherNode" or API == "Oobabooga":
                         prompt = ''.join([message_dict['content'] for message_dict in consolidation])
                         memory_consol2 = await Memory_Consolidation_Call(prompt, username, bot_name)
                         
-                    if backend_model == "Open_Ai":
+                    if API == "OpenAi":
                         memory_consol2 = Memory_Consolidation_Call(consolidation, username, bot_name)
                         
                     consolidation.clear()
@@ -3563,11 +3605,11 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
                     consolidation.append({'role': 'system', 'content': f"IMPLICIT LONG TERM MEMORY: {memory_consol_db3}\n\nIMPLICIT SHORT TERM MEMORY: {memory_consol_db2}\n\nRESPONSE: Compare your short-term memories and the given Long Term Memories, then, remove any duplicate information from your Implicit Short Term memory that is already found in your Long Term Memory. After this is done, consolidate similar topics into a new set of memories. Each summary should contain the entire context of the memory. Use the following format: •[memory] {user_input_end} "})
                     consolidation.append({'role': 'assistant', 'content': f"{botnameupper}: Sure, here is the list of consolidated memories: "})
                     
-                    if backend_model == "Llama_2":
+                    if API == "AetherNode" or API == "Oobabooga":
                         prompt = ''.join([message_dict['content'] for message_dict in consolidation])
                         memory_consol3 = await Memory_Consolidation_Call(prompt, username, bot_name)
                         
-                    if backend_model == "Open_Ai":
+                    if API == "OpenAi":
                         memory_consol3 = Memory_Consolidation_Call(consolidation, username, bot_name)
                         
                     if DB_Search_Output == 'True':
@@ -3595,7 +3637,7 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
                             importance_score.append({'role': 'system', 'content': f"MEMORY TO RATE: {segment}\n"})
                             importance_score.append({'role': 'system', 'content': f"{usernameupper}: Please now rate the given memory on a scale of 1-100. Only print the numerical rating as a digit. {user_input_end}"})
                             importance_score.append({'role': 'system', 'content': f"{botnameupper}: Sure thing! Here's the memory rated on a scale of 1-100:\nRating: "})
-                            if backend_model == "Llama_2":
+                            if API == "AetherNode" or API == "Oobabooga":
                                 prompt = ''.join([message_dict['content'] for message_dict in importance_score])
                             score = 75
                             
@@ -3665,11 +3707,11 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
                     ids_to_delete = [m.id for m in hits]
            #         consolidation.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: {main_prompt}\n\n"})
                     consolidation.append({'role': 'assistant', 'content': f"LOG: {memory_consol_db4}\n\nSYSTEM: Read the Log and consolidate the different memories into executive summaries in a process allegorical to associative memory processing. Each summary should contain the entire context of the memory. Follow the bullet point format: •[memory] {user_input_end} {botnameupper}: Sure, here is the list of consolidated memories: "})
-                    if backend_model == "Llama_2":
+                    if API == "AetherNode" or API == "Oobabooga":
                         prompt = ''.join([message_dict['content'] for message_dict in consolidation])
                         memory_consol4 = await Associative_Memory_Call(prompt, username, bot_name)
                         
-                    if backend_model == "Open_Ai":
+                    if API == "OpenAi":
                         memory_consol4 = Associative_Memory_Call(consolidation, username, bot_name)
                         
                     if DB_Search_Output == 'True':
@@ -3699,7 +3741,7 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
                             importance_score.append({'role': 'system', 'content': f"MEMORY TO RATE: {segment}\n"})
                             importance_score.append({'role': 'system', 'content': f"{usernameupper}: Please now rate the given memory on a scale of 1-100. Only print the numerical rating as a digit. {user_input_end}"})
                             importance_score.append({'role': 'system', 'content': f"{botnameupper}: Sure thing! Here's the memory rated on a scale of 1-100:\nRating: "})
-                            if backend_model == "Llama_2":
+                            if API == "AetherNode" or API == "Oobabooga":
                                 prompt = ''.join([message_dict['content'] for message_dict in importance_score])
                             score = 75
                             # print(score)
@@ -3764,11 +3806,11 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
 
                     consolidation.append({'role': 'user', 'content': f"{bot_name}'s Memories: {consol_search}{user_input_end}\n\n"})
                     consolidation.append({'role': 'assistant', 'content': "RESPONSE: Semantic Search Query: "})
-                    if backend_model == "Llama_2":
+                    if API == "AetherNode" or API == "Oobabooga":
                         prompt = ''.join([message_dict['content'] for message_dict in consolidation])
                         consol_search_term = await Tokens_250_Call(prompt, username, bot_name)
                         
-                    if backend_model == "Open_Ai":
+                    if API == "OpenAi":
                         consol_search_term = Tokens_250_Call(consolidation, username, bot_name)
                         
                     consol_vector = embeddings(consol_search_term)
@@ -3804,11 +3846,11 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
             #        consolidation.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: {main_prompt}\n\n"})
                     consolidation.append({'role': 'assistant', 'content': f"LOG: {memory_consol_db2}\n\nSYSTEM: Read the Log and consolidate the different memories in a process allegorical to associative memory processing. Each summary should contain full context.\n\nFORMAT: Follow the bullet point format: •[memory] {user_input_end} {botnameupper}: Sure, here is the list of consolidated memories: "})
                     
-                    if backend_model == "Llama_2":
+                    if API == "AetherNode" or API == "Oobabooga":
                         prompt = ''.join([message_dict['content'] for message_dict in consolidation])
                         memory_consol5 = await Associative_Memory_Call(prompt, username, bot_name)
                         
-                    if backend_model == "Open_Ai":
+                    if API == "OpenAi":
                         memory_consol5 = Associative_Memory_Call(consolidation, username, bot_name)
                         
                     if DB_Search_Output == 'True':
@@ -3837,7 +3879,7 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
                             importance_score.append({'role': 'system', 'content': f"MEMORY TO RATE: {segment}\n"})
                             importance_score.append({'role': 'system', 'content': f"{usernameupper}: Please now rate the given memory on a scale of 1-100. Only print the numerical rating as a digit. {user_input_end}"})
                             importance_score.append({'role': 'system', 'content': f"{botnameupper}: Sure thing! Here's the memory rated on a scale of 1-100:\nRating: "})
-                            if backend_model == "Llama_2":
+                            if API == "AetherNode" or API == "Oobabooga":
                                 prompt = ''.join([message_dict['content'] for message_dict in importance_score])
                             score = 75
                             
@@ -3845,11 +3887,11 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
                             domain_extraction.append({'role': 'user', 'content': f"You are a knowledge domain extractor.  Your task is to analyze the user's inquiry, then extract the single most salent generalized knowledge domain needed to complete the user's inquiry.  Your response should be a single word.\n"})
                             domain_extraction.append({'role': 'user', 'content': f"USER INPUT: {segment} {user_input_end} "})
                             
-                            if backend_model == "Llama_2":
+                            if API == "AetherNode" or API == "Oobabooga":
                                 prompt = ''.join([message_dict['content'] for message_dict in domain_extraction])
                                 extracted_domain = await Domain_Extraction_Call(prompt, username, bot_name)
                                 
-                            if backend_model == "Open_Ai":
+                            if API == "OpenAi":
                                 extracted_domain = Domain_Extraction_Call(domain_extraction, username, bot_name)
                                 
                             if ":" in extracted_domain:

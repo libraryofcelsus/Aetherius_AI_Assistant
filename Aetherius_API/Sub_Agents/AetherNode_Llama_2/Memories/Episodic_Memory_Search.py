@@ -1,7 +1,7 @@
 import os
 import sys
 sys.path.insert(0, './Aetherius_API/resources')
-from AetherNode_Llama_2 import *
+from AetherNode import *
 import time
 from datetime import datetime
 from uuid import uuid4
@@ -126,6 +126,16 @@ async def Episodic_Memory_Search(host, bot_name, username, user_id, line, task_c
             settings = json.loads(await f.read())
         embed_size = settings['embed_size']
         Sub_Module_Output = settings.get('Output_Sub_Module', 'False')
+        backend_model = settings.get('Model_Backend', 'Llama_2_Chat')
+        if backend_model == "Llama_2_Chat":
+            user_input_end = "[/INST]"
+            user_input_start = "[INST]"
+        if backend_model == "OpenAi":
+            user_input_end = ""
+            user_input_start = ""
+        if backend_model == "Alpaca":
+            user_input_start = "\n\n### Instruction:"
+            user_input_end = "\n\n### Response:"
         # List used for returning response to main chatbot
         tasklist_completion2 = list()
         conversation = list()
@@ -143,13 +153,13 @@ async def Episodic_Memory_Search(host, bot_name, username, user_id, line, task_c
 
         except Exception as e:
             print(e)
-        conversation.append({'role': 'user', 'content': f"[INST] SYSTEM: Summarize the pertinent information from the given memories related to the given task. Present the summarized data in a single, easy-to-understand paragraph. Do not generalize, expand upon, or use any latent knowledge in your summary, only return a truncated version of previously given information. [/INST] Bot {task_counter}: Sure, here is a short summary combining the relevant information needed to complete the given task: "})
+        conversation.append({'role': 'user', 'content': f"{user_input_start} SYSTEM: Summarize the pertinent information from the given memories related to the given task. Present the summarized data in a single, easy-to-understand paragraph. Do not generalize, expand upon, or use any latent knowledge in your summary, only return a truncated version of previously given information. {user_input_end} Bot {task_counter}: Sure, here is a short summary combining the relevant information needed to complete the given task: "})
         conversation.append({'role': 'assistant', 'content': f"BOT {task_counter}: Sure, here's an overview of the scraped text: "})
         prompt = ''.join([message_dict['content'] for message_dict in conversation])
         task_completion = await Agent_Process_Line_Response_Call(host, prompt, username, bot_name)
         # chatgpt35_completion(conversation),
         conversation.clear()
-        sub_agent_completion.append({'role': 'assistant', 'content': f"COMPLETED TASK: {task_completion} [INST] "})
+        sub_agent_completion.append({'role': 'assistant', 'content': f"COMPLETED TASK: {task_completion} {user_input_start} "})
         if Sub_Module_Output == 'True':
             print(line)
             print('-------')

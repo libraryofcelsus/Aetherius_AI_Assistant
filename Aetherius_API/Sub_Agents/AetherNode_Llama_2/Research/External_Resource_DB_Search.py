@@ -1,7 +1,7 @@
 import os
 import sys
 sys.path.insert(0, './Aetherius_API/resources')
-from AetherNode_Llama_2 import *
+from AetherNode import *
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams, PointStruct, Filter, FieldCondition, Range, MatchValue
 from qdrant_client.http import models
@@ -260,6 +260,16 @@ async def External_Resource_DB_Search(host, bot_name, username, user_id, line, t
         Web_Search = settings.get('Search_Web', 'False')
         Search_Engine = settings.get('Search_Engine', 'Google')
         Sub_Module_Output = settings.get('Output_Sub_Module', 'False')
+        backend_model = settings.get('Model_Backend', 'Llama_2_Chat')
+        if backend_model == "Llama_2_Chat":
+            user_input_end = "[/INST]"
+            user_input_start = "[INST]"
+        if backend_model == "OpenAi":
+            user_input_end = ""
+            user_input_start = ""
+        if backend_model == "Alpaca":
+            user_input_start = "\n\n### Instruction:"
+            user_input_end = "\n\n### Response:"
         tasklist_completion2 = list()
         memcheck = list()
         memcheck2 = list()
@@ -270,9 +280,9 @@ async def External_Resource_DB_Search(host, bot_name, username, user_id, line, t
         websearch_rephrase = list()
         botnameupper = bot_name.upper()
         usernameupper = username.upper()
-        tasklist_completion2.append({'role': 'user', 'content': f"TASK: {line} [/INST] "})
+        tasklist_completion2.append({'role': 'user', 'content': f"TASK: {line} {user_input_end} "})
         conversation.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a sub-agent for {bot_name}, an Autonomous Ai-Chatbot. You are one of many agents in a chain. You are to take the given task and complete it in its entirety, using the given external resources to ensure factual accuracy. Be Verbose and take other tasks into account when formulating your answer.\n"})
-        conversation.append({'role': 'user', 'content': f"Task list: {master_tasklist_output}\nNow, choose a task to research.[/INST]"})
+        conversation.append({'role': 'user', 'content': f"Task list: {master_tasklist_output}\nNow, choose a task to research. {user_input_end}"})
         conversation.append({'role': 'assistant', 'content': f"Bot {task_counter}: I have studied the given tasklist. The task I have chosen to complete is: {line}."})
         vector_input1 = await embeddings(line)
         table = "No External Resources in DB"
@@ -309,12 +319,12 @@ async def External_Resource_DB_Search(host, bot_name, username, user_id, line, t
             table = "No External Resources Available"
             
         if Web_Search == 'True':    
-            websearch_check.append({'role': 'assistant', 'content': f"You are a selection agent for an autonomous AI chatbot.  Your job is to decide if the given database queries contain the needed information to answer the user's inquiry. If the information isn't given or if it needs to be updated, print 'NO'.  Only respond with either 'YES' or 'NO'.\n\nGIVEN DATABASE QUERIES: {table}\n\nUSER INQUIRY: {user_input} [/INST] "})
+            websearch_check.append({'role': 'assistant', 'content': f"You are a selection agent for an autonomous AI chatbot.  Your job is to decide if the given database queries contain the needed information to answer the user's inquiry. If the information isn't given or if it needs to be updated, print 'NO'.  Only respond with either 'YES' or 'NO'.\n\nGIVEN DATABASE QUERIES: {table}\n\nUSER INQUIRY: {user_input} {user_input_end} "})
             prompt = ''.join([message_dict['content'] for message_dict in websearch_check])
             web_check = await Agent_Memory_DB_Check_Call(host, prompt, username, bot_name)
             print(web_check)
             if "NO" in web_check:
-                websearch_rephrase.append({'role': 'assistant', 'content': f"Rephrase the user's inquiry into a google search query that will return the requested information.  Only print the search query, do not include anything about the External Resources Module.  The search query should be a natural sounding question.\nUSER INQUIRY: {line} [/INST] Google Search Query: "})
+                websearch_rephrase.append({'role': 'assistant', 'content': f"Rephrase the user's inquiry into a google search query that will return the requested information.  Only print the search query, do not include anything about the External Resources Module.  The search query should be a natural sounding question.\nUSER INQUIRY: {line} {user_input_end} Google Search Query: "})
                 prompt = ''.join([message_dict['content'] for message_dict in websearch_rephrase])
                 rephrased_query = await Google_Rephrase_Call(host, prompt, username, bot_name)
                 if '"' in rephrased_query:
@@ -460,17 +470,17 @@ async def External_Resource_DB_Search(host, bot_name, username, user_id, line, t
                         print(table)
 
         print(table)
-        conversation.append({'role': 'assistant', 'content': f"[INST] INITIAL USER REQUEST: {user_input}\n Now please provide relevant external resources to answer the query. [/INST]"})
+        conversation.append({'role': 'assistant', 'content': f"{user_input_start} INITIAL USER REQUEST: {user_input}\n Now please provide relevant external resources to answer the query. {user_input_end} "})
         conversation.append({'role': 'user', 'content': f"Bot {task_counter}: EXTERNAL RESOURCES: {table}"})
-        conversation.append({'role': 'user', 'content': f"[INST] SYSTEM: Summarize the pertinent information from the given external sources related to the given task. Present the summarized data in a single, easy-to-understand paragraph. Do not generalize, expand upon, or use any latent knowledge in your summary, only return a truncated version of previously given information. [/INST] Bot {task_counter}: Sure, here is a short summary combining the relevant information needed to complete the given task: "})
-        conversation.append({'role': 'assistant', 'content': f"BOT {task_counter}: Sure, here's an overview of the scraped text: "})
+        conversation.append({'role': 'user', 'content': f"{user_input_start} SYSTEM: Summarize the pertinent information from the given external sources related to the given task. Present the summarized data in a single, easy-to-understand paragraph. Do not generalize, expand upon, or use any latent knowledge in your summary, only return a truncated version of previously given information. {user_input_end} "})
+        conversation.append({'role': 'assistant', 'content': f"Bot {task_counter}: Sure, here is a short summary combining the relevant information needed to complete the given task: "})
         prompt = ''.join([message_dict['content'] for message_dict in conversation])
         task_completion = await Agent_Process_Line_Response_Call(host, prompt, username, bot_name)
             # chatgpt35_completion(conversation),
             # conversation.clear(),
             # tasklist_completion.append({'role': 'assistant', 'content': f"MEMORIES: {memories}\n\n"}),
             # tasklist_completion.append({'role': 'assistant', 'content': f"WEBSCRAPE: {table}\n\n"}),
-        tasklist_completion2.append({'role': 'assistant', 'content': f"COMPLETED TASK: {task_completion} [INST] "})
+        tasklist_completion2.append({'role': 'assistant', 'content': f"COMPLETED TASK: {task_completion} {user_input_start} "})
         tasklist_log.append({'role': 'user', 'content': "ASSIGNED TASK:\n%s\n\n" % line})
         if Sub_Module_Output == 'True':
             print('-------')

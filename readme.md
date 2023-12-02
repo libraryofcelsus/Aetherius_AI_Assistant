@@ -23,6 +23,8 @@ If you do not have a GPU see: [Google Colabs](#installation-guide)
 ------
 **Recent Changes**
 
+• 12/02 Added Terminal Only Mode for using Aetherius
+
 • 11/29 Added Alpaca Model formating to AetherNode.  Tested with: TheBloke/Nous-Hermes-Llama2-GPTQ
 
 • 11/24 Swapped Knowledge Domain Selection to use proper call

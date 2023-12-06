@@ -11,6 +11,9 @@ If you do not have a GPU see: [Google Colabs](#installation-guide)
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
 </a>
 
+
+**Unfortunately my ssd and two ram slots on my motherboard just died.  While I didn't lose much work for Aetherius, I did lose a side project I was working on.  Work on Aetherius will be delayed for a week or two while I scramble to remake what I lost before I forget it.**
+
 ------
 **Currently Working On**
 - Improving the new LLM API

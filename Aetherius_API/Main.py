@@ -602,7 +602,8 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
             # Extract the 'message' field for the top 10 results (or however many you want)
             table = [entry.payload['message'] for entry in sorted_results[:16]]
             table2 = [entry.payload['message'] for entry in sorted_results[:11]]
-            print(table)
+            if DB_Search_Output == 'True':
+                print(table)
         else:
             table = "No Results"   
                 

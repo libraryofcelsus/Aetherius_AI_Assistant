@@ -592,7 +592,8 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
                 temp_list2 = remove_duplicate_dicts(temp_list2)
                 
 
-                
+        table = []
+        table2 = []
         # Process and sort all results
         if all_db_search_results:
             

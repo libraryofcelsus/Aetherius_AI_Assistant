@@ -127,10 +127,10 @@ async def Semantic_Terms_Call(prompt, username, bot_name):
     settings = await read_settings_from_json(json_file_path)
     backend_model = settings.get('Model_Backend', 'Llama_2_Chat')
     data = {
-        "LLM_Template": f"{backend_model}_Chat_No_End_Token",
+        "LLM_Template": f"{backend_model}_No_End_Token",
         "Username": username,
         "Bot_Name": bot_name,
-        "system_prompt": "You are a search query coordinator. Your role is to interpret the original user query and generate 2-4 synonymous search terms that will guide the exploration of the chatbot's memory database. Each alternative term should reflect the essence of the user's initial search input. Please list your results using bullet point format. Only print your response using the format: •<search term>",
+        "system_prompt": "You are a search query coordinator. Your role is to interpret the original user query and generate 2-4 synonymous search terms that should reflect the essence of the user's initial search input. Please list your results using bullet point format. Only print your response using the format: •search term",
         "prompt": prompt,
         "max_new_tokens": 100,
         "temperature": 0.75,
@@ -215,9 +215,9 @@ async def Domain_Extraction_Call(prompt, username, bot_name):
         "LLM_Template": f"{backend_model}",
         "Username": username,
         "Bot_Name": bot_name,
-        "system_prompt": "You are a knowledge domain extractor.  Your task is to analyze the given input, then extract the single most salient generalized knowledge domain representative of the input.  Your response should be a single word.",
+        "system_prompt": "You are a knowledge domain extractor.  Your task is to analyze the given input, then extract the single most salient generalized knowledge domain representative of the input.  Your response should only contain a single word.",
         "prompt": prompt,
-        "max_new_tokens": 100,
+        "max_new_tokens": 70,
         "temperature": 0.75,
         "top_p": 0.4,
         "top_k": 40,

@@ -269,7 +269,8 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
         if API == "AetherNode" or API == "Oobabooga":
             prompt = ''.join([message_dict['content'] for message_dict in input_expansion])
             expanded_input = await Input_Expansion_Call(prompt, username, bot_name)
-        print(f"\n\nExpanded User Input: {expanded_input}")
+        if DB_Search_Output == 'True':
+            print(f"\n\nExpanded User Input: {expanded_input}")
         
 
         
@@ -306,12 +307,12 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
                         )
                     ]
                 ),
-                limit=25
+                limit=17
             )
             domain_search = [hit.payload['knowledge_domain'] for hit in hits]
         except Exception as e:
             if "Not found: Collection" in str(e):
-                print("\nCollection does not exist.")
+            #    print("\nCollection does not exist.")
                 domain_search = "No Collection"
             else:
                 print(f"\nAn unexpected error occurred: {str(e)}")
@@ -329,29 +330,7 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
             print(f"\nKnowledge Domains: {domain_search}")
         
         
-        domain_extraction.append({'role': 'system', 'content': f"{user_input_start} Your role as a Knowledge Domain Selector is to analyze the user's question and identify the most relevant knowledge domain from the provided list. Ensure that your choice is from the existing domains, and avoid creating or using any not listed. Respond with the name of the single selected knowledge domain.\n"})
-        domain_extraction.append({'role': 'user', 'content': f"Could you provide the current list of knowledge domains? {user_input_end}"})
-        domain_extraction.append({'role': 'assistant', 'content': f"CURRENT KNOWLEDGE DOMAINS: {domain_search}"})
-        domain_extraction.append({'role': 'user', 'content': f"USER QUESTION: {user_input}\nADDITIONAL CONTEXT: {expanded_input} {user_input_end}"})
-        domain_extraction.append({'role': 'assistant', 'content': f"EXTRACTED KNOWLEDGE DOMAIN: "})
 
-        if API == "AetherNode" or API == "Oobabooga":
-            prompt = ''.join([message_dict['content'] for message_dict in domain_extraction])
-            extracted_domain = await Domain_Selection_Call(prompt, username, bot_name)
-            
-        if API == "OpenAi":
-            extracted_domain = Domain_Selection_Call(domain_extraction, username, bot_name)
-            
-            
-            
-        if ":" in extracted_domain:
-            extracted_domain = extracted_domain.split(":")[-1]
-            extracted_domain = extracted_domain.replace("\n", "")
-        extracted_domain = extracted_domain.upper()
-        extracted_domain = re.sub(r'[^A-Z]', '', extracted_domain)
-        extracted_domain = extracted_domain.replace("_", " ")
-        if DB_Search_Output == 'True':
-            print(f"Extracted Domain: {extracted_domain}")
         conversation_history = main_conversation.get_last_entry()
         con_hist = f'{conversation_history}'
         vector_input = embeddings(expanded_input)
@@ -360,12 +339,11 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
         
         tasklist.append({'role': 'system', 'content': f"SYSTEM: You are a search query corrdinator. Your role is to interpret the original user query and generate 2-4 synonymous search terms that will guide the exploration of the chatbot's memory database. Each alternative term should reflect the essence of the user's initial search input. Please list your results using bullet point format.\n"})
         tasklist.append({'role': 'user', 'content': f"USER: {user_input}\nUse the format: •Search Query {user_input_end} "})
-        tasklist.append({'role': 'assistant', 'content': f"ASSISTANT: Sure, I'd be happy to help! Here are 2-4 synonymous search terms: "})
+        tasklist.append({'role': 'assistant', 'content': f"ASSISTANT: Sure, I'd be happy to help! Here are 2-4 synonymous search terms each starting with a '•': "})
         
         if API == "AetherNode" or API == "Oobabooga":
-            prompt = ''.join([message_dict['content'] for message_dict in tasklist])
+            prompt = '\n'.join([message_dict['content'] for message_dict in tasklist])
             tasklist_output = await Semantic_Terms_Call(prompt, username, bot_name)
-        
         if API == "OpenAi":
             tasklist_output = Semantic_Terms_Call(tasklist, username, bot_name)
         
@@ -467,43 +445,107 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
         temp_list2 = list()
         for line in lines:
             if line.startswith("•"):
+            
+                domain_extraction.append({'role': 'system', 'content': f"{user_input_start} Your task is to analyze the user's question and identify the most relevant knowledge domain from the provided list. Ensure that your choice is from the existing domains, and avoid creating or using any not listed. Respond with the name of the single selected knowledge domain.\n"})
+                domain_extraction.append({'role': 'user', 'content': f"Could you provide the current list of knowledge domains? {user_input_end}"})
+                domain_extraction.append({'role': 'assistant', 'content': f"LIST OF CURRENT KNOWLEDGE DOMAINS: {domain_search}\n"})
+                domain_extraction.append({'role': 'user', 'content': f"USER'S QUESTION: {line}\nADDITIONAL CONTEXT: {expanded_input} {user_input_end}"})
+                domain_extraction.append({'role': 'assistant', 'content': f"EXTRACTED KNOWLEDGE DOMAIN FOR USER'S QUESTION: "})
+                
+                if API == "AetherNode" or API == "Oobabooga":
+                    prompt = ''.join([message_dict['content'] for message_dict in domain_extraction])
+                    extracted_domain = await Domain_Selection_Call(prompt, username, bot_name)
+                    
+                if API == "OpenAi":
+                    extracted_domain = Domain_Selection_Call(domain_extraction, username, bot_name)
+                domain_extraction.clear()
+                
+                    
+                if ":" in extracted_domain:
+                    extracted_domain = extracted_domain.split(":")[-1]
+                    extracted_domain = extracted_domain.replace("\n", "")
+                extracted_domain = extracted_domain.upper()
+                extracted_domain = re.sub(r'[^A-Z]', '', extracted_domain)
+                extracted_domain = extracted_domain.replace("_", " ")
+                if DB_Search_Output == 'True':
+                    print(f"Extracted Domain: {extracted_domain}")
+            
+            
+                vector1 = embeddings(extracted_domain)
                 try:
                     hits = client.search(
-                        collection_name=f"Bot_{bot_name}",
-                        query_vector=vector_input,
+                        collection_name=f"Bot_{bot_name}_Knowledge_Domains",
+                        query_vector=vector1,
                         query_filter=Filter(
                             must=[
                                 FieldCondition(
-                                    key="memory_type",
-                                    match=MatchValue(value="Explicit_Long_Term"),
-                                ),
-                                FieldCondition(
-                                    key="knowledge_domain",
-                                    match=MatchValue(value=extracted_domain),
-                                ),
-                                FieldCondition(
                                     key="user",
-                                    match=models.MatchValue(value=f"{user_id}"),
-                                ),
+                                    match=MatchValue(value=f"{user_id}")
+                                )
                             ]
                         ),
-                        limit=5
+                        limit=3
                     )
-                    unsorted_table = [(hit.payload['timestring'], hit.payload['message']) for hit in hits]
-                    sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'timestring' field
-                    db_search_1 = "\n".join([f"{message}" for timestring, message in sorted_table])
-                    temp_list.append({'role': 'assistant', 'content': f"{db_search_1}  "})
-                    if tasklist_counter < 4:
-                        temp_list2.append({'role': 'assistant', 'content': f"{db_search_1}  "})
-                    tasklist_counter + 1
+                    domain_search = [hit.payload['knowledge_domain'] for hit in hits]
                     if DB_Search_Output == 'True':
-                        print(db_search_1)
+                        print(f"KNOWLEDGE DOMAINS: {domain_search}")
                 except Exception as e:
-                    if DB_Search_Output == 'True':
-                        if "Not found: Collection" in str(e):
-                            print("\nCollection does not exist.")
-                        else:
-                            print(f"\nAn unexpected error occurred: {str(e)}")
+                    if "Not found: Collection" in str(e):
+                    #    print("\nCollection does not exist.")
+                        domain_search = "No Collection"
+                    else:
+                        print(f"\nAn unexpected error occurred: {str(e)}")
+                        domain_search = "No Collection"
+                        
+
+            
+                all_db_search_results = []  # List to store all results
+                for domain in domain_search:
+                    try:
+                        # Adjust the limit based on the counter to have fewer results for one of the lists
+                        search_limit = 3 if tasklist_counter2 < 4 else 5
+
+                        hits = client.search(
+                            collection_name=f"Bot_{bot_name}",
+                            query_vector=vector_input,
+                            query_filter=Filter(
+                                must=[
+                                    FieldCondition(
+                                        key="memory_type",
+                                        match=MatchValue(value="Explicit_Long_Term"),
+                                    ),
+                                    FieldCondition(
+                                        key="knowledge_domain",
+                                        match=MatchValue(value=domain),
+                                    ),
+                                    FieldCondition(
+                                        key="user",
+                                        match=MatchValue(value=f"{user_id}"),
+                                    ),
+                                ]
+                            ),
+                            limit=search_limit
+                        )
+                        all_db_search_results.extend(hits)
+                        unsorted_table = [(hit.payload['timestring'], hit.payload['message']) for hit in hits]
+                        sorted_table = sorted(unsorted_table, key=lambda x: x[0])
+                        db_search_results = "\n".join([f"{message}" for _, message in sorted_table])
+                        temp_list.append({'role': 'assistant', 'content': f"{db_search_results}  "})
+                        if tasklist_counter < 4:
+                            temp_list2.append({'role': 'assistant', 'content': f"{db_search_results}  "})
+                        tasklist_counter += 1  # Ensure you're incrementing the counter
+
+                        if DB_Search_Output == 'True':
+                            print(db_search_results)
+                    except Exception as e:
+                        if DB_Search_Output == 'True':
+                            if "Not found: Collection" in str(e):
+                                db_search_results = "No Results"
+                            else:
+                                print(f"\nAn unexpected error occurred: {str(e)}")
+                                
+                                
+                                              
         
                 try:
                     hits = client.search(
@@ -535,7 +577,7 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
                 except Exception as e:
                     if DB_Search_Output == 'True':
                         if "Not found: Collection" in str(e):
-                            print("\nCollection does not exist.")
+                            db_search_2 = "No Results"
                         else:
                             print(f"\nAn unexpected error occurred: {str(e)}")
                             
@@ -548,8 +590,24 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
 
                 temp_list = remove_duplicate_dicts(temp_list)
                 temp_list2 = remove_duplicate_dicts(temp_list2)
-        inner_monologue.append({'role': 'system', 'content': f"{temp_list}"})       
-        intuition.append({'role': 'system', 'content': f"{temp_list2}"})                    
+                
+
+                
+        # Process and sort all results
+        if all_db_search_results:
+            
+            # Sort the combined list based on 'score' attribute of ScoredPoint objects in descending order
+            sorted_results = sorted(all_db_search_results, key=lambda hit: hit.score, reverse=True)
+            remove_duplicate_dicts(sorted_results)
+            # Extract the 'message' field for the top 10 results (or however many you want)
+            table = [entry.payload['message'] for entry in sorted_results[:16]]
+            table2 = [entry.payload['message'] for entry in sorted_results[:11]]
+            print(table)
+        else:
+            table = "No Results"   
+                
+        inner_monologue.append({'role': 'system', 'content': f"{table}"})       
+        intuition.append({'role': 'system', 'content': f"{table2}"})                    
         db_search_3, db_search_4, db_search_5, db_search_6 = None, None, None, None
         
         try:
@@ -578,7 +636,7 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
         except Exception as e:
             if DB_Search_Output == 'True':
                 if "Not found: Collection" in str(e):
-                    print("Collection does not exist.")
+                    db_search_3 = "No Results"
                 else:
                     print(f"An unexpected error occurred: {str(e)}")
                     
@@ -609,7 +667,7 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
             explicit_short = "No Memories"
             if DB_Search_Output == 'True':
                 if "Not found: Collection" in str(e):
-                    print("Collection does not exist.")
+                    explicit_short = "No Results"
                 else:
                     print(f"An unexpected error occurred: {str(e)}")
                     
@@ -640,7 +698,7 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
             implicit_short = "No Memories"
             if DB_Search_Output == 'True':
                 if "Not found: Collection" in str(e):
-                    print("\nCollection does not exist.")
+                    implicit_short = "No Results"
                 else:
                     print(f"\nAn unexpected error occurred: {str(e)}")
                     
@@ -672,7 +730,7 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
         except Exception as e:
             if DB_Search_Output == 'True':
                 if "Not found: Collection" in str(e):
-                    print("\nCollection does not exist.")
+                    db_search_5 = "No Results"
                 else:
                     print(f"\nAn unexpected error occurred: {str(e)}")
                           
@@ -702,7 +760,7 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
         except Exception as e:
             if DB_Search_Output == 'True':
                 if "Not found: Collection" in str(e):
-                    print("Collection does not exist.")
+                    db_search_5 = "No Results"
                 else:
                     print(f"An unexpected error occurred: {str(e)}")
                        
@@ -727,7 +785,7 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
             except Exception as e:
                 if DB_Search_Output == 'True':
                     if "Not found: Collection" in str(e):
-                        print("Collection does not exist.")
+                        inner_web = "No Results"
                     else:
                         print(f"An unexpected error occurred: {str(e)}")
                         
@@ -3410,7 +3468,7 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
                         importance_score.clear()
                         
                         
-                        domain_extraction.append({'role': 'system', 'content': f"You are a knowledge domain extractor.  Your task is to analyze the user's inquiry, then extract the single most salent generalized knowledge domain needed to complete the user's inquiry.  Your response should be a single word.\n"})
+                        domain_extraction.append({'role': 'system', 'content': f"You are a knowledge domain extractor.  Your task is to analyze the user's inquiry, then extract the single most salent generalized knowledge domain needed to complete the user's inquiry.  Your response should only be a single word.\n"})
                         domain_extraction.append({'role': 'user', 'content': f"USER INPUT: {segment} {user_input_end} "})
                         
                         if API == "AetherNode" or API == "Oobabooga":
@@ -3464,7 +3522,7 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
                             domain_search = [hit.payload['knowledge_domain'] for hit in hits]
                         except Exception as e:
                             if "Not found: Collection" in str(e):
-                                print("\nCollection does not exist.")
+                          #      print("\nCollection does not exist.")
                                 domain_search = "No Collection"
                             else:
                                 print(f"\nAn unexpected error occurred: {str(e)}")
@@ -3555,7 +3613,8 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
                         memory_consol_db2 = [hit.payload['message'] for hit in hits]
                     except Exception as e:
                         if "Not found: Collection" in str(e):
-                            print("\nCollection does not exist.")
+                      #      print("\nCollection does not exist.")
+                            memory_consol_db2 = "No Results"
                         else:
                             print(f"\nAn unexpected error occurred: {str(e)}") 
 
@@ -3595,7 +3654,8 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
                     except Exception as e:
                         memory_consol_db3 = 'Failed Lookup'
                         if "Not found: Collection" in str(e):
-                            print("\nCollection does not exist.")
+                     #       print("\nCollection does not exist.")
+                            memory_consol_db3 = "No Results"
                         else:
                             print(f"\nAn unexpected error occurred: {str(e)}")
                             
@@ -3700,7 +3760,8 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
                         memory_consol_db4 = [hit.payload['message'] for hit in hits]
                     except Exception as e:
                         if "Not found: Collection" in str(e):
-                            print("\nCollection does not exist.")
+                    #        print("\nCollection does not exist.")
+                            memory_consol_db4 = "No Results"
                         else:
                             print(f"\nAn unexpected error occurred: {str(e)}")
 
@@ -3801,6 +3862,7 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
                     except Exception as e:
                         if "Not found: Collection" in str(e):
                             print("\nCollection does not exist.")
+                            consol_search = "No Results"
                         else:
                             print(f"\nAn unexpected error occurred: {str(e)}")
 
@@ -3836,7 +3898,8 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
                         memory_consol_db2 = [hit.payload['message'] for hit in hits]
                     except Exception as e:
                         if "Not found: Collection" in str(e):
-                            print("\nCollection does not exist.")
+                   #         print("\nCollection does not exist.")
+                            memory_consol_db2 = "No Results"
                         else:
                             print(f"\nAn unexpected error occurred: {str(e)}")
 
@@ -3937,7 +4000,7 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
                                 domain_search = [hit.payload['knowledge_domain'] for hit in hits]
                             except Exception as e:
                                 if "Not found: Collection" in str(e):
-                                    print("\nCollection does not exist.")
+                                #    print("\nCollection does not exist.")
                                     domain_search = "No Collection"
                                 else:
                                     print(f"\nAn unexpected error occurred: {str(e)}")

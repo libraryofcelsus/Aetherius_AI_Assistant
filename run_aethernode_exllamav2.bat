@@ -5,7 +5,7 @@ cd %~dp0
 cd AetherNode
 
 REM Activate the virtual environment
-call venv2\Scripts\activate.bat
+call venv\Scripts\activate.bat
 
 REM Check if the model directory exists and contains the model files
 python Download_Model.py

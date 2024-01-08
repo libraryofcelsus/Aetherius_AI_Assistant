@@ -2,12 +2,12 @@
 REM Change directory to the script's location
 cd %~dp0
 
-git clone https://github.com/libraryofcelsus/AetherNode --branch 0.05
+git clone https://github.com/libraryofcelsus/AetherNode --branch 0.06
 
 cd AetherNode
 
 REM Create a virtual environment named 'venv'
-python -m venv venv2
+python -m venv venv
 
 REM Activate the virtual environment
 call venv2\Scripts\activate.bat
@@ -27,13 +27,13 @@ REM Uninstall auto-gptq if it was previously installed
 pip uninstall -y auto-gptq
 
 REM Clone the AutoGPTQ repository and install it
-git clone https://github.com/libraryofcelsus/AutoGPTQ
+git clone https://github.com/PanQiWei/AutoGPTQ
 cd AutoGPTQ
 pip install .
 
 cd ..
 
-git clone https://github.com/libraryofcelsus/exllamav2
+git clone https://github.com/turboderp/exllamav2
 cd exllamav2
 pip install .
 

@@ -7,12 +7,12 @@ If you do not have a GPU see: [Google Colabs](#installation-guide)
 
 **Ui is out of date, it will be updated after the new sub-agent system is finished. For the most current version, use the discord bot.  Gradio Ui is just for testing purposes.**
 
-**I have just made a new API for Llama-2-Chat.  Please give me feedback: https://github.com/libraryofcelsus/AetherNode**  <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/AetherNode_Public_Api.ipynb">
+**I have just made a new API for the project.  Please give me feedback: https://github.com/libraryofcelsus/AetherNode**  <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/AetherNode_Public_Api.ipynb">
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
 </a>
 
 
-**Unfortunately my ssd and two ram slots on my motherboard just died.  While I didn't lose much work for Aetherius, I did lose a side project I was working on.  Work on Aetherius will be delayed for a week or two while I scramble to remake what I lost before I forget it.**
+**Back from my break, work will continue!**
 
 ------
 **Currently Working On**
@@ -25,6 +25,10 @@ If you do not have a GPU see: [Google Colabs](#installation-guide)
 - Update Documentation
 ------
 **Recent Changes**
+
+• 1/08 Added a random forest like approach for explicit memory search
+
+• 1/08 Fixed knowledge domain selection bug
 
 • 12/02 Added Terminal Only Mode for using Aetherius
 
@@ -69,7 +73,7 @@ If you do not have a GPU see: [Google Colabs](#installation-guide)
 ### What is Aetherius?
 
 Aetherius is a locally operated AI Assistant/Multi-Agent Framework, designed to grant you ultimate control. No external force can alter it without your consent, ensuring your privacy.   
-As seen by the attempted “coup” at “Open”Ai, closed, managed solutions cannot be trusted. Even if you trust the leadership, it can change immediately without warning. You have no real control over any data sent.  
+As seen by the attempted leadership change at “Open”Ai in 2023, closed, managed solutions cannot be trusted. Even if you trust the leadership, it can change immediately without warning. You have no real control over any data sent.  
 By running everything locally, this issue can be avoided.  
 
 At the heart of Aetherius lies a custom Long-Term Memory (LLM) Retrieval Framework, fueled by the Llama 2 and the custom AetherNode API (Free Tier Colab Available), Oobabooga Text-Ui, or OpenAi’s ChatGPT.  Different Memory types are extracted and combined to provide a more realistic and creative thought process than other Chatbots.  Since it is a framework, Aetherius is able to use multiple hosts, offloading compute to multiple machines to increase compute time.

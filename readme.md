@@ -370,6 +370,8 @@ To run it on a colab notebook click here: <a target="_blank" href="https://colab
 
 ## Installer bat
 
+Installer File can be found at: **https://github.com/libraryofcelsus/Aetherius_AI_Assistant/blob/main/windows_installer.bat**
+
 **1.** Install Python 3.10.6, Make sure you add it to PATH: **https://www.python.org/downloads/release/python-3106/**
 
 **2.** Run the Windows_Installer Bat as admin.

@@ -423,6 +423,8 @@ If No Qdrant server is running, Aetherius will save to disk.
 
 9. Upload heuristics to DB and change the Bot and User name to start chatting with Aetherius!  
 
+To change the model used with AetherNode, change the "model_name_or_path" key in AetherNode/settings.json to the desired model.  You must then change the "Model_Backend" key in Aetherius_API/chatbot_settings.json to the desired format.  Only Llama-2-Chat and Alpaca are available for now.
+
 Settings and Prompts can be found in the Aetherius_API folder.
 
 Photo OCR (jpg, jpeg, png) requires tesseract: https://github.com/UB-Mannheim/tesseract/wiki
@@ -542,6 +544,8 @@ Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aethe
 
 30. To run Aetherius with it's custom API, download and install: https://github.com/libraryofcelsus/AetherNode    
 This is the new default API for Aetherius.  Installation Instructions can be found on the github page.
+
+To change the model used with AetherNode, change the "model_name_or_path" key in AetherNode/settings.json to the desired model.  You must then change the "Model_Backend" key in Aetherius_API/chatbot_settings.json to the desired format.  Only Llama-2-Chat and Alpaca are available for now.
 
 AetherNode Google Colab if you don't have a GPU: <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/AetherNode_Public_Api.ipynb">
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>

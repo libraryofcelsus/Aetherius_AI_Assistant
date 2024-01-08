@@ -10,7 +10,7 @@ REM Create a virtual environment named 'venv'
 python -m venv venv
 
 REM Activate the virtual environment
-call venv2\Scripts\activate.bat
+call venv\Scripts\activate.bat
 
 REM Install requirements from requirements.txt
 pip install -r requirements.txt

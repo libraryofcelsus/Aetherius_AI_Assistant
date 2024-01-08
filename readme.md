@@ -384,8 +384,9 @@ Installer File can be found at: **https://github.com/libraryofcelsus/Aetherius_A
 
 **4.** Copy your Google CSE Key and Api Key to the api_keys folder or set Web_Search to False in the External Resources Sub-Agent.  You can also change the search engine to Bing.
 
-**5.** To run Aetherius with it's custom API, download and install: https://github.com/libraryofcelsus/AetherNode    
-This is the new default API for Aetherius.  Installation Instructions can be found on the github page.
+**5.** To run Aetherius with it's custom API, open the Aetherius_Ai_Assistant folder and run: **windows_aethernode_install.bat**  
+Alternativly you can download and installit here: https://github.com/libraryofcelsus/AetherNode    
+This is the new default API for Aetherius.  Installation Instructions can be found on the github page.  
 
 AetherNode Google Colab if you don't have a GPU: <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/AetherNode_Public_Api.ipynb">
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>

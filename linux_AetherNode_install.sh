@@ -12,8 +12,8 @@ pip install virtualenv
 # Clone the AetherNode repository and switch to the specified branch
 git clone https://github.com/libraryofcelsus/AetherNode --branch 0.06
 cd AetherNode
-python3 -m virtualenv venv2
-source venv2/bin/activate
+python3 -m virtualenv venv
+source venv/bin/activate
 pip install -r requirements.txt
 pip install bitsandbytes accelerate scipy
 pip install transformers>=4.32.0 optimum>=1.12.0

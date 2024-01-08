@@ -11,8 +11,11 @@ If you do not have a GPU see: [Google Colabs](#installation-guide)
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
 </a>
 
+To change the model used with AetherNode, change the "model_name_or_path" key in AetherNode/settings.json to the desired model.  You must then change the "Model_Backend" key in Aetherius_API/chatbot_settings.json to the desired format.  Only Llama-2-Chat and Alpaca are available for now.
 
-**Back from my break, work will continue!**
+-----
+
+## **Back from my break, work shall now continue!**
 
 ------
 **Currently Working On**
@@ -367,26 +370,26 @@ To run it on a colab notebook click here: <a target="_blank" href="https://colab
 
 ## Installer bat
 
-1. Install Python 3.10.6, Make sure you add it to PATH: **https://www.python.org/downloads/release/python-3106/**
+**1.** Install Python 3.10.6, Make sure you add it to PATH: **https://www.python.org/downloads/release/python-3106/**
 
-2. Run the Windows_Installer Bat as admin.
+**2.** Run the Windows_Installer Bat as admin.
 
 (If you get an error when installing requirements run: **python -m pip cache purge**)
 
 (If using Ui, edit settings outside of api folder.  If using Api, edit settings inside the Api Folder.  Discord and Gradio use the Api.)
 
-3. Copy your OpenAi and Qdrant API/URL keys to the api_keys folder inside of the created Aetherius_API folder if you are using the OpenAi version or GPT Vision.
+**3.** Copy your OpenAi and Qdrant API/URL keys to the api_keys folder inside of the created Aetherius_API folder if you are using the OpenAi version or GPT Vision.
 
-4. Copy your Google CSE Key and Api Key to the api_keys folder or set Web_Search to False in the External Resources Sub-Agent.  You can also change the search engine to Bing.
+**4.** Copy your Google CSE Key and Api Key to the api_keys folder or set Web_Search to False in the External Resources Sub-Agent.  You can also change the search engine to Bing.
 
-5. To run Aetherius with it's custom API, download and install: https://github.com/libraryofcelsus/AetherNode    
+**5.** To run Aetherius with it's custom API, download and install: https://github.com/libraryofcelsus/AetherNode    
 This is the new default API for Aetherius.  Installation Instructions can be found on the github page.
 
 AetherNode Google Colab if you don't have a GPU: <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/AetherNode_Public_Api.ipynb">
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
 </a>
 
-7. To run Aetherius Locally using Oobabooga, first install the web-ui at: https://github.com/oobabooga/text-generation-webui/releases/tag/snapshot-2023-11-05
+**6.** To run Aetherius Locally using Oobabooga, first install the web-ui at: https://github.com/oobabooga/text-generation-webui/releases/tag/snapshot-2023-11-05
 
 Oobabooga Text-Ui just changed how their api works.  The most up to date version that works is snapshot-2023-11-05
 This can be done through the release menu or **git clone https://github.com/oobabooga/text-generation-webui --branch snapshot-2023-11-05**
@@ -395,17 +398,17 @@ To run Aetherius on Google Colab with Oobabooga using a public Api, use the Note
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
 </a>
 
-Then, under the "Interface Mode" tab, enable the api checkbox in the "Available Extensions" field only. Then click apply and restart the interface.
+  Then, under the "Interface Mode" tab, enable the api checkbox in the "Available Extensions" field only. Then click apply and restart the interface.   
 
-Next, navigate to the models tab. Uncheck the autoload models box and then input "TheBloke/Llama-2-13B-chat-GPTQ" into the downloads box (7B model can be used for faster results, but it occasionally breaks format and has a tendency to make things up.  Wouldn't recommend if you need factual data). Other models may work, but this is the one that is tested.
+  Next, navigate to the models tab. Uncheck the autoload models box and then input "TheBloke/Llama-2-13B-chat-GPTQ" into the downloads box (7B model can be used for faster results, but it occasionally breaks format and has a tendency to make things up.  Wouldn't recommend if you need factual data). Other models may work, but this is the one that is tested.   
 
-Once the download is completed, reload the model selection menu and then select the model. Change the model loader to Exllamav2 and set the max_seq_len to "4096".  Set the "gpu_split" to 1 GB under your Gpu's max Vram.
+  Once the download is completed, reload the model selection menu and then select the model. Change the model loader to Exllamav2 and set the max_seq_len to "4096".  Set the "gpu_split" to 1 GB under your Gpu's max Vram.   
 
-Click the "load" button and load the model. 
+  Click the "load" button and load the model.    
 
-Now, go into the chatbot_settings.json file in the Aetherius_API folder and change the API to Oobabooga instead of AetherNode. Aetherius should now work!
+  Now, go into the chatbot_settings.json file in the Aetherius_API folder and change the API to Oobabooga instead of AetherNode. Aetherius should now work!  
 
-7. Set up Qdrant
+**7.** Set up Qdrant
 
 Qdrant Cloud: https://qdrant.to/cloud
 
@@ -419,9 +422,9 @@ Once the local Qdrant server is running, it should be auto detected by Aetherius
 
 If No Qdrant server is running, Aetherius will save to disk.
 
-8. Launch Aetherius with one of the **run.bat** files.
+**8.** Launch Aetherius with one of the **run.bat** files.
 
-9. Upload heuristics to DB and change the Bot and User name to start chatting with Aetherius!  
+**9.** Upload heuristics to DB and change the Bot and User name to start chatting with Aetherius!  
 
 To change the model used with AetherNode, change the "model_name_or_path" key in AetherNode/settings.json to the desired model.  You must then change the "Model_Backend" key in Aetherius_API/chatbot_settings.json to the desired format.  Only Llama-2-Chat and Alpaca are available for now.
 
@@ -436,23 +439,23 @@ Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aethe
 
 ## For Discord Bot
 
-1. Go to: https://discord.com/developers and create a New Application for your Bot.
+**1.** Go to: https://discord.com/developers and create a New Application for your Bot.
 
-2. Go to the Bot Tab in the Application and enable all Privileged Gateway Intents.
+**2.** Go to the Bot Tab in the Application and enable all Privileged Gateway Intents.
 
-3. Copy the Bot Token into the Discord_Bot.py script for Aetherius.
+**3.** Copy the Bot Token into the Discord_Bot.py script for Aetherius.
 
-4. Change the bots name if desired.  (If using in a server and you don't want the memories to be per user, replace "str(ctx.author)" with something like "server".)
+**4.** Change the bots name if desired.  (If using in a server and you don't want the memories to be per user, replace "str(ctx.author)" with something like "server".)
 
-5. Go to the OAuth2 tab and click the URL Generator sub-tab.
+**5.** Go to the OAuth2 tab and click the URL Generator sub-tab.
 
-6. Enable the bot and applications.commands checkboxes in "SCOPES"
+**6.** Enable the bot and applications.commands checkboxes in "SCOPES"
 
-7. Enable the Administrator checkbox in "BOT PERMISSIONS"
+**7.** Enable the Administrator checkbox in "BOT PERMISSIONS"
 
-8. Use the link to add the bot to a server.
+**8.** Use the link to add the bot to a server.
 
-9. DM the bot.  If you have given it an OpenAi key, you can also send photos.
+**9.** DM the bot.  If you have given it an OpenAi key, you can also send photos.
 
 *Bot Commands*
 
@@ -480,69 +483,69 @@ Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aethe
 
 **Photo Guide Out of Date**
 
-1. Install Git: **https://git-scm.com/** (Git can be skipped by downloading the repo as a zip file under the green code button)
+**1.** Install Git: **https://git-scm.com/** (Git can be skipped by downloading the repo as a zip file under the green code button)
 
-2. Install Python 3.10.6, Make sure you add it to PATH: **https://www.python.org/downloads/release/python-3106/**
+**2.** Install Python 3.10.6, Make sure you add it to PATH: **https://www.python.org/downloads/release/python-3106/**
 
-3. Open the program "Git Bash". 
+**3.** Open the program "Git Bash". 
 
-4. Run git clone: **git clone https://github.com/libraryofcelsus/Aetherius_AI_Assistant.git**
+**4.** Run git clone: **git clone https://github.com/libraryofcelsus/Aetherius_AI_Assistant.git**
 
-5. Open CMD as Admin (Command Panel)
+**5.** Open CMD as Admin (Command Panel)
 
-6. Navigate to Project folder: **cd PATH_TO_AETHERIUS_INSTALL**
+**6.** Navigate to Project folder: **cd PATH_TO_AETHERIUS_INSTALL**
 
-7. Create a virtual environment: **python -m venv venv**
+**7.** Create a virtual environment: **python -m venv venv**
 
-8. Activate the environment: **.\venv\scripts\activate**   (This must be done before running Aetherius each time. The run.bat will also automatically do this.)
+**8.** Activate the environment: **.\venv\scripts\activate**   (This must be done before running Aetherius each time. The run.bat will also automatically do this.)
 
-9. Install the required packages: **pip install -r requirements.txt**   
+**9.** Install the required packages: **pip install -r requirements.txt**   
 (If you get an error when installing requirements run: **python -m pip cache purge** after activating the venv)
 
-10. Update Numpy version: **pip install --upgrade numpy==1.24**  (If you get an error from TTS ignore it.)
+**10.** Update Numpy version: **pip install --upgrade numpy==1.24**  (If you get an error from TTS ignore it.)
 
-11. Install FFmpeg: **https://www.gyan.dev/ffmpeg/builds/**
+**11.** Install FFmpeg: **https://www.gyan.dev/ffmpeg/builds/**
 
-12. Install Torch with Cuda: **pip uninstall torch torchvision**  **pip install torch torchvision torchaudio -f https://download.pytorch.org/whl/cu118/torch_stable.html**
+**12.** Install Torch with Cuda: **pip uninstall torch torchvision**  **pip install torch torchvision torchaudio -f https://download.pytorch.org/whl/cu118/torch_stable.html**
 
-13. Copy your OpenAI api key to key_openai.txt (If using Oobabooga, you may skip this.)
+**13.** Copy your OpenAI api key to key_openai.txt (If using Oobabooga, you may skip this.)
 
-16. If using Qdrant Cloud copy their Api key and Url to their respective .txt files in the ./api_keys folder.  Qdrant Cloud: https://qdrant.to/cloud
+**14.** If using Qdrant Cloud copy their Api key and Url to their respective .txt files in the ./api_keys folder.  Qdrant Cloud: https://qdrant.to/cloud
 
-17. To use a local Qdrant server, first install Docker: https://www.docker.com/
+**15.** To use a local Qdrant server, first install Docker: https://www.docker.com/
 
-18. Now run: **docker pull qdrant/qdrant:v1.5.1** in CMD
+**16.** Now run: **docker pull qdrant/qdrant:v1.5.1** in CMD
 
-19. Next run: **docker run -p 6333:6333 qdrant/qdrant:v1.5.1**
+**17.** Next run: **docker run -p 6333:6333 qdrant/qdrant:v1.5.1**
 
-20. Once the local Qdrant server is running, it should be auto detected by Aetherius.  If No Qdrant server is running, Aetherius will save to disk.   
+**18.** Once the local Qdrant server is running, it should be auto detected by Aetherius.  If No Qdrant server is running, Aetherius will save to disk.   
 (See: https://docs.docker.com/desktop/backup-and-restore/ for how to make backups.)
 
 (If using Ui, edit settings outside of api folder.  If using Api, edit settings inside the Api Folder.  Discord and Gradio use the Api.)
 
-21. Copy your Google Api key to key_google.txt  (You can disable the External Resources Web_Search in the script file.)
+**19.** Copy your Google Api key to key_google.txt  (You can disable the External Resources Web_Search in the script file.)
 
-22. Copy your Google CSE ID to key_google_cse.txt
+**20.** Copy your Google CSE ID to key_google_cse.txt
 
-23. If you plan on using Photo OCR (jpg, jpeg, png Text Recognition), it requires tesseract: https://github.com/UB-Mannheim/tesseract/wiki
+**21.** If you plan on using Photo OCR (jpg, jpeg, png Text Recognition), it requires tesseract: https://github.com/UB-Mannheim/tesseract/wiki
     Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aetherius_Ai_Assistant" Folder.  Photos must be placed in the ./Upload/SCANS folder.
 
-24. Run main.py by typing **python main.py** in cmd or one of the **run.bat** files as admin to start Aetherius. (Using run.bat will let you skip opening CMD and activating the environment.)
+**22.** Run main.py by typing **python main.py** in cmd or one of the **run.bat** files as admin to start Aetherius. (Using run.bat will let you skip opening CMD and activating the environment.)
 
-25. Select DB Upload Heuristics from the DB Management menu to upload Heuristics for the bot, this DB can also function as a Personality DB. An example of how to do 
+**23.** Select DB Upload Heuristics from the DB Management menu to upload Heuristics for the bot, this DB can also function as a Personality DB. An example of how to do 
     this can be found in "personality_db_input_examples.txt" in the config folder.
 
-26. Edit the chatbot's prompts with the Config Menu. This will let you change the main, secondary, and greeting prompts.  You can also change things like the font style 
+**24.** Edit the chatbot's prompts with the Config Menu. This will let you change the main, secondary, and greeting prompts.  You can also change things like the font style 
     and size.
 
-27. You can change the botname and the username in the login menu.  Changing either of these will create a new chatbot.
+**25.** You can change the botname and the username in the login menu.  Changing either of these will create a new chatbot.
 
-28. Once the chatbot has adopted a desired personality, I recommend creating a backup of the "nexus" folder and then create a collection of the "aetherius" index on 
+**26.** Once the chatbot has adopted a desired personality, I recommend creating a backup of the "nexus" folder and then create a collection of the "aetherius" index on 
     pinecone.io.  This will let you revert back to a base state if issues arise later.
 
-29. Once you have made a backup, you can start using the "Auto" mode, this mode has Aetherius decide for itself whether or not it should upload to its memories.
+**27.** Once you have made a backup, you can start using the "Auto" mode, this mode has Aetherius decide for itself whether or not it should upload to its memories.
 
-30. To run Aetherius with it's custom API, download and install: https://github.com/libraryofcelsus/AetherNode    
+**28.** To run Aetherius with it's custom API, download and install: https://github.com/libraryofcelsus/AetherNode    
 This is the new default API for Aetherius.  Installation Instructions can be found on the github page.
 
 To change the model used with AetherNode, change the "model_name_or_path" key in AetherNode/settings.json to the desired model.  You must then change the "Model_Backend" key in Aetherius_API/chatbot_settings.json to the desired format.  Only Llama-2-Chat and Alpaca are available for now.
@@ -551,7 +554,7 @@ AetherNode Google Colab if you don't have a GPU: <a target="_blank" href="https:
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
 </a>
 
-32. To run Aetherius Locally using Oobabooga, first install the web-ui at: https://github.com/oobabooga/text-generation-webui/releases/tag/snapshot-2023-11-05
+**29.** To run Aetherius Locally using Oobabooga, first install the web-ui at: https://github.com/oobabooga/text-generation-webui/releases/tag/snapshot-2023-11-05
 
 Oobabooga Text-Ui just changed how their api works.  The most up to date version that works is snapshot-2023-11-05
 This can be done through the release menu or **git clone https://github.com/oobabooga/text-generation-webui --branch snapshot-2023-11-05**
@@ -572,7 +575,7 @@ Now, go into the chatbot_settings.json file in the Aetherius_API folder and chan
 
 
 
-32. Settings Json and Prompts can be found in the Aetherius_API folder.
+**30.** Settings Json and Prompts can be found in the Aetherius_API folder.
 
 -----
 

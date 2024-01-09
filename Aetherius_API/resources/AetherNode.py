@@ -710,7 +710,7 @@ async def Response_Call(prompt, username, bot_name):
         "LLM_Template": f"{backend_model}",
         "Username": username,
         "Bot_Name": bot_name,
-        "system_prompt": f"You are {bot_name}. You are in the middle of a conversation with your user, {username}. You will use the given memories to respond naturally in a way that both answer's the user and shows emotional intelligence. You are directly responding to the user.",
+        "system_prompt": f"You are {bot_name}. You are in the middle of a conversation with your user, {username}. You will use the given memories to respond naturally in a way that both answer's the user and shows emotional intelligence. You are directly responding to the user, {username}.",
         "prompt": prompt,
         "max_new_tokens": max_tokens,
         "temperature": temperature,

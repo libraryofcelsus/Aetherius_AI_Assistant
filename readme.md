@@ -29,6 +29,8 @@ To change the model used with AetherNode, change the "model_name_or_path" key in
 ------
 **Recent Changes**
 
+• 1/09 Updated Agent mode with new explicit memory search
+
 • 1/08 Added a random forest like approach for explicit memory search
 
 • 1/08 Fixed knowledge domain selection bug
@@ -230,20 +232,25 @@ Inspired by https://github.com/daveshap/
 • Launch Ai Tutorial YouTube Channel
 
 # Changelog:
+**0.046c**
+
+• Added a random forest like approach for explicit memory search
+
+• Fixed knowledge domain selection bug
 
 **0.046b**
 
-• 11/07 Fixed Unicode encoding error when writing personality files.
+• Fixed Unicode encoding error when writing personality files.
 
-• 11/07 Added GPT Vision to Agent mode.
+• Added GPT Vision to Agent mode.
 
-• 11/06 Added GPT Vision Support.  I recommend using the discord bot for this.
+• Added GPT Vision Support.  I recommend using the discord bot for this.
 
-• 11/06 Added Forced Memory Upload Mode.
+• Added Forced Memory Upload Mode.
 
-• 11/05 Various Backend Changes, no additional functionality for now, mostly for future stuff.
+• Various Backend Changes, no additional functionality for now, mostly for future stuff.
 
-• 11/05 Fixed Sub-Agent Selection Bug.
+• Fixed Sub-Agent Selection Bug.
 
 **0.046a**
 

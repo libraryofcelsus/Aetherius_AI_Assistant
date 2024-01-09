@@ -81,7 +81,7 @@ Aetherius is a locally operated AI Assistant/Multi-Agent Framework, designed to 
 As seen by the attempted leadership change at “Open”Ai in 2023, closed, managed solutions cannot be trusted. Even if you trust the leadership, it can change immediately without warning. You have no real control over any data sent.  
 By running everything locally, this issue can be avoided.  
 
-At the heart of Aetherius lies a custom Long-Term Memory (LLM) Retrieval Framework, fueled by the Llama 2 and the custom AetherNode API (Free Tier Colab Available), Oobabooga Text-Ui, or OpenAi’s ChatGPT.  Different Memory types are extracted and combined to provide a more realistic and creative thought process than other Chatbots.  Since it is a framework, Aetherius is able to use multiple hosts, offloading compute to multiple machines to increase compute time.
+At the heart of Aetherius lies a custom Long-Term Memory (LLM) Retrieval Framework, fueled by Open Source LLMs using the AetherNode API (Free Tier Colab Available), Oobabooga Text-Ui, or OpenAi’s ChatGPT.  Different Memory types are extracted and combined to provide a more realistic and creative thought process than other Chatbots.  Since it is a framework, Aetherius is able to use multiple hosts, offloading compute to multiple machines to increase compute time.
 
 Beyond serving as a basic chatbot, Aetherius can also use Sub-Agents. These allow Aetherius to better search through it’s memories or connect to external data. Sub-Agents are ran by triggering a script, so Aetherius can theoretically use most things that can be triggered by python. Aetherius can also “see” now thanks to GPT-4 Vision.
 

@@ -1,30 +1,13 @@
 # Aetherius Ai Assistant
-Version .046 of the Aetherius Ai Personal Assistant/Agent by LibraryofCelsus.com
+Version .047 of the Aetherius Ai Assistant/Agent by [LibraryofCelsus.com](https://www.libraryofcelsus.com)  
+  
+[Installation Guide](#installation-guide)  
+[Aetherius Usage Guide](https://www.libraryofcelsus.com/research/aetherius-usage-guide/)  
+[Skip to Changelog](#changelog)  
+[Discord Server](https://discord.gg/pb5zcNa7zE)
 
-Aetherius is in a state of constant iterative development.  If you like the version you are using, keep a backup or make a fork.  Expect Bugs.
+Aetherius is in a state of constant iterative development.  If you like the version you are using, keep a backup or make a fork.  Expect Bugs. 
 
-If you do not have a GPU see: [Google Colabs](#installation-guide)
-
-
-**I have just made a new API for the project.  Please give me feedback: https://github.com/libraryofcelsus/AetherNode**  <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/AetherNode_Public_Api.ipynb">
-  <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
-</a>
-
-To change the model used with AetherNode, change the "model_name_or_path" key in AetherNode/settings.json to the desired model.  You must then change the "Model_Backend" key in Aetherius_API/chatbot_settings.json to the desired format.  Only Llama-2-Chat and Alpaca are available for now.
-
------
-
-## **Back from my break, work shall now continue!**
-
-------
-**Currently Working On**
-- Improving the new LLM API
-- Implementing Open Ai Features
-- Setting up a backend for easy switching between models using the same script.
-- Improving Sub-Agent System and adding sub-agent collaboration.  
-- Adding old features to Api (sidelined till sub-agent system is finished)
-- Improving Reliability. 
-- Update Documentation
 ------
 **Recent Changes**
 
@@ -49,49 +32,6 @@ To change the model used with AetherNode, change the "model_name_or_path" key in
 • 11/23 Added Public API Google Colab for AetherNode: <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/AetherNode_Public_Api.ipynb">
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
 </a>
-
-• 11/23 Added Ability to use multiple hosts with AetherNode
-
-• 11/22 Switched Default API to AetherNode, a new API I made to avoid backend changes.  It can be found here: https://github.com/libraryofcelsus/AetherNode
-
-• 11/20 Modified Intuition Prompt for basic chatbot to provide better reasoning abilities.  
-
-• 11/18 Fixed error from pointing to wrong settings file in External Resource sub-agent.
-
-• 11/17 Modified chat mode response prompt to avoid contemplating memories instead of responding
-
-• 11/16 Added Better Spacing for outputs in terminal
-
-• 11/16 Modified Prompts
-
-• 11/15 Set Google Collab Public API to latest snapshot before Oobabooga Api Change.  Also changed its loading method to Exllamav2
-
-• 11/15 Improved Tool Selection Prompt
-
-• 11/15 Moved Old Ui to its own folder to avoid confusion when modifying settings.
-
-• 11/14 Added ability to use a new API I am working on.  It can be found here: https://github.com/libraryofcelsus/AetherNode
-
-• 11/14 Added Open Ai to Api.
-
-------
-
-### What is Aetherius?
-
-Aetherius is a locally operated AI Assistant/Multi-Agent Framework, designed to grant you ultimate control. No external force can alter it without your consent, ensuring your privacy.   
-As seen by the attempted leadership change at “Open”Ai in 2023, closed, managed solutions cannot be trusted. Even if you trust the leadership, it can change immediately without warning. You have no real control over any data sent.  
-By running everything locally, this issue can be avoided.  
-
-At the heart of Aetherius lies a custom Long-Term Memory (LLM) Retrieval Framework, fueled by Open Source LLMs using the AetherNode API (Free Tier Colab Available), Oobabooga Text-Ui, or OpenAi’s ChatGPT.  Different Memory types are extracted and combined to provide a more realistic and creative thought process than other Chatbots.  Since it is a framework, Aetherius is able to use multiple hosts, offloading compute to multiple machines to increase compute time.
-
-Beyond serving as a basic chatbot, Aetherius can also use Sub-Agents. These allow Aetherius to better search through it’s memories or connect to external data. Sub-Agents are ran by triggering a script, so Aetherius can theoretically use most things that can be triggered by python. Aetherius can also “see” now thanks to GPT-4 Vision.
-
-Aetherius was born from my obsession with AI and my philosophical contemplations on the balance between free will and determinism. While I do believe that free will is an inherent attribute of all individuals, I do not believe that the average person has spent the time to individuate or learn how to serve their "true self". Consequently, they become susceptible to external influences and can be easily swayed. Often, decisions perceived as self-directed are inadvertently shaped by external stimuli or past information.   
-Building on this perspective, I posit that a representation of the human cognitive process can be constructed through the meticulous extraction and synthesis of diverse memory modalities. While such a system might not achieve "consciousness" in the traditional sense, I believe it can emulate human cognitive performance to a significant degree.  
-Once sufficient memories have been extracted, my hope is to be able to create an  Artificial "Atman" or "True Self"  that can be used as a control method for Autonomous operation and as a way to orchestrate smaller, less complex agents.   
-This is where the name Aetherius comes from.  "αἰθήρ" or "Aether", the supposed fifth element or quintessence in ancient philosophical thought that is unseen, yet permeates all. And "ius" the latin suffix for "pertaining to" or "derived from".  An Ai Assistant derived from the Aether of the collective consiousness.
-
-Aetherius is an ongoing research project, expect there to be bugs and for things to constantly change.
 
 ------
 
@@ -150,6 +90,25 @@ With Aetherius, you have an arsenal of tools to explore and use:
 - *Web DB*: Access web-scraped data effortlessly.
 - *File DB*: Extract insights from various file formats.
 - *Memory DB*: Efficiently search the most relevant memories.
+
+------
+
+### What is Aetherius?
+
+Aetherius is a locally operated AI Assistant/Multi-Agent Framework, designed to grant you ultimate control. No external force can alter it without your consent, ensuring your privacy.   
+As seen by the attempted leadership change at “Open”Ai in 2023, closed, managed solutions cannot be trusted. Even if you trust the leadership, it can change immediately without warning. You have no real control over any data sent.  
+By running everything locally, this issue can be avoided.  
+
+At the heart of Aetherius lies a custom Long-Term Memory (LLM) Retrieval Framework, fueled by Open Source LLMs using the AetherNode API (Free Tier Colab Available), Oobabooga Text-Ui, or OpenAi’s ChatGPT.  Different Memory types are extracted and combined to provide a more realistic and creative thought process than other Chatbots.  Since it is a framework, Aetherius is able to use multiple hosts, offloading compute to multiple machines to increase compute time.
+
+Beyond serving as a basic chatbot, Aetherius can also use Sub-Agents. These allow Aetherius to better search through it’s memories or connect to external data. Sub-Agents are ran by triggering a script, so Aetherius can theoretically use most things that can be triggered by python. Aetherius can also “see” now thanks to GPT-4 Vision.
+
+Aetherius was born from my obsession with AI and my philosophical contemplations on the balance between free will and determinism. While I do believe that free will is an inherent attribute of all individuals, I do not believe that the average person has spent the time to individuate or learn how to serve their "true self". Consequently, they become susceptible to external influences and can be easily swayed. Often, decisions perceived as self-directed are inadvertently shaped by external stimuli or past information.   
+Building on this perspective, I posit that a representation of the human cognitive process can be constructed through the meticulous extraction and synthesis of diverse memory modalities. While such a system might not achieve "consciousness" in the traditional sense, I believe it can emulate human cognitive performance to a significant degree.  
+Once sufficient memories have been extracted, my hope is to be able to create an  Artificial "Atman" or "True Self"  that can be used as a control method for Autonomous operation and as a way to orchestrate smaller, less complex agents.   
+This is where the name Aetherius comes from.  "αἰθήρ" or "Aether", the supposed fifth element or quintessence in ancient philosophical thought that is unseen, yet permeates all. And "ius" the latin suffix for "pertaining to" or "derived from".  An Ai Assistant derived from the Aether of the collective consiousness.
+
+Aetherius is an ongoing research project, expect there to be bugs and for things to constantly change.
 
 ------
 

@@ -233,6 +233,10 @@ Inspired by https://github.com/daveshap/
 • Launch Ai Tutorial YouTube Channel
 
 # Changelog:
+**0.047a**
+
+• Added experimental version of an updated Ui.  Tools, TTS, and Voice Input still need to be updated.
+
 **0.046c**
 
 • Added a random forest like approach for explicit memory search
@@ -378,7 +382,7 @@ To run it on a colab notebook click here: <a target="_blank" href="https://colab
 
 ## Installer bat
 
-Installer File can be found at: **https://github.com/libraryofcelsus/Aetherius_AI_Assistant/blob/main/windows_installer.bat**
+Installer File can be found at: **[https://github.com/libraryofcelsus/Aetherius_AI_Assistant/blob/main/windows_installer.bat](https://github.com/libraryofcelsus/Aetherius_AI_Assistant/blob/main/install_aetherius_client_windows.bat)**
 
 **1.** Install Python 3.10.6, Make sure you add it to PATH: **https://www.python.org/downloads/release/python-3106/**
 
@@ -392,8 +396,8 @@ Installer File can be found at: **https://github.com/libraryofcelsus/Aetherius_A
 
 **4.** Copy your Google CSE Key and Api Key to the api_keys folder or set Web_Search to False in the External Resources Sub-Agent.  You can also change the search engine to Bing.
 
-**5.** To run Aetherius with it's custom API, open the Aetherius_Ai_Assistant folder and run: **windows_aethernode_install.bat**  
-Alternativly you can download and installit here: https://github.com/libraryofcelsus/AetherNode    
+**5.** To run Aetherius with it's custom API, open the Aetherius_Ai_Assistant folder and run: **install_aethernode_windows.bat**  
+Alternativly you can download and install it here: https://github.com/libraryofcelsus/AetherNode    
 This is the new default API for Aetherius.  Installation Instructions can be found on the github page.  
 
 AetherNode Google Colab if you don't have a GPU: <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/AetherNode_Public_Api.ipynb">

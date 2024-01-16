@@ -5,7 +5,6 @@ Aetherius is in a state of constant iterative development.  If you like the vers
 
 If you do not have a GPU see: [Google Colabs](#installation-guide)
 
-**Ui is out of date, it will be updated after the new sub-agent system is finished. For the most current version, use the discord bot.  Gradio Ui is just for testing purposes.**
 
 **I have just made a new API for the project.  Please give me feedback: https://github.com/libraryofcelsus/AetherNode**  <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/AetherNode_Public_Api.ipynb">
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
@@ -28,6 +27,8 @@ To change the model used with AetherNode, change the "model_name_or_path" key in
 - Update Documentation
 ------
 **Recent Changes**
+
+• 1/16 Added experimental version of an updated Ui.  Tools, TTS, and Voice Input still need to be updated.
 
 • 1/09 Updated Agent mode with new explicit memory search
 

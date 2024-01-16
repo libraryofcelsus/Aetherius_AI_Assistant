@@ -226,6 +226,12 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
     if backend_model == "Alpaca":
         user_input_start = "\n\n### Instruction:"
         user_input_end = "\n\n### Response:"
+    if backend_model == "Vicuna":
+        user_input_start = "USER: "
+        user_input_end = "ASSISTANT:"
+    if backend_model == "ChatML":
+        user_input_start = "<|im_end|>\n<|im_start|>user\n"
+        user_input_end = "<|im_end|>\n<|im_start|>assistant"
     base_path = "./Aetherius_API/Chatbot_Prompts"
     base_prompts_path = os.path.join(base_path, "Base")
     user_bot_path = os.path.join(base_path, user_id, bot_name)  
@@ -443,6 +449,7 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
         
         temp_list = list()
         temp_list2 = list()
+        all_db_search_results = []
         for line in lines:
             if line.startswith("•"):
             

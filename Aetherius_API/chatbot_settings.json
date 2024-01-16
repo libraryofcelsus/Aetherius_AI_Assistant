@@ -1,64 +1,47 @@
 {
     "Conversation_Length": "2",
-	"_comment_Conversation_Length": "Due to model token lengths, this is set to a lower number to fit more long term memories",
-	
-	"memory_mode": "Forced",
-	"_comment_memory_mode": "The available memory modes are: Forced, Auto, Manual, and Training",
-	
+    "_comment_Conversation_Length": "Due to model token lengths, this is set to a lower number to fit more long term memories",
+    "memory_mode": "Forced",
+    "_comment_memory_mode": "The available memory modes are: Forced, Auto, Manual, and Training",
     "embed_size": "768",
-	
-	"Vision_Model": "eyes_url",
-	
-	"Model_Backend": "Llama_2_Chat",
-	"_comment_Model_Backend": "The available Model Backends are: Llama_2_Chat, Alpaca, and OpenAi.",
-	
-	"LLM_Model": "AetherNode",
-	"_comment_LLM_Model": "The available LLM Models are: Oobabooga_Llama_2, AetherNode, Open_Ai_GPT_35, and Open_Ai_GPT_4.  AetherNode will take the model from Model_Backend.",
-	
-	"API": "AetherNode",
-	"_comment_API": "The available API's are: Oobabooga, AetherNode, OpenAi",
-	
-	"HOST_AetherNode": "http://127.0.0.1:8000",
-	"_comment_HOST_AetherNode": "To use multiple hosts, separate them with a space.  First host should be the fastest.  Second Host will be used for memories.  Additional hosts will be used for Agent Mode.",
-	
+    "Vision_Model": "eyes_url",
+    "Model_Backend": "Alpaca",
+    "_comment_Model_Backend": "The available Model Backends are: Llama_2_Chat, Alpaca, Vicuna, ChatML, and OpenAi.",
+    "LLM_Model": "AetherNode",
+    "_comment_LLM_Model": "The available LLM Models are: Oobabooga_Llama_2, AetherNode, Open_Ai_GPT_35, and Open_Ai_GPT_4.  AetherNode will take the model from Model_Backend.",
+    "API": "AetherNode",
+    "_comment_API": "The available API's are: Oobabooga, AetherNode, OpenAi",
+    "HOST_AetherNode": "http://127.0.0.1:8000",
+    "_comment_HOST_AetherNode": "To use multiple hosts, separate them with a space.  First host should be the fastest.  Second Host will be used for memories.  Additional hosts will be used for Agent Mode.",
     "HOST_Oobabooga": "http://localhost:5000/api",
-	"_comment_HOST_Oobabooga": "To use multiple hosts, separate them with a space.  First host should be the fastest.  Second Host will be used for memories.  Additional hosts will be used for Agent Mode.",
-	
-	"Embeddings": "Embeddings_Sentence_Xformer",
-	"_comment_Embeddings": "The available embedding methods are: Embeddings_Sentence_Xformer",
-	
-	"TTS": "gTTS",
-	"_comment_TTS": "The available TTS methods are: gTTS",
-	
-	"Search_External_Resource_DB": "False",
-	
-	"Search_Web": "True",
-	
-	"WebScrape_Type": "WebScrape_Summary_Async",
-	
-	"Search_Engine": "Google",
-	
-	"Output_Inner_Monologue": "True",
-	
-	"Output_Intuition": "False",
-	
-	"Output_Response": "True",
-	
-	"Output_Sub_Module": "True",
-	
-	"Output_DB_Search": "False",
-	
-	"Output_Short_Term_Memory": "False",
-	
-	"Output_Personality_Descriptions": "False",
-	
-	"Update_Bot_Personality_Description": "True",
-	
-	"Update_User_Personality_Description": "True",
-	
-	"Use_Bot_Personality_Description": "True",
-	
-	"Use_User_Personality_Description": "True",
-	
-	"Print_Personality_Descriptions": "False"
+    "_comment_HOST_Oobabooga": "To use multiple hosts, separate them with a space.  First host should be the fastest.  Second Host will be used for memories.  Additional hosts will be used for Agent Mode.",
+    "Embeddings": "Embeddings_Sentence_Xformer",
+    "_comment_Embeddings": "The available embedding methods are: Embeddings_Sentence_Xformer",
+    "TTS": "gTTS",
+    "_comment_TTS": "The available TTS methods are: gTTS",
+    "Search_External_Resource_DB": "False",
+    "Search_Web": "True",
+    "WebScrape_Type": "WebScrape_Summary_Async",
+    "Search_Engine": "Google",
+    "Output_Inner_Monologue": "True",
+    "Output_Intuition": "False",
+    "Output_Response": "True",
+    "Output_Sub_Module": "True",
+    "Output_DB_Search": "False",
+    "Output_Short_Term_Memory": "False",
+    "Output_Personality_Descriptions": "False",
+    "Update_Bot_Personality_Description": "True",
+    "Update_User_Personality_Description": "True",
+    "Use_Bot_Personality_Description": "True",
+    "Use_User_Personality_Description": "True",
+    "Print_Personality_Descriptions": "False",
+	"UI_SETTINGS": "The settings below are only for the user interface.",
+    "Current_Ui_Bot_Name": "Aetherius",
+    "_comment_Bot_Name": "Bot Name to use for the Aetherius Ui",
+    "Current_Ui_Username": "USER",
+    "_comment_Username": "Username to use for the Aetherius Ui",
+    "Current_Ui_User_ID": "ENTER_USER_ID",
+    "_comment_User_ID": "Font for the Aetherius Ui",
+    "font": "Arial",
+    "font_size": "12"
 }

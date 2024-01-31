@@ -8,6 +8,15 @@ Version .047 of the Aetherius Ai Assistant/Agent by [LibraryofCelsus.com](https:
 
 Aetherius is in a state of constant iterative development.  If you like the version you are using, keep a backup or make a fork.  Expect Bugs. 
 
+**I want to share an update on Aetherius and some personal circumstances that have impacted my ability to contribute as fully as I would like to my project.  
+Recently, I've encountered significant health challenges within my family—my father has been diagnosed with a benign form of cancer, leading to an early retirement due to stress, and my mother is grappling with a brain malformation that might necessitate surgical intervention. These challenges have required me to assume additional responsibilities at home, consequently limiting the time I can dedicate to Aetherius.  
+Aetherius is a project born from my deep passion for creating a truly effective, locally operated AI assistant designed to significantly improve people's lives. Despite the current pause, my commitment to this vision remains unshaken. However, the realities of my situation have made it difficult to devote the necessary time and mental energy to continue development at the pace I had envisioned.  
+The support and feedback from the community have been incredibly motivating, and I am deeply grateful for every message of encouragement and every expression of interest in Aetherius. Your engagement serves as a constant reminder of the impact my work can have and fuels my determination to return to it with the focus and dedication it deserves.  
+For the immediate future, my contributions to Aetherius will be more limited than I would prefer. While I may not be able to keep pace with the latest developments in AI research or respond as quickly as before, please know that Aetherius remains a top priority for me. I am committed to resuming work on my project as soon as my circumstances allow, and I am excited about the possibilities that lie ahead for us.  
+Thank you for your understanding, patience, and continued support. The journey of Aetherius is far from over, and I eagerly anticipate the day when I can actively pursue our shared goals once again.  
+With much love,  
+libraryofcelsus**
+
 ------
 **Recent Changes**
 

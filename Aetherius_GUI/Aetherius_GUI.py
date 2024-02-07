@@ -128,13 +128,16 @@ with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
 select_api = settings.get('API', 'Oobabooga')
 
 if select_api == "Oobabooga":
+    script_path3 = get_script_path_from_file(json_file_path, "WebScrape_Type", base_folder='./Aetherius_API/Tools/AetherNode/')
     script_path4 = get_script_path_from_file(json_file_path, "Vision_Model", base_folder='./Aetherius_API/Tools/Llama_2_Async/')
 if select_api == "AetherNode":
+    script_path3 = get_script_path_from_file(json_file_path, "WebScrape_Type", base_folder='./Aetherius_API/Tools/AetherNode/')
     script_path4 = get_script_path_from_file(json_file_path, "Vision_Model", base_folder='./Aetherius_API/Tools/AetherNode_Llama_2/')
 if select_api == "OpenAi":
+    script_path3 = get_script_path_from_file(json_file_path, "WebScrape_Type", base_folder='./Aetherius_API/Tools/AetherNode/')
     script_path4 = get_script_path_from_file(json_file_path, "Vision_Model", base_folder='./Aetherius_API/Tools/OpenAi/')
 import_functions_from_script(script_path4, "eyes_module")
-
+import_functions_from_script(script_path3, "webscrape_module")
 
 
 
@@ -277,35 +280,8 @@ def write_to_dataset(a, response_two, bot_name, username, main_prompt):
    
         
         
-def process_files_in_directory(directory_path, finished_directory_path, chunk_size=600, overlap=80):
-    try:
-        files = os.listdir(directory_path)
-        files = [f for f in files if os.path.isfile(os.path.join(directory_path, f))]
-        with ThreadPoolExecutor() as executor:
-            for file in files:
-                executor.submit(process_and_move_file, directory_path, finished_directory_path, file, chunk_size, overlap)
-    except Exception as e:
-        print(e)
-        table = "Error"
-        return table  
-        
-        
-def process_and_move_file(directory_path, finished_directory_path, file, chunk_size, overlap):
-    try:
-        file_path = os.path.join(directory_path, file)
-        chunk_text_from_file(file_path, chunk_size, overlap)
-        finished_file_path = os.path.join(finished_directory_path, file)
-        shutil.move(file_path, finished_file_path)
-    except Exception as e:
-        print(e)
-        table = "Error"
-        return table  
-        
-        
-def fail():
-  #  print('')
-    fail = "Not Needed"
-    return fail  
+
+    
     
     
 # Function for Uploading Cadence, called in the create widgets function.
@@ -983,6 +959,327 @@ def search_explicit_db(line_vec):
         print(e)
         memories = "Error"
         return memories  
+        
+        
+async def GPT_4_Text_Extract():
+    # # Number of Messages before conversation is summarized, higher number, higher api cost. Change to 3 when using GPT 3.5 due to token usage.
+    conv_length = 3
+    m = multiprocessing.Manager()
+    lock = m.Lock()
+    tasklist = list()
+    conversation = list()
+    int_conversation = list()
+    conversation2 = list()
+    counter = 0
+    counter2 = 0
+    mem_counter = 0
+    with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+        
+    bot_name = settings.get('Current_Ui_Bot_Name', '')
+    username = settings.get('Current_Ui_Username', '')
+    user_id = settings.get('Current_Ui_User_ID', '')
+    if not os.path.exists('Upload/TXT'):
+        os.makedirs('Upload/TXT')
+    if not os.path.exists('Upload/TXT/Finished'):
+        os.makedirs('Upload/TXT/Finished')
+    if not os.path.exists('Upload/PDF'):
+        os.makedirs('Upload/PDF')
+    if not os.path.exists('Upload/PDF/Finished'):
+        os.makedirs('Upload/PDF/Finished')
+    if not os.path.exists('Upload/EPUB'):
+        os.makedirs('Upload/EPUB')
+    if not os.path.exists('Upload/VIDEOS'):
+        os.makedirs('Upload/VIDEOS')
+    if not os.path.exists('Upload/VIDEOS/Finished'):
+        os.makedirs('Upload/VIDEOS/Finished')
+    if not os.path.exists('Upload/EPUB/Finished'):
+        os.makedirs('Upload/EPUB/Finished')
+        
+    while True:
+        try:
+        # # Get Timestamp
+            timestamp = time.time()
+            timestring = timestamp_to_datetime(timestamp)
+            await process_files_in_directory('./Upload/SCANS', './Upload/SCANS/Finished')
+            await process_files_in_directory('./Upload/TXT', './Upload/TXT/Finished')
+            await process_files_in_directory('./Upload/PDF', './Upload/PDF/Finished')
+            await process_files_in_directory('./Upload/EPUB', './Upload/EPUB/Finished')
+            await process_files_in_directory('./Upload/VIDEOS', './Upload/VIDEOS/Finished')  
+        
+        except:
+            traceback.print_exc()
+        
+async def process_files_in_directory(directory_path, finished_directory_path, chunk_size=600, overlap=80):
+    try:
+        files = os.listdir(directory_path)
+        files = [f for f in files if os.path.isfile(os.path.join(directory_path, f))]
+        tasks = [asyncio.create_task(process_and_move_file(directory_path, finished_directory_path, file, chunk_size, overlap)) for file in files]
+        await asyncio.gather(*tasks)
+    except Exception as e:
+        print(e)
+        traceback.print_exc()
+
+
+        
+async def process_and_move_file(directory_path, finished_directory_path, file, chunk_size, overlap):
+    try:
+        file_path = os.path.join(directory_path, file)
+        await chunk_text_from_file(file_path, chunk_size, overlap)  # Correct usage
+        finished_file_path = os.path.join(finished_directory_path, file)
+        shutil.move(file_path, finished_file_path)
+    except Exception as e:
+        print(e)
+        traceback.print_exc()
+        return "Error"
+        
+        
+async def chunk_text_from_file(file_path, chunk_size=400, overlap=40):
+    with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
+        settings = json.load(f)
+        
+    bot_name = settings.get('Current_Ui_Bot_Name', '')
+    username = settings.get('Current_Ui_Username', '')
+    user_id = settings.get('Current_Ui_User_ID', '')
+    try:
+        print("Reading given file, please wait...")
+        pytesseract.pytesseract.tesseract_cmd = '.\\Tesseract-ocr\\tesseract.exe'
+        textemp = None
+        file_extension = os.path.splitext(file_path)[1].lower()
+        
+        texttemp = None  # Initialize texttemp
+        
+        if file_extension == '.txt':
+            with open(file_path, 'r') as file:
+                texttemp = file.read().replace('\n', ' ').replace('\r', '')
+                
+        elif file_extension == '.pdf':
+            with open(file_path, 'rb') as file:
+                pdf = PdfReader(file)
+                texttemp = " ".join(page.extract_text() for page in pdf.pages)
+                
+        elif file_extension == '.epub':
+            book = epub.read_epub(file_path)
+            texts = []
+            for item in book.get_items_of_type(9):  # type 9 is XHTML
+                soup = BeautifulSoup(item.content, 'html.parser')
+                texts.append(soup.get_text())
+            texttemp = ' '.join(texts)
+            
+        elif file_extension in ['.png', '.jpg', '.jpeg']:
+            image = open_image_file(file_path)
+            if image is not None:
+                texttemp = pytesseract.image_to_string(image).replace('\n', ' ').replace('\r', '')
+                
+        elif file_extension in ['.mp4', '.mkv', '.flv', '.avi']:
+            audio_file = "audio_extracted.wav"  # Replace with a more unique name if needed
+            subprocess.run(["ffmpeg", "-i", file_path, "-vn", "-acodec", "pcm_s16le", "-ac", "1", "-ar", "44100", "-f", "wav", audio_file])
+            
+            model_stt = whisper.load_model("tiny")
+            transcribe_result = model_stt.transcribe(audio_file)
+            if isinstance(transcribe_result, dict) and 'text' in transcribe_result:
+                texttemp = transcribe_result['text']
+            else:
+                print("Unexpected transcribe result")
+                texttemp = ""  # or set to some default value
+            os.remove(audio_file)  # Make sure you want to delete this
+            
+        else:
+            print(f"Unsupported file type: {file_extension}")
+            return []
+
+        # The rest of your existing code
+        texttemp = '\n'.join(line for line in texttemp.splitlines() if line.strip())
+        chunks = await chunk_text(texttemp, chunk_size, overlap)
+        filelist = list()
+        try:
+                # Open and read the JSON file with utf-8 encoding
+            with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
+                settings = json.load(f)
+                # Retrieve host data from the JSON dictionary
+            host_data = settings.get('HOST_AetherNode', '').strip()
+                # Split the host data into individual hosts
+            hosts = host_data.split(' ')
+                # Count the number of hosts
+            num_hosts = len(hosts)
+                
+        except Exception as e:
+            print(f"An error occurred while reading the host file: {e}")
+        host_queue = Queue()
+        for host in hosts:
+            host_queue.put(host)
+        # Define the collection name
+        collection_name = f"Bot_{bot_name}_External_Knowledgebase"
+        try:
+            collection_info = client.get_collection(collection_name=collection_name)
+            print(collection_info)
+        except:
+            client.create_collection(
+            collection_name=collection_name,
+            vectors_config=VectorParams(size=embed_size, distance=Distance.COSINE),
+        )
+        
+    #    for chunk in chunks:
+        
+        try:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=num_hosts) as executor:
+                futures = []
+                for chunk in chunks:
+                    future = executor.submit(
+                        wrapped_chunk_from_file,
+                        host_queue, chunk, collection_name, bot_name, username, embeddings, client, file_path
+                    )
+                    futures.append(future)
+
+                # Gather results
+                results = []
+                for future in concurrent.futures.as_completed(futures):
+                    results.append(future.result())
+
+                # Do something with the results, like appending to `weblist`
+                filelist = []
+            #    for result in results:
+            #        filelist.append(result['file_path'] + ' ' + result['processed_text'])
+                #    print(result['file_path'] + '\n' + result['semantic_db_term'] + '\n' + result['processed_text'])
+
+        except Exception as e:
+            traceback.print_exc()
+            print(f"An error occurred while executing threads: {e}")
+
+    #    table = filelist
+    #    return table
+        return
+    except Exception as e:
+        print(e)
+        traceback.print_exc()
+        table = "Error"
+        return table  
+        
+        
+def wrapped_chunk_from_file(host_queue, chunk, collection_name, bot_name, username, embeddings, client, file_path):
+    try:
+            # get a host
+        host = host_queue.get()
+        result = summarized_chunk_from_file(host, chunk, collection_name, bot_name, username, embeddings, client, file_path)
+            # release the host
+        host_queue.put(host)
+        return result
+    except Exception as e:
+        print(e)
+        traceback.print_exc()
+        
+        
+def summarized_chunk_from_file(host, chunk, collection_name, bot_name, username, embeddings, client, file_path):
+    try:
+    
+        filesum = list()
+        filelist = list()
+        filesum.append({'role': 'system', 'content': "MAIN SYSTEM PROMPT: You are an ai text summarizer.  Your job is to take the given text from a scraped file, then return the text in a summarized article form.  Do not generalize, rephrase, or add information in your summary, keep the same semantic meaning.  If no article is given, print no article.\n\n\n"})
+        filesum.append({'role': 'user', 'content': f"SCRAPED ARTICLE: {chunk}\n\nINSTRUCTIONS: Summarize the article without losing any factual knowledge and maintaining full context and information. Only print the truncated article, do not include any additional text or comments. [/INST] SUMMARIZER BOT: Sure! Here is the summarized article based on the scraped text: "})
+        with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
+            settings = json.load(f)
+            
+        user_id = settings.get('Current_Ui_User_ID', '')
+
+        prompt = ''.join([message_dict['content'] for message_dict in filesum])
+        text = asyncio.run(File_Processor_Call(host, prompt, username, bot_name))
+        if len(text) < 20:
+            text = "No File available"
+        #    paragraphs = text.split('\n\n')  # Split into paragraphs
+        #    for paragraph in paragraphs:  # Process each paragraph individually, add a check to see if paragraph contained actual information.
+        #        filecheck = list()
+        #        filelist.append(file_path + ' ' + paragraph)
+        #        filecheck.append({'role': 'system', 'content': f"You are an agent for an automated text-processing tool. You are one of many agents in a chain. Your task is to decide if the given text from a file was processed successfully. The processed text should contain factual data or opinions. If the given data only consists of an error message or a single question, skip it.  If the article was processed successfully, print: YES.  If a file-process is not needed, print: NO."})
+        #        filecheck.append({'role': 'user', 'content': f"Is the processed information useful to an end-user? YES/NO: {paragraph}"})
+                
+        filecheck = list()
+        filecheck.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are an agent for an automated text scraping tool. Your task is to decide if the previous Ai Agent scraped the text successfully. The scraped text should contain some form of article, if it does, print 'YES'. If the article was scraped successfully, print: 'YES'.  If the text scrape failed or is a response from the first agent, print: 'NO'.\n\n"})
+        filecheck.append({'role': 'user', 'content': f"ORIGINAL TEXT FROM SCRAPE: {chunk}\n\n"})
+        filecheck.append({'role': 'user', 'content': f"PROCESSED FILE TEXT: {text}\n\n"})
+        filecheck.append({'role': 'user', 'content': f"SYSTEM: You are responding for a Yes or No input field. You are only capible of printing Yes or No. Use the format: [AI AGENT: <'Yes'/'No'>][/INST]\n\nASSISTANT: "})
+        prompt = ''.join([message_dict['content'] for message_dict in filecheck])
+        fileyescheck = 'yes'
+        if 'no file' in text.lower():
+            print('---------')
+            print('Summarization Failed')
+            pass
+        if 'no article' in text.lower():
+            print('---------')
+            print('Summarization Failed')
+            pass
+        if 'you are a text' in text.lower():
+            print('---------')
+            print('Summarization Failed')
+            pass
+        if 'no summary' in text.lower():
+            print('---------')
+            print('Summarization Failed')
+            pass  
+        if 'i am an ai' in text.lower():
+            print('---------')
+            print('Summarization Failed')
+            pass                
+        else:
+            if 'cannot provide a summary of' in text.lower():
+                text = chunk
+            if 'yes' in fileyescheck.lower():
+                semanticterm = list()
+                semanticterm.append({'role': 'system', 'content': f"MAIN SYSTEM PROMPT: You are a bot responsible for taging articles with a title for database queries.  Your job is to read the given text, then create a title in question form representative of what the article is about.  The title should be semantically identical to the overview of the article and not include extraneous info. Use the format: [<TITLE IN QUESTION FORM>].\n\n"})
+                semanticterm.append({'role': 'user', 'content': f"ARTICLE: {text}\n\n"})
+                semanticterm.append({'role': 'user', 'content': f"SYSTEM: Create a short, single question that encapsulates the semantic meaning of the Article.  Use the format: [<QUESTION TITLE>].  Please only print the title, it will be directly input in front of the article.[/INST]\n\nASSISTANT: Sure! Here's the summary of the given article: "})
+                prompt = ''.join([message_dict['content'] for message_dict in semanticterm])
+                semantic_db_term = asyncio.run(File_Processor_Call(host, prompt, username, bot_name))
+                filename = os.path.basename(file_path)
+                print('---------')
+                if 'cannot provide a summary of' in semantic_db_term.lower():
+                    semantic_db_term = 'Tag Censored by Model'
+                    # Generate and append filename and paragraph to filelist
+                filelist.append(filename + ' ' + text)
+                print(filename + '\n' + semantic_db_term + '\n' + text)
+
+                    # Create or update the text file in ./Upload
+                text_file_path = './Upload/' + filename + '.txt'
+                with open(text_file_path, 'a') as f:  # 'a' means append mode
+                    f.write('<' + filename + '>\n')
+                    f.write('<' + semantic_db_term + '>\n')
+                    f.write('<' + text + '>\n\n')  # Double newline for separation
+
+                payload = list()
+                timestamp = time.time()
+                timestring = timestamp_to_datetime(timestamp)
+                vector1 = embeddings(filename + '\n' + semantic_db_term + '\n' + text)
+                unique_id = str(uuid4())
+                point_id = unique_id + str(int(timestamp))
+
+                metadata = {
+                    'bot': bot_name,
+                    'user': user_id,
+                    'time': timestamp,
+                    'source': filename,
+                    'tag': semantic_db_term,
+                    'message': text,
+                    'timestring': timestring,
+                    'uuid': unique_id,
+                    'memory_type': 'File_Scrape',
+                }
+
+                client.upsert(collection_name=collection_name,
+                             points=[PointStruct(id=unique_id, vector=vector1, payload=metadata)])
+
+                payload.clear()
+                filecheck.clear()      
+                pass  
+            else:
+                print('---------')
+                print(f'\n\n\nERROR MESSAGE FROM BOT: {fileyescheck}\n\n\n')                          
+        table = filelist
+        return table
+    except Exception as e:
+        print(e)
+        traceback.print_exc()
+        table = "Error"
+        return table   
+        
         
         
 # Running Conversation List
@@ -2138,8 +2435,13 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 t.start()
 
     def update_ui(self, response):
-        # Your existing UI update code here
-        self.conversation_text.insert(tk.END, "Response: {}".format(response.replace('\\n', '\n')) + "\n\n")
+        if isinstance(response, str):
+            formatted_response = response.replace('\\n', '\n')
+        else:
+            formatted_response = str(response)
+
+        self.conversation_text.insert(tk.END, "Response: " + formatted_response + "\n\n")
+
         self.conversation_text.yview(tk.END)
         self.user_input.delete(0, tk.END)
         self.user_input.focus()
@@ -2177,8 +2479,14 @@ class ChatBotApplication(customtkinter.CTkFrame):
         results_text = tk.Text(websearch_window)
         results_text.pack()
 
-
-
+        with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
+            settings = json.load(f)
+        API = settings.get('API', 'AetherNode')
+        backend_model = settings.get('Model_Backend', 'Llama_2_Chat')
+        LLM_Model = settings.get('LLM_Model', 'AetherNode')
+        bot_name = settings.get('Current_Ui_Bot_Name', '')
+        username = settings.get('Current_Ui_Username', '')
+        user_id = settings.get('Current_Ui_User_ID', '')
         def perform_search():
             query = query_entry.get()
 
@@ -2198,13 +2506,16 @@ class ChatBotApplication(customtkinter.CTkFrame):
         def perform_scrape():
             query = query_entry.get()
 
+            async def async_wrapper():
+                await async_chunk_text_from_url(query, user_id, bot_name)  # Assuming this is an async function you've defined elsewhere
+
             def update_results(paragraph):
                 # Update the GUI with the new paragraph
-                self.update_results(results_text, paragraph)
+                results_text.insert(tk.END, f"{paragraph}\n\n")
+                results_text.yview(tk.END)
 
             def search_task():
-                # Call the modified GPT_4_Tasklist_Web_Search function with the callback
-                GPT_4_Tasklist_Web_Scrape(query, results_callback=update_results)
+                asyncio.run(async_wrapper())  # This will run the async function in an event loop
 
             t = threading.Thread(target=search_task)
             t.start()
@@ -2214,6 +2525,9 @@ class ChatBotApplication(customtkinter.CTkFrame):
 
         search_button = tk.Button(websearch_window, text="Search", command=perform_search)
         search_button.pack()
+        
+        
+        
         
         
     def open_fileprocess_window(self):
@@ -2252,6 +2566,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
 
         # Call the function to display existing files when the window is launched
         display_existing_files()
+
 
         def select_file():
             filetypes = [
@@ -2304,7 +2619,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
 
             def search_task():
                 # Call the modified GPT_4_Tasklist_Web_Search function with the callback
-                GPT_4_Text_Extract()
+                asyncio.run(GPT_4_Text_Extract())
 
             t = threading.Thread(target=search_task)
             t.start()
@@ -3367,8 +3682,8 @@ class ChatBotApplication(customtkinter.CTkFrame):
         self.tools_frame = customtkinter.CTkFrame(self)
         self.tools_frame.grid(row=2, column=0, sticky=tk.W+tk.N)
         
-    #    self.tools_menu = customtkinter.CTkComboBox(self.tools_frame, values=["Web Search", "File Process"], state="readonly", command=self.handle_tools_menu_selection)
-        self.tools_menu = customtkinter.CTkComboBox(self.tools_frame, values=["None"], state="readonly")
+        self.tools_menu = customtkinter.CTkComboBox(self.tools_frame, values=["Web Search", "File Process"], state="readonly", command=self.handle_tools_menu_selection)
+    #    self.tools_menu = customtkinter.CTkComboBox(self.tools_frame, values=["None"], state="readonly")
         self.tools_menu.grid(row=0, column=0, padx=5, sticky=tk.W+tk.E)
         self.tools_menu.set("Tools")
         self.tools_menu.bind("<<ComboboxSelected>>", self.handle_tools_menu_selection)

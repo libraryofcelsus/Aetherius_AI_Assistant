@@ -275,7 +275,7 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
         if API == "AetherNode" or API == "Oobabooga":
             prompt = ''.join([message_dict['content'] for message_dict in input_expansion])
             expanded_input = await Input_Expansion_Call(prompt, username, bot_name)
-        if DB_Search_Output == 'True':
+        if Intuition_Output == 'True':
             print(f"\n\nExpanded User Input: {expanded_input}")
         
 
@@ -332,7 +332,7 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
                     output_list.append(item)
             return output_list
         domain_search = remove_duplicate_dicts(domain_search)
-        if DB_Search_Output == 'True':
+        if Intuition_Output == 'True':
             print(f"\nKnowledge Domains: {domain_search}")
         
         
@@ -353,7 +353,10 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
         if API == "OpenAi":
             tasklist_output = Semantic_Terms_Call(tasklist, username, bot_name)
         
+        tasklist_output = re.sub(r'\n\n+', '\n', tasklist_output)
         
+        if Intuition_Output == 'True':
+            print(f"\nSEMANTIC TERM SEPARATION: {tasklist_output}")
         
         lines = tasklist_output.splitlines()
         tasklist_counter = 0
@@ -451,110 +454,66 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
         temp_list2 = list()
         all_db_search_results = []
         for line in lines:
-            if line.startswith("•"):
+
+            domain_extraction.append({'role': 'system', 'content': f"{user_input_start} Your task is to analyze the user's question and identify the most relevant knowledge domain from the provided list. Ensure that your choice is from the existing domains, and avoid creating or using any not listed. Respond with the name of the single selected knowledge domain.\n"})
+            domain_extraction.append({'role': 'user', 'content': f"Could you provide the current list of knowledge domains? {user_input_end}"})
+            domain_extraction.append({'role': 'assistant', 'content': f"LIST OF CURRENT KNOWLEDGE DOMAINS: {domain_search}\n"})
+            domain_extraction.append({'role': 'user', 'content': f"USER'S QUESTION: {line}\nADDITIONAL CONTEXT: {expanded_input} {user_input_end}"})
+            domain_extraction.append({'role': 'assistant', 'content': f"EXTRACTED KNOWLEDGE DOMAIN FOR USER'S QUESTION: "})
             
-                domain_extraction.append({'role': 'system', 'content': f"{user_input_start} Your task is to analyze the user's question and identify the most relevant knowledge domain from the provided list. Ensure that your choice is from the existing domains, and avoid creating or using any not listed. Respond with the name of the single selected knowledge domain.\n"})
-                domain_extraction.append({'role': 'user', 'content': f"Could you provide the current list of knowledge domains? {user_input_end}"})
-                domain_extraction.append({'role': 'assistant', 'content': f"LIST OF CURRENT KNOWLEDGE DOMAINS: {domain_search}\n"})
-                domain_extraction.append({'role': 'user', 'content': f"USER'S QUESTION: {line}\nADDITIONAL CONTEXT: {expanded_input} {user_input_end}"})
-                domain_extraction.append({'role': 'assistant', 'content': f"EXTRACTED KNOWLEDGE DOMAIN FOR USER'S QUESTION: "})
+            if API == "AetherNode" or API == "Oobabooga":
+                prompt = ''.join([message_dict['content'] for message_dict in domain_extraction])
+                extracted_domain = await Domain_Selection_Call(prompt, username, bot_name)
                 
-                if API == "AetherNode" or API == "Oobabooga":
-                    prompt = ''.join([message_dict['content'] for message_dict in domain_extraction])
-                    extracted_domain = await Domain_Selection_Call(prompt, username, bot_name)
-                    
-                if API == "OpenAi":
-                    extracted_domain = Domain_Selection_Call(domain_extraction, username, bot_name)
-                domain_extraction.clear()
+            if API == "OpenAi":
+                extracted_domain = Domain_Selection_Call(domain_extraction, username, bot_name)
+            domain_extraction.clear()
+            
                 
-                    
-                if ":" in extracted_domain:
-                    extracted_domain = extracted_domain.split(":")[-1]
-                    extracted_domain = extracted_domain.replace("\n", "")
-                extracted_domain = extracted_domain.upper()
-                extracted_domain = re.sub(r'[^A-Z]', '', extracted_domain)
-                extracted_domain = extracted_domain.replace("_", " ")
-                if DB_Search_Output == 'True':
-                    print(f"Extracted Domain: {extracted_domain}")
-            
-            
-                vector1 = embeddings(extracted_domain)
-                try:
-                    hits = client.search(
-                        collection_name=f"Bot_{bot_name}_Knowledge_Domains",
-                        query_vector=vector1,
-                        query_filter=Filter(
-                            must=[
-                                FieldCondition(
-                                    key="user",
-                                    match=MatchValue(value=f"{user_id}")
-                                )
-                            ]
-                        ),
-                        limit=3
-                    )
-                    domain_search = [hit.payload['knowledge_domain'] for hit in hits]
-                    if DB_Search_Output == 'True':
-                        print(f"KNOWLEDGE DOMAINS: {domain_search}")
-                except Exception as e:
-                    if "Not found: Collection" in str(e):
-                    #    print("\nCollection does not exist.")
-                        domain_search = "No Collection"
-                    else:
-                        print(f"\nAn unexpected error occurred: {str(e)}")
-                        domain_search = "No Collection"
-                        
-
-            
-                all_db_search_results = []  # List to store all results
-                for domain in domain_search:
-                    try:
-                        # Adjust the limit based on the counter to have fewer results for one of the lists
-                        search_limit = 3 if tasklist_counter2 < 4 else 5
-
-                        hits = client.search(
-                            collection_name=f"Bot_{bot_name}",
-                            query_vector=vector_input,
-                            query_filter=Filter(
-                                must=[
-                                    FieldCondition(
-                                        key="memory_type",
-                                        match=MatchValue(value="Explicit_Long_Term"),
-                                    ),
-                                    FieldCondition(
-                                        key="knowledge_domain",
-                                        match=MatchValue(value=domain),
-                                    ),
-                                    FieldCondition(
-                                        key="user",
-                                        match=MatchValue(value=f"{user_id}"),
-                                    ),
-                                ]
-                            ),
-                            limit=search_limit
-                        )
-                        all_db_search_results.extend(hits)
-                        unsorted_table = [(hit.payload['timestring'], hit.payload['message']) for hit in hits]
-                        sorted_table = sorted(unsorted_table, key=lambda x: x[0])
-                        db_search_results = "\n".join([f"{message}" for _, message in sorted_table])
-                        temp_list.append({'role': 'assistant', 'content': f"{db_search_results}  "})
-                        if tasklist_counter < 4:
-                            temp_list2.append({'role': 'assistant', 'content': f"{db_search_results}  "})
-                        tasklist_counter += 1  # Ensure you're incrementing the counter
-
-                        if DB_Search_Output == 'True':
-                            print(db_search_results)
-                    except Exception as e:
-                        if DB_Search_Output == 'True':
-                            if "Not found: Collection" in str(e):
-                                db_search_results = "No Results"
-                            else:
-                                print(f"\nAn unexpected error occurred: {str(e)}")
-                                
-                                
-                                              
+            if ":" in extracted_domain:
+                extracted_domain = extracted_domain.split(":")[-1]
+                extracted_domain = extracted_domain.replace("\n", "")
+            extracted_domain = extracted_domain.upper()
+            extracted_domain = re.sub(r'[^A-Z]', '', extracted_domain)
+            extracted_domain = extracted_domain.replace("_", " ")
+            if Intuition_Output == 'True':
+                print(f"TASK: {line}\nExtracted Domain: {extracted_domain}")
         
+        
+            vector1 = embeddings(extracted_domain)
+            try:
+                hits = client.search(
+                    collection_name=f"Bot_{bot_name}_Knowledge_Domains",
+                    query_vector=vector1,
+                    query_filter=Filter(
+                        must=[
+                            FieldCondition(
+                                key="user",
+                                match=MatchValue(value=f"{user_id}")
+                            )
+                        ]
+                    ),
+                    limit=3
+                )
+                domain_search = [hit.payload['knowledge_domain'] for hit in hits]
+                if Intuition_Output == 'True':
+                    print(f"KNOWLEDGE DOMAINS: {domain_search}")
+            except Exception as e:
+                if "Not found: Collection" in str(e):
+                #    print("\nCollection does not exist.")
+                    domain_search = "No Collection"
+                else:
+                    print(f"\nAn unexpected error occurred: {str(e)}")
+                    domain_search = "No Collection"
+                    
+
+        
+            all_db_search_results = []  # List to store all results
+            for domain in domain_search:
                 try:
+                    # Adjust the limit based on the counter to have fewer results for one of the lists
+                    search_limit = 3 if tasklist_counter2 < 4 else 5
+
                     hits = client.search(
                         collection_name=f"Bot_{bot_name}",
                         query_vector=vector_input,
@@ -562,41 +521,84 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
                             must=[
                                 FieldCondition(
                                     key="memory_type",
-                                    match=MatchValue(value="Implicit_Long_Term"),
+                                    match=MatchValue(value="Explicit_Long_Term"),
+                                ),
+                                FieldCondition(
+                                    key="knowledge_domain",
+                                    match=MatchValue(value=domain),
                                 ),
                                 FieldCondition(
                                     key="user",
-                                    match=models.MatchValue(value=f"{user_id}"),
+                                    match=MatchValue(value=f"{user_id}"),
                                 ),
                             ]
                         ),
-                        limit=6
+                        limit=search_limit
                     )
+                    all_db_search_results.extend(hits)
                     unsorted_table = [(hit.payload['timestring'], hit.payload['message']) for hit in hits]
-                    sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'timestring' field
-                    db_search_2 = "\n".join([f"{message}" for timestring, message in sorted_table])
-                    temp_list.append({'role': 'assistant', 'content': f"{db_search_2}  "})
-                    if tasklist_counter2 < 4:
-                        temp_list2.append({'role': 'assistant', 'content': f"{db_search_2}  "})
-                    tasklist_counter2 + 1
+                    sorted_table = sorted(unsorted_table, key=lambda x: x[0])
+                    db_search_results = "\n".join([f"{message}" for _, message in sorted_table])
+                    temp_list.append({'role': 'assistant', 'content': f"{db_search_results}  "})
+                    if tasklist_counter < 4:
+                        temp_list2.append({'role': 'assistant', 'content': f"{db_search_results}  "})
+                    tasklist_counter += 1  # Ensure you're incrementing the counter
+
                     if DB_Search_Output == 'True':
-                        print(f"\n\n{db_search_2}")
+                        print(db_search_results)
                 except Exception as e:
                     if DB_Search_Output == 'True':
                         if "Not found: Collection" in str(e):
-                            db_search_2 = "No Results"
+                            db_search_results = "No Results"
                         else:
                             print(f"\nAn unexpected error occurred: {str(e)}")
                             
-                def remove_duplicate_dicts(input_list):
-                    output_list = []
-                    for item in input_list:
-                        if item not in output_list:
-                            output_list.append(item)
-                    return output_list
+                            
+                                          
+    
+            try:
+                hits = client.search(
+                    collection_name=f"Bot_{bot_name}",
+                    query_vector=vector_input,
+                    query_filter=Filter(
+                        must=[
+                            FieldCondition(
+                                key="memory_type",
+                                match=MatchValue(value="Implicit_Long_Term"),
+                            ),
+                            FieldCondition(
+                                key="user",
+                                match=models.MatchValue(value=f"{user_id}"),
+                            ),
+                        ]
+                    ),
+                    limit=6
+                )
+                unsorted_table = [(hit.payload['timestring'], hit.payload['message']) for hit in hits]
+                sorted_table = sorted(unsorted_table, key=lambda x: x[0])  # Sort by the 'timestring' field
+                db_search_2 = "\n".join([f"{message}" for timestring, message in sorted_table])
+                temp_list.append({'role': 'assistant', 'content': f"{db_search_2}  "})
+                if tasklist_counter2 < 4:
+                    temp_list2.append({'role': 'assistant', 'content': f"{db_search_2}  "})
+                tasklist_counter2 + 1
+                if DB_Search_Output == 'True':
+                    print(f"\n\n{db_search_2}")
+            except Exception as e:
+                if DB_Search_Output == 'True':
+                    if "Not found: Collection" in str(e):
+                        db_search_2 = "No Results"
+                    else:
+                        print(f"\nAn unexpected error occurred: {str(e)}")
+                        
+            def remove_duplicate_dicts(input_list):
+                output_list = []
+                for item in input_list:
+                    if item not in output_list:
+                        output_list.append(item)
+                return output_list
 
-                temp_list = remove_duplicate_dicts(temp_list)
-                temp_list2 = remove_duplicate_dicts(temp_list2)
+            temp_list = remove_duplicate_dicts(temp_list)
+            temp_list2 = remove_duplicate_dicts(temp_list2)
                 
 
         table = []
@@ -3219,6 +3221,7 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
         settings = json.load(f)
     embed_size = settings['embed_size']
     DB_Search_Output = settings.get('Output_DB_Search', 'False')
+    Memory_Loop_Output = settings.get('Output_Memory_Loop', 'False')
     conversation = list()
     conversation2 = list()
     summary = list()
@@ -3245,6 +3248,9 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
     if backend_model == "Alpaca":
         user_input_start = "\n\n### Instruction:"
         user_input_end = "\n\n### Response:"
+    if backend_model == "ChatML":
+        user_input_start = "<|im_end|>\n<|im_start|>user\n"
+        user_input_end = "<|im_end|>\n<|im_start|>assistant\n"
     botnameupper = bot_name.upper()
     usernameupper = username.upper()
     base_path = "./Aetherius_API/Chatbot_Prompts"

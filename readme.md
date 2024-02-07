@@ -20,6 +20,8 @@ libraryofcelsus**
 ------
 **Recent Changes**
 
+• 2/07 Added Webscrape and File Process Tools to the Ui
+
 • 1/16 Added experimental version of an updated Ui.  Tools, TTS, and Voice Input still need to be updated.
 
 • 1/09 Updated Agent mode with new explicit memory search

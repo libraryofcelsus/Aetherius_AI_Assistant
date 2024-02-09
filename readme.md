@@ -48,6 +48,32 @@ libraryofcelsus**
 
 ------
 
+## Ui Example
+
+![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2024/02/Aetherius_Example.png)
+
+## Agent Architecture
+
+| Loop                            | Description                                                                                                       |
+| ------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| **User Input**                  | The interaction is initiated by the user sending a request to Aetherius.                                          |
+| **Input Expansion**             | Expands user input with conversation history for enhanced meaning in database searches.                           |
+| **Knowledge Domain Extraction** | Selects a Knowledge Domain from available options for explicit memory search.                                     |
+| **Semantic Term Separation**    | Separates user input into synonymous terms to capture nuanced meanings.                                           |
+| **First Memory DB Search**      | Searches Aetherius's memories to generate an inner monologue.                                                     |
+| **Inner Monologue Generation**  | Generates an inner monologue reflecting past experiences, consolidating database search info, and extending user input meaning. |
+| **Second Memory DB Search**     | Searches Aetherius's memories again to formulate its intuition.                                                   |
+| **Intuition Generation**        | Creates an action plan based on memories and the inner monologue.  Serves as an automatic chain-of-thought prompt strategy. |
+| **Implicit Memory Generation**  | Generates short-term implicit memories from its internal processes.                                               |
+| **Master Tasklist Generation**  | Generates a list of asynchronous tasks using available Sub-Agent categories.                                      |
+| **Sub-Agent Selection**         | Chooses a sub-agent from a category to complete the task.                                                         |
+| **Final Response Generation**   | Utilizes the inner monologue, conversation history, and completed tasks to respond to the user.                   |
+| **Explicit Memory Generation**  | Produces explicit short-term memories based on the inner monologue and final response.                            |
+| **Episodic Memory Generation**  | Generates a timestamped summary of the current interaction for episodic memory storage.                           |
+| **Flashbulb Memory Generation** | Forms meaningful memories/goals using long-term and episodic memories periodically.                               |
+| **Short-Term Memory Consolidation** | Consolidates short-term memories and assigns them knowledge domains before uploading as long-term memories.      |
+| **Long-Term Memory Association**| Manages database size by condensing long-term memories and clustering related topics.                             |
+
 ### Aetherius - Your Personal Digital Assistant
 
 Aetherius is a versatile, modular AI Assistant/Sub-Agent Framework that adapts to your needs. Its capabilities extend beyond conventional chatbots:
@@ -104,6 +130,10 @@ With Aetherius, you have an arsenal of tools to explore and use:
 - *File DB*: Extract insights from various file formats.
 - *Memory DB*: Efficiently search the most relevant memories.
 
+## Database Visualization with Qdrant
+
+![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/08/Qdrant-Visulization.png)
+
 ------
 
 ### What is Aetherius?
@@ -122,6 +152,7 @@ Once sufficient memories have been extracted, my hope is to be able to create an
 This is where the name Aetherius comes from.  "αἰθήρ" or "Aether", the supposed fifth element or quintessence in ancient philosophical thought that is unseen, yet permeates all. And "ius" the latin suffix for "pertaining to" or "derived from".  An Ai Assistant derived from the Aether of the collective consiousness.
 
 Aetherius is an ongoing research project, expect there to be bugs and for things to constantly change.
+
 
 ------
 
@@ -155,36 +186,6 @@ Inspired by https://github.com/daveshap/
 
 ------
 
-## Agent Architecture
-
-| Loop                            | Description                                                                                                       |
-| ------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| **User Input**                  | The interaction is initiated by the user sending a request to Aetherius.                                          |
-| **Input Expansion**             | Expands user input with conversation history for enhanced meaning in database searches.                           |
-| **Knowledge Domain Extraction** | Selects a Knowledge Domain from available options for explicit memory search.                                     |
-| **Semantic Term Separation**    | Separates user input into synonymous terms to capture nuanced meanings.                                           |
-| **First Memory DB Search**      | Searches Aetherius's memories to generate an inner monologue.                                                     |
-| **Inner Monologue Generation**  | Generates an inner monologue reflecting past experiences, consolidating database search info, and extending user input meaning. |
-| **Second Memory DB Search**     | Searches Aetherius's memories again to formulate its intuition.                                                   |
-| **Intuition Generation**        | Creates an action plan based on memories and the inner monologue.  Serves as an automatic chain-of-thought prompt strategy. |
-| **Implicit Memory Generation**  | Generates short-term implicit memories from its internal processes.                                               |
-| **Master Tasklist Generation**  | Generates a list of asynchronous tasks using available Sub-Agent categories.                                      |
-| **Sub-Agent Selection**         | Chooses a sub-agent from a category to complete the task.                                                         |
-| **Final Response Generation**   | Utilizes the inner monologue, conversation history, and completed tasks to respond to the user.                   |
-| **Explicit Memory Generation**  | Produces explicit short-term memories based on the inner monologue and final response.                            |
-| **Episodic Memory Generation**  | Generates a timestamped summary of the current interaction for episodic memory storage.                           |
-| **Flashbulb Memory Generation** | Forms meaningful memories/goals using long-term and episodic memories periodically.                               |
-| **Short-Term Memory Consolidation** | Consolidates short-term memories and assigns them knowledge domains before uploading as long-term memories.      |
-| **Long-Term Memory Association**| Manages database size by condensing long-term memories and clustering related topics.                             |
-
-## Example using the Old Ui
-(Uses Llama2-Chat-13B and a webscrape of this Github page.)
-
-![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/08/Aetherius-Example-3.png)
-
-## Database Visualization with Qdrant
-
-![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/08/Qdrant-Visulization.png)
 
 ## Future Plans
 

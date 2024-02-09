@@ -103,7 +103,7 @@ select_api = settings.get('API', 'Oobabooga')
 if select_api == "Oobabooga":
     script_path4 = get_script_path_from_file(json_file_path, "Vision_Model", base_folder='./Aetherius_API/Tools/Llama_2_Async/')
 if select_api == "AetherNode":
-    script_path4 = get_script_path_from_file(json_file_path, "Vision_Model", base_folder='./Aetherius_API/Tools/AetherNode_Llama_2/')
+    script_path4 = get_script_path_from_file(json_file_path, "Vision_Model", base_folder='./Aetherius_API/Tools/AetherNode/')
 if select_api == "OpenAi":
     script_path4 = get_script_path_from_file(json_file_path, "Vision_Model", base_folder='./Aetherius_API/Tools/OpenAi/')
 import_functions_from_script(script_path4, "eyes_module")
@@ -254,12 +254,13 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
         print(f"\n\n{username}: {user_input}")
         conversation_history = main_conversation.get_conversation_history()
         con_hist = '\n'.join(conversation_history)
-        timestamp = time()
+        timestamp = time.time()
         timestring = timestamp_to_datetime(timestamp)
         input_2 = None
         if len(user_input) > 2:
             input_2 = user_input
         if image_path is not None:
+            print(f" Sending: {image_path}  to Vision Model")
             user_input = gpt_vision(user_input, image_path)
             if input_2 is not None and len(input_2) > 2:
                 user_input = f"VISION: {user_input}\nORIGINAL USER INQUIRY: {input_2}"
@@ -1002,7 +1003,7 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
         
         conversation_history = main_conversation.get_conversation_history()
         con_hist = f'{conversation_history}'
-        timestamp = time()
+        timestamp = time.time()
         timestring = timestamp_to_datetime(timestamp)
         
         try:
@@ -1299,7 +1300,7 @@ async def Aetherius_Agent(user_input, username, user_id, bot_name, image_path=No
         print(f"{username}: {user_input}\n\n")
         conversation_history = main_conversation.get_last_entry()
         con_hist = f'{conversation_history}'
-        timestamp = time()
+        timestamp = time.time()
         timestring = timestamp_to_datetime(timestamp)
 
         input_2 = None
@@ -1942,7 +1943,7 @@ async def Aetherius_Agent(user_input, username, user_id, bot_name, image_path=No
                     cat_list.append({'content': cat_entry})
                 vector = embeddings(file_desc)  
                 unique_id = str(uuid4())
-                timestamp = time()
+                timestamp = time.time()
                 metadata = {
                     'bot': bot_name,
                     'user': user_id,
@@ -2022,7 +2023,7 @@ async def Aetherius_Agent(user_input, username, user_id, bot_name, image_path=No
             if memory_mode != 'Manual':
                 asyncio.create_task(Aetherius_Implicit_Memory(user_input, output_one, bot_name, username, user_id, prompt_implicit))
 
-        timestamp = time()
+        timestamp = time.time()
         timestring = timestamp_to_datetime(timestamp)
         vector = embeddings(output_two)
         if External_Research_Search == 'True':
@@ -2526,7 +2527,7 @@ async def Aetherius_Implicit_Memory(user_input, output_one, bot_name, username, 
             user_input_start = "\n\n### Instruction:"
             user_input_end = "\n\n### Response:"
         Print_Personality_Description = settings.get('Print_Personality_Descriptions', 'True')
-        timestamp = time()
+        timestamp = time.time()
         botnameupper = bot_name.upper()
         usernameupper = username.upper()
         timestring = timestamp_to_datetime(timestamp)
@@ -2765,7 +2766,7 @@ async def Upload_Implicit_Short_Term_Memories(query, username, user_id, bot_name
         settings = json.load(f)
     embed_size = settings['embed_size']   
     backend_model = settings.get('Model_Backend', 'Llama_2')    
-    timestamp = time()
+    timestamp = time.time()
     timestring = timestamp_to_datetime(timestamp)
     payload = list()
     payload = list()    
@@ -2839,7 +2840,7 @@ async def Aetherius_Explicit_Memory(user_input, vector_input, vector_monologue, 
         main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
         secondary_prompt = prompts["secondary_prompt"]
         greeting_msg = prompts["greeting_prompt"].replace('<<NAME>>', bot_name)
-        timestamp = time()
+        timestamp = time.time()
         timestring = timestamp_to_datetime(timestamp)
         personality_list = list()
         personality_update = list()
@@ -3086,7 +3087,7 @@ async def Upload_Heuristics(query, username, user_id, bot_name):
         settings = json.load(f)
     embed_size = settings['embed_size']    
     backend_model = settings.get('Model_Backend', 'Llama_2')
-    timestamp = time()
+    timestamp = time.time()
     timestring = timestamp_to_datetime(timestamp)
     payload = list()
     payload = list()    
@@ -3120,7 +3121,7 @@ async def Upload_Explicit_Short_Term_Memories(query, username, user_id, bot_name
         settings = json.load(f)
     embed_size = settings['embed_size']    
     backend_model = settings.get('Model_Backend', 'Llama_2')
-    timestamp = time()
+    timestamp = time.time()
     timestring = timestamp_to_datetime(timestamp)
     payload = list()
     payload = list()    
@@ -3154,7 +3155,7 @@ async def Upload_Implicit_Long_Term_Memories(query, username, user_id, bot_name)
         settings = json.load(f)
     embed_size = settings['embed_size']    
     backend_model = settings.get('Model_Backend', 'Llama_2')
-    timestamp = time()
+    timestamp = time.time()
     timestring = timestamp_to_datetime(timestamp)
     payload = list()
     payload = list()    
@@ -3187,7 +3188,7 @@ async def Upload_Explicit_Long_Term_Memories(query, username, user_id, bot_name)
     with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
         settings = json.load(f)
     embed_size = settings['embed_size']    
-    timestamp = time()
+    timestamp = time.time()
     timestring = timestamp_to_datetime(timestamp)
     payload = list()
     payload = list()    
@@ -3272,7 +3273,7 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
     greeting_msg = prompts["greeting_prompt"].replace('<<NAME>>', bot_name)
     while True:
         a = user_input
-        timestamp = time()
+        timestamp = time.time()
         timestring = timestamp_to_datetime(timestamp)
         counter += 1
         conversation.clear()

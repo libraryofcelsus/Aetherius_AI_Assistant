@@ -2343,6 +2343,25 @@ class ChatBotApplication(customtkinter.CTkFrame):
         t = threading.Thread(target=self.process_message, args=(a,))
         t.start()
         
+    # For this function, have it open a file selection window, then send the image to gpt vision along with the entered text in the window.
+    # Should Function like the discord bot
+    def initiate_image_model(self):
+        user_input = self.user_input.get("1.0", tk.END).strip()
+        filetypes = [
+            ("Supported Files", "*.png *.jpg *.jpeg"),
+            ("All Files", "*.*")
+        ]
+        image_path = filedialog.askopenfilename(filetypes=filetypes)
+        if image_path:
+            self.user_input.delete("1.0", tk.END)  # Clear all the text in the widget.
+            self.send_button.configure(state=tk.DISABLED)
+            self.voice_button.configure(state=tk.DISABLED)
+            self.user_input.unbind("<Return>")
+            self.user_input.insert(tk.END, f"Thinking...\n\nPlease Wait...")
+            self.user_input.configure(state=tk.DISABLED)
+            t = threading.Thread(target=self.process_message, args=(user_input, image_path,))
+            t.start()
+        
     def initiate_record_audio(self):
         self.is_recording = True
         self.user_input.delete("1.0", tk.END)  # Clear all the text in the widget.
@@ -2403,7 +2422,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
         t.start()
 
 
-    def process_message(self, a):
+    def process_message(self, a, image_path=None):
         self.conversation_text.insert(tk.END, f"\nYou: {a}\n\n")
         self.conversation_text.yview(tk.END)
         with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
@@ -2412,11 +2431,12 @@ class ChatBotApplication(customtkinter.CTkFrame):
         bot_name = settings.get('Current_Ui_Bot_Name', '')
         username = settings.get('Current_Ui_Username', '')
         user_id = settings.get('Current_Ui_User_ID', '')
-
+        if image_path is not None:
+            print(f"Processing message: {a}, Image path: {image_path}")
         if self.is_agent_mode_checked():
-            asyncio.run_coroutine_threadsafe(self.async_agent_task(a, username, user_id, bot_name, self.handle_response), self.loop)
+            asyncio.run_coroutine_threadsafe(self.async_agent_task(a, username, user_id, bot_name, self.handle_response, image_path), self.loop)
         else:
-            asyncio.run_coroutine_threadsafe(self.async_chatbot_task(a, username, user_id, bot_name, self.handle_response), self.loop)
+            asyncio.run_coroutine_threadsafe(self.async_chatbot_task(a, username, user_id, bot_name, self.handle_response, image_path), self.loop)
 
     def handle_response(self, response):
         # Schedule UI update in the main thread
@@ -2455,13 +2475,20 @@ class ChatBotApplication(customtkinter.CTkFrame):
         self.bind_right_alt_key()
         self.bind_enter_key()
 
-    async def async_chatbot_task(self, a, username, user_id, bot_name, callback):
-        response = await Aetherius_Chatbot(a, username, user_id, bot_name)
-        self.conversation_text.after(0, callback, response)
+    async def async_chatbot_task(self, a, username, user_id, bot_name, callback, image_path):
+        try:
+            response = await Aetherius_Chatbot(a, username, user_id, bot_name, image_path)
+            
+            self.conversation_text.after(0, callback, response)
+        except:
+            traceback.print_exc()
         
-    async def async_agent_task(self, a, username, user_id, bot_name, callback):
-        response = await Aetherius_Agent(a, username, user_id, bot_name)
-        self.conversation_text.after(0, callback, response)
+    async def async_agent_task(self, a, username, user_id, bot_name, callback, image_path):
+        try:
+            response = await Aetherius_Agent(a, username, user_id, bot_name, image_path)
+            self.conversation_text.after(0, callback, response)
+        except:
+            traceback.print_exc()
         
     def open_websearch_window(self):
         websearch_window = tk.Toplevel(self)
@@ -2978,7 +3005,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
         top.title("Set TTS Model")
 
         # Replace label with a read-only Text widget to allow selection
-        label_text = "Options: gTTS(Google), elevenTTS(Elevenlabs), coquiaiTTS(Voice Cloning)\nEnter what TTS provider you wish to use:"
+        label_text = "Options: gTTS(Google), elevenTTS(Elevenlabs), coquiaiTTS(Voice Cloning)\n(See cloning folder in API for setup info)\nEnter what TTS provider you wish to use:"
         
         # Adjust the appearance of the Text widget
         label = tk.Text(top, height=3, wrap=tk.WORD, bg=dark_bg_color, fg=light_text_color, bd=0, padx=10, pady=10, relief=tk.FLAT, highlightthickness=0)
@@ -3016,12 +3043,15 @@ class ChatBotApplication(customtkinter.CTkFrame):
         label.bind("<Button-3>", show_context_menu)
         self.host_entry.bind("<Button-3>", show_context_menu)
 
+
+
         def save_host():
             new_host = self.host_entry.get()
-            with open(file_path, 'w') as file:
-                file.write(new_host)
-            self.master.destroy()
-            Aetherius_GUI()
+            settings["TTS"] = new_host  # Replace 'HOST_Oobabooga' with the actual key if different
+            with open(json_file_path, 'w', encoding='utf-8') as file:
+                json.dump(settings, file, indent=4)
+            top.destroy()
+
 
         save_button = customtkinter.CTkButton(top, text="Save", command=save_host)
         save_button.pack(pady=10)
@@ -3667,8 +3697,14 @@ class ChatBotApplication(customtkinter.CTkFrame):
         self.mode_menu.set("Memory Mode")
         self.mode_menu.bind("<<ComboboxSelected>>", handle_memory_selection)
         
-        self.tts_check = customtkinter.CTkCheckBox(self.input_frame, variable=self.tts_var, text="TTS", width=12)
-        self.tts_check.grid(row=1, column=3, padx=5)
+    #    self.tts_check = customtkinter.CTkCheckBox(self.input_frame, variable=self.tts_var, text="TTS", width=12)
+    #    self.tts_check.grid(row=1, column=3, padx=5)
+    
+        self.voice_button = customtkinter.CTkButton(self.input_frame, text="Image", command=self.initiate_image_model, width=50)  
+        self.voice_button.grid(row=1, column=3, padx=5)
+    
+    #    self.tts_check = customtkinter.CTkCheckBox(self.input_frame, variable=self.tts_var, text="TTS", width=12)
+    #    self.tts_check.grid(row=1, column=3, padx=5)
         
         
     #    def toggle_db_checkboxes():
@@ -3698,6 +3734,9 @@ class ChatBotApplication(customtkinter.CTkFrame):
     #    self.agent_mode_check = customtkinter.CTkCheckBox(self.checkmarks_frame, text="Agent Mode", variable=self.agent_mode_var, command=toggle_db_checkboxes)
         self.agent_mode_check = customtkinter.CTkCheckBox(self.checkmarks_frame, text="Agent Mode", variable=self.agent_mode_var)
         self.agent_mode_check.grid(row=0, column=0, sticky=tk.W, padx=25)
+        
+        self.tts_check = customtkinter.CTkCheckBox(self.checkmarks_frame, variable=self.tts_var, text="TTS", width=12)
+        self.tts_check.grid(row=1, column=0, sticky=tk.W, padx=25)
 
     #    self.external_resources_check = customtkinter.CTkCheckBox(self.checkmarks_frame, text="External Resources", variable=self.external_resources_var, state=tk.DISABLED)
     #    self.external_resources_check.grid(row=1, column=0, sticky=tk.W, padx=25)

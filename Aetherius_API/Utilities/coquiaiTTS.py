@@ -4,6 +4,7 @@ import wave
 from TTS.api import TTS
 import numpy as np
 import re
+import traceback
 
 # Function to play audio
 def play_audio(filename):
@@ -63,10 +64,10 @@ def TTS_Generation(query):
         device = "cuda" if torch.cuda.is_available() else "cpu"
 
         # List available 🐸TTS models and choose the first one
-        model_name = TTS().list_models()[0]
+    #    model_name = TTS().list_models()[0]
 
         # Init TTS
-        tts = TTS(model_name).to(device)
+      #  tts = TTS(model_name).to(device)
 
         # Initialize TTS with the target model name
         tts = TTS(model_name="tts_models/multilingual/multi-dataset/your_tts", progress_bar=True).to(device)
@@ -78,3 +79,4 @@ def TTS_Generation(query):
         play_audio("output.wav")
     except Exception as e:
         print(e)
+        traceback.print_exc()

@@ -1,0 +1,11 @@
+activate the venv
+
+cd <Aetherius Install Location>
+
+pip install TTS
+
+Next, place a .wav file titled "audio" inside of the cloning folder.
+
+Set the TTS field in the chatbot_settings.json or Ui to coquiai
+
+TTS should now work

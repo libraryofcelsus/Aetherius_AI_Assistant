@@ -162,19 +162,11 @@ Aetherius's development is self-funded by my day job, consider supporting me if 
 
 ------
 
-[Aetherius Usage Guide](https://www.libraryofcelsus.com/research/aetherius-usage-guide/)
-
-[Skip to installation guide](#installation-guide)
-
-[Skip to Changelog](#changelog)
-
-More output examples can be found at https://github.com/libraryofcelsus/Aetherius_Ai_Assistant_Outputs
-
-------
-
 Join the Discord for help or to get more in-depth information!
 
 Discord Server: https://discord.gg/pb5zcNa7zE
+
+[Aetherius Usage Guide](https://www.libraryofcelsus.com/research/aetherius-usage-guide/)
 
 Subscribe to my youtube for Video Tutorials: https://www.youtube.com/@LibraryofCelsus (Channel not Launched Yet)
 
@@ -205,7 +197,13 @@ Inspired by https://github.com/daveshap/
 
 • Launch Ai Tutorial YouTube Channel
 
-# Changelog:
+# Changelog: 
+**0.047b** 
+
+• Added GPT Vision to Ui.  Also added TTS.
+
+• Added Webscrape and File Process Tools to the Ui
+
 **0.047a**
 
 • Added experimental version of an updated Ui.  Tools, TTS, and Voice Input still need to be updated.
@@ -377,26 +375,7 @@ AetherNode Google Colab if you don't have a GPU: <a target="_blank" href="https:
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
 </a>
 
-**6.** To run Aetherius Locally using Oobabooga, first install the web-ui at: https://github.com/oobabooga/text-generation-webui/releases/tag/snapshot-2023-11-05
-
-Oobabooga Text-Ui just changed how their api works.  The most up to date version that works is snapshot-2023-11-05
-This can be done through the release menu or **git clone https://github.com/oobabooga/text-generation-webui --branch snapshot-2023-11-05**
-
-To run Aetherius on Google Colab with Oobabooga using a public Api, use the Notebook file in the "./Colab Notebooks" Folder.  To use the Public Api with Aetherius, change the "HOST_Oobabooga" in the settings json to the given non-streaming Url.  To use multiple Hosts, separate them with a space. <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Oobabooga_Public_Api.ipynb">
-  <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
-</a>
-
-  Then, under the "Interface Mode" tab, enable the api checkbox in the "Available Extensions" field only. Then click apply and restart the interface.   
-
-  Next, navigate to the models tab. Uncheck the autoload models box and then input "TheBloke/Llama-2-13B-chat-GPTQ" into the downloads box (7B model can be used for faster results, but it occasionally breaks format and has a tendency to make things up.  Wouldn't recommend if you need factual data). Other models may work, but this is the one that is tested.   
-
-  Once the download is completed, reload the model selection menu and then select the model. Change the model loader to Exllamav2 and set the max_seq_len to "4096".  Set the "gpu_split" to 1 GB under your Gpu's max Vram.   
-
-  Click the "load" button and load the model.    
-
-  Now, go into the chatbot_settings.json file in the Aetherius_API folder and change the API to Oobabooga instead of AetherNode. Aetherius should now work!  
-
-**7.** Set up Qdrant
+**6.** Set up Qdrant
 
 Qdrant Cloud: https://qdrant.to/cloud
 
@@ -408,13 +387,15 @@ See: https://docs.docker.com/desktop/backup-and-restore/ for how to make backups
 
 Once the local Qdrant server is running, it should be auto detected by Aetherius.
 
-If No Qdrant server is running, Aetherius will save to disk.
+**7.** Launch Aetherius with one of the **run_*.bat** files.
 
-**8.** Launch Aetherius with one of the **run.bat** files.
-
-**9.** Upload heuristics to DB and change the Bot and User name to start chatting with Aetherius!  
+**8.** Upload heuristics to DB and change the Bot Name, Username, and User_ID to start chatting with Aetherius!  
 
 To change the model used with AetherNode, change the "model_name_or_path" key in AetherNode/settings.json to the desired model.  You must then change the "Model_Backend" key in Aetherius_API/chatbot_settings.json to the desired format.  Only Llama-2-Chat and Alpaca are available for now.
+
+Recommended Models: 
+TheBloke/Llama-2-13B-chat-GPTQ  
+TheBloke/MythoMax-L2-13B-GPTQ  
 
 Settings and Prompts can be found in the Aetherius_API folder.
 
@@ -443,7 +424,9 @@ Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aethe
 
 **8.** Use the link to add the bot to a server.
 
-**9.** DM the bot.  If you have given it an OpenAi key, you can also send photos.
+**9. To enable Vision with the Discord Bot, you must add an Open Ai key to the Aetherius API folder and change the Vision_Model key in chatbot_settings.json to "eyes_url"**
+
+**10.** DM the bot.  If you have given it an OpenAi key, you can also send photos.
 
 *Bot Commands*
 
@@ -518,7 +501,7 @@ Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aethe
 **21.** If you plan on using Photo OCR (jpg, jpeg, png Text Recognition), it requires tesseract: https://github.com/UB-Mannheim/tesseract/wiki
     Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aetherius_Ai_Assistant" Folder.  Photos must be placed in the ./Upload/SCANS folder.
 
-**22.** Run main.py by typing **python main.py** in cmd or one of the **run.bat** files as admin to start Aetherius. (Using run.bat will let you skip opening CMD and activating the environment.)
+**22.** Run Aetherius by typing **python Experimental_ Ui_Menu.py** in cmd or one of the **run.bat** files as admin to start Aetherius. (Using run.bat will let you skip opening CMD and activating the environment.)
 
 **23.** Select DB Upload Heuristics from the DB Management menu to upload Heuristics for the bot, this DB can also function as a Personality DB. An example of how to do 
     this can be found in "personality_db_input_examples.txt" in the config folder.
@@ -528,12 +511,9 @@ Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aethe
 
 **25.** You can change the botname and the username in the login menu.  Changing either of these will create a new chatbot.
 
-**26.** Once the chatbot has adopted a desired personality, I recommend creating a backup of the "nexus" folder and then create a collection of the "aetherius" index on 
-    pinecone.io.  This will let you revert back to a base state if issues arise later.
+**26.** Once you have made a backup, you can start using the "Auto" mode, this mode has Aetherius decide for itself whether or not it should upload to its memories.
 
-**27.** Once you have made a backup, you can start using the "Auto" mode, this mode has Aetherius decide for itself whether or not it should upload to its memories.
-
-**28.** To run Aetherius with it's custom API, download and install: https://github.com/libraryofcelsus/AetherNode    
+**27.** To run Aetherius with it's custom API, download and install: https://github.com/libraryofcelsus/AetherNode    
 This is the new default API for Aetherius.  Installation Instructions can be found on the github page.
 
 To change the model used with AetherNode, change the "model_name_or_path" key in AetherNode/settings.json to the desired model.  You must then change the "Model_Backend" key in Aetherius_API/chatbot_settings.json to the desired format.  Only Llama-2-Chat and Alpaca are available for now.
@@ -542,7 +522,7 @@ AetherNode Google Colab if you don't have a GPU: <a target="_blank" href="https:
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
 </a>
 
-**29.** To run Aetherius Locally using Oobabooga, first install the web-ui at: https://github.com/oobabooga/text-generation-webui/releases/tag/snapshot-2023-11-05
+**28.** To run Aetherius Locally using Oobabooga, first install the web-ui at: https://github.com/oobabooga/text-generation-webui/releases/tag/snapshot-2023-11-05
 
 Oobabooga Text-Ui just changed how their api works.  The most up to date version that works is snapshot-2023-11-05
 This can be done through the release menu or **git clone https://github.com/oobabooga/text-generation-webui --branch snapshot-2023-11-05**

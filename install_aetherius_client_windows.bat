@@ -19,45 +19,34 @@ if %errorlevel% equ 0 (
 
 :: Check if FFmpeg is already installed
 where ffmpeg >nul 2>nul
-if %errorlevel% == 0 (
+if %errorlevel% equ 0 (
     echo FFmpeg is already installed.
-    goto end
+) else (
+    :: Create a directory for FFmpeg
+    mkdir ffmpeg_install
+    cd ffmpeg_install
+
+    :: Download FFmpeg (Replace the URL with the latest version if needed)
+    echo Downloading FFmpeg...
+    curl -o ffmpeg.zip https://www.gyan.dev/ffmpeg/builds/packages/ffmpeg-5.1.2-essentials_build.zip
+
+    :: Unzip FFmpeg
+    echo Unzipping FFmpeg...
+    tar -xf ffmpeg.zip
+
+    :: Rename and move folder to C:\
+    echo Moving FFmpeg to C:\...
+    move ffmpeg-5.1.2-essentials_build C:\ffmpeg
+
+    :: Add FFmpeg to system PATH
+    echo Adding FFmpeg to PATH...
+    setx /M PATH "%PATH%;C:\ffmpeg\bin"
+
+    :: Clean up
+    cd ..
+    rmdir /S /Q ffmpeg_install
+    echo FFmpeg installation complete!
 )
-
-:: Request administrative privileges for setting the PATH
-net session >nul 2>&1
-if %errorlevel% neq 0 (
-    echo Requesting administrative privileges...
-    powershell -Command "Start-Process cmd -ArgumentList '/c %~f0' -Verb runAs" 
-    goto end
-)
-
-:: Create a directory for FFmpeg
-echo Creating directory for FFmpeg...
-if not exist ffmpeg_install mkdir ffmpeg_install
-cd ffmpeg_install
-
-:: Download FFmpeg (Replace THIS_URL with the actual download link)
-echo Downloading FFmpeg...
-powershell -Command "Invoke-WebRequest -Uri https://www.gyan.dev/ffmpeg/builds/packages/ffmpeg-6.0-essentials_build.zip -OutFile ffmpeg.zip"
-
-:: Unzip FFmpeg
-echo Unzipping FFmpeg...
-powershell -Command "Expand-Archive -Path ffmpeg.zip -DestinationPath ."
-
-:: Rename and move folder to C:\
-echo Moving FFmpeg to C:\...
-if exist C:\ffmpeg rmdir /S /Q C:\ffmpeg
-move ffmpeg-* C:\ffmpeg
-
-:: Add FFmpeg to system PATH
-echo Adding FFmpeg to PATH...
-setx /M PATH "%PATH%;C:\ffmpeg\bin"
-
-:: Clean up
-cd ..
-rmdir /S /Q ffmpeg_install
-echo FFmpeg installation complete!
 
 
 

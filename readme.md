@@ -20,6 +20,8 @@ libraryofcelsus**
 ------
 **Recent Changes**
 
+• 2/11 Fixed response printing prefix.
+
 • 2/09 Added GPT Vision to Ui.  Also added TTS.
 
 • 2/07 Added Webscrape and File Process Tools to the Ui

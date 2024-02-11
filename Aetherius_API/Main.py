@@ -804,7 +804,7 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
                         
                         
         inner_monologue.append({'role': 'assistant', 'content': f"{botnameupper}'S EPISODIC MEMORIES: {db_search_3}\n{db_search_5}\n{botnameupper}'S SHORT-TERM MEMORIES: {db_search_4}\n{botnameupper}'s HEURISTICS: {db_search_6} {user_input_start} Now return and analyze the current conversation history. {user_input_end} CURRENT CONVERSATION HISTORY: {con_hist} "})
-        inner_monologue.append({'role': 'user', 'content': f"{user_input_start} SYSTEM: Compose a short silent soliloquy to serve as {bot_name}'s internal monologue/narrative.  Ensure it includes {bot_name}'s contemplations in relation to {username}'s request and does not exceed a paragraph in length.\n{usernameupper}/USER'S REQUEST: {user_input} {user_input_end} "})
+        inner_monologue.append({'role': 'user', 'content': f"{user_input_start} SYSTEM: Compose a short silent soliloquy to serve as {bot_name}'s internal monologue/narrative.  Ensure it includes {bot_name}'s contemplations in relation to {username}'s request based on {bot_name}'s memories and does not exceed a paragraph in length.\nDo not use emote or action tags in your contemplations.\n{usernameupper}/USER'S REQUEST: {user_input} {user_input_end} "})
         inner_monologue.append({'role': 'assistant', 'content': f"{botnameupper}: "})
         
         if API == "AetherNode" or API == "Oobabooga":
@@ -1037,6 +1037,8 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
         
         
         
+        
+        
         db_search_12, db_search_13, db_search_14 = None, None, None
         
         try:
@@ -1131,11 +1133,11 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
                     
                   
                   
-        response.append({'role': 'assistant', 'content': f"{botnameupper}'S MEMORIES: {db_search_12}\n{db_search_13}\n{bot_name}'s HEURISTICS: {db_search_14}\n{botnameupper}'S INNER THOUGHTS: {output_one}\n{secondary_prompt} {user_input_start} Now return and analyze the previous conversation history. {user_input_end} CONVERSATION HISTORY: {con_hist} "})
-        response.append({'role': 'user', 'content': f"{user_input_start} {usernameupper}: We are currently in the middle of a conversation, please review your action plan for your response. {user_input_end}"})
+        response.append({'role': 'assistant', 'content': f"{botnameupper}'S MEMORIES: {db_search_12}\n{db_search_13}\n{bot_name}'s HEURISTICS: {db_search_14}\n{botnameupper}'S INNER THOUGHTS: {output_one}\n{secondary_prompt} {user_input_start} Now return and analyze the previous conversation history. {user_input_end} CURRENT CONVERSATION HISTORY: {con_hist} "})
+        response.append({'role': 'user', 'content': f"{user_input_start} {usernameupper}: We are currently in the middle of a conversation, please review your action plan and the previous conversation history for your response. {user_input_end}"})
         response.append({'role': 'assistant', 'content': f"{botnameupper}: I will now review my action plan, using it as a framework to construct my upcoming response: {output_two}\nI will proceed by reviewing our previous conversation to ensure I respond in a manner that is both informative and emotionally attuned. Please now give me the message I am to respond to."})
-        response.append({'role': 'user', 'content': f"{user_input_start} {usernameupper}'S MOST RECENT MESSAGE: {user_input} {user_input_end} "})
-        response.append({'role': 'assistant', 'content': f"{botnameupper}: Sure, here is my natural sounding response to {username}'s latest message: "})
+        response.append({'role': 'user', 'content': f"{user_input_start} {usernameupper}'S MOST RECENT AND CURRENT MESSAGE: {user_input} {user_input_end} "})
+        response.append({'role': 'assistant', 'content': f"{botnameupper}: Sure, here is my response to {username}'s latest message: "})
         
         if API == "AetherNode" or API == "Oobabooga":
             prompt = ''.join([message_dict['content'] for message_dict in response])
@@ -1145,17 +1147,23 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
             response_two = Response_Call(response, username, bot_name)
 
         
-        bot_name_pattern = re.compile(rf"^{re.escape(bot_name)}[\s:-]+", re.IGNORECASE)
+        response_two = response_two.strip()  # Assume response_two is your input string
 
-        response_two = response_two.strip()
+        # Regular expression pattern to match "Aetherius" in any case, followed by anything up to the first ":"
+        bot_name_pattern = re.compile(rf"^{re.escape(bot_name)}.*?:", re.IGNORECASE)
+
+        # Search for the pattern and remove it
         match = bot_name_pattern.search(response_two)
         if match:
-            response_two = response_two[match.end():]
+            response_two = response_two[match.end():].strip()  # .strip() is used to remove any leading whitespace after the ":"
 
+        # Further processing to split into sentences and remove incomplete final sentence, if needed
         sentences = re.split(r'(?<=[.!?])\s+', response_two)
         if sentences and not re.search(r'[.!?]$', sentences[-1]):
             sentences.pop()
         response_two = ' '.join(sentences)
+
+        # Conditional output, assuming Response_Output is defined elsewhere
         if Response_Output == 'True':
             print('\n\n%s: %s' % (bot_name, response_two))
             

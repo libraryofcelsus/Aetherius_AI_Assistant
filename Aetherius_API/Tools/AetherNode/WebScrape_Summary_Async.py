@@ -108,6 +108,7 @@ async def async_chunk_text_from_url(url, username, bot_name, chunk_size=380, ove
             with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
                 settings = json.load(f)
             host_data = settings.get('HOST_AetherNode', '').strip()
+            embed_size = settings.get('embed_size', '').strip()
             hosts = host_data.split(' ')
             num_hosts = len(hosts)
         except Exception as e:

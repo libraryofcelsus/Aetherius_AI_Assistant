@@ -8,17 +8,17 @@ Version .047 of the Aetherius Ai Assistant/Agent by [LibraryofCelsus.com](https:
 
 Aetherius is in a state of constant iterative development.  If you like the version you are using, keep a backup or make a fork.  Expect Bugs. 
 
-**I want to share an update on Aetherius and some personal circumstances that have impacted my ability to contribute as fully as I would like to my project.  
-Recently, I've encountered significant health challenges within my family—my father has been diagnosed with a benign form of cancer, leading to an early retirement due to stress, and my mother is grappling with a brain malformation that might necessitate surgical intervention. These challenges have required me to assume additional responsibilities at home, consequently limiting the time I can dedicate to Aetherius.  
-Aetherius is a project born from my deep passion for creating a truly effective, locally operated AI assistant designed to significantly improve people's lives. Despite the current pause, my commitment to this vision remains unshaken. However, the realities of my situation have made it difficult to devote the necessary time and mental energy to continue development at the pace I had envisioned.  
-The support and feedback from the community have been incredibly motivating, and I am deeply grateful for every message of encouragement and every expression of interest in Aetherius. Your engagement serves as a constant reminder of the impact my work can have and fuels my determination to return to it with the focus and dedication it deserves.  
-For the immediate future, my contributions to Aetherius will be more limited than I would prefer. While I may not be able to keep pace with the latest developments in AI research or respond as quickly as before, please know that Aetherius remains a top priority for me. I am committed to resuming work on my project as soon as my circumstances allow, and I am excited about the possibilities that lie ahead for us.  
-Thank you for your understanding, patience, and continued support. The journey of Aetherius is far from over, and I eagerly anticipate the day when I can actively pursue our shared goals once again.  
+**I'd like to provide an update regarding my project, Aetherius, alongside some personal health challenges that have significantly impacted my contributions lately.  
+In my previous update, I shared the challenges posed by my parents' health issues on my availability and engagement with the project. Regrettably, the situation has further deteriorated. While there's been no change in my parents' health status, I've encountered my own set of health hurdles. On February 13th, I underwent surgery to remove a ganglion cyst from my wrist. Over a month has passed, yet I find myself unable to use my hand for extended periods without experiencing discomfort. The recovery process was also further complicated by a cracked a tooth due to teeth clenching, which lead to a TMJ disorder. Furthermore, after consulting with my hip specialist and undergoing an MRI, it was revealed that I have a degenerating and torn labrum (I have already had two hip surgeries).  In addition to all of that, while in pursuit of a diagnosis for my chronic back pain, an x-ray showed a fractured vertebrae, although I am still awaiting a CT scan to confirm. Given these circumstances, it's likely that updates on the project will be considerably sparse, as I am currently grappling with fairly constant and intense pain.
 With much love,  
 libraryofcelsus**
 
 ------
 **Recent Changes**
+
+• 4/08 Added New API script.  This has the Discord Bot built in and will automatically launch if a valid token is detected in the API_Settings.json.  Ngrok is used for a public facing URL, it currently uses openai formating.
+
+• 4/08 Fixed bug with image processing, should now work with both Ui and API script.
 
 • 2/11 Fixed response printing prefix.
 
@@ -355,21 +355,20 @@ To run it on a colab notebook click here: <a target="_blank" href="https://colab
 
 ## Installer bat
 
-Installer File can be found at: **[https://github.com/libraryofcelsus/Aetherius_AI_Assistant/blob/main/windows_installer.bat](https://github.com/libraryofcelsus/Aetherius_AI_Assistant/blob/main/install_aetherius_client_windows.bat)**
+Download the project zip folder by pressing the <> Code drop down menu.
 
 **1.** Install Python 3.10.6, Make sure you add it to PATH: **https://www.python.org/downloads/release/python-3106/**
 
-**2.** Run the Windows_Installer Bat as admin.
+**2.** Run "install_aetherius_client_windows.bat" to install the Aetherius Client.
 
 (If you get an error when installing requirements run: **python -m pip cache purge**)
 
-(If using Ui, edit settings outside of api folder.  If using Api, edit settings inside the Api Folder.  Discord and Gradio use the Api.)
 
-**3.** Copy your OpenAi and Qdrant API/URL keys to the api_keys folder inside of the created Aetherius_API folder if you are using the OpenAi version or GPT Vision.
+**3.** Copy your OpenAi and Qdrant API/URL keys to the api_keys folder inside of the created Aetherius_API folder.  Openai is needed for GPT Vision.
 
 **4.** Copy your Google CSE Key and Api Key to the api_keys folder or set Web_Search to False in the External Resources Sub-Agent.  You can also change the search engine to Bing.
 
-**5.** To run Aetherius with it's custom API, open the Aetherius_Ai_Assistant folder and run: **install_aethernode_windows.bat**  
+**5.** To run Aetherius with it's custom API, run: **install_aethernode_windows.bat**  
 Alternativly you can download and install it here: https://github.com/libraryofcelsus/AetherNode    
 This is the new default API for Aetherius.  Installation Instructions can be found on the github page.  
 
@@ -377,7 +376,7 @@ AetherNode Google Colab if you don't have a GPU: <a target="_blank" href="https:
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
 </a>
 
-**6.** Set up Qdrant
+**6.** Set up Qdrant  
 
 Qdrant Cloud: https://qdrant.to/cloud
 
@@ -389,7 +388,21 @@ See: https://docs.docker.com/desktop/backup-and-restore/ for how to make backups
 
 Once the local Qdrant server is running, it should be auto detected by Aetherius.
 
-**7.** Launch Aetherius with one of the **run_*.bat** files.
+**7.** Launch Aetherius with one of the **run_*.bat** files.  
+
+(Discord has been added to the New API.  It will automatically be ran alongside the API if a valid token is entered in "API_Settings.json".)  
+(If using NGROK, you must make a tunnel named Aetherius in the ngrok config.  This can be done with 'run_aetherius_cmd.bat' by entering 'ngrok config edit')
+Get a static NGROK Address here: https://dashboard.ngrok.com/cloud-edge/domains  
+
+Example Ngrok Config:
+region: us  
+version: '2'  
+authtoken: REPLACE_WITH_NGROK_AUTH  
+tunnels:  
+  Aetherius:  
+    proto: http  
+    hostname: REPLACE WITH STATIC NGROK DOMAIN  
+    addr: 127.0.0.1:5000  
 
 **8.** Upload heuristics to DB and change the Bot Name, Username, and User_ID to start chatting with Aetherius!  
 

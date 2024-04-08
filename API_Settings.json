@@ -1,0 +1,8 @@
+{
+  "discord_bot_token": "ENTER DISCORD BOT TOKEN",
+  "use_ngrok": false,
+  "Read_if_using_ngrok": "To use ngrok, you must make a tunnel named Aetherius in the ngrok config.  This can be done with 'run_aetherius_cmd.bat' by entering 'ngrok config edit'",
+  "bot_name": "Aetherius",
+  "username": "USER",
+  "user_id": "USER"
+}

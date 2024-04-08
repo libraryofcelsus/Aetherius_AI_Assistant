@@ -57,9 +57,9 @@ cd /d "%~dp0"
 :: Uncomment this if you want to delete existing folder before cloning
 :: rmdir /s /q "Aetherius_AI_Assistant"
 
-echo Cloning the repository...
-git clone https://github.com/libraryofcelsus/Aetherius_AI_Assistant.git
-cd Aetherius_AI_Assistant
+:: echo Cloning the repository...
+:: git clone https://github.com/libraryofcelsus/Aetherius_AI_Assistant.git
+:: cd Aetherius_AI_Assistant
 
 :: Create a virtual environment
 python -m venv "venv"

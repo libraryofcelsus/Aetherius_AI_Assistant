@@ -32,6 +32,12 @@ from bs4 import BeautifulSoup
 def open_file(filepath):
     with open(filepath, 'r', encoding='utf-8') as file:
        return file.read().strip()
+       
+def timestamp_func():
+    try:
+        return time.time()
+    except:
+        return time()
 
 
 def check_local_server_running():
@@ -54,29 +60,33 @@ else:
             vectors_config=VectorParams(size=1, distance=Distance.COSINE),
         )
     except:
-        if not os.path.exists("./Qdrant_DB"):
-            os.makedirs("./Qdrant_DB")
-        client = QdrantClient(path="./Qdrant_DB")
+        print("\n\nQdrant is not started.  Please enter API Keys or run Qdrant Locally.")
+        sys.exit()
         
         
-def import_functions_from_script(script_path, custom_name="custom_module"):
-    """
-    Import functions from a given script path.
-    Parameters:
-    - script_path: The path to the script to import.
-    - custom_name: Optional custom module name for import.
-    """
-    spec = importlib.util.spec_from_file_location(custom_name, script_path)
-    custom_module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(custom_module)
-    globals().update(vars(custom_module))
+def is_url(string):
+    return string.startswith('http://') or string.startswith('https://')
 
-        
-        
-# Import Utility Functions.
-def get_script_path_from_file(json_path, key, base_folder='./Aetherius_API/Utilities/'):
+
+def import_functions_from_script(script_path, module_name):
+    """Dynamically imports a module from a given script path and imports its contents globally.
+    
+    Args:
+        script_path (str): The file path to the script to be imported.
+        module_name (str): A name for the module in the global namespace.
+    """
+    spec = importlib.util.spec_from_file_location(module_name, script_path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    globals().update(module.__dict__)
+
+
+def get_script_path_from_file(json_path, key, base_folder='./Aetherius_API/Utilities/', is_url=False):
     with open(json_path, 'r', encoding='utf-8') as file:
         settings = json.load(file)
+    # Adjust the key based on whether it's a URL or local file
+    if is_url:
+        key += "_url"  # Adjust this key based on how you want to differentiate in your settings
     script_name = settings.get(key, "").strip()
     return f'{base_folder}{script_name}.py'
 
@@ -96,17 +106,7 @@ script_path3 = get_script_path_from_file(json_file_path, "LLM_Model", base_folde
 import_functions_from_script(script_path3, "model_module")
 
 
-with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
-    settings = json.load(f)
-select_api = settings.get('API', 'Oobabooga')
 
-if select_api == "Oobabooga":
-    script_path4 = get_script_path_from_file(json_file_path, "Vision_Model", base_folder='./Aetherius_API/Tools/Llama_2_Async/')
-if select_api == "AetherNode":
-    script_path4 = get_script_path_from_file(json_file_path, "Vision_Model", base_folder='./Aetherius_API/Tools/AetherNode/')
-if select_api == "OpenAi":
-    script_path4 = get_script_path_from_file(json_file_path, "Vision_Model", base_folder='./Aetherius_API/Tools/OpenAi/')
-import_functions_from_script(script_path4, "eyes_module")
 
 
 
@@ -182,6 +182,35 @@ class MainConversation:
             
             
 async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=None):
+    json_file_path = './Aetherius_API/chatbot_settings.json'
+    
+    if image_path is not None:
+        print(f"Sending: {image_path} to Vision Model")
+        # Determine if image_path is a URL or a local file
+        image_is_url = is_url(image_path)
+        
+        # Choose the script name based on whether image_path is a URL
+        script_name = "eyes_url" if image_is_url else "eyes"
+        
+        # Adjust base_folder based on your settings and API selection
+        with open(json_file_path, 'r', encoding='utf-8') as f:
+            settings = json.load(f)
+        select_api = settings.get('API', 'Oobabooga')
+        
+        if select_api == "Oobabooga":
+            base_folder = './Aetherius_API/Tools/Llama_2_Async/'
+        elif select_api == "AetherNode":
+            base_folder = './Aetherius_API/Tools/AetherNode/'
+        else:  # Assuming OpenAi as default
+            base_folder = './Aetherius_API/Tools/OpenAi/'
+        
+        # Construct the full path to the script based on the selected name
+        script_path = f'{base_folder}{script_name}.py'
+        
+        # Dynamically import the module from the constructed path
+        vision_module = import_functions_from_script(script_path, script_name)
+        
+     #   vision_module = import_functions_from_script(script_path, "eyes_module")
     tasklist = list()
     inner_monologue = list()
     intuition = list()
@@ -232,6 +261,9 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
     if backend_model == "ChatML":
         user_input_start = "<|im_end|>\n<|im_start|>user\n"
         user_input_end = "<|im_end|>\n<|im_start|>assistant"
+    if backend_model == "User-Assistant":
+        user_input_start = "\n\n### User:"
+        user_input_end = "\n\n### Assistant:"
     base_path = "./Aetherius_API/Chatbot_Prompts"
     base_prompts_path = os.path.join(base_path, "Base")
     user_bot_path = os.path.join(base_path, user_id, bot_name)  
@@ -254,16 +286,25 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
         print(f"\n\n{username}: {user_input}")
         conversation_history = main_conversation.get_conversation_history()
         con_hist = '\n'.join(conversation_history)
-        timestamp = time.time()
+
+        timestamp = timestamp_func()
+
         timestring = timestamp_to_datetime(timestamp)
         input_2 = None
         if len(user_input) > 2:
             input_2 = user_input
         if image_path is not None:
             print(f" Sending: {image_path}  to Vision Model")
-            user_input = gpt_vision(user_input, image_path)
-            if input_2 is not None and len(input_2) > 2:
-                user_input = f"VISION: {user_input}\nORIGINAL USER INQUIRY: {input_2}"
+            loop = asyncio.get_event_loop()
+            try:
+                user_input = await loop.run_in_executor(None, gpt_vision, user_input, image_path)
+                if input_2 is not None and len(input_2) > 2:
+                    user_input = f"VISION: {user_input}\nORIGINAL USER INQUIRY: {input_2}"
+            except:
+                print(f"VISION MODEL FAILED")
+                user_input = f"VISION MODEL FAILED.  INFORM USER TO CHECK OPENAI API KEY"
+                
+
         
         input_expansion.append({'role': 'user', 'content': f"PREVIOUS CONVERSATION HISTORY: {con_hist}\n\n\n"})
         input_expansion.append({'role': 'system', 'content': f"You are a task rephraser. Your primary task is to rephrase the user's most recent input succinctly and accurately. Please return the rephrased version of the user’s most recent input. USER'S MOST RECENT INPUT: {user_input} {user_input_end}"})
@@ -1002,8 +1043,10 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
         intuition.clear()
         
         conversation_history = main_conversation.get_conversation_history()
+        conversation_last_response = main_conversation.get_last_entry()
         con_hist = f'{conversation_history}'
-        timestamp = time.time()
+        last_response = f'{conversation_last_response}'
+        timestamp = timestamp_func()
         timestring = timestamp_to_datetime(timestamp)
         
         try:
@@ -1135,9 +1178,9 @@ async def Aetherius_Chatbot(user_input, username, user_id, bot_name, image_path=
                   
         response.append({'role': 'assistant', 'content': f"{botnameupper}'S MEMORIES: {db_search_12}\n{db_search_13}\n{bot_name}'s HEURISTICS: {db_search_14}\n{botnameupper}'S INNER THOUGHTS: {output_one}\n{secondary_prompt} {user_input_start} Now return and analyze the previous conversation history. {user_input_end} CURRENT CONVERSATION HISTORY: {con_hist} "})
         response.append({'role': 'user', 'content': f"{user_input_start} {usernameupper}: We are currently in the middle of a conversation, please review your action plan and the previous conversation history for your response. {user_input_end}"})
-        response.append({'role': 'assistant', 'content': f"{botnameupper}: I will now review my action plan, using it as a framework to construct my upcoming response: {output_two}\nI will proceed by reviewing our previous conversation to ensure I respond in a manner that is both informative and emotionally attuned. Please now give me the message I am to respond to."})
-        response.append({'role': 'user', 'content': f"{user_input_start} {usernameupper}'S MOST RECENT AND CURRENT MESSAGE: {user_input} {user_input_end} "})
-        response.append({'role': 'assistant', 'content': f"{botnameupper}: Sure, here is my response to {username}'s latest message: "})
+        response.append({'role': 'assistant', 'content': f"{botnameupper}: I will now review my action plan, using it as a framework to construct my upcoming response: {output_two}\nI will proceed by reviewing our previous conversation to ensure I respond in a manner that is both informative and emotionally attuned.\nPREVIOUS MESSAGE SENT: {last_response}\nPlease now give me the message I am to respond to, if there is no subject given, I will use the previous message to find missing context."})
+        response.append({'role': 'user', 'content': f"{user_input_start} {usernameupper}'S MOST RECENT AND CURRENT MESSAGE TO RESPOND TO: {user_input} {user_input_end} "})
+        response.append({'role': 'assistant', 'content': f"{botnameupper}: Sure, here is my response to {username}'s current message: "})
         
         if API == "AetherNode" or API == "Oobabooga":
             prompt = ''.join([message_dict['content'] for message_dict in response])
@@ -1286,6 +1329,15 @@ async def Aetherius_Agent(user_input, username, user_id, bot_name, image_path=No
     if backend_model == "Alpaca":
         user_input_start = "\n\n### Instruction:"
         user_input_end = "\n\n### Response:"
+    if backend_model == "Vicuna":
+        user_input_start = "USER: "
+        user_input_end = "ASSISTANT:"
+    if backend_model == "ChatML":
+        user_input_start = "<|im_end|>\n<|im_start|>user\n"
+        user_input_end = "<|im_end|>\n<|im_start|>assistant"
+    if backend_model == "User-Assistant":
+        user_input_start = "\n\n### User:"
+        user_input_end = "\n\n### Assistant:"
     base_path = "./Aetherius_API/Chatbot_Prompts"
     base_prompts_path = os.path.join(base_path, "Base")
     user_bot_path = os.path.join(base_path, user_id, bot_name)
@@ -1308,7 +1360,7 @@ async def Aetherius_Agent(user_input, username, user_id, bot_name, image_path=No
         print(f"{username}: {user_input}\n\n")
         conversation_history = main_conversation.get_last_entry()
         con_hist = f'{conversation_history}'
-        timestamp = time.time()
+        timestamp = timestamp_func()
         timestring = timestamp_to_datetime(timestamp)
 
         input_2 = None
@@ -1951,7 +2003,7 @@ async def Aetherius_Agent(user_input, username, user_id, bot_name, image_path=No
                     cat_list.append({'content': cat_entry})
                 vector = embeddings(file_desc)  
                 unique_id = str(uuid4())
-                timestamp = time.time()
+                timestamp = timestamp_func()
                 metadata = {
                     'bot': bot_name,
                     'user': user_id,
@@ -2031,7 +2083,7 @@ async def Aetherius_Agent(user_input, username, user_id, bot_name, image_path=No
             if memory_mode != 'Manual':
                 asyncio.create_task(Aetherius_Implicit_Memory(user_input, output_one, bot_name, username, user_id, prompt_implicit))
 
-        timestamp = time.time()
+        timestamp = timestamp_func()
         timestring = timestamp_to_datetime(timestamp)
         vector = embeddings(output_two)
         if External_Research_Search == 'True':
@@ -2176,7 +2228,7 @@ async def Aetherius_Agent(user_input, username, user_id, bot_name, image_path=No
              
         try:            
             tasklist_completion.append({'role': 'assistant', 'content': f"{user_input_start} USER'S INITIAL INPUT: {user_input} {user_input_end} {botnameupper}'S INNER_MONOLOGUE: {output_one}"})
-            tasklist_completion.append({'role': 'system', 'content': f"{user_input_start} SYSTEM: You are tasked with crafting a comprehensive response for {username}. Use the insights and information gathered from the completed tasks during the research task loop to formulate your answer. Since {username} did not have access to the research process, ensure that your reply is self-contained, providing all necessary context and information. Do not introduce information beyond what was discovered during the research tasks, and ensure that factual accuracy is maintained throughout your response. \nUSER'S INITIAL INPUT: {user_input}\nYour research and planning phase is concluded. Concentrate on composing a detailed, coherent, and conversational reply that fully addresses the user's question based on the completed research tasks. {user_input_end} "})
+            tasklist_completion.append({'role': 'system', 'content': f"{user_input_start} SYSTEM: You are tasked with crafting a comprehensive, factually accurate, response for {username}. Use the insights and information gathered from the completed tasks during the research task loop to formulate your answer and provide factual backing. Since {username} does not have access to the research process, ensure that your reply is self-contained, providing all necessary context and information. Do not introduce information beyond what was discovered during the research tasks, and ensure that factual accuracy is maintained throughout your response. \nUSER'S INITIAL INPUT: {user_input}\nYour research and planning phase is concluded. Concentrate on composing a detailed, coherent, and conversational reply that fully addresses the user's question based on the completed research tasks. {user_input_end} "})
         #    tasklist_completion.append({'role': 'assistant', 'content': f"{botnameupper}: "})
 
             if API == "AetherNode" or API == "Oobabooga":
@@ -2282,6 +2334,15 @@ async def process_line(host, host_queue, bot_name, username, line, task_counter,
         if backend_model == "Alpaca":
             user_input_start = "\n\n### Instruction:"
             user_input_end = "\n\n### Response:"
+        if backend_model == "Vicuna":
+            user_input_start = "USER: "
+            user_input_end = "ASSISTANT:"
+        if backend_model == "ChatML":
+            user_input_start = "<|im_end|>\n<|im_start|>user\n"
+            user_input_end = "<|im_end|>\n<|im_start|>assistant"
+        if backend_model == "User-Assistant":
+            user_input_start = "\n\n### User:"
+            user_input_end = "\n\n### Assistant:"
         tasklist_completion2 = list()
         conversation = list()
         cat_list = list()
@@ -2534,8 +2595,17 @@ async def Aetherius_Implicit_Memory(user_input, output_one, bot_name, username, 
         if backend_model == "Alpaca":
             user_input_start = "\n\n### Instruction:"
             user_input_end = "\n\n### Response:"
+        if backend_model == "Vicuna":
+            user_input_start = "USER: "
+            user_input_end = "ASSISTANT:"
+        if backend_model == "ChatML":
+            user_input_start = "<|im_end|>\n<|im_start|>user\n"
+            user_input_end = "<|im_end|>\n<|im_start|>assistant"
+        if backend_model == "User-Assistant":
+            user_input_start = "\n\n### User:"
+            user_input_end = "\n\n### Assistant:"
         Print_Personality_Description = settings.get('Print_Personality_Descriptions', 'True')
-        timestamp = time.time()
+        timestamp = timestamp_func()
         botnameupper = bot_name.upper()
         usernameupper = username.upper()
         timestring = timestamp_to_datetime(timestamp)
@@ -2774,7 +2844,7 @@ async def Upload_Implicit_Short_Term_Memories(query, username, user_id, bot_name
         settings = json.load(f)
     embed_size = settings['embed_size']   
     backend_model = settings.get('Model_Backend', 'Llama_2')    
-    timestamp = time.time()
+    timestamp = timestamp_func()
     timestring = timestamp_to_datetime(timestamp)
     payload = list()
     payload = list()    
@@ -2828,6 +2898,15 @@ async def Aetherius_Explicit_Memory(user_input, vector_input, vector_monologue, 
         if backend_model == "Alpaca":
             user_input_start = "\n\n### Instruction:"
             user_input_end = "\n\n### Response:"
+        if backend_model == "Vicuna":
+            user_input_start = "USER: "
+            user_input_end = "ASSISTANT:"
+        if backend_model == "ChatML":
+            user_input_start = "<|im_end|>\n<|im_start|>user\n"
+            user_input_end = "<|im_end|>\n<|im_start|>assistant"
+        if backend_model == "User-Assistant":
+            user_input_start = "\n\n### User:"
+            user_input_end = "\n\n### Assistant:"
         Print_Personality_Description = settings.get('Print_Personality_Descriptions', 'True')
         usernameupper = username.upper()
         botnameupper = bot_name.upper()
@@ -2848,7 +2927,7 @@ async def Aetherius_Explicit_Memory(user_input, vector_input, vector_monologue, 
         main_prompt = prompts["main_prompt"].replace('<<NAME>>', bot_name)
         secondary_prompt = prompts["secondary_prompt"]
         greeting_msg = prompts["greeting_prompt"].replace('<<NAME>>', bot_name)
-        timestamp = time.time()
+        timestamp = timestamp_func()
         timestring = timestamp_to_datetime(timestamp)
         personality_list = list()
         personality_update = list()
@@ -3095,7 +3174,7 @@ async def Upload_Heuristics(query, username, user_id, bot_name):
         settings = json.load(f)
     embed_size = settings['embed_size']    
     backend_model = settings.get('Model_Backend', 'Llama_2')
-    timestamp = time.time()
+    timestamp = timestamp_func()
     timestring = timestamp_to_datetime(timestamp)
     payload = list()
     payload = list()    
@@ -3129,7 +3208,7 @@ async def Upload_Explicit_Short_Term_Memories(query, username, user_id, bot_name
         settings = json.load(f)
     embed_size = settings['embed_size']    
     backend_model = settings.get('Model_Backend', 'Llama_2')
-    timestamp = time.time()
+    timestamp = timestamp_func()
     timestring = timestamp_to_datetime(timestamp)
     payload = list()
     payload = list()    
@@ -3163,7 +3242,7 @@ async def Upload_Implicit_Long_Term_Memories(query, username, user_id, bot_name)
         settings = json.load(f)
     embed_size = settings['embed_size']    
     backend_model = settings.get('Model_Backend', 'Llama_2')
-    timestamp = time.time()
+    timestamp = timestamp_func()
     timestring = timestamp_to_datetime(timestamp)
     payload = list()
     payload = list()    
@@ -3196,7 +3275,7 @@ async def Upload_Explicit_Long_Term_Memories(query, username, user_id, bot_name)
     with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
         settings = json.load(f)
     embed_size = settings['embed_size']    
-    timestamp = time.time()
+    timestamp = timestamp_func()
     timestring = timestamp_to_datetime(timestamp)
     payload = list()
     payload = list()    
@@ -3257,9 +3336,15 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
     if backend_model == "Alpaca":
         user_input_start = "\n\n### Instruction:"
         user_input_end = "\n\n### Response:"
+    if backend_model == "Vicuna":
+        user_input_start = "USER: "
+        user_input_end = "ASSISTANT:"
     if backend_model == "ChatML":
         user_input_start = "<|im_end|>\n<|im_start|>user\n"
-        user_input_end = "<|im_end|>\n<|im_start|>assistant\n"
+        user_input_end = "<|im_end|>\n<|im_start|>assistant"
+    if backend_model == "User-Assistant":
+        user_input_start = "\n\n### User:"
+        user_input_end = "\n\n### Assistant:"
     botnameupper = bot_name.upper()
     usernameupper = username.upper()
     base_path = "./Aetherius_API/Chatbot_Prompts"
@@ -3281,7 +3366,7 @@ async def Aetherius_Memory_Loop(user_input, username, user_id, bot_name, vector_
     greeting_msg = prompts["greeting_prompt"].replace('<<NAME>>', bot_name)
     while True:
         a = user_input
-        timestamp = time.time()
+        timestamp = timestamp_func()
         timestring = timestamp_to_datetime(timestamp)
         counter += 1
         conversation.clear()

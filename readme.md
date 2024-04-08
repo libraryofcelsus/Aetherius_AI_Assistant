@@ -9,7 +9,7 @@ Version .047 of the Aetherius Ai Assistant/Agent by [LibraryofCelsus.com](https:
 Aetherius is in a state of constant iterative development.  If you like the version you are using, keep a backup or make a fork.  Expect Bugs. 
 
 **I'd like to provide an update regarding my project, Aetherius, alongside some personal health challenges that have significantly impacted my contributions lately.  
-In my previous update, I shared the challenges posed by my parents' health issues on my availability and engagement with the project. Regrettably, the situation has further deteriorated. While there's been no change in my parents' health status, I've encountered my own set of health hurdles. On February 13th, I underwent surgery to remove a ganglion cyst from my wrist. Over a month has passed, yet I find myself unable to use my hand for extended periods without experiencing discomfort. The recovery process was also further complicated by a cracked a tooth due to teeth clenching, which lead to a TMJ disorder. Furthermore, after consulting with my hip specialist and undergoing an MRI, it was revealed that I have a degenerating and torn labrum (I have already had two hip surgeries).  In addition to all of that, while in pursuit of a diagnosis for my chronic back pain, an x-ray showed a fractured vertebrae, although I am still awaiting a CT scan to confirm. Given these circumstances, it's likely that updates on the project will be considerably sparse, as I am currently grappling with fairly constant and intense pain.
+In my previous update, I shared the challenges posed by my parents' health issues on my availability and engagement with the project. Regrettably, the situation has further deteriorated. While there's been no change in my parents' health status, I've encountered my own set of health hurdles. On February 13th, I underwent surgery to remove a ganglion cyst from my wrist. Over a month has passed, yet I find myself unable to use my hand for extended periods without experiencing discomfort. The recovery process was also further complicated by a cracked a tooth due to teeth clenching, which lead to a TMJ disorder. Furthermore, after consulting with my hip specialist and undergoing an MRI, it was revealed that I have a degenerating and torn labrum (I have already had two hip surgeries).  In addition to all of that, while in pursuit of a diagnosis for my chronic back pain, an x-ray showed a fractured vertebrae, although I am still awaiting a CT scan to confirm it. Given these circumstances, it's likely that updates on the project will be considerably sparse, as I am currently grappling with fairly constant and intense pain.   
 With much love,  
 libraryofcelsus**
 
@@ -200,6 +200,11 @@ Inspired by https://github.com/daveshap/
 • Launch Ai Tutorial YouTube Channel
 
 # Changelog: 
+**0.047c**
+• Added New API script.  This has the Discord Bot built in and will automatically launch if a valid token is detected in the API_Settings.json.  Ngrok is used for a public facing URL, it currently uses openai formating.
+
+• Fixed bug with image processing, should now work with both Ui and API script.
+
 **0.047b** 
 
 • Added GPT Vision to Ui.  Also added TTS.

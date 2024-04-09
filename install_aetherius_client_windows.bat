@@ -66,7 +66,7 @@ python -m venv "venv"
 
 :: Install project dependencies
 "venv\Scripts\python" -m pip install -r requirements.txt
-"venv\Scripts\python" -m pip install --upgrade numpy==1.24
+:: "venv\Scripts\python" -m pip install --upgrade numpy==1.24
 
 
 echo Press any key to exit...

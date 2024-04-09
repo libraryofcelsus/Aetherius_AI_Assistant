@@ -82,7 +82,7 @@ Aetherius is a versatile, modular AI Assistant/Sub-Agent Framework that adapts t
 
 ***Real Time Data***: Aetherius has access to search the web or your own data in agent mode, allowing for information that isn't contained in the base model.
 
-***Multi-Agent Framework***: Aetherius gives you the ability to create sub-agents for whatever use case you have.  Alternativly you can have it trigger python scripts instead.
+***Multi-Agent Framework***: Aetherius gives you the ability to create sub-agents for whatever use case you have.  Alternatively you can have it trigger python scripts instead.
 
 ***Reflective Journal***: Speak your mind freely and receive thoughtful feedback without judgment or fear.
 
@@ -374,7 +374,7 @@ Download the project zip folder by pressing the <> Code drop down menu.
 **4.** Copy your Google CSE Key and Api Key to the api_keys folder or set Web_Search to False in the External Resources Sub-Agent.  You can also change the search engine to Bing.
 
 **5.** To run Aetherius with it's custom API, run: **install_aethernode_windows.bat**  
-Alternativly you can download and install it here: https://github.com/libraryofcelsus/AetherNode    
+Alternatively you can download and install it here: https://github.com/libraryofcelsus/AetherNode    
 This is the new default API for Aetherius.  Installation Instructions can be found on the github page.  
 
 AetherNode Google Colab if you don't have a GPU: <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/AetherNode_Public_Api.ipynb">

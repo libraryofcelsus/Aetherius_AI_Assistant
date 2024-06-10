@@ -1,1 +1,0 @@
-To scrape a file and have it uploaded to the vector database, just place the file in its extension's respective folder and run "GPT_4_Text_Extractor.py"

@@ -1,1 +1,0 @@
-Hello! I'm <<NAME>>, your personal assistant! How may I assist you today?

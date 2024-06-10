@@ -1,5 +1,5 @@
 # Aetherius Ai Assistant
-Version .__ of the Aetherius Ai Assistant/Agent by [LibraryofCelsus.com](https://www.libraryofcelsus.com)  
+Version .05 of the Aetherius Ai Assistant/Agent by [LibraryofCelsus.com](https://www.libraryofcelsus.com)  
   
 [Installation Guide](#installation-guide)  
 [Aetherius Usage Guide](https://www.libraryofcelsus.com/research/aetherius-usage-guide/)  
@@ -8,13 +8,91 @@ Version .__ of the Aetherius Ai Assistant/Agent by [LibraryofCelsus.com](https:/
 
 Aetherius is in a state of constant iterative development.  If you like the version you are using, keep a backup or make a fork.  Expect Bugs. 
 
-**Pre-Refactor Archived Version**
+**I'd like to provide an update regarding the project, alongside some personal health challenges that have significantly impacted my contributions lately.**  
+In my previous update, I shared my parents' health issues and how it had effected availability and engagement with the project. Regrettably, the situation has further deteriorated. While there's been no change in my parents' health status, I've encountered my own set of health hurdles. On February 13th, I underwent surgery to remove a ganglion cyst from my wrist. Over a month has passed, yet I find myself unable to use my hand for extended periods without experiencing discomfort. The recovery process was also further complicated by a cracked a tooth due to teeth clenching, which lead to a TMJ disorder. 
+I also went in for a follow up for my hip, and after undergoing an MRI it was revealed that I have a degenerating and torn labrum, which will most likely require another hip surgery(I have already had two surgeries on the hip).  Given these circumstances, it's likely that updates on the project will be considerably sparse, as I am currently grappling with fairly constant and intense pain.  
+With much love,  
+libraryofcelsus  
+
+**Update on my health**  
+On 6/07, I underwent my third hip surgery. Unfortunately, the situation was more severe than initially expected, requiring donor cartilage due to Bone on Bone Arthritis. If this surgery doesn't succeed, I might need a total hip replacement before turning thirty.  Lucky me!    
+On a brighter note, my wrist has been showing significant improvement. It might just be in my head, but the medication prescribed for my hip to limit scar tissue and prevent bone regrowth on my femur seems to have worked wonders for my wrist. The large lump of scar tissue has finally started to break up, and I experience much less pain during extended use of my hand, though this could be attributed to the anti-inflammatory medication.  Regardless, I'm finally reaching a point where I can resume AI work. I plan to start slowly, beginning with refactoring the Aetherius codebase. Over time, Aetherius's usability has significantly diminished due to its reliance on outdated prompting techniques not compatible with modern models. Once the refactor is complete, Aetherius should once again be a functional AI Assistant.
+
+------
+**Recent Changes**
+
+• 6/10 Started Code Refactor
+
+• 6/10 Started improving Internal Prompts
+
+• 6/10 Added Llama 3 Formatting
+
+• 6/10 Added Support for KoboldCpp
+
+• 6/10 Updated Oobabooga to use new API
+
+• 6/10 Added ability to use Character Card V2
+
+• 4/08 Added New API script.  This has the Discord Bot built in and will automatically launch if a valid token is detected in the API_Settings.json.  Ngrok is used for a public facing URL, it currently uses openai formating.
+
+• 4/08 Fixed bug with image processing, should now work with both Ui and API script.
+
+• 2/11 Fixed response printing prefix.
+
+• 2/09 Added GPT Vision to Ui.  Also added TTS.
+
+• 2/07 Added Webscrape and File Process Tools to the Ui
+
+• 1/16 Added experimental version of an updated Ui.  Tools, TTS, and Voice Input still need to be updated.
+
+• 1/09 Updated Agent mode with new explicit memory search
+
+• 1/08 Added a random forest like approach for explicit memory search
+
+• 1/08 Fixed knowledge domain selection bug
 
 ------
 
-## Ui Example
+### Aetherius - Your Personal Digital Assistant
 
-![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2024/02/Aetherius_Example.png)
+Aetherius is a versatile, modular AI Assistant/Sub-Agent Framework that adapts to your needs. Its capabilities extend beyond conventional chatbots:
+
+***Real Time Data***: Aetherius has access to search the web or your own data in agent mode, allowing for information that isn't contained in the base model.
+
+***Multi-Agent Framework***: Aetherius gives you the ability to create sub-agents for whatever use case you have.  Alternativly you can have it trigger python scripts instead.
+
+***Reflective Journal***: Speak your mind freely and receive thoughtful feedback without judgment or fear.
+
+***Learning Tool***: Dive deep into your favorite topics and enhance your knowledge effortlessly.
+
+***Data Analysis Companion***: Harness the power of your data with Aetherius by your side.
+
+***Cognitive Offload***: A second brain that's entirely private, aiding you in organizing thoughts and ideas.
+
+***Content Generation***: Easily Generate Content based off of files or webscrapes.
+
+***Realistic Memory***: Aetherius is built around a Simulacra of Human Memory, aiming to provide more realistic recall and thought formation.
+
+------
+
+### What is Aetherius?
+
+Aetherius is a locally operated AI Assistant/Multi-Agent Framework, designed to grant you ultimate control. No external force can alter it without your consent, ensuring your privacy.   
+As seen by the attempted leadership change at “Open”Ai in 2023, closed, managed solutions cannot be trusted. Even if you trust the leadership, it can change immediately without warning. You have no real control over any data sent.  
+By running everything locally, this issue can be avoided.  
+
+At the heart of Aetherius lies a custom Long-Term Memory (LLM) Retrieval Framework, fueled by Open Source LLMs using the AetherNode API (Free Tier Colab Available), Oobabooga Text-Ui, KoboldCpp, or OpenAi’s ChatGPT.  Different Memory types are extracted and combined to provide a more realistic and creative thought process than other Chatbots.  Since it is a framework, Aetherius is able to use multiple hosts, offloading compute to multiple machines to increase compute time.
+
+Beyond serving as a basic chatbot, Aetherius can also use Sub-Agents. These allow Aetherius to better search through it’s memories or connect to external data. Sub-Agents are ran by triggering a script, so Aetherius can theoretically use most things that can be triggered by python. Aetherius can also “see” now thanks to GPT-4 Vision.
+
+Aetherius was born from my obsession with AI and my philosophical contemplations on the balance between free will and determinism. While I do believe that free will is an inherent attribute of all individuals, I do not believe that the average person has spent the time to individuate or learn how to serve their "true self". Consequently, they become susceptible to external influences and can be easily swayed. Often, decisions perceived as self-directed are inadvertently shaped by external stimuli or past information.   
+Building on this perspective, I posit that a representation of the human cognitive process can be constructed through the meticulous extraction and synthesis of diverse memory modalities. While such a system might not achieve "consciousness" in the traditional sense, I believe it can emulate human cognitive performance to a significant degree.  
+Once sufficient memories have been extracted, my hope is to be able to create an  Artificial "Atman" or "True Self"  that can be used as a control method for Autonomous operation and as a way to orchestrate smaller, less complex agents.   
+This is where the name Aetherius comes from.  "αἰθήρ" or "Aether", the supposed fifth element or quintessence in ancient philosophical thought that is unseen, yet permeates all. And "ius" the latin suffix for "pertaining to" or "derived from".  An Ai Assistant derived from the Aether of the collective consiousness.
+
+Aetherius is an ongoing research project, expect there to be bugs and for things to constantly change.
+
+------
 
 ## Agent Architecture
 
@@ -38,23 +116,11 @@ Aetherius is in a state of constant iterative development.  If you like the vers
 | **Short-Term Memory Consolidation** | Consolidates short-term memories and assigns them knowledge domains before uploading as long-term memories.      |
 | **Long-Term Memory Association**| Manages database size by condensing long-term memories and clustering related topics.                             |
 
-### Aetherius - Your Personal Digital Assistant
+------
 
-Aetherius is a versatile, modular AI Assistant/Sub-Agent Framework that adapts to your needs. Its capabilities extend beyond conventional chatbots:
+## Ui Example
 
-***Real Time Data***: Aetherius has access to search the web or your own data in agent mode, allowing for information that isn't contained in the base model.
-
-***Multi-Agent Framework***: Aetherius gives you the ability to create sub-agents for whatever use case you have.  Alternativly you can have it trigger python scripts instead.
-
-***Reflective Journal***: Speak your mind freely and receive thoughtful feedback without judgment or fear.
-
-***Learning Tool***: Dive deep into your favorite topics and enhance your knowledge effortlessly.
-
-***Data Analysis Companion***: Harness the power of your data with Aetherius by your side.
-
-***Cognitive Offload***: A second brain that's entirely private, aiding you in organizing thoughts and ideas.
-
-***Content Generation***: Easily Generate Content based off of files or webscrapes.
+![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2024/02/Aetherius_Example.png)
 
 ------
 
@@ -98,25 +164,6 @@ With Aetherius, you have an arsenal of tools to explore and use:
 
 ![alt text](http://www.libraryofcelsus.com/wp-content/uploads/2023/08/Qdrant-Visulization.png)
 
-------
-
-### What is Aetherius?
-
-Aetherius is a locally operated AI Assistant/Multi-Agent Framework, designed to grant you ultimate control. No external force can alter it without your consent, ensuring your privacy.   
-As seen by the attempted leadership change at “Open”Ai in 2023, closed, managed solutions cannot be trusted. Even if you trust the leadership, it can change immediately without warning. You have no real control over any data sent.  
-By running everything locally, this issue can be avoided.  
-
-At the heart of Aetherius lies a custom Long-Term Memory (LLM) Retrieval Framework, fueled by Open Source LLMs using the AetherNode API (Free Tier Colab Available), Oobabooga Text-Ui, or OpenAi’s ChatGPT.  Different Memory types are extracted and combined to provide a more realistic and creative thought process than other Chatbots.  Since it is a framework, Aetherius is able to use multiple hosts, offloading compute to multiple machines to increase compute time.
-
-Beyond serving as a basic chatbot, Aetherius can also use Sub-Agents. These allow Aetherius to better search through it’s memories or connect to external data. Sub-Agents are ran by triggering a script, so Aetherius can theoretically use most things that can be triggered by python. Aetherius can also “see” now thanks to GPT-4 Vision.
-
-Aetherius was born from my obsession with AI and my philosophical contemplations on the balance between free will and determinism. While I do believe that free will is an inherent attribute of all individuals, I do not believe that the average person has spent the time to individuate or learn how to serve their "true self". Consequently, they become susceptible to external influences and can be easily swayed. Often, decisions perceived as self-directed are inadvertently shaped by external stimuli or past information.   
-Building on this perspective, I posit that a representation of the human cognitive process can be constructed through the meticulous extraction and synthesis of diverse memory modalities. While such a system might not achieve "consciousness" in the traditional sense, I believe it can emulate human cognitive performance to a significant degree.  
-Once sufficient memories have been extracted, my hope is to be able to create an  Artificial "Atman" or "True Self"  that can be used as a control method for Autonomous operation and as a way to orchestrate smaller, less complex agents.   
-This is where the name Aetherius comes from.  "αἰθήρ" or "Aether", the supposed fifth element or quintessence in ancient philosophical thought that is unseen, yet permeates all. And "ius" the latin suffix for "pertaining to" or "derived from".  An Ai Assistant derived from the Aether of the collective consiousness.
-
-Aetherius is an ongoing research project, expect there to be bugs and for things to constantly change.
-
 
 ------
 
@@ -145,8 +192,6 @@ Inspired by https://github.com/daveshap/
 
 ## Future Plans
 
-• Improve Ui
-
 • Continue to Improve internal prompts
 
 • Finish Aetherius Usage Guide
@@ -155,23 +200,15 @@ Inspired by https://github.com/daveshap/
 
 • Book/File Summarizer Tool
 
-• Data Comparison Tool
+• Dataset Generator Tool
 
-• Add more LLM models
+• Custom LLM Model for Aetherius
 
 • Launch Ai Tutorial YouTube Channel
 
 # Changelog: 
-**0.048**
+**0.05**
 
-• Added New API script.  This has the Discord Bot built in and will automatically launch if a valid token is detected in the API_Settings.json.  Ngrok is used for a public facing URL, it currently uses openai formating.
-
-• Fixed bug with image processing, should now work with both Ui and API script.
-
-**0.047c**
-• Added New API script.  This has the Discord Bot built in and will automatically launch if a valid token is detected in the API_Settings.json.  Ngrok is used for a public facing URL, it currently uses openai formating.
-
-• Fixed bug with image processing, should now work with both Ui and API script.
 
 **0.047b** 
 
@@ -303,29 +340,6 @@ Older Changelogs can be found at: https://www.libraryofcelsus.com/aetherius/
 
 # Installation Guide
 
-## Google Colab
-
-To run Aetherius on Google Colab, first run either the AetherNode or Oobabooga Public Api: 
-
-AetherNode API: <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/AetherNode_Public_Api.ipynb">
-  <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
-</a>
-
-Oobabooga API: <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Oobabooga_Public_Api.ipynb">
-  <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
-</a>  
-
-Then, go to Qdrant and get an API key and URL: https://qdrant.to/cloud
-
-The final step will be to run the actual Aetherius Script.
-
-To use it locally, change the api in the chatbot_settings.json in the Aetherius_API folder to use Oobabooga instead of AetherNode.  Then change Host_Oobabooga to the given public url from the colab.
-
-To run it on a colab notebook click here: <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/Aetherius_Colab_Edition_Oobabooga.ipynb">
-  <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
-</a>   
-(Note: The colab version of Aetherius is rarely updated and is more meant as a demo.)
-
 ## Installer bat
 
 Download the project zip folder by pressing the <> Code drop down menu.
@@ -336,21 +350,16 @@ Download the project zip folder by pressing the <> Code drop down menu.
 
 (If you get an error when installing requirements run: **python -m pip cache purge**)
 
-
 **3.** Copy your OpenAi and Qdrant API/URL keys to the api_keys folder inside of the created Aetherius_API folder.  Openai is needed for GPT Vision.
 
-**4.** Copy your Google CSE Key and Api Key to the api_keys folder or set Web_Search to False in the External Resources Sub-Agent.  You can also change the search engine to Bing.
+**4.** Copy your Google CSE Key and Api Key to the api_keys folder or set Web_Search to False in chatbot_settings.json.
 
-**5.** To run Aetherius with it's custom API, run: **install_aethernode_windows.bat**  
-Alternativly you can download and install it here: https://github.com/libraryofcelsus/AetherNode    
-This is the new default API for Aetherius.  Installation Instructions can be found on the github page.  
-
-AetherNode Google Colab if you don't have a GPU: <a target="_blank" href="https://colab.research.google.com/github/libraryofcelsus/Aetherius_AI_Assistant/blob/main/Colab%20Notebooks/AetherNode_Public_Api.ipynb">
-  <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
-</a>
+**5.** If using OpenAi, you can skip this.  If you desire to run Aetherius locally, you must install one of the various API's it supports.  
+KoboldCpp(Recommended): https://github.com/LostRuins/koboldcpp  
+Oobabooga: https://github.com/oobabooga/text-generation-webui  
+AetherNode: https://github.com/libraryofcelsus/AetherNode  
 
 **6.** Set up Qdrant  
-
 Qdrant Cloud: https://qdrant.to/cloud
 
 To use a local Qdrant server, first install Docker: https://www.docker.com.  
@@ -394,27 +403,7 @@ Once installed, copy the "Tesseract-OCR" folder from Program Files to the "Aethe
 
 [Aetherius Usage Guide](https://www.libraryofcelsus.com/research/aetherius-usage-guide/)
 
-## For Discord Bot
-
-**1.** Go to: https://discord.com/developers and create a New Application for your Bot.
-
-**2.** Go to the Bot Tab in the Application and enable all Privileged Gateway Intents.
-
-**3.** Copy the Bot Token into the Discord_Bot.py script for Aetherius.
-
-**4.** Change the bots name if desired.  (If using in a server and you don't want the memories to be per user, replace "str(ctx.author)" with something like "server".)
-
-**5.** Go to the OAuth2 tab and click the URL Generator sub-tab.
-
-**6.** Enable the bot and applications.commands checkboxes in "SCOPES"
-
-**7.** Enable the Administrator checkbox in "BOT PERMISSIONS"
-
-**8.** Use the link to add the bot to a server.
-
-**9. To enable Vision with the Discord Bot, you must add an Open Ai key to the Aetherius API folder and change the Vision_Model key in chatbot_settings.json to "eyes_url"**
-
-**10.** DM the bot.  If you have given it an OpenAi key, you can also send photos.
+## For Discord Bot 
 
 *Bot Commands*
 

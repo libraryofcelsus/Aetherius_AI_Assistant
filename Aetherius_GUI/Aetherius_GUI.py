@@ -1,3 +1,8 @@
+from numba.core.errors import NumbaDeprecationWarning, NumbaPendingDeprecationWarning
+import warnings
+warnings.simplefilter('ignore', category=NumbaDeprecationWarning)
+warnings.simplefilter('ignore', category=NumbaPendingDeprecationWarning)
+
 import sys
 sys.path.insert(0, './Aetherius_API')
 sys.path.insert(0, './config')
@@ -7,7 +12,7 @@ import os
 import json
 import asyncio
 import time
-from time import time, sleep
+from time import sleep
 import datetime
 from uuid import uuid4
 import importlib.util
@@ -43,6 +48,8 @@ import pandas as pd
 from queue import Queue
 import traceback
 from Aetherius_API.Main import *
+
+
 
 # LATER is the key for later editing needed
 
@@ -81,9 +88,8 @@ else:
             vectors_config=VectorParams(size=1, distance=Distance.COSINE),
         )
     except:
-        if not os.path.exists("./Qdrant_DB"):
-            os.makedirs("./Qdrant_DB")
-        client = QdrantClient(path="./Qdrant_DB")
+        print("Qdrant is not started.  Please enter API Keys or run Qdrant Locally.")
+        
         
         
 def import_functions_from_script(script_path, custom_name="custom_module"):
@@ -119,7 +125,7 @@ import_functions_from_script(script_path2, "TTS_module")
 
 
 # Import for model
-script_path3 = get_script_path_from_file(json_file_path, "LLM_Model", base_folder='./Aetherius_API/resources/')
+script_path3 = get_script_path_from_file(json_file_path, "API", base_folder='./Aetherius_API/resources/')
 import_functions_from_script(script_path3, "model_module")
 
 
@@ -127,6 +133,9 @@ with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
     settings = json.load(f)
 select_api = settings.get('API', 'Oobabooga')
 
+if select_api == "KoboldCpp":
+    script_path3 = get_script_path_from_file(json_file_path, "WebScrape_Type", base_folder='./Aetherius_API/Tools/KoboldCpp/')
+    script_path4 = get_script_path_from_file(json_file_path, "Vision_Model", base_folder='./Aetherius_API/Tools/OpenAi/')
 if select_api == "Oobabooga":
     script_path3 = get_script_path_from_file(json_file_path, "WebScrape_Type", base_folder='./Aetherius_API/Tools/AetherNode/')
     script_path4 = get_script_path_from_file(json_file_path, "Vision_Model", base_folder='./Aetherius_API/Tools/Llama_2_Async/')
@@ -290,13 +299,17 @@ def DB_Upload_Cadence(query):
     with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
         settings = json.load(f)
         
-    bot_name = settings.get('Current_Ui_Bot_Name', '')
-    username = settings.get('Current_Ui_Username', '')
-    user_id = settings.get('Current_Ui_User_ID', '')
+    with open('API_Settings.json', 'r', encoding='utf-8') as f:
+        api_settings = json.load(f)
+        
+    bot_name = api_settings.get('bot_name', '')
+    username = api_settings.get('username', '')
+    user_id = api_settings.get('user_id', '')
+
     while True:
         payload = list()
     #    a = input(f'\n\nUSER: ')        
-        timestamp = time()
+        timestamp = time.time()
         timestring = timestamp_to_datetime(timestamp)
         # Define the collection name
         collection_name = f"Bot_{bot_name}"
@@ -327,16 +340,20 @@ def DB_Upload_Cadence(query):
         
 # Function for Uploading Heuristics, called in the create widgets function.
 def DB_Upload_Heuristics(query):
-    with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
-        settings = json.load(f)
+    with open('API_Settings.json', 'r', encoding='utf-8') as f:
+        api_settings = json.load(f)
         
-    bot_name = settings.get('Current_Ui_Bot_Name', '')
-    username = settings.get('Current_Ui_Username', '')
-    user_id = settings.get('Current_Ui_User_ID', '')
+    with open('API_Settings.json', 'r', encoding='utf-8') as f:
+        api_settings = json.load(f)
+        
+    bot_name = api_settings.get('bot_name', '')
+    username = api_settings.get('username', '')
+    user_id = api_settings.get('user_id', '')
+
     while True:
         payload = list()
     #    a = input(f'\n\nUSER: ')        
-        timestamp = time()
+        timestamp = time.time()
         timestring = timestamp_to_datetime(timestamp)
         # Define the collection name
         collection_name = f"Bot_{bot_name}"
@@ -367,11 +384,13 @@ def DB_Upload_Heuristics(query):
 def upload_implicit_long_term_memories(query):
     with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
         settings = json.load(f)
+    with open('API_Settings.json', 'r', encoding='utf-8') as f:
+        api_settings = json.load(f)
         
-    bot_name = settings.get('Current_Ui_Bot_Name', '')
-    username = settings.get('Current_Ui_Username', '')
-    user_id = settings.get('Current_Ui_User_ID', '')
-    timestamp = time()
+    bot_name = api_settings.get('bot_name', '')
+    username = api_settings.get('username', '')
+    user_id = api_settings.get('user_id', '')
+    timestamp = time.time()
     timestring = timestamp_to_datetime(timestamp)
     payload = list()
     payload = list()    
@@ -407,11 +426,13 @@ def upload_implicit_long_term_memories(query):
 def upload_explicit_long_term_memories(query):
     with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
         settings = json.load(f)
+    with open('API_Settings.json', 'r', encoding='utf-8') as f:
+        api_settings = json.load(f)
         
-    bot_name = settings.get('Current_Ui_Bot_Name', '')
-    username = settings.get('Current_Ui_Username', '')
-    user_id = settings.get('Current_Ui_User_ID', '')
-    timestamp = time()
+    bot_name = api_settings.get('bot_name', '')
+    username = api_settings.get('username', '')
+    user_id = api_settings.get('user_id', '')
+    timestamp = time.time()
     timestring = timestamp_to_datetime(timestamp)
     payload = list()
     payload = list()    
@@ -447,11 +468,13 @@ def upload_explicit_long_term_memories(query):
 def upload_implicit_short_term_memories(query):
     with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
         settings = json.load(f)
+    with open('API_Settings.json', 'r', encoding='utf-8') as f:
+        api_settings = json.load(f)
         
-    bot_name = settings.get('Current_Ui_Bot_Name', '')
-    username = settings.get('Current_Ui_Username', '')
-    user_id = settings.get('Current_Ui_User_ID', '')
-    timestamp = time()
+    bot_name = api_settings.get('bot_name', '')
+    username = api_settings.get('username', '')
+    user_id = api_settings.get('user_id', '')
+    timestamp = time.time()
     timestring = timestamp_to_datetime(timestamp)
     payload = list()
     payload = list()    
@@ -486,11 +509,13 @@ def upload_implicit_short_term_memories(query):
 def upload_explicit_short_term_memories(query):
     with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
         settings = json.load(f)
+    with open('API_Settings.json', 'r', encoding='utf-8') as f:
+        api_settings = json.load(f)
         
-    bot_name = settings.get('Current_Ui_Bot_Name', '')
-    username = settings.get('Current_Ui_Username', '')
-    user_id = settings.get('Current_Ui_User_ID', '')
-    timestamp = time()
+    bot_name = api_settings.get('bot_name', '')
+    username = api_settings.get('username', '')
+    user_id = api_settings.get('user_id', '')
+    timestamp = time.time()
     timestring = timestamp_to_datetime(timestamp)
     payload = list()
     payload = list()    
@@ -526,11 +551,13 @@ def upload_explicit_short_term_memories(query):
 def ask_upload_implicit_memories(memories):
     with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
         settings = json.load(f)
+    with open('API_Settings.json', 'r', encoding='utf-8') as f:
+        api_settings = json.load(f)
         
-    bot_name = settings.get('Current_Ui_Bot_Name', '')
-    username = settings.get('Current_Ui_Username', '')
-    user_id = settings.get('Current_Ui_User_ID', '')
-    timestamp = time()
+    bot_name = api_settings.get('bot_name', '')
+    username = api_settings.get('username', '')
+    user_id = api_settings.get('user_id', '')
+    timestamp = time.time()
     timestring = timestamp_to_datetime(timestamp)
     payload = list()
     result = messagebox.askyesno("Upload Memories", "Do you want to upload the implicit memories?")
@@ -584,11 +611,13 @@ def ask_upload_implicit_memories(memories):
 def ask_upload_explicit_memories(memories):
     with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
         settings = json.load(f)
+    with open('API_Settings.json', 'r', encoding='utf-8') as f:
+        api_settings = json.load(f)
         
-    bot_name = settings.get('Current_Ui_Bot_Name', '')
-    username = settings.get('Current_Ui_Username', '')
-    user_id = settings.get('Current_Ui_User_ID', '')
-    timestamp = time()
+    bot_name = api_settings.get('bot_name', '')
+    username = api_settings.get('username', '')
+    user_id = api_settings.get('user_id', '')
+    timestamp = time.time()
     timestring = timestamp_to_datetime(timestamp)
     payload = list()
     result = messagebox.askyesno("Upload Memories", "Do you want to upload the explicit memories?")
@@ -642,11 +671,13 @@ def ask_upload_explicit_memories(memories):
 def ask_upload_memories(memories, memories2):
     with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
         settings = json.load(f)
+    with open('API_Settings.json', 'r', encoding='utf-8') as f:
+        api_settings = json.load(f)
         
-    bot_name = settings.get('Current_Ui_Bot_Name', '')
-    username = settings.get('Current_Ui_Username', '')
-    user_id = settings.get('Current_Ui_User_ID', '')
-    timestamp = time()
+    bot_name = api_settings.get('bot_name', '')
+    username = api_settings.get('username', '')
+    user_id = api_settings.get('user_id', '')
+    timestamp = time.time()
     timestring = timestamp_to_datetime(timestamp)
     payload = list()
     print(f'\nIMPLICIT MEMORIES\n-------------')
@@ -665,11 +696,13 @@ def ask_upload_memories(memories, memories2):
 def upload_implicit_short_term_memories(query):
     with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
         settings = json.load(f)
+    with open('API_Settings.json', 'r', encoding='utf-8') as f:
+        api_settings = json.load(f)
         
-    bot_name = settings.get('Current_Ui_Bot_Name', '')
-    username = settings.get('Current_Ui_Username', '')
-    user_id = settings.get('Current_Ui_User_ID', '')
-    timestamp = time()
+    bot_name = api_settings.get('bot_name', '')
+    username = api_settings.get('username', '')
+    user_id = api_settings.get('user_id', '')
+    timestamp = time.time()
     timestring = timestamp_to_datetime(timestamp)
     payload = list()
     payload = list()    
@@ -705,11 +738,13 @@ def upload_implicit_short_term_memories(query):
 def upload_explicit_short_term_memories(query):
     with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
         settings = json.load(f)
+    with open('API_Settings.json', 'r', encoding='utf-8') as f:
+        api_settings = json.load(f)
         
-    bot_name = settings.get('Current_Ui_Bot_Name', '')
-    username = settings.get('Current_Ui_Username', '')
-    user_id = settings.get('Current_Ui_User_ID', '')
-    timestamp = time()
+    bot_name = api_settings.get('bot_name', '')
+    username = api_settings.get('username', '')
+    user_id = api_settings.get('user_id', '')
+    timestamp = time.time()
     timestring = timestamp_to_datetime(timestamp)
     payload = list()
     payload = list()    
@@ -747,10 +782,12 @@ def search_implicit_db(line_vec):
     lock = m.Lock()
     with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
         settings = json.load(f)
+    with open('API_Settings.json', 'r', encoding='utf-8') as f:
+        api_settings = json.load(f)
         
-    bot_name = settings.get('Current_Ui_Bot_Name', '')
-    username = settings.get('Current_Ui_Username', '')
-    user_id = settings.get('Current_Ui_User_ID', '')
+    bot_name = api_settings.get('bot_name', '')
+    username = api_settings.get('username', '')
+    user_id = api_settings.get('user_id', '')
     try:
         with lock:
             memories1 = None
@@ -817,10 +854,12 @@ def search_episodic_db(line_vec):
     lock = m.Lock()
     with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
         settings = json.load(f)
+    with open('API_Settings.json', 'r', encoding='utf-8') as f:
+        api_settings = json.load(f)
         
-    bot_name = settings.get('Current_Ui_Bot_Name', '')
-    username = settings.get('Current_Ui_Username', '')
-    user_id = settings.get('Current_Ui_User_ID', '')
+    bot_name = api_settings.get('bot_name', '')
+    username = api_settings.get('username', '')
+    user_id = api_settings.get('user_id', '')
     try:
         with lock:
             memories = None
@@ -858,10 +897,12 @@ def search_flashbulb_db(line_vec):
     lock = m.Lock()
     with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
         settings = json.load(f)
+    with open('API_Settings.json', 'r', encoding='utf-8') as f:
+        api_settings = json.load(f)
         
-    bot_name = settings.get('Current_Ui_Bot_Name', '')
-    username = settings.get('Current_Ui_Username', '')
-    user_id = settings.get('Current_Ui_User_ID', '')
+    bot_name = api_settings.get('bot_name', '')
+    username = api_settings.get('username', '')
+    user_id = api_settings.get('user_id', '')
     try:
         with lock:
             memories = None
@@ -899,10 +940,12 @@ def search_explicit_db(line_vec):
     lock = m.Lock()
     with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
         settings = json.load(f)
+    with open('API_Settings.json', 'r', encoding='utf-8') as f:
+        api_settings = json.load(f)
         
-    bot_name = settings.get('Current_Ui_Bot_Name', '')
-    username = settings.get('Current_Ui_Username', '')
-    user_id = settings.get('Current_Ui_User_ID', '')
+    bot_name = api_settings.get('bot_name', '')
+    username = api_settings.get('username', '')
+    user_id = api_settings.get('user_id', '')
     try:
         with lock:
             memories1 = None
@@ -975,10 +1018,12 @@ async def GPT_4_Text_Extract():
     mem_counter = 0
     with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
         settings = json.load(f)
+    with open('API_Settings.json', 'r', encoding='utf-8') as f:
+        api_settings = json.load(f)
         
-    bot_name = settings.get('Current_Ui_Bot_Name', '')
-    username = settings.get('Current_Ui_Username', '')
-    user_id = settings.get('Current_Ui_User_ID', '')
+    bot_name = api_settings.get('bot_name', '')
+    username = api_settings.get('username', '')
+    user_id = api_settings.get('user_id', '')
     if not os.path.exists('Upload/TXT'):
         os.makedirs('Upload/TXT')
     if not os.path.exists('Upload/TXT/Finished'):
@@ -1037,10 +1082,12 @@ async def process_and_move_file(directory_path, finished_directory_path, file, c
 async def chunk_text_from_file(file_path, chunk_size=400, overlap=40):
     with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
         settings = json.load(f)
+    with open('API_Settings.json', 'r', encoding='utf-8') as f:
+        api_settings = json.load(f)
         
-    bot_name = settings.get('Current_Ui_Bot_Name', '')
-    username = settings.get('Current_Ui_Username', '')
-    user_id = settings.get('Current_Ui_User_ID', '')
+    bot_name = api_settings.get('bot_name', '')
+    username = api_settings.get('username', '')
+    user_id = api_settings.get('user_id', '')
     try:
         print("Reading given file, please wait...")
         pytesseract.pytesseract.tesseract_cmd = '.\\Tesseract-ocr\\tesseract.exe'
@@ -1178,8 +1225,10 @@ def summarized_chunk_from_file(host, chunk, collection_name, bot_name, username,
         filesum.append({'role': 'user', 'content': f"SCRAPED ARTICLE: {chunk}\n\nINSTRUCTIONS: Summarize the article without losing any factual knowledge and maintaining full context and information. Only print the truncated article, do not include any additional text or comments. [/INST] SUMMARIZER BOT: Sure! Here is the summarized article based on the scraped text: "})
         with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
             settings = json.load(f)
-            
-        user_id = settings.get('Current_Ui_User_ID', '')
+        with open('API_Settings.json', 'r', encoding='utf-8') as f:
+            api_settings = json.load(f)
+
+        user_id = api_settings.get('user_id', '')
 
         prompt = ''.join([message_dict['content'] for message_dict in filesum])
         text = asyncio.run(File_Processor_Call(host, prompt, username, bot_name))
@@ -1282,71 +1331,88 @@ def summarized_chunk_from_file(host, chunk, collection_name, bot_name, username,
         
         
         
-# Running Conversation List
 class MainConversation:
-    def __init__(self, max_entries, prompt, greeting):
-        with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
-            settings = json.load(f)
-            
-        bot_name = settings.get('Current_Ui_Bot_Name', '')
-        username = settings.get('Current_Ui_Username', '')
-        user_id = settings.get('Current_Ui_User_ID', '')
-        botnameupper = bot_name.upper()
-        usernameupper = username.upper()
-        self.max_entries = max_entries
-        self.file_path = f'./logs/history/{user_id}/{bot_name}_main_conversation_history.json'
-        self.file_path2 = f'./logs/history/{user_id}/{bot_name}_main_history.json'
+    def __init__(self, username, user_id, bot_name, max_entries, prompt, greeting):
+        self.bot_name_upper = bot_name.upper()
+        self.username_upper = username.upper()
+        self.max_entries = int(max_entries)
+        self.file_path = f'./history/{user_id}/{bot_name}_Conversation_History.json'
         self.main_conversation = [prompt, greeting]
 
-        # Load existing conversation from file
+        os.makedirs(os.path.dirname(self.file_path), exist_ok=True)
         if os.path.exists(self.file_path):
             with open(self.file_path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
                 self.running_conversation = data.get('running_conversation', [])
         else:
             self.running_conversation = []
+            self.save_to_file()
 
-    def append(self, timestring, username, usernameupper, a, bot_name, botnameupper, response_two):
-        # Append new entry to the running conversation
-        entry = []
-        entry.append(f"{usernameupper}: [{timestring}] - {a}")
-        entry.append(f"{botnameupper}: {response_two}")
-        self.running_conversation.append("\n\n".join(entry))  # Join the entry with "\n\n"
+    def format_entry(self, user_input, response):
+        user = f"{self.username_upper}: {user_input}"
+        bot = f"{self.bot_name_upper}: {response}"
+        return {'user': user, 'bot': bot}
 
-        # Remove oldest entry if conversation length exceeds max entries
+    def append(self, timestring, user_input, response):
+        entry = self.format_entry(f"[{timestring}] - {user_input}", response)
+        self.running_conversation.append(entry)
         while len(self.running_conversation) > self.max_entries:
             self.running_conversation.pop(0)
         self.save_to_file()
 
     def save_to_file(self):
-        # Combine main conversation and formatted running conversation for saving to file
-        history = self.main_conversation + self.running_conversation
-
         data_to_save = {
             'main_conversation': self.main_conversation,
             'running_conversation': self.running_conversation
         }
-
-        # save history as a list of dictionaries with 'visible' key
-        data_to_save2 = {
-            'history': [{'visible': entry} for entry in history]
-        }
-
         with open(self.file_path, 'w', encoding='utf-8') as f:
-            json.dump(data_to_save, f, indent=4)
-        with open(self.file_path2, 'w', encoding='utf-8') as f:
-            json.dump(data_to_save2, f, indent=4)
+            json.dump(data_to_save, f, ensure_ascii=False, indent=4)
 
     def get_conversation_history(self):
-        if not os.path.exists(self.file_path) or not os.path.exists(self.file_path2):
-            self.save_to_file()
-        return self.main_conversation + ["\n\n".join(entry.split("\n\n")) for entry in self.running_conversation]
-        
+        formatted_history = []
+        for entry in self.running_conversation:
+            user_entry = entry['user']
+            bot_entry = entry['bot']
+            formatted_history.append(user_entry)
+            formatted_history.append(bot_entry)
+        return '\n'.join(formatted_history)
+
+    def get_dict_conversation_history(self):
+        formatted_history = [{'role': 'user', 'content': self.main_conversation[0]}, {'role': 'assistant', 'content': self.main_conversation[1]}]
+        for entry in self.running_conversation:
+            if isinstance(entry, dict) and 'user' in entry and 'bot' in entry:
+                user_part, bot_part = entry['user'], entry['bot']
+                user_entry = {'role': 'user', 'content': user_part.split(": ", 1)[1]}
+                bot_entry = {'role': 'assistant', 'content': bot_part.split(": ", 1)[1]}
+                formatted_history.append(user_entry)
+                formatted_history.append(bot_entry)
+            else:
+                print(f"Skipping malformed entry: {entry}")
+        return formatted_history
+
+    def get_dict_formatted_conversation_history(self, user_input_start, user_input_end, assistant_input_start, assistant_input_end):
+        formatted_history = [{'role': 'user', 'content': f"{user_input_start}{self.main_conversation[0]}{user_input_end}"}, {'role': 'assistant', 'content': f"{assistant_input_start}{self.main_conversation[1]}{assistant_input_end}"}]
+        for entry in self.running_conversation:
+            if isinstance(entry, dict) and 'user' in entry and 'bot' in entry:
+                user_part, bot_part = entry['user'], entry['bot']
+                user_entry = {'role': 'user', 'content': f"{user_input_start}{user_part.split(': ', 1)[1]}{user_input_end}"}
+                bot_entry = {'role': 'assistant', 'content': f"{assistant_input_start}{bot_part.split(': ', 1)[1]}{assistant_input_end}"}
+                formatted_history.append(user_entry)
+                formatted_history.append(bot_entry)
+            else:
+                print(f"Skipping malformed entry: {entry}")
+        return formatted_history
+
     def get_last_entry(self):
         if self.running_conversation:
             return self.running_conversation[-1]
-        else:
-            return None
+        return None
+    
+    def delete_conversation_history(self):
+        if os.path.exists(self.file_path):
+            os.remove(self.file_path)
+            self.running_conversation = []
+            self.save_to_file()
             
             
 class ChatBotApplication(customtkinter.CTkFrame):
@@ -1393,12 +1459,15 @@ class ChatBotApplication(customtkinter.CTkFrame):
         # Load the conversation history from the JSON file
         with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
             settings = json.load(f)
-            
-        bot_name = settings.get('Current_Ui_Bot_Name', '')
-        username = settings.get('Current_Ui_Username', '')
-        user_id = settings.get('Current_Ui_User_ID', '')
-        
-        file_path = f'./history/{user_id}/{bot_name}_main_conversation_history.json'
+
+        with open('API_Settings.json', 'r', encoding='utf-8') as f:
+            api_settings = json.load(f)
+
+        bot_name = api_settings.get('bot_name', '')
+        username = api_settings.get('username', '')
+        user_id = api_settings.get('user_id', '')
+
+        file_path = f'./history/{user_id}/{bot_name}_Conversation_History.json'
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
                 conversation_data = json.load(f)
@@ -1406,15 +1475,17 @@ class ChatBotApplication(customtkinter.CTkFrame):
             conversation_history = conversation_data['main_conversation'] + conversation_data['running_conversation']
             # Display the conversation history in the text widget
             for entry in conversation_history:
-                if isinstance(entry, list):
-                    message = '\n'.join(entry)
+                if isinstance(entry, dict):
+                    user_message = entry['user']
+                    bot_message = entry['bot']
+                    self.conversation_text.insert(tk.END, user_message + '\n\n')
+                    self.conversation_text.insert(tk.END, bot_message + '\n\n')
                 else:
-                    message = entry
-                self.conversation_text.insert(tk.END, message + '\n\n')
+                    self.conversation_text.insert(tk.END, entry + '\n\n')
         except FileNotFoundError:
             base_path = "./Aetherius_API/Chatbot_Prompts"
             base_prompts_path = os.path.join(base_path, "Base")
-            user_bot_path = os.path.join(base_path, user_id, bot_name)  
+            user_bot_path = os.path.join(base_path, user_id, bot_name)
             if not os.path.exists(user_bot_path):
                 os.makedirs(user_bot_path)
             prompts_json_path = os.path.join(user_bot_path, "prompts.json")
@@ -1441,10 +1512,12 @@ class ChatBotApplication(customtkinter.CTkFrame):
         # Read the JSON configuration file
         with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
             settings = json.load(f)
+        with open('API_Settings.json', 'r', encoding='utf-8') as f:
+            api_settings = json.load(f)
             
-        current_bot_name = settings.get('Current_Ui_Bot_Name', '')
-        username = settings.get('Current_Ui_Username', '')
-        user_id = settings.get('Current_Ui_User_ID', '')
+        current_bot_name = api_settings.get('bot_name', '')
+
+
 
         dark_bg_color = "#2B2B2B"
         light_text_color = "#ffffff"
@@ -1453,7 +1526,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
         bot_name = simpledialog.askstring("Choose Bot Name", "Type a Bot Name:", initialvalue=current_bot_name)
         if bot_name:
             # Update the bot name in the JSON settings file
-            settings['Current_Ui_Bot_Name'] = bot_name
+            settings['bot_name'] = bot_name
             with open('./Aetherius_API/chatbot_settings.json', 'w', encoding='utf-8') as f:
                 json.dump(settings, f, indent=4, ensure_ascii=False)
             
@@ -1469,10 +1542,11 @@ class ChatBotApplication(customtkinter.CTkFrame):
         # Read the JSON configuration file
         with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
             settings = json.load(f)
+        with open('API_Settings.json', 'r', encoding='utf-8') as f:
+            api_settings = json.load(f)
             
-        bot_name = settings.get('Current_Ui_Bot_Name', '')
-        current_username = settings.get('Current_Ui_Username', '')
-        user_id = settings.get('Current_Ui_User_ID', '')
+        current_username = api_settings.get('username', '')
+
         dark_bg_color = "#2B2B2B"
         light_text_color = "#ffffff"
 
@@ -1482,7 +1556,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
 
         if username:
             # Update username in the JSON settings
-            settings['Current_Ui_Username'] = username
+            settings['username'] = username
             with open(json_file_path, 'w', encoding='utf-8') as f:
                 json.dump(settings, f, indent=4, ensure_ascii=False)
 
@@ -1500,10 +1574,11 @@ class ChatBotApplication(customtkinter.CTkFrame):
         # Read the JSON configuration file
         with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
             settings = json.load(f)
+        with open('API_Settings.json', 'r', encoding='utf-8') as f:
+            api_settings = json.load(f)
             
-        bot_name = settings.get('Current_Ui_Bot_Name', '')
-        current_username = settings.get('Current_Ui_Username', '')
-        current_user_id = settings.get('Current_Ui_User_ID', '')
+        current_user_id = api_settings.get('user_id', '')
+
         dark_bg_color = "#2B2B2B"
         light_text_color = "#ffffff"
 
@@ -1513,7 +1588,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
 
         if user_id:
             # Update username in the JSON settings
-            settings['Current_Ui_User_ID'] = user_id
+            settings['user_id'] = user_id
             with open(json_file_path, 'w', encoding='utf-8') as f:
                 json.dump(settings, f, indent=4, ensure_ascii=False)
 
@@ -1529,10 +1604,13 @@ class ChatBotApplication(customtkinter.CTkFrame):
     def Edit_Main_Prompt(self):
         with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
             settings = json.load(f)
-        
-        bot_name = settings.get('Current_Ui_Bot_Name', '')
-        username = settings.get('Current_Ui_Username', '')
-        user_id = settings.get('Current_Ui_User_ID', '')
+        with open('API_Settings.json', 'r', encoding='utf-8') as f:
+            api_settings = json.load(f)
+            
+        bot_name = api_settings.get('bot_name', '')
+        username = api_settings.get('username', '')
+        user_id = api_settings.get('user_id', '')
+
         file_path = f"./Aetherius_API/Chatbot_Prompts/{user_id}/{bot_name}/prompts.json"
         dark_bg_color = "#2B2B2B"
         light_text_color = "#ffffff"
@@ -1565,10 +1643,13 @@ class ChatBotApplication(customtkinter.CTkFrame):
     def Edit_Secondary_Prompt(self):
         with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
             settings = json.load(f)
-        
-        bot_name = settings.get('Current_Ui_Bot_Name', '')
-        username = settings.get('Current_Ui_Username', '')
-        user_id = settings.get('Current_Ui_User_ID', '')
+        with open('API_Settings.json', 'r', encoding='utf-8') as f:
+            api_settings = json.load(f)
+            
+        bot_name = api_settings.get('bot_name', '')
+        username = api_settings.get('username', '')
+        user_id = api_settings.get('user_id', '')
+
         file_path = f"./Aetherius_API/Chatbot_Prompts/{user_id}/{bot_name}/prompts.json"
         dark_bg_color = "#2B2B2B"
         light_text_color = "#ffffff"
@@ -1601,10 +1682,13 @@ class ChatBotApplication(customtkinter.CTkFrame):
     def Edit_Greeting_Prompt(self):
         with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
             settings = json.load(f)
-        
-        bot_name = settings.get('Current_Ui_Bot_Name', '')
-        username = settings.get('Current_Ui_Username', '')
-        user_id = settings.get('Current_Ui_User_ID', '')
+        with open('API_Settings.json', 'r', encoding='utf-8') as f:
+            api_settings = json.load(f)
+            
+        bot_name = api_settings.get('bot_name', '')
+        username = api_settings.get('username', '')
+        user_id = api_settings.get('user_id', '')
+
         file_path = f"./Aetherius_API/Chatbot_Prompts/{user_id}/{bot_name}/prompts.json"
         dark_bg_color = "#2B2B2B"
         light_text_color = "#ffffff"
@@ -1637,11 +1721,14 @@ class ChatBotApplication(customtkinter.CTkFrame):
     def Edit_Conversation(self):
         with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
             settings = json.load(f)
-        
-        bot_name = settings.get('Current_Ui_Bot_Name', '')
-        username = settings.get('Current_Ui_Username', '')
-        user_id = settings.get('Current_Ui_User_ID', '')
-        file_path = f"./history/{user_id}/{bot_name}_main_conversation_history.json"
+        with open('API_Settings.json', 'r', encoding='utf-8') as f:
+            api_settings = json.load(f)
+            
+        bot_name = api_settings.get('bot_name', '')
+        username = api_settings.get('username', '')
+        user_id = api_settings.get('user_id', '')
+
+        file_path = f"./history/{user_id}/{bot_name}_Conversation_History.json"
         dark_bg_color = "#2B2B2B"
         light_text_color = "#ffffff"
         customtkinter.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
@@ -1763,10 +1850,13 @@ class ChatBotApplication(customtkinter.CTkFrame):
         light_text_color = "#ffffff"
         with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
             settings = json.load(f)
-        
-        bot_name = settings.get('Current_Ui_Bot_Name', '')
-        username = settings.get('Current_Ui_Username', '')
-        user_id = settings.get('Current_Ui_User_ID', '')
+        with open('API_Settings.json', 'r', encoding='utf-8') as f:
+            api_settings = json.load(f)
+            
+        bot_name = api_settings.get('bot_name', '')
+        username = api_settings.get('username', '')
+        user_id = api_settings.get('user_id', '')
+
         cadence_window = tk.Toplevel(self)
         cadence_window.configure(bg=dark_bg_color)
         cadence_window.title("Cadence DB Upload")
@@ -1786,12 +1876,10 @@ class ChatBotApplication(customtkinter.CTkFrame):
             query = query_entry.get()
 
             def update_results():
-                # Update the GUI with the new paragraph
                 self.results_text.insert(tk.END, f"{query}\n\n")
                 self.results_text.yview(tk.END)
 
             def search_task():
-                # Call the modified GPT_3_5_Tasklist_Web_Search function with the callback
                 search_results = DB_Upload_Cadence(query)
                 self.update_results(results_text, search_results)
 
@@ -1799,14 +1887,16 @@ class ChatBotApplication(customtkinter.CTkFrame):
             t.start()
 
         def delete_cadence():
-            # Replace 'username' and 'bot_name' with appropriate variables if available.
-            # You may need to adjust 'vdb' based on how your database is initialized.
+
             with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
                 settings = json.load(f)
-            
-            bot_name = settings.get('Current_Ui_Bot_Name', '')
-            username = settings.get('Current_Ui_Username', '')
-            user_id = settings.get('Current_Ui_User_ID', '')
+            with open('API_Settings.json', 'r', encoding='utf-8') as f:
+                api_settings = json.load(f)
+                
+            bot_name = api_settings.get('bot_name', '')
+            username = api_settings.get('username', '')
+            user_id = api_settings.get('user_id', '')
+
             confirm = messagebox.askyesno("Confirmation", "Are you sure you want to delete saved cadence?")
             if confirm:
                 client.delete(
@@ -1826,13 +1916,11 @@ class ChatBotApplication(customtkinter.CTkFrame):
                         )
                     ),
                 )  
-                # Clear the results_text widget after deleting heuristics (optional)
                 results_text.delete("1.0", tk.END)  
 
         search_button = customtkinter.CTkButton(cadence_window, text="Upload", command=perform_search, bg_color=dark_bg_color)
         search_button.grid(row=4, column=0, padx=5, pady=5)
 
-        # Use `side=tk.LEFT` for the delete button to position it at the top-left corner
         delete_button = customtkinter.CTkButton(cadence_window, text="Delete Cadence", command=delete_cadence, bg_color=dark_bg_color)
         delete_button.grid(row=5, column=0, padx=5, pady=5)
         
@@ -1842,10 +1930,13 @@ class ChatBotApplication(customtkinter.CTkFrame):
         light_text_color = "#ffffff"
         with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
             settings = json.load(f)
-        
-        bot_name = settings.get('Current_Ui_Bot_Name', '')
-        username = settings.get('Current_Ui_Username', '')
-        user_id = settings.get('Current_Ui_User_ID', '')
+        with open('API_Settings.json', 'r', encoding='utf-8') as f:
+            api_settings = json.load(f)
+            
+        bot_name = api_settings.get('bot_name', '')
+        username = api_settings.get('username', '')
+        user_id = api_settings.get('user_id', '')
+
         heuristics_window = tk.Toplevel(self)
         heuristics_window.configure(bg=dark_bg_color)
         heuristics_window.title("Heuristics DB Upload")
@@ -1866,30 +1957,31 @@ class ChatBotApplication(customtkinter.CTkFrame):
             query = query_entry.get()
 
             def update_results(query):
-                # Update the GUI with the new paragraph
                 results_text.insert(tk.END, f"{query}\n\n")
                 results_text.yview(tk.END)
                 query_entry.delete(0, tk.END)
 
             def search_task():
-                # Call the modified GPT_3_5_Tasklist_Web_Search function with the callback
+
                 search_results = DB_Upload_Heuristics(query)
 
-                # Use the `after` method to schedule the `update_results` function on the main Tkinter thread
+
                 heuristics_window.after(0, update_results, search_results)
                    
             t = threading.Thread(target=search_task)
             t.start()
                 
         def delete_heuristics():
-            # Replace 'username' and 'bot_name' with appropriate variables if available.
-            # You may need to adjust 'vdb' based on how your database is initialized.
+
             with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
                 settings = json.load(f)
+        with open('API_Settings.json', 'r', encoding='utf-8') as f:
+            api_settings = json.load(f)
             
-            bot_name = settings.get('Current_Ui_Bot_Name', '')
-            username = settings.get('Current_Ui_Username', '')
-            user_id = settings.get('Current_Ui_User_ID', '')
+            bot_name = api_settings.get('bot_name', '')
+            username = api_settings.get('username', '')
+            user_id = api_settings.get('user_id', '')
+
             confirm = messagebox.askyesno("Confirmation", "Are you sure you want to delete heuristics?")
             if confirm:
                 client.delete(
@@ -1909,13 +2001,11 @@ class ChatBotApplication(customtkinter.CTkFrame):
                         )
                     ),
                 )    
-                # Clear the results_text widget after deleting heuristics (optional)
                 results_text.delete("1.0", tk.END)  
 
         search_button = customtkinter.CTkButton(heuristics_window, text="Upload", command=perform_search, bg_color=dark_bg_color)
         search_button.grid(row=4, column=0, padx=5, pady=5)
 
-        # Use `side=tk.LEFT` for the delete button to position it at the top-left corner
         delete_button = customtkinter.CTkButton(heuristics_window, text="Delete Heuristics", command=delete_heuristics, bg_color=dark_bg_color)
         delete_button.grid(row=5, column=0, padx=5, pady=5)
         
@@ -1925,10 +2015,13 @@ class ChatBotApplication(customtkinter.CTkFrame):
         light_text_color = "#ffffff"
         with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
             settings = json.load(f)
-        
-        bot_name = settings.get('Current_Ui_Bot_Name', '')
-        username = settings.get('Current_Ui_Username', '')
-        user_id = settings.get('Current_Ui_User_ID', '')
+        with open('API_Settings.json', 'r', encoding='utf-8') as f:
+            api_settings = json.load(f)
+            
+        bot_name = api_settings.get('bot_name', '')
+        username = api_settings.get('username', '')
+        user_id = api_settings.get('user_id', '')
+
         long_term_window = tk.Toplevel(self)
         long_term_window.configure(bg=dark_bg_color)
         long_term_window.title("Long Term Memory DB Upload")
@@ -1999,24 +2092,29 @@ class ChatBotApplication(customtkinter.CTkFrame):
         light_text_color = "#ffffff"
         with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
             settings = json.load(f)
-        
-        bot_name = settings.get('Current_Ui_Bot_Name', '')
-        username = settings.get('Current_Ui_Username', '')
-        user_id = settings.get('Current_Ui_User_ID', '')
+        with open('API_Settings.json', 'r', encoding='utf-8') as f:
+            api_settings = json.load(f)
+            
+        bot_name = api_settings.get('bot_name', '')
+        username = api_settings.get('username', '')
+        user_id = api_settings.get('user_id', '')
+
         deletion_window = tk.Toplevel(self)
         deletion_window.configure(bg=dark_bg_color)
         deletion_window.title("DB Deletion Menu")
         
         
         def delete_cadence():
-                # Replace 'username' and 'bot_name' with appropriate variables if available.
-                # You may need to adjust 'vdb' based on how your database is initialized.
+
             with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
                 settings = json.load(f)
-            
-            bot_name = settings.get('Current_Ui_Bot_Name', '')
-            username = settings.get('Current_Ui_Username', '')
-            user_id = settings.get('Current_Ui_User_ID', '')
+            with open('API_Settings.json', 'r', encoding='utf-8') as f:
+                api_settings = json.load(f)
+                
+            bot_name = api_settings.get('bot_name', '')
+            username = api_settings.get('username', '')
+            user_id = api_settings.get('user_id', '')
+
             confirm = messagebox.askyesno("Confirmation", "Are you sure you want to delete saved cadence?")
             if confirm:
                 client.delete(
@@ -2039,14 +2137,16 @@ class ChatBotApplication(customtkinter.CTkFrame):
         
     
         def delete_heuristics():
-                # Replace 'username' and 'bot_name' with appropriate variables if available.
-                # You may need to adjust 'vdb' based on how your database is initialized.
+
             with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
                 settings = json.load(f)
-            
-            bot_name = settings.get('Current_Ui_Bot_Name', '')
-            username = settings.get('Current_Ui_Username', '')
-            user_id = settings.get('Current_Ui_User_ID', '')
+            with open('API_Settings.json', 'r', encoding='utf-8') as f:
+                api_settings = json.load(f)
+                
+            bot_name = api_settings.get('bot_name', '')
+            username = api_settings.get('username', '')
+            user_id = api_settings.get('user_id', '')
+
             confirm = messagebox.askyesno("Confirmation", "Are you sure you want to delete heuristics?")
             if confirm:
                 client.delete(
@@ -2069,14 +2169,15 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 
                 
         def delete_counters():
-                # Replace 'username' and 'bot_name' with appropriate variables if available.
-                # You may need to adjust 'vdb' based on how your database is initialized.
             with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
                 settings = json.load(f)
-            
-            bot_name = settings.get('Current_Ui_Bot_Name', '')
-            username = settings.get('Current_Ui_Username', '')
-            user_id = settings.get('Current_Ui_User_ID', '')
+            with open('API_Settings.json', 'r', encoding='utf-8') as f:
+                api_settings = json.load(f)
+                
+            bot_name = api_settings.get('bot_name', '')
+            username = api_settings.get('username', '')
+            user_id = api_settings.get('user_id', '')
+
             confirm = messagebox.askyesno("Confirmation", "Are you sure you want to delete memory consolidation counters?")
             if confirm:
                 client.delete(
@@ -2107,14 +2208,15 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 ) 
                 
         def delete_webscrape():
-                # Replace 'username' and 'bot_name' with appropriate variables if available.
-                # You may need to adjust 'vdb' based on how your database is initialized.
             with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
                 settings = json.load(f)
-            
-            bot_name = settings.get('Current_Ui_Bot_Name', '')
-            username = settings.get('Current_Ui_Username', '')
-            user_id = settings.get('Current_Ui_User_ID', '')
+            with open('API_Settings.json', 'r', encoding='utf-8') as f:
+                api_settings = json.load(f)
+                
+            bot_name = api_settings.get('bot_name', '')
+            username = api_settings.get('username', '')
+            user_id = api_settings.get('user_id', '')
+
             confirm = messagebox.askyesno("Confirmation", "Are you sure you want to delete the saved webscrape?")
             if confirm:
                 client.delete(
@@ -2153,14 +2255,15 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 ) 
                 
         def delete_filescrape():
-                # Replace 'username' and 'bot_name' with appropriate variables if available.
-                # You may need to adjust 'vdb' based on how your database is initialized.
             with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
                 settings = json.load(f)
-            
-            bot_name = settings.get('Current_Ui_Bot_Name', '')
-            username = settings.get('Current_Ui_Username', '')
-            user_id = settings.get('Current_Ui_User_ID', '')
+            with open('API_Settings.json', 'r', encoding='utf-8') as f:
+                api_settings = json.load(f)
+                
+            bot_name = api_settings.get('bot_name', '')
+            username = api_settings.get('username', '')
+            user_id = api_settings.get('user_id', '')
+
             confirm = messagebox.askyesno("Confirmation", "Are you sure you want to delete the saved scraped files?")
             if confirm:
                 client.delete(
@@ -2184,14 +2287,15 @@ class ChatBotApplication(customtkinter.CTkFrame):
                 
                 
         def delete_bot():
-                # Replace 'username' and 'bot_name' with appropriate variables if available.
-                # You may need to adjust 'vdb' based on how your database is initialized.
             with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
                 settings = json.load(f)
-            
-            bot_name = settings.get('Current_Ui_Bot_Name', '')
-            username = settings.get('Current_Ui_Username', '')
-            user_id = settings.get('Current_Ui_User_ID', '')
+            with open('API_Settings.json', 'r', encoding='utf-8') as f:
+                api_settings = json.load(f)
+                
+            bot_name = api_settings.get('bot_name', '')
+            username = api_settings.get('username', '')
+            user_id = api_settings.get('user_id', '')
+
             confirm = messagebox.askyesno("Confirmation", f"Are you sure you want to delete {bot_name} in their entirety?")
             if confirm:
                 try:
@@ -2312,17 +2416,19 @@ class ChatBotApplication(customtkinter.CTkFrame):
         
         
     def delete_conversation_history(self):
-        # Delete the conversation history JSON file
         with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
             settings = json.load(f)
         
-        bot_name = settings.get('Current_Ui_Bot_Name', '')
-        username = settings.get('Current_Ui_Username', '')
-        user_id = settings.get('Current_Ui_User_ID', '')
-        file_path = f'./history/{user_id}/{bot_name}_main_conversation_history.json'
+        with open('API_Settings.json', 'r', encoding='utf-8') as f:
+            api_settings = json.load(f)
+            
+        bot_name = api_settings.get('bot_name', '')
+        username = api_settings.get('username', '')
+        user_id = api_settings.get('user_id', '')
+
+        file_path = f'./history/{user_id}/{bot_name}_Conversation_History.json'
         try:
             os.remove(file_path)
-            # Reload the script
             self.master.destroy()
             Aetherius_GUI()
         except FileNotFoundError:
@@ -2335,6 +2441,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
     #    self.user_input.configure(state=tk.DISABLED)
         self.send_button.configure(state=tk.DISABLED)
         self.voice_button.configure(state=tk.DISABLED)
+        self.image_button.configure(state=tk.DISABLED)
         self.user_input.unbind("<Return>")
         # Display "Thinking..." in the input field
     #    self.thinking_label.grid(row=2, column=2, pady=3)
@@ -2356,6 +2463,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
             self.user_input.delete("1.0", tk.END)  # Clear all the text in the widget.
             self.send_button.configure(state=tk.DISABLED)
             self.voice_button.configure(state=tk.DISABLED)
+            self.image_button.configure(state=tk.DISABLED)
             self.user_input.unbind("<Return>")
             self.user_input.insert(tk.END, f"Thinking...\n\nPlease Wait...")
             self.user_input.configure(state=tk.DISABLED)
@@ -2368,6 +2476,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
         self.user_input.insert(tk.END, f"Press and hold the Right Alt key to record...")
         self.send_button.configure(state=tk.DISABLED)
         self.voice_button.configure(state=tk.DISABLED)
+        self.image_button.configure(state=tk.DISABLED)
         self.user_input.unbind("<Return>")
         audio_thread = threading.Thread(target=self.record_audio)
         audio_thread.start()
@@ -2427,10 +2536,13 @@ class ChatBotApplication(customtkinter.CTkFrame):
         self.conversation_text.yview(tk.END)
         with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
             settings = json.load(f)
+        with open('API_Settings.json', 'r', encoding='utf-8') as f:
+            api_settings = json.load(f)
+            
+        bot_name = api_settings.get('bot_name', '')
+        username = api_settings.get('username', '')
+        user_id = api_settings.get('user_id', '')
 
-        bot_name = settings.get('Current_Ui_Bot_Name', '')
-        username = settings.get('Current_Ui_Username', '')
-        user_id = settings.get('Current_Ui_User_ID', '')
         if image_path is not None:
             print(f"Processing message: {a}, Image path: {image_path}")
         if self.is_agent_mode_checked():
@@ -2470,6 +2582,7 @@ class ChatBotApplication(customtkinter.CTkFrame):
         self.is_recording = False 
         self.send_button.configure(state=tk.NORMAL)
         self.voice_button.configure(state=tk.NORMAL)
+        self.image_button.configure(state=tk.NORMAL)
         self.thinking_label.pack_forget()
     #    self.user_input.delete(0, tk.END)
         self.bind_right_alt_key()
@@ -2511,9 +2624,13 @@ class ChatBotApplication(customtkinter.CTkFrame):
         API = settings.get('API', 'AetherNode')
         backend_model = settings.get('Model_Backend', 'Llama_2_Chat')
         LLM_Model = settings.get('LLM_Model', 'AetherNode')
-        bot_name = settings.get('Current_Ui_Bot_Name', '')
-        username = settings.get('Current_Ui_Username', '')
-        user_id = settings.get('Current_Ui_User_ID', '')
+        with open('API_Settings.json', 'r', encoding='utf-8') as f:
+            api_settings = json.load(f)
+            
+        bot_name = api_settings.get('bot_name', '')
+        username = api_settings.get('username', '')
+        user_id = api_settings.get('user_id', '')
+
         def perform_search():
             query = query_entry.get()
 
@@ -3700,8 +3817,8 @@ class ChatBotApplication(customtkinter.CTkFrame):
     #    self.tts_check = customtkinter.CTkCheckBox(self.input_frame, variable=self.tts_var, text="TTS", width=12)
     #    self.tts_check.grid(row=1, column=3, padx=5)
     
-        self.voice_button = customtkinter.CTkButton(self.input_frame, text="Image", command=self.initiate_image_model, width=50)  
-        self.voice_button.grid(row=1, column=3, padx=5)
+        self.image_button = customtkinter.CTkButton(self.input_frame, text="Image", command=self.initiate_image_model, width=50)  
+        self.image_button.grid(row=1, column=3, padx=5)
     
     #    self.tts_check = customtkinter.CTkCheckBox(self.input_frame, variable=self.tts_var, text="TTS", width=12)
     #    self.tts_check.grid(row=1, column=3, padx=5)
@@ -3782,21 +3899,18 @@ def Aetherius_GUI():
     try:
         with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
             settings = json.load(f)
-        
-        bot_name = settings.get('Current_Ui_Bot_Name', '')
-        username = settings.get('Current_Ui_Username', '')
-        user_id = settings.get('Current_Ui_User_ID', '')
+        with open('API_Settings.json', 'r', encoding='utf-8') as f:
+            api_settings = json.load(f)
+            
+        bot_name = api_settings.get('bot_name', '')
+        username = api_settings.get('username', '')
+        user_id = api_settings.get('user_id', '')
+
         base_path = "./Aetherius_ApI/Chatbot_Prompts"
         base_prompts_path = os.path.join(base_path, "Base")
         user_bot_path = os.path.join(base_path, username, bot_name)
         json_file_path = './config/chatbot_settings.json'
         
-        with open('./Aetherius_API/chatbot_settings.json', 'r', encoding='utf-8') as f:
-            settings = json.load(f)
-        
-        bot_name = settings.get('Current_Ui_Bot_Name', '')
-        username = settings.get('Current_Ui_Username', '')
-        user_id = settings.get('Current_Ui_User_ID', '')
         
         base_path = "./Aetherius_API/Chatbot_Prompts"
         base_prompts_path = os.path.join(base_path, "Base")

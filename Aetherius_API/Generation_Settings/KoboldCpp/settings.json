@@ -1,0 +1,20 @@
+{
+  "Inner_Monologue_temperature": "0.70",
+  "Inner_Monologue_top_p": "0.45",
+  "Inner_Monologue_rep_pen": "1.18",
+  "Inner_Monologue_max_tokens": "350",
+  "Inner_Monologue_top_k": "40",
+  "Inner_Monologue_min_tokens": "40",
+  "Intuition_temperature": "0.30",
+  "Intuition_top_p": "0.20",
+  "Intuition_rep_pen": "1.25",
+  "Intuition_max_tokens": "450",
+  "Intuition_top_k": "35",
+  "Intuition_min_tokens": "10",
+  "Response_temperature": "0.85",
+  "Response_top_p": "0.45",
+  "Response_rep_pen": "1.18",
+  "Response_max_tokens": "900",
+  "Response_top_k": "30",
+  "Response_min_tokens": "40"
+}

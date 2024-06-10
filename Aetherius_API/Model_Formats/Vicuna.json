@@ -1,0 +1,10 @@
+{
+	"heuristic_input_start": "HEURISTIC: ",
+	"heuristic_input_end": "",
+	"system_input_start": "SYSTEM: ",
+	"system_end_start": "",
+	"user_input_start": "USER: ",
+	"user_input_end": "",
+	"assistant_input_start": "ASSISTANT: ",
+    "assistant_input_end": ""
+}

@@ -1,0 +1,10 @@
+{
+	"heuristic_input_start": "<|im_start|>heuristic\n",
+	"heuristic_input_end": "\n\n",
+	"system_input_start": "<|im_start|>system\n",
+	"system_end_start": "\n\n",
+	"user_input_start": "<|im_start|>user\n",
+	"user_input_end": "<|im_end|>",
+	"assistant_input_start": "<|im_start|>assistant\n",
+    "assistant_input_end": "<|im_end|>"
+}

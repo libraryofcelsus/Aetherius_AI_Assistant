@@ -1,0 +1,10 @@
+{
+	"heuristic_input_start": "[INST] <<HEUR>>",
+	"heuristic_input_end": "<</HEUR>>",
+	"system_input_start": "[INST] <<SYS>>",
+	"system_end_start": "<</SYS>>",
+	"user_input_start": "[INST]",
+	"user_input_end": "[/INST]",
+	"assistant_input_start": "",
+    "assistant_input_end": ""
+}

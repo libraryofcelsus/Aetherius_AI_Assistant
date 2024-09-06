@@ -19,7 +19,7 @@ Current Individual Scripts:
 - https://github.com/libraryofcelsus/LLM_File_Parser  
 - https://github.com/libraryofcelsus/Hierarchical_RAG_Chatbot  
 - https://github.com/libraryofcelsus/Agentic_RAG  
-
+- https://github.com/libraryofcelsus/Long_Term_Memory_Chatbot   
 ------
 **Recent Changes**
 
